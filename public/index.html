@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NING FINANCE | GLOBAL MARKETS</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@300;700;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #cba258;
+            /* Al Jazeera Gold */
+            --bg: #f8f9fa;
+            /* Light Gray Paper */
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --border: #e0e0e0;
+            --up: #16a34a;
+            --down: #dc2626;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: #fff;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .logo-tag {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            background: #000;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 10px;
+        }
+
+        /* --- CALL BUTTON --- */
+        #callBtn {
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #callBtn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+        }
+
+        #callBtn.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(203, 162, 88, 0.4);
+        }
+
+        .indicator {
+            height: 8px;
+            width: 8px;
+            background: #fff;
+            border-radius: 50%;
+            display: none;
+        }
+
+        #callBtn.active .indicator {
+            display: block;
+            background: #cc0000;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-tabs {
+            display: flex;
+            gap: 30px;
+            background: #fff;
+            padding: 0 40px;
+            border-bottom: 1px solid var(--border);
+            z-index: 90;
+        }
+
+        .tab {
+            padding: 15px 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: #000;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        /* --- CONTENT AREA --- */
+        #content-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 80;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.5rem;
+            color: #000;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .refresh-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: none;
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background: #eee;
+        }
+
+        /* --- CARDS --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-top: 4px solid #000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h3 {
+            font-family: 'Merriweather', serif;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            font-size: 0.75rem;
+            color: #888;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* --- TABLES --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 20px;
+            color: #888;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .price-up {
+            color: var(--up);
+            font-weight: bold;
+        }
+
+        .price-down {
+            color: var(--down);
+            font-weight: bold;
+        }
+
+        /* --- PRICING --- */
+        .price-card h1 {
+            font-size: 3rem;
+            margin: 10px 0;
+            color: #000;
+            font-family: 'Merriweather', serif;
+        }
+
+        .price-card small {
+            font-size: 1rem;
+            color: #888;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- CHATBOT --- */
+        .chat-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            color: #000;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;
+            transition: transform 0.2s;
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            width: 380px;
+            height: 550px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .chat-window.open {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: #000;
+            color: #fff;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .msg.user {
+            background: #000;
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        .msg.bot {
+            background: #fff;
+            color: #000;
+            align-self: flex-start;
+            border: 1px solid #ddd;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .chat-input-area button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            padding: 15px;
+            text-align: center;
+            color: #999;
+            font-size: 0.75rem;
+            background: #fff;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">NING <span>FINANCE</span>
+            <div class="logo-tag">PRO TERMINAL</div>
+        </div>
+        <button id="callBtn">
+            <div class="indicator"></div> CALL NING
+        </button>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL NEWS</div>
+        <div class="tab" onclick="nav('asia')" id="tab-asia">ASIA NEWS</div>
+        <div class="tab" onclick="nav('market')" id="tab-market">MARKET DATA</div>
+        <div class="tab" onclick="nav('tech')" id="tab-tech">AI & FRONTIER</div>
+        <div class="tab" onclick="nav('opinions')" id="tab-opinions">OPINIONS</div>
+        <div class="tab" onclick="nav('subs')" id="tab-subs">SUBSCRIPTIONS</div>
+    </div>
+
+    <div id="content-area">
+        <div id="global" class="page active">
+            <h2>
+                GLOBAL MARKET NEWS
+                <button class="refresh-btn" onclick="fetchNews()">REFRESH FEED</button>
+            </h2>
+            <div class="grid" id="news-grid">
+            </div>
+        </div>
+
+        <div id="asia" class="page">
+            <h2>ASIA NEWS WIRE</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Nikkei 225 Hits Record High</h3>
+                    <p>Japanese markets rally as semiconductor demand boosts export forecasts for Q3.</p>
+                    <div class="card-meta"><span>Tokyo Desk</span><span>30m ago</span></div>
+                </div>
+                <div class="card">
+                    <h3>Hang Seng Stabilizes</h3>
+                    <p>Hong Kong markets show resilience amidst new property sector regulations.</p>
+                    <div class="card-meta"><span>HK Wire</span><span>2h ago</span></div>
+                </div>
+                <div class="card">
+                    <h3>ASEAN Trade Deal Signed</h3>
+                    <p>New cross-border digital payment framework approved by 5 major Southeast Asian central banks.</p>
+                    <div class="card-meta"><span>Singapore</span><span>4h ago</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="market" class="page">
+            <h2>MARKET DATA <small style="font-size:0.8rem; font-weight:400; color:#888;">(Delayed 15m)</small></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Instrument</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                    </tr>
+                </thead>
+                <tbody id="indices-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="tech" class="page">
+            <h2>AI & FRONTIER ANALYSIS</h2>
+            <div class="grid">
+                <div class="card" style="border-top-color: #29b6f6;">
+                    <h3>The Agentic Web</h3>
+                    <p>Autonomous AI agents are replacing traditional UI. Ning Finance leads with voice-native
+                        navigation.</p>
+                    <div class="card-meta"><span>TechWire</span><span>10m ago</span></div>
+                </div>
+                <div class="card" style="border-top-color: #29b6f6;">
+                    <h3>Quantum Encryption Breakthrough</h3>
+                    <p>New protocols may redefine banking security standards by 2026.</p>
+                    <div class="card-meta"><span>Frontier Desk</span><span>1h ago</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="opinions" class="page">
+            <h2>EXPERT OPINIONS</h2>
+            <div class="grid">
+                <div class="card" style="border-top-color: #ff9800;">
+                    <h3>Editorial: The Crypto Pivot</h3>
+                    <p>Why institutional investors are finally moving liquidity pools into decentralized exchanges.</p>
+                    <div class="card-meta"><span>Editor's Desk</span><span>Opinion</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="subs" class="page">
+            <h2>SUBSCRIPTIONS</h2>
+            <div class="grid">
+                <div class="card price-card">
+                    <h3>Basic</h3>
+                    <h1>$0<small>/mo</small></h1>
+                    <p>Delayed Data<br>Global News Feed</p>
+                </div>
+                <div class="card price-card" style="border-top-color: var(--primary);">
+                    <h3 style="color:var(--primary);">Professional</h3>
+                    <h1>$49<small>/mo</small></h1>
+                    <p>Real-time Charts<br>Voice Analyst Access<br>Asia News Wire</p>
+                </div>
+                <div class="card price-card">
+                    <h3>Institutional</h3>
+                    <h1>$999<small>/mo</small></h1>
+                    <p>Dedicated Server<br>Unlimited Seats<br>24/7 Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-bubble" onclick="toggleChat()">
+        <div class="chat-dot"></div> Chat with Ning
+    </div>
+
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <span>Ning Support</span>
+            <span style="cursor:pointer;" onclick="toggleChat()">✕</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg bot">Hello. I am the Ning Terminal Assistant. How can I facilitate your trade today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type query..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">SEND</button>
+        </div>
+    </div>
+
+    <footer>
+        Ning Finance Terminal | Powered by BRUB AI | Data delayed by 15 mins
+    </footer>
+
+    <script type="module">
+        import { Conversation } from 'https://cdn.jsdelivr.net/npm/@11labs/client/+esm';
+
+        // --- CONFIGURATION ---
+        const NEWS_WEBHOOK_URL = "";
+        const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
+
+        // --- MOCK DATA ---
+        const INITIAL_NEWS = [
+            { title: "Fed Signals Potential Rate Cut", summary: "Standard and Poor's rally as volatility index drops below 14. Markets anticipate a dovish stance.", source: "Reuters", time: "2m ago" },
+            { title: "Oil Prices Stabilize at $74", summary: "WTI Crude settles at $74/bbl amidst easing geopolitical tensions.", source: "Bloomberg", time: "15m ago" },
+            { title: "Eurozone Inflation Cools", summary: "ECB signals a pause in hiking cycle as consumer price index hits 2-year low.", source: "Global Wire", time: "1h ago" }
+        ];
+
+        const INITIAL_INDICES = [
+            { symbol: "S&P 500", price: "5,230.40", change: "+44.10", pct: "+0.85%", up: true },
+            { symbol: "NASDAQ", price: "16,420.10", change: "+195.50", pct: "+1.20%", up: true },
+            { symbol: "BTC/USD", price: "98,400.00", change: "+4,200.00", pct: "+4.50%", up: true },
+            { symbol: "GOLD", price: "2,150.00", change: "-6.50", pct: "-0.30%", up: false }
+        ];
+
+        // --- RENDER FUNCTIONS ---
+        function renderNews(articles) {
+            const container = document.getElementById('news-grid');
+            container.innerHTML = articles.map(article => `
+                <div class="card">
+                    <h3>${article.title}</h3>
+                    <p>${article.summary}</p>
+                    <div class="card-meta">
+                        <span>${article.source || 'Ning Wire'}</span>
+                        <span>${article.time || 'Just now'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderIndices(data) {
+            const tbody = document.getElementById('indices-body');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.symbol}</td>
+                    <td>${item.price}</td>
+                    <td class="${item.up ? 'price-up' : 'price-down'}">${item.change}</td>
+                    <td class="${item.up ? 'price-up' : 'price-down'}">${item.pct}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize with Mock Data
+        renderNews(INITIAL_NEWS);
+        renderIndices(INITIAL_INDICES);
+
+        // --- DATA FETCHING ---
+        window.fetchNews = async function () {
+            if (!NEWS_WEBHOOK_URL) {
+                alert("Demo Mode: To fetch real news, connect a Make.com Webhook.");
+                return;
+            }
+            try {
+                const res = await fetch(NEWS_WEBHOOK_URL);
+                const data = await res.json();
+                renderNews(data);
+            } catch (e) {
+                console.error("Fetch error", e);
+                alert("Failed to load live feed.");
+            }
+        }
+
+        // --- NAVIGATION LOGIC ---
+        window.nav = function (section) {
+            console.log("Navigating to:", section);
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById(section);
+            const tab = document.getElementById('tab-' + section);
+
+            if (target) target.classList.add('active');
+            if (tab) tab.classList.add('active');
+        };
+
+        // --- VOICE LOGIC ---
+        let conversation = null;
+        let isConnected = false;
+        const callBtn = document.getElementById('callBtn');
+
+        callBtn.onclick = async () => {
+            if (isConnected) {
+                if (conversation) {
+                    await conversation.endSession();
+                    conversation = null;
+                }
+                isConnected = false;
+                callBtn.innerHTML = "CALL NING";
+                callBtn.classList.remove('active');
+                return;
+            }
+
+            callBtn.innerHTML = "CONNECTING...";
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                conversation = await Conversation.startSession({
+                    agentId: AGENT_ID,
+                    onModeChange: (mode) => {
+                        if (mode.mode === 'speaking') {
+                            callBtn.classList.add('active');
+                            callBtn.innerHTML = '<div class="indicator"></div> LISTENING...';
+                        }
+                    },
+                    clientTools: {
+                        Maps: (parameters) => {
+                            let section = normalizeSection(parameters.section);
+                            window.nav(section);
+                            return "Navigated to " + section;
+                        },
+                        navigate: (parameters) => {
+                            let section = normalizeSection(parameters.section);
+                            window.nav(section);
+                            return "Navigated to " + section;
+                        }
+                    },
+                    onConnect: () => {
+                        isConnected = true;
+                        callBtn.classList.add('active');
+                        callBtn.innerHTML = '<div class="indicator"></div> CONNECTED';
+                    },
+                    onDisconnect: () => {
+                        isConnected = false;
+                        callBtn.innerHTML = "CALL NING";
+                        callBtn.classList.remove('active');
+                    },
+                    onError: (err) => {
+                        console.error(err);
+                        alert("Connection Error: " + err);
+                        callBtn.innerHTML = "CALL NING";
+                        callBtn.classList.remove('active');
+                    }
+                });
+
+            } catch (err) {
+                console.error(err);
+                alert("Could not start call. " + err.message);
+                callBtn.innerHTML = "CALL NING";
+            }
+        };
+
+        function normalizeSection(input) {
+            let s = (input || "news").toLowerCase();
+            if (s.includes('asia')) return 'asia';
+            if (s.includes('sub') || s.includes('pricing')) return 'subs';
+            if (s.includes('tech') || s.includes('ai') || s.includes('frontier')) return 'tech';
+            if (s.includes('opinions')) return 'opinions';
+            if (s.includes('indices') || s.includes('market') || s.includes('data')) return 'market';
+            return 'global'; // Default to global
+        }
+
+        // --- CHATBOT LOGIC ---
+        const chatWindow = document.getElementById('chatWindow');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const CHAT_WEBHOOK = "https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g";
+
+        window.toggleChat = function () { chatWindow.classList.toggle('open'); }
+        window.handleEnter = function (e) { if (e.key === 'Enter') window.sendMessage(); }
+
+        window.sendMessage = async function () {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            chatInput.value = '';
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.classList.add('msg', 'bot');
+            loadingDiv.id = 'loading-msg';
+            loadingDiv.innerText = "...";
+            chatMessages.appendChild(loadingDiv);
+
+            try {
+                const response = await fetch(CHAT_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const loader = document.getElementById('loading-msg');
+                if (loader) loader.remove();
+
+                if (response.ok) {
+                    const data = await response.text();
+                    addMessage(data, 'bot');
+                } else {
+                    addMessage("Error connecting to server.", 'bot');
+                }
+            } catch (error) {
+                const loader = document.getElementById('loading-msg');
+                if (loader) loader.remove();
+                addMessage("Connection failed.", 'bot');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('msg', sender);
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
