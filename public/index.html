@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NING FINANCE | GLOBAL MARKETS</title>
+    <title>NING FINANCE | ADVANCE AI INTELLIGENCE</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,12 +15,9 @@
     <style>
         :root {
             --primary: #cba258;
-            /* Al Jazeera Gold */
             --bg: #f8f9fa;
-            /* Light Gray Paper */
             --card-bg: #ffffff;
             --text-main: #1a1a1a;
-            --text-muted: #666;
             --border: #e0e0e0;
             --up: #16a34a;
             --down: #dc2626;
@@ -32,13 +29,13 @@
             background-color: var(--bg);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- HEADER --- */
+        /* HEADER */
         header {
             display: flex;
             justify-content: space-between;
@@ -46,7 +43,6 @@
             padding: 15px 40px;
             background: #fff;
             border-bottom: 3px solid var(--primary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 100;
         }
 
@@ -55,7 +51,6 @@
             font-size: 1.8rem;
             font-weight: 900;
             letter-spacing: -0.5px;
-            color: #000;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -73,11 +68,11 @@
             padding: 2px 6px;
             border-radius: 2px;
             text-transform: uppercase;
-            letter-spacing: 1px;
             margin-left: 10px;
+            letter-spacing: 0.5px;
         }
 
-        /* --- CALL BUTTON --- */
+        /* CALL BUTTON */
         #callBtn {
             background: #000;
             color: #fff;
@@ -91,7 +86,6 @@
             align-items: center;
             gap: 10px;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         #callBtn:hover {
@@ -127,7 +121,7 @@
             }
         }
 
-        /* --- NAVIGATION --- */
+        /* NAV */
         .nav-tabs {
             display: flex;
             gap: 30px;
@@ -140,7 +134,7 @@
         .tab {
             padding: 15px 0;
             cursor: pointer;
-            color: var(--text-muted);
+            color: #666;
             font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -157,13 +151,11 @@
             border-bottom: 3px solid var(--primary);
         }
 
-        /* --- CONTENT AREA --- */
+        /* CONTENT */
         #content-area {
             flex: 1;
             padding: 40px;
             overflow-y: auto;
-            position: relative;
-            z-index: 80;
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
@@ -190,37 +182,57 @@
             }
         }
 
-        /* --- TYPOGRAPHY --- */
         h2 {
             font-family: 'Merriweather', serif;
             font-size: 1.5rem;
-            color: #000;
             margin-bottom: 25px;
             border-left: 5px solid var(--primary);
             padding-left: 15px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
             text-transform: uppercase;
             letter-spacing: -0.5px;
         }
 
-        .refresh-btn {
+        .header-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #status-indicator {
             font-family: 'Inter', sans-serif;
             font-size: 0.7rem;
-            color: var(--text-muted);
-            background: none;
-            border: 1px solid var(--border);
+            color: #16a34a;
+            background: #eefdf2;
+            border: 1px solid #bbf7d0;
             padding: 5px 10px;
             border-radius: 4px;
-            cursor: pointer;
+            vertical-align: middle;
+            margin-left: 10px;
         }
 
-        .refresh-btn:hover {
-            background: #eee;
+        .ai-caveat {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            color: #888;
+            font-weight: 400;
+            margin-top: 5px;
+            text-transform: none;
+            letter-spacing: 0;
+            font-style: italic;
         }
 
-        /* --- CARDS --- */
+        /* LAYOUTS */
+        .vertical-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -233,28 +245,20 @@
             border: 1px solid var(--border);
             border-top: 4px solid #000;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
         }
 
         .card h3 {
             font-family: 'Merriweather', serif;
             margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            line-height: 1.4;
-            color: #000;
+            font-size: 1.3rem;
+            line-height: 1.3;
         }
 
         .card p {
-            font-size: 0.9rem;
-            color: #555;
+            font-size: 1rem;
+            color: #444;
             line-height: 1.6;
             margin: 0 0 15px 0;
             flex-grow: 1;
@@ -267,57 +271,102 @@
             padding-top: 15px;
             display: flex;
             justify-content: space-between;
+            font-style: italic;
+            font-family: 'Courier New', monospace;
         }
 
-        /* --- TABLES --- */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        /* NEW PRICING LAYOUT (STANDING RECTANGLES) */
+        .pricing-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: stretch;
+            margin-top: 20px;
         }
 
-        th {
-            text-align: left;
-            padding: 15px 20px;
-            color: #888;
-            font-size: 0.75rem;
+        .price-card {
+            flex: 1;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            transition: transform 0.3s;
+        }
+
+        .price-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-card h3 {
+            font-size: 1.1rem;
             text-transform: uppercase;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        td {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .price-up {
-            color: var(--up);
-            font-weight: bold;
-        }
-
-        .price-down {
-            color: var(--down);
-            font-weight: bold;
-        }
-
-        /* --- PRICING --- */
-        .price-card h1 {
-            font-size: 3rem;
-            margin: 10px 0;
-            color: #000;
-            font-family: 'Merriweather', serif;
-        }
-
-        .price-card small {
-            font-size: 1rem;
+            letter-spacing: 1px;
             color: #888;
+            margin-bottom: 20px;
             font-family: 'Inter', sans-serif;
+            font-weight: 700;
         }
 
-        /* --- CHATBOT --- */
+        .price-card h2 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            margin: 0 0 30px 0;
+            padding: 0;
+            border: none;
+            color: #000;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .price-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+            flex-grow: 1;
+        }
+
+        .price-card li {
+            font-size: 0.95rem;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .price-card li::before {
+            content: "•";
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .price-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: auto;
+        }
+
+        .price-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* CHATBOT */
         .chat-bubble {
             position: fixed;
             bottom: 30px;
@@ -326,7 +375,6 @@
             padding: 15px 25px;
             border-radius: 50px;
             border: 1px solid var(--border);
-            color: #000;
             font-weight: 600;
             font-size: 0.9rem;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
@@ -336,17 +384,6 @@
             gap: 10px;
             z-index: 999;
             transition: transform 0.2s;
-        }
-
-        .chat-bubble:hover {
-            transform: scale(1.05);
-        }
-
-        .chat-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
         }
 
         .chat-window {
@@ -444,6 +481,17 @@
             background: #fff;
             border-top: 1px solid var(--border);
         }
+
+        footer a {
+            color: #666;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
 
@@ -451,7 +499,7 @@
 
     <header>
         <div class="logo">NING <span>FINANCE</span>
-            <div class="logo-tag">PRO TERMINAL</div>
+            <div class="logo-tag">ADVANCE AI INTELLIGENCE</div>
         </div>
         <button id="callBtn">
             <div class="indicator"></div> CALL NING
@@ -470,95 +518,161 @@
     <div id="content-area">
         <div id="global" class="page active">
             <h2>
-                GLOBAL MARKET NEWS
-                <button class="refresh-btn" onclick="fetchNews()">REFRESH FEED</button>
+                <div class="header-row">GLOBAL MARKET NEWS <span id="status-indicator">LIVE FEED ACTIVE</span></div>
             </h2>
-            <div class="grid" id="news-grid">
+            <div class="vertical-feed" id="news-feed-global">
+                <div class="card" style="border-top-color: #ccc;">
+                    <h3>Loading...</h3>
+                    <p>Connecting to secure feed.</p>
+                </div>
             </div>
         </div>
 
         <div id="asia" class="page">
-            <h2>ASIA NEWS WIRE</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Nikkei 225 Hits Record High</h3>
-                    <p>Japanese markets rally as semiconductor demand boosts export forecasts for Q3.</p>
-                    <div class="card-meta"><span>Tokyo Desk</span><span>30m ago</span></div>
-                </div>
-                <div class="card">
-                    <h3>Hang Seng Stabilizes</h3>
-                    <p>Hong Kong markets show resilience amidst new property sector regulations.</p>
-                    <div class="card-meta"><span>HK Wire</span><span>2h ago</span></div>
-                </div>
-                <div class="card">
-                    <h3>ASEAN Trade Deal Signed</h3>
-                    <p>New cross-border digital payment framework approved by 5 major Southeast Asian central banks.</p>
-                    <div class="card-meta"><span>Singapore</span><span>4h ago</span></div>
+            <h2>
+                <div class="header-row">ASIA NEWS WIRE <span id="status-indicator">LIVE FEED ACTIVE</span></div>
+            </h2>
+            <div class="vertical-feed" id="news-feed-asia">
+                <div class="card" style="border-top-color: #ccc;">
+                    <h3>Loading...</h3>
+                    <p>Connecting to Asia feed.</p>
                 </div>
             </div>
         </div>
 
         <div id="market" class="page">
-            <h2>MARKET DATA <small style="font-size:0.8rem; font-weight:400; color:#888;">(Delayed 15m)</small></h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Instrument</th>
-                        <th>Price</th>
-                        <th>Change</th>
-                        <th>% Change</th>
-                    </tr>
-                </thead>
-                <tbody id="indices-body">
-                </tbody>
-            </table>
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript"
+                    src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+                        {
+                            "colorTheme": "light",
+                                "dateRange": "12M",
+                                    "showChart": true,
+                                        "locale": "en",
+                                            "largeChartUrl": "",
+                                                "isTransparent": false,
+                                                    "showSymbolLogo": true,
+                                                        "showFloatingTooltip": false,
+                                                            "width": "100%",
+                                                                "height": "600",
+                                                                    "plotLineColorGrowing": "rgba(22, 163, 74, 1)",
+                                                                        "plotLineColorFalling": "rgba(220, 38, 38, 1)",
+                                                                            "gridLineColor": "rgba(240, 243, 250, 0)",
+                                                                                "scaleFontColor": "rgba(106, 109, 120, 1)",
+                                                                                    "belowLineFillColorGrowing": "rgba(22, 163, 74, 0.12)",
+                                                                                        "belowLineFillColorFalling": "rgba(220, 38, 38, 0.12)",
+                                                                                            "belowLineFillColorGrowingBottom": "rgba(41, 98, 255, 0)",
+                                                                                                "belowLineFillColorFallingBottom": "rgba(41, 98, 255, 0)",
+                                                                                                    "symbolActiveColor": "rgba(41, 98, 255, 0.12)",
+                                                                                                        "tabs": [
+                                                                                                            {
+                                                                                                                "title": "Indices",
+                                                                                                                "symbols": [
+                                                                                                                    { "s": "FOREXCOM:SPXUSD", "d": "S&P 500" },
+                                                                                                                    { "s": "FOREXCOM:NSXUSD", "d": "US 100" },
+                                                                                                                    { "s": "FOREXCOM:DJI", "d": "Dow 30" },
+                                                                                                                    { "s": "INDEX:NKY", "d": "Nikkei 225" },
+                                                                                                                    { "s": "FOREXCOM:UKXGBP", "d": "FTSE 100" }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "title": "Commodities",
+                                                                                                                "symbols": [
+                                                                                                                    { "s": "CME_MINI:ES1!", "d": "S&P 500" },
+                                                                                                                    { "s": "CME:6E1!", "d": "Euro" },
+                                                                                                                    { "s": "COMEX:GC1!", "d": "Gold" },
+                                                                                                                    { "s": "NYMEX:CL1!", "d": "Crude Oil" },
+                                                                                                                    { "s": "NYMEX:NG1!", "d": "Natural Gas" }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "title": "Crypto",
+                                                                                                                "symbols": [
+                                                                                                                    { "s": "BINANCE:BTCUSDT" },
+                                                                                                                    { "s": "BINANCE:ETHUSDT" },
+                                                                                                                    { "s": "BINANCE:SOLUSDT" },
+                                                                                                                    { "s": "BINANCE:XRPUSDT" }
+                                                                                                                ]
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "title": "Forex",
+                                                                                                                "symbols": [
+                                                                                                                    { "s": "FX:EURUSD", "d": "EUR/USD" },
+                                                                                                                    { "s": "FX:GBPUSD", "d": "GBP/USD" },
+                                                                                                                    { "s": "FX:USDJPY", "d": "USD/JPY" }
+                                                                                                                ]
+                                                                                                            }
+                                                                                                        ]
+                        }
+                    </script>
+            </div>
         </div>
 
         <div id="tech" class="page">
-            <h2>AI & FRONTIER ANALYSIS</h2>
-            <div class="grid">
+            <h2>
+                <div class="header-row">AI & FRONTIER <span id="status-indicator">LIVE FEED ACTIVE</span></div>
+            </h2>
+            <div class="vertical-feed" id="news-feed-ai">
                 <div class="card" style="border-top-color: #29b6f6;">
-                    <h3>The Agentic Web</h3>
-                    <p>Autonomous AI agents are replacing traditional UI. Ning Finance leads with voice-native
-                        navigation.</p>
-                    <div class="card-meta"><span>TechWire</span><span>10m ago</span></div>
-                </div>
-                <div class="card" style="border-top-color: #29b6f6;">
-                    <h3>Quantum Encryption Breakthrough</h3>
-                    <p>New protocols may redefine banking security standards by 2026.</p>
-                    <div class="card-meta"><span>Frontier Desk</span><span>1h ago</span></div>
+                    <h3>Loading...</h3>
+                    <p>Fetching Frontier Intelligence.</p>
                 </div>
             </div>
         </div>
 
         <div id="opinions" class="page">
-            <h2>EXPERT OPINIONS</h2>
-            <div class="grid">
+            <h2>
+                <div class="header-row">EXPERT OPINIONS <span id="status-indicator"
+                        style="color:#ff9800; border-color:#ff9800; background:#fff8e1;">EDITOR'S DESK</span></div>
+                <div class="ai-caveat">Analysis generated by AI models trained on financial data. Not investment advice.
+                </div>
+            </h2>
+            <div class="vertical-feed" id="news-feed-opinions">
                 <div class="card" style="border-top-color: #ff9800;">
-                    <h3>Editorial: The Crypto Pivot</h3>
-                    <p>Why institutional investors are finally moving liquidity pools into decentralized exchanges.</p>
-                    <div class="card-meta"><span>Editor's Desk</span><span>Opinion</span></div>
+                    <h3>Loading...</h3>
+                    <p>Fetching analysis.</p>
                 </div>
             </div>
         </div>
 
         <div id="subs" class="page">
             <h2>SUBSCRIPTIONS</h2>
-            <div class="grid">
+
+            <div class="pricing-container">
                 <div class="card price-card">
-                    <h3>Basic</h3>
-                    <h1>$0<small>/mo</small></h1>
-                    <p>Delayed Data<br>Global News Feed</p>
+                    <h3>Basic Tier</h3>
+                    <h2>Local Intelligence</h2>
+                    <ul>
+                        <li>Full Website Access</li>
+                        <li>Pro Terminal Dashboard</li>
+                        <li><strong>Chatbot Level 1:</strong> Trained on local market data & company profiles.</li>
+                    </ul>
+                    <a class="price-btn">SELECT PLAN</a>
                 </div>
+
                 <div class="card price-card" style="border-top-color: var(--primary);">
-                    <h3 style="color:var(--primary);">Professional</h3>
-                    <h1>$49<small>/mo</small></h1>
-                    <p>Real-time Charts<br>Voice Analyst Access<br>Asia News Wire</p>
+                    <h3 style="color:var(--primary);">Pro Tier</h3>
+                    <h2>Global Macro</h2>
+                    <ul>
+                        <li>Everything in Local Intelligence</li>
+                        <li><strong>Chatbot Level 2:</strong> Trained on Global Markets, Forex, Crypto & Commodities.
+                        </li>
+                        <li>Access to International News Wires</li>
+                    </ul>
+                    <a class="price-btn">SELECT PLAN</a>
                 </div>
-                <div class="card price-card">
-                    <h3>Institutional</h3>
-                    <h1>$999<small>/mo</small></h1>
-                    <p>Dedicated Server<br>Unlimited Seats<br>24/7 Support</p>
+
+                <div class="card price-card" style="border-top-color: #000;">
+                    <h3 style="color:#000;">Institutional</h3>
+                    <h2>Voice Command</h2>
+                    <ul>
+                        <li>Everything in Global Macro</li>
+                        <li><strong>Call Ning:</strong> Voice-to-Voice AI Analyst.</li>
+                        <li><strong>Autonomous Terminal Control:</strong> Hands-free navigation of all news feeds and
+                            data using natural voice commands.</li>
+                    </ul>
+                    <a class="price-btn">SELECT PLAN</a>
                 </div>
             </div>
         </div>
@@ -569,103 +683,120 @@
     </div>
 
     <div class="chat-window" id="chatWindow">
-        <div class="chat-header">
-            <span>Ning Support</span>
-            <span style="cursor:pointer;" onclick="toggleChat()">✕</span>
+        <div class="chat-header"><span>Ning Support</span><span style="cursor:pointer;" onclick="toggleChat()">✕</span>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="msg bot">Hello. I am the Ning Terminal Assistant. How can I facilitate your trade today?</div>
+            <div class="msg bot">Hello. I am Ning. Ask me anything about market news, analysis, or navigating this
+                platform.</div>
         </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type query..." onkeypress="handleEnter(event)">
-            <button onclick="sendMessage()">SEND</button>
-        </div>
+        <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type query..."
+                onkeypress="handleEnter(event)"><button onclick="sendMessage()">SEND</button></div>
     </div>
 
-    <footer>
-        Ning Finance Terminal | Powered by BRUB AI | Data delayed by 15 mins
-    </footer>
+    <footer>Ning Finance | Advance AI Intelligence | Powered by <a href="https://brubai.net/" target="_blank">BRUB
+            AI</a> | Data delayed by 15 mins</footer>
 
     <script type="module">
         import { Conversation } from 'https://cdn.jsdelivr.net/npm/@11labs/client/+esm';
 
         // --- CONFIGURATION ---
-        const NEWS_WEBHOOK_URL = "";
+        const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
+        const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
+
         const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
+        const CHAT_WEBHOOK = "https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g";
 
-        // --- MOCK DATA ---
-        const INITIAL_NEWS = [
-            { title: "Fed Signals Potential Rate Cut", summary: "Standard and Poor's rally as volatility index drops below 14. Markets anticipate a dovish stance.", source: "Reuters", time: "2m ago" },
-            { title: "Oil Prices Stabilize at $74", summary: "WTI Crude settles at $74/bbl amidst easing geopolitical tensions.", source: "Bloomberg", time: "15m ago" },
-            { title: "Eurozone Inflation Cools", summary: "ECB signals a pause in hiking cycle as consumer price index hits 2-year low.", source: "Global Wire", time: "1h ago" }
-        ];
+        const AI_NAMES = ["Andy Roid", "Artie Ficial", "Jenni Rator", "Alex Murph-e", "Termi-Narrator", "Optimus Prime-Time", "Hal 9000-Words", "Bot Ross", "Chip Munk"];
 
-        const INITIAL_INDICES = [
-            { symbol: "S&P 500", price: "5,230.40", change: "+44.10", pct: "+0.85%", up: true },
-            { symbol: "NASDAQ", price: "16,420.10", change: "+195.50", pct: "+1.20%", up: true },
-            { symbol: "BTC/USD", price: "98,400.00", change: "+4,200.00", pct: "+4.50%", up: true },
-            { symbol: "GOLD", price: "2,150.00", change: "-6.50", pct: "-0.30%", up: false }
-        ];
+        // --- HELPER: TIME ---
+        function timeAgo(dateParam) {
+            if (!dateParam) return 'Live';
+            const date = new Date(dateParam);
+            const now = new Date();
+            const seconds = Math.round((now - date) / 1000);
+            const minutes = Math.round(seconds / 60);
+            const hours = Math.round(minutes / 60);
+            const days = Math.round(hours / 24);
 
-        // --- RENDER FUNCTIONS ---
-        function renderNews(articles) {
-            const container = document.getElementById('news-grid');
-            container.innerHTML = articles.map(article => `
-                <div class="card">
-                    <h3>${article.title}</h3>
-                    <p>${article.summary}</p>
-                    <div class="card-meta">
-                        <span>${article.source || 'Ning Wire'}</span>
-                        <span>${article.time || 'Just now'}</span>
-                    </div>
-                </div>
-            `).join('');
+            if (seconds < 60) return 'Just now';
+            if (minutes < 60) return `${minutes} mins ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            if (days > 30) return null;
+            return `${days} days ago`;
         }
 
-        function renderIndices(data) {
-            const tbody = document.getElementById('indices-body');
-            tbody.innerHTML = data.map(item => `
-                <tr>
-                    <td>${item.symbol}</td>
-                    <td>${item.price}</td>
-                    <td class="${item.up ? 'price-up' : 'price-down'}">${item.change}</td>
-                    <td class="${item.up ? 'price-up' : 'price-down'}">${item.pct}</td>
-                </tr>
-            `).join('');
-        }
+        function getRandomName() { return AI_NAMES[Math.floor(Math.random() * AI_NAMES.length)]; }
 
-        // Initialize with Mock Data
-        renderNews(INITIAL_NEWS);
-        renderIndices(INITIAL_INDICES);
+        // --- FETCH AIRTABLE ---
+        window.fetchAirtable = async function (tableName, containerId) {
+            const feed = document.getElementById(containerId);
+            if (!feed) return;
 
-        // --- DATA FETCHING ---
-        window.fetchNews = async function () {
-            if (!NEWS_WEBHOOK_URL) {
-                alert("Demo Mode: To fetch real news, connect a Make.com Webhook.");
-                return;
-            }
             try {
-                const res = await fetch(NEWS_WEBHOOK_URL);
-                const data = await res.json();
-                renderNews(data);
-            } catch (e) {
-                console.error("Fetch error", e);
-                alert("Failed to load live feed.");
-            }
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
+                const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                const json = await response.json();
+
+                if (!json.records || json.records.length === 0) {
+                    feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
+                    return;
+                }
+
+                let html = "";
+                let count = 0;
+                json.records.forEach(record => {
+                    const fields = record.fields;
+                    const dateStr = fields.Date || record.createdTime;
+                    const t = timeAgo(dateStr);
+
+                    if (t !== null) {
+                        const borderStyle = tableName === "Commentary" ? "border-top-color: #ff9800;" : "";
+                        const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+
+                        html += `
+                        <div class="card" style="${borderStyle}">
+                            <h3>${fields.Headline || "Update"}</h3>
+                            <p>${fields.Summary || ""}</p>
+                            <div class="card-meta"><span>${t}</span><span>by: ${author}</span></div>
+                        </div>`;
+                        count++;
+                    }
+                });
+
+                if (count === 0) {
+                    feed.innerHTML = `<div class="card"><h3>Archive Mode</h3><p>No new updates in the last 30 days.</p></div>`;
+                } else {
+                    feed.innerHTML = html;
+                }
+
+            } catch (e) { feed.innerHTML = `<div class="card" style="border-top-color:red"><h3>Error</h3><p>Could not load ${tableName}.</p></div>`; }
         }
 
         // --- NAVIGATION LOGIC ---
         window.nav = function (section) {
-            console.log("Navigating to:", section);
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            const p = document.getElementById(section);
+            const t = document.getElementById('tab-' + section);
+            if (p) p.classList.add('active');
+            if (t) t.classList.add('active');
 
-            const target = document.getElementById(section);
-            const tab = document.getElementById('tab-' + section);
-
-            if (target) target.classList.add('active');
-            if (tab) tab.classList.add('active');
+            // DYNAMIC FETCH
+            if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
+            if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
+            if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
+            if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
         };
+
+        function normalizeSection(input) {
+            let s = (input || "news").toLowerCase();
+            if (s.includes('asia')) return 'asia';
+            if (s.includes('sub') || s.includes('pricing')) return 'subs';
+            if (s.includes('tech') || s.includes('ai') || s.includes('frontier')) return 'tech';
+            if (s.includes('opinions')) return 'opinions';
+            if (s.includes('indices') || s.includes('market') || s.includes('data')) return 'market';
+            return 'global';
+        }
 
         // --- VOICE LOGIC ---
         let conversation = null;
@@ -674,20 +805,15 @@
 
         callBtn.onclick = async () => {
             if (isConnected) {
-                if (conversation) {
-                    await conversation.endSession();
-                    conversation = null;
-                }
+                if (conversation) { await conversation.endSession(); conversation = null; }
                 isConnected = false;
                 callBtn.innerHTML = "CALL NING";
                 callBtn.classList.remove('active');
                 return;
             }
-
             callBtn.innerHTML = "CONNECTING...";
             try {
                 await navigator.mediaDevices.getUserMedia({ audio: true });
-
                 conversation = await Conversation.startSession({
                     agentId: AGENT_ID,
                     onModeChange: (mode) => {
@@ -697,16 +823,8 @@
                         }
                     },
                     clientTools: {
-                        Maps: (parameters) => {
-                            let section = normalizeSection(parameters.section);
-                            window.nav(section);
-                            return "Navigated to " + section;
-                        },
-                        navigate: (parameters) => {
-                            let section = normalizeSection(parameters.section);
-                            window.nav(section);
-                            return "Navigated to " + section;
-                        }
+                        Maps: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
+                        navigate: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; }
                     },
                     onConnect: () => {
                         isConnected = true;
@@ -725,7 +843,6 @@
                         callBtn.classList.remove('active');
                     }
                 });
-
             } catch (err) {
                 console.error(err);
                 alert("Could not start call. " + err.message);
@@ -733,21 +850,10 @@
             }
         };
 
-        function normalizeSection(input) {
-            let s = (input || "news").toLowerCase();
-            if (s.includes('asia')) return 'asia';
-            if (s.includes('sub') || s.includes('pricing')) return 'subs';
-            if (s.includes('tech') || s.includes('ai') || s.includes('frontier')) return 'tech';
-            if (s.includes('opinions')) return 'opinions';
-            if (s.includes('indices') || s.includes('market') || s.includes('data')) return 'market';
-            return 'global'; // Default to global
-        }
-
         // --- CHATBOT LOGIC ---
         const chatWindow = document.getElementById('chatWindow');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
-        const CHAT_WEBHOOK = "https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g";
 
         window.toggleChat = function () { chatWindow.classList.toggle('open'); }
         window.handleEnter = function (e) { if (e.key === 'Enter') window.sendMessage(); }
@@ -755,10 +861,10 @@
         window.sendMessage = async function () {
             const text = chatInput.value.trim();
             if (!text) return;
-
-            addMessage(text, 'user');
+            window.addMessage(text, 'user');
             chatInput.value = '';
 
+            // Define loading div BEFORE appending
             const loadingDiv = document.createElement('div');
             loadingDiv.classList.add('msg', 'bot');
             loadingDiv.id = 'loading-msg';
@@ -771,30 +877,35 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: text })
                 });
-
                 const loader = document.getElementById('loading-msg');
                 if (loader) loader.remove();
-
                 if (response.ok) {
                     const data = await response.text();
-                    addMessage(data, 'bot');
+                    window.addMessage(data, 'bot');
                 } else {
-                    addMessage("Error connecting to server.", 'bot');
+                    window.addMessage("Error connecting to server.", 'bot');
                 }
             } catch (error) {
                 const loader = document.getElementById('loading-msg');
                 if (loader) loader.remove();
-                addMessage("Connection failed.", 'bot');
+                window.addMessage("Connection failed.", 'bot');
             }
         }
 
-        function addMessage(text, sender) {
+        window.addMessage = function (text, sender) {
             const div = document.createElement('div');
             div.classList.add('msg', sender);
             div.innerText = text;
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        // --- AUTO START ---
+        // Initial load of feeds
+        window.fetchAirtable("Global News", "news-feed-global");
+        window.fetchAirtable("Asia News", "news-feed-asia");
+        window.fetchAirtable("AI News", "news-feed-ai");
+
     </script>
 </body>
 
