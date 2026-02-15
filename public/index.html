@@ -1501,7 +1501,8 @@
                     },
                     clientTools: {
                         Maps: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
-                        navigate: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; }
+                        navigate: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
+                        scroll_to_section: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; }
                     },
                     onConnect: () => { isConnected = true; callBtn.classList.add('active'); callBtn.innerHTML = '<div class="indicator"></div> CONNECTED'; },
                     onDisconnect: () => { isConnected = false; callBtn.innerHTML = "CALL NING"; callBtn.classList.remove('active'); },
