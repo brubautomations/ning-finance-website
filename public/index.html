@@ -3,8 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NING FINANCE | ADVANCE AI INTELLIGENCE</title>
+
+    <link rel="icon" type="image/png"
+        href="https://ui-avatars.com/api/?name=N&background=000000&color=cba258&rounded=true&bold=true&size=128">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +24,8 @@
             --border: #e0e0e0;
             --up: #16a34a;
             --down: #dc2626;
+            --sidebar-width: 260px;
+            /* Width of the new sidebars */
         }
 
         body {
@@ -44,6 +49,8 @@
             background: #fff;
             border-bottom: 3px solid var(--primary);
             z-index: 100;
+            position: relative;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -72,6 +79,79 @@
             letter-spacing: 0.5px;
         }
 
+        /* TICKER */
+        .ticker-bar {
+            background: #000;
+            border-bottom: 1px solid #222;
+            display: flex;
+            height: 35px;
+            overflow: hidden;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 95;
+        }
+
+        .ticker-label {
+            background: var(--primary);
+            color: #000;
+            padding: 0 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-weight: 900;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            z-index: 2;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .ticker-track {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+        }
+
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: scroll-left 400s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            color: #e0e0e0;
+            margin-right: 50px;
+        }
+
+        .ticker-item span {
+            color: var(--primary);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-100%, 0, 0);
+            }
+        }
+
         /* CALL BUTTON */
         #callBtn {
             background: #000;
@@ -86,6 +166,7 @@
             align-items: center;
             gap: 10px;
             transition: all 0.3s;
+            white-space: nowrap;
         }
 
         #callBtn:hover {
@@ -129,6 +210,10 @@
             padding: 0 40px;
             border-bottom: 1px solid var(--border);
             z-index: 90;
+            position: relative;
+            flex-shrink: 0;
+            justify-content: center;
+            /* Center navigation on desktop */
         }
 
         .tab {
@@ -140,6 +225,7 @@
             text-transform: uppercase;
             border-bottom: 3px solid transparent;
             transition: 0.2s;
+            white-space: nowrap;
         }
 
         .tab:hover {
@@ -151,14 +237,124 @@
             border-bottom: 3px solid var(--primary);
         }
 
-        /* CONTENT */
+        /* --- LAYOUT SYSTEM --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            max-width: 1800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* SIDEBARS */
+        .sidebar {
+            width: var(--sidebar-width);
+            padding: 30px 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            background: #fff;
+            display: none;
+            /* Hidden on mobile by default */
+        }
+
+        .sidebar-left {
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sidebar-right {
+            border-left: 1px solid #e0e0e0;
+        }
+
+        .sidebar-widget {
+            margin-bottom: 40px;
+        }
+
+        .sidebar-title {
+            font-family: 'Merriweather', serif;
+            font-size: 0.8rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            color: #000;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        /* AD VERTICAL CONTAINER */
+        .ad-container {
+            width: 100%;
+            text-align: center;
+        }
+
+        .ad-label {
+            font-size: 0.6rem;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .vertical-banner {
+            width: 100%;
+            height: auto;
+            min-height: 400px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #f0f0f0;
+            display: block;
+        }
+
+        /* WORLD CLOCKS (Right Side) */
+        .world-clock {
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+
+        .city-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .time-display {
+            font-size: 1.1rem;
+            color: #000;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+
+        .sec-display {
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        .continent-label {
+            font-size: 0.65rem;
+            color: var(--primary);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 2px;
+        }
+
+        /* CONTENT AREA */
         #content-area {
             flex: 1;
             padding: 40px;
             overflow-y: auto;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
+            -webkit-overflow-scrolling: touch;
+            background: #fcfcfc;
         }
 
         .page {
@@ -201,6 +397,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         #status-indicator {
@@ -226,17 +424,11 @@
             font-style: italic;
         }
 
-        /* LAYOUTS */
+        /* CARDS */
         .vertical-feed {
             display: flex;
             flex-direction: column;
             gap: 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
         }
 
         .card {
@@ -247,6 +439,21 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             display: flex;
             flex-direction: column;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            display: block;
+            cursor: zoom-in;
+            transition: opacity 0.2s;
+        }
+
+        .card-image:hover {
+            opacity: 0.9;
         }
 
         .card h3 {
@@ -271,11 +478,117 @@
             padding-top: 15px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-style: italic;
             font-family: 'Courier New', monospace;
         }
 
-        /* NEW PRICING LAYOUT (STANDING RECTANGLES) */
+        /* SHARE BUTTON */
+        .share-btn {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            margin-left: 15px;
+            transition: 0.2s;
+        }
+
+        .share-btn:hover {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        /* MODALS */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            display: block;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: zoom 0.3s;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(0)
+            }
+
+            to {
+                transform: scale(1)
+            }
+        }
+
+        /* ARTICLE MODAL */
+        #articleModal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(255, 255, 255, 0.98);
+        }
+
+        .article-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 40px;
+            position: relative;
+        }
+
+        .close-article {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: 0.2s;
+        }
+
+        .close-article:hover {
+            color: #000;
+        }
+
+        /* PRICING */
         .pricing-container {
             display: flex;
             gap: 30px;
@@ -480,6 +793,7 @@
             font-size: 0.75rem;
             background: #fff;
             border-top: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         footer a {
@@ -492,6 +806,72 @@
         footer a:hover {
             color: var(--primary);
         }
+
+        /* RESPONSIVE */
+        @media (min-width: 1400px) {
+            .sidebar {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #callBtn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-tabs {
+                padding: 0 15px;
+                gap: 20px;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                justify-content: flex-start;
+            }
+
+            .nav-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            #content-area {
+                padding: 20px 15px;
+            }
+
+            .pricing-container {
+                flex-direction: column;
+            }
+
+            .chat-window {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+                height: 60vh;
+            }
+
+            .chat-bubble {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .header-row {
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 
@@ -499,12 +879,21 @@
 
     <header>
         <div class="logo">NING <span>FINANCE</span>
-            <div class="logo-tag">ADVANCE AI INTELLIGENCE</div>
+            <div class="logo-tag">ADVANCE AI INTELLIGENCE NEWS WEBSITE</div>
         </div>
         <button id="callBtn">
             <div class="indicator"></div> CALL NING
         </button>
     </header>
+
+    <div class="ticker-bar">
+        <div class="ticker-label">THE FLASH</div>
+        <div class="ticker-track">
+            <div class="ticker-content" id="ticker-feed">
+                <div class="ticker-item">Connecting to secure global feeds...</div>
+            </div>
+        </div>
+    </div>
 
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL NEWS</div>
@@ -512,170 +901,270 @@
         <div class="tab" onclick="nav('market')" id="tab-market">MARKET DATA</div>
         <div class="tab" onclick="nav('tech')" id="tab-tech">AI & FRONTIER</div>
         <div class="tab" onclick="nav('opinions')" id="tab-opinions">OPINIONS</div>
+        <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
+        <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
         <div class="tab" onclick="nav('subs')" id="tab-subs">SUBSCRIPTIONS</div>
     </div>
 
-    <div id="content-area">
-        <div id="global" class="page active">
-            <h2>
-                <div class="header-row">GLOBAL MARKET NEWS <span id="status-indicator">LIVE FEED ACTIVE</span></div>
-            </h2>
-            <div class="vertical-feed" id="news-feed-global">
-                <div class="card" style="border-top-color: #ccc;">
-                    <h3>Loading...</h3>
-                    <p>Connecting to secure feed.</p>
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+
+    <div id="articleModal" class="modal" style="background-color: rgba(255, 255, 255, 0.98);">
+        <div class="article-container">
+            <span class="close-article" onclick="closeArticle()">&times;</span>
+            <div id="single-article-content">
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <aside class="sidebar sidebar-left">
+            <div class="sidebar-widget ad-container">
+                <span class="ad-label">Advertisement</span>
+
+                <a href="#" target="_blank">
+                    <img src="https://via.placeholder.com/220x600/000000/FFFFFF?text=YOUR+AD+HERE"
+                        class="vertical-banner" alt="Ad Space">
+                </a>
+
+            </div>
+
+            <div class="sidebar-widget"
+                style="border: 1px solid #000; padding: 20px; text-align: center; border-radius: 4px; background:#f9f9f9;">
+                <div style="font-size: 0.65rem; font-weight: 700; margin-bottom: 5px; color:#666;">SUBSCRIBE TO</div>
+                <div style="font-family: 'Merriweather'; font-size: 1.2rem; font-weight: 900; margin-bottom: 5px;">NING
+                    FINANCE</div>
+                <div style="font-size: 0.65rem; color:#444; margin-bottom: 15px;">ADVANCED AI INTELLIGENCE ACCESS</div>
+                <button onclick="nav('subs')"
+                    style="background:#000; color:#fff; border:none; padding:10px 20px; font-size:0.7rem; font-weight:bold; cursor:pointer; width:100%;">UPGRADE</button>
+            </div>
+        </aside>
+
+        <div id="content-area">
+            <div id="global" class="page active">
+                <h2>
+                    <div class="header-row">GLOBAL NEWS <span id="status-indicator">LIVE FEED ACTIVE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-global">
+                    <div class="card" style="border-top-color: #ccc;">
+                        <h3>Loading...</h3>
+                        <p>Connecting to secure feed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="asia" class="page">
+                <h2>
+                    <div class="header-row">ASIA NEWS<span id="status-indicator">LIVE FEED ACTIVE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-asia">
+                    <div class="card" style="border-top-color: #ccc;">
+                        <h3>Loading...</h3>
+                        <p>Connecting to Asia feed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="market" class="page">
+                <div class="card">
+                    <h3>Connecting to Live Feed...</h3>
+                    <p>Establishing secure connection to Google Database.</p>
+                </div>
+            </div>
+
+            <div id="tech" class="page">
+                <h2>
+                    <div class="header-row">AI & FRONTIER <span id="status-indicator">LIVE FEED ACTIVE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-ai">
+                    <div class="card" style="border-top-color: #29b6f6;">
+                        <h3>Loading...</h3>
+                        <p>Fetching Frontier Intelligence.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="opinions" class="page">
+                <h2>
+                    <div class="header-row">OPINIONS & COMMENTARY<span id="status-indicator"
+                            style="color:#ff9800; border-color:#ff9800; background:#fff8e1;">EDITOR'S DESK</span></div>
+                    <div class="ai-caveat">Analysis generated by AI models trained on financial data. Not investment
+                        advice.
+                    </div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-opinions">
+                    <div class="card" style="border-top-color: #ff9800;">
+                        <h3>Loading...</h3>
+                        <p>Fetching analysis.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="luxury" class="page">
+                <h2>
+                    <div class="header-row">LUXE LIVING<span id="status-indicator"
+                            style="color:#b45309; border-color:#b45309; background:#fffbeb;">CONCIERGE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-luxury">
+                    <div class="card" style="border-top-color: #b45309;">
+                        <h3>Loading...</h3>
+                        <p>Curating exclusive assets.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="culture" class="page">
+                <h2>
+                    <div class="header-row">CULTURE <span id="status-indicator"
+                            style="color:#db2777; border-color:#db2777; background:#fce7f3;">ICONS & STYLE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-culture">
+                    <div class="card" style="border-top-color: #db2777;">
+                        <h3>Loading...</h3>
+                        <p>Curating cultural influence.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="subs" class="page">
+                <h2>SUBSCRIPTIONS</h2>
+                <div class="pricing-container">
+                    <div class="card price-card">
+                        <h3>Basic Tier</h3>
+                        <h2>Local Intelligence</h2>
+                        <ul>
+                            <li>Full Website Access</li>
+                            <li><strong>Chatbot Level 1:</strong> Trained on local market data & company profiles.</li>
+                        </ul>
+                        <a class="price-btn">SELECT PLAN</a>
+                    </div>
+
+                    <div class="card price-card" style="border-top-color: var(--primary);">
+                        <h3 style="color:var(--primary);">Pro Tier</h3>
+                        <h2>Global Macro</h2>
+                        <ul>
+                            <li>Everything in Local Intelligence</li>
+                            <li><strong>Chatbot Level 2:</strong> Trained on Global Markets, Forex, Crypto &
+                                Commodities.
+                            </li>
+                        </ul>
+                        <a class="price-btn">SELECT PLAN</a>
+                    </div>
+
+                    <div class="card price-card" style="border-top-color: #000;">
+                        <h3 style="color:#000;">Institutional</h3>
+                        <h2>Voice Command</h2>
+                        <ul>
+                            <li>Everything in Global Macro</li>
+                            <li><strong>Call Ning:</strong> Voice-to-Voice AI Analyst.</li>
+                            <li><strong>Autonomous Terminal Control:</strong> Hands-free navigation.</li>
+                        </ul>
+                        <a class="price-btn">SELECT PLAN</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="asia" class="page">
-            <h2>
-                <div class="header-row">ASIA NEWS WIRE <span id="status-indicator">LIVE FEED ACTIVE</span></div>
-            </h2>
-            <div class="vertical-feed" id="news-feed-asia">
-                <div class="card" style="border-top-color: #ccc;">
-                    <h3>Loading...</h3>
-                    <p>Connecting to Asia feed.</p>
+        <aside class="sidebar sidebar-right">
+            <div class="sidebar-widget">
+                <div class="sidebar-title">WORLD CLOCK</div>
+
+                <div class="world-clock">
+                    <span class="city-label">MANILA (PHT)</span>
+                    <span class="time-display" id="clock-manila">00:00</span> <span class="sec-display"
+                        id="sec-manila">:00</span>
                 </div>
+
+                <div class="continent-label">NORTH AMERICA</div>
+                <div class="world-clock">
+                    <span class="city-label">NEW YORK</span>
+                    <span class="time-display" id="clock-ny">00:00</span> <span class="sec-display"
+                        id="sec-ny">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">TORONTO</span>
+                    <span class="time-display" id="clock-toronto">00:00</span> <span class="sec-display"
+                        id="sec-toronto">:00</span>
+                </div>
+
+                <div class="continent-label">ASIA</div>
+                <div class="world-clock">
+                    <span class="city-label">TOKYO</span>
+                    <span class="time-display" id="clock-tokyo">00:00</span> <span class="sec-display"
+                        id="sec-tokyo">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">SHANGHAI</span>
+                    <span class="time-display" id="clock-shanghai">00:00</span> <span class="sec-display"
+                        id="sec-shanghai">:00</span>
+                </div>
+
+                <div class="continent-label">EUROPE</div>
+                <div class="world-clock">
+                    <span class="city-label">AMSTERDAM</span>
+                    <span class="time-display" id="clock-amsterdam">00:00</span> <span class="sec-display"
+                        id="sec-amsterdam">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">LONDON</span>
+                    <span class="time-display" id="clock-london">00:00</span> <span class="sec-display"
+                        id="sec-london">:00</span>
+                </div>
+
+                <div class="continent-label">SOUTH AMERICA</div>
+                <div class="world-clock">
+                    <span class="city-label">SAO PAULO</span>
+                    <span class="time-display" id="clock-saopaulo">00:00</span> <span class="sec-display"
+                        id="sec-saopaulo">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">BUENOS AIRES</span>
+                    <span class="time-display" id="clock-buenosaires">00:00</span> <span class="sec-display"
+                        id="sec-buenosaires">:00</span>
+                </div>
+
+                <div class="continent-label">AFRICA</div>
+                <div class="world-clock">
+                    <span class="city-label">JOHANNESBURG</span>
+                    <span class="time-display" id="clock-johannesburg">00:00</span> <span class="sec-display"
+                        id="sec-johannesburg">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">CASABLANCA</span>
+                    <span class="time-display" id="clock-casablanca">00:00</span> <span class="sec-display"
+                        id="sec-casablanca">:00</span>
+                </div>
+
+                <div class="continent-label">OCEANIA</div>
+                <div class="world-clock">
+                    <span class="city-label">SYDNEY</span>
+                    <span class="time-display" id="clock-sydney">00:00</span> <span class="sec-display"
+                        id="sec-sydney">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">AUCKLAND</span>
+                    <span class="time-display" id="clock-auckland">00:00</span> <span class="sec-display"
+                        id="sec-auckland">:00</span>
+                </div>
+
+                <div class="continent-label">MIDDLE EAST</div>
+                <div class="world-clock">
+                    <span class="city-label">RIYADH</span>
+                    <span class="time-display" id="clock-riyadh">00:00</span> <span class="sec-display"
+                        id="sec-riyadh">:00</span>
+                </div>
+                <div class="world-clock">
+                    <span class="city-label">ABU DHABI</span>
+                    <span class="time-display" id="clock-abudhabi">00:00</span> <span class="sec-display"
+                        id="sec-abudhabi">:00</span>
+                </div>
+
             </div>
-        </div>
+        </aside>
 
-        <div id="market" class="page">
-            <div class="tradingview-widget-container">
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript"
-                    src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
-                        {
-                            "colorTheme": "light",
-                                "dateRange": "12M",
-                                    "showChart": true,
-                                        "locale": "en",
-                                            "largeChartUrl": "",
-                                                "isTransparent": false,
-                                                    "showSymbolLogo": true,
-                                                        "showFloatingTooltip": false,
-                                                            "width": "100%",
-                                                                "height": "600",
-                                                                    "plotLineColorGrowing": "rgba(22, 163, 74, 1)",
-                                                                        "plotLineColorFalling": "rgba(220, 38, 38, 1)",
-                                                                            "gridLineColor": "rgba(240, 243, 250, 0)",
-                                                                                "scaleFontColor": "rgba(106, 109, 120, 1)",
-                                                                                    "belowLineFillColorGrowing": "rgba(22, 163, 74, 0.12)",
-                                                                                        "belowLineFillColorFalling": "rgba(220, 38, 38, 0.12)",
-                                                                                            "belowLineFillColorGrowingBottom": "rgba(41, 98, 255, 0)",
-                                                                                                "belowLineFillColorFallingBottom": "rgba(41, 98, 255, 0)",
-                                                                                                    "symbolActiveColor": "rgba(41, 98, 255, 0.12)",
-                                                                                                        "tabs": [
-                                                                                                            {
-                                                                                                                "title": "Indices",
-                                                                                                                "symbols": [
-                                                                                                                    { "s": "FOREXCOM:SPXUSD", "d": "S&P 500" },
-                                                                                                                    { "s": "FOREXCOM:NSXUSD", "d": "US 100" },
-                                                                                                                    { "s": "FOREXCOM:DJI", "d": "Dow 30" },
-                                                                                                                    { "s": "INDEX:NKY", "d": "Nikkei 225" },
-                                                                                                                    { "s": "FOREXCOM:UKXGBP", "d": "FTSE 100" }
-                                                                                                                ]
-                                                                                                            },
-                                                                                                            {
-                                                                                                                "title": "Commodities",
-                                                                                                                "symbols": [
-                                                                                                                    { "s": "CME_MINI:ES1!", "d": "S&P 500" },
-                                                                                                                    { "s": "CME:6E1!", "d": "Euro" },
-                                                                                                                    { "s": "COMEX:GC1!", "d": "Gold" },
-                                                                                                                    { "s": "NYMEX:CL1!", "d": "Crude Oil" },
-                                                                                                                    { "s": "NYMEX:NG1!", "d": "Natural Gas" }
-                                                                                                                ]
-                                                                                                            },
-                                                                                                            {
-                                                                                                                "title": "Crypto",
-                                                                                                                "symbols": [
-                                                                                                                    { "s": "BINANCE:BTCUSDT" },
-                                                                                                                    { "s": "BINANCE:ETHUSDT" },
-                                                                                                                    { "s": "BINANCE:SOLUSDT" },
-                                                                                                                    { "s": "BINANCE:XRPUSDT" }
-                                                                                                                ]
-                                                                                                            },
-                                                                                                            {
-                                                                                                                "title": "Forex",
-                                                                                                                "symbols": [
-                                                                                                                    { "s": "FX:EURUSD", "d": "EUR/USD" },
-                                                                                                                    { "s": "FX:GBPUSD", "d": "GBP/USD" },
-                                                                                                                    { "s": "FX:USDJPY", "d": "USD/JPY" }
-                                                                                                                ]
-                                                                                                            }
-                                                                                                        ]
-                        }
-                    </script>
-            </div>
-        </div>
-
-        <div id="tech" class="page">
-            <h2>
-                <div class="header-row">AI & FRONTIER <span id="status-indicator">LIVE FEED ACTIVE</span></div>
-            </h2>
-            <div class="vertical-feed" id="news-feed-ai">
-                <div class="card" style="border-top-color: #29b6f6;">
-                    <h3>Loading...</h3>
-                    <p>Fetching Frontier Intelligence.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="opinions" class="page">
-            <h2>
-                <div class="header-row">EXPERT OPINIONS <span id="status-indicator"
-                        style="color:#ff9800; border-color:#ff9800; background:#fff8e1;">EDITOR'S DESK</span></div>
-                <div class="ai-caveat">Analysis generated by AI models trained on financial data. Not investment advice.
-                </div>
-            </h2>
-            <div class="vertical-feed" id="news-feed-opinions">
-                <div class="card" style="border-top-color: #ff9800;">
-                    <h3>Loading...</h3>
-                    <p>Fetching analysis.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="subs" class="page">
-            <h2>SUBSCRIPTIONS</h2>
-
-            <div class="pricing-container">
-                <div class="card price-card">
-                    <h3>Basic Tier</h3>
-                    <h2>Local Intelligence</h2>
-                    <ul>
-                        <li>Full Website Access</li>
-                        <li>Pro Terminal Dashboard</li>
-                        <li><strong>Chatbot Level 1:</strong> Trained on local market data & company profiles.</li>
-                    </ul>
-                    <a class="price-btn">SELECT PLAN</a>
-                </div>
-
-                <div class="card price-card" style="border-top-color: var(--primary);">
-                    <h3 style="color:var(--primary);">Pro Tier</h3>
-                    <h2>Global Macro</h2>
-                    <ul>
-                        <li>Everything in Local Intelligence</li>
-                        <li><strong>Chatbot Level 2:</strong> Trained on Global Markets, Forex, Crypto & Commodities.
-                        </li>
-                        <li>Access to International News Wires</li>
-                    </ul>
-                    <a class="price-btn">SELECT PLAN</a>
-                </div>
-
-                <div class="card price-card" style="border-top-color: #000;">
-                    <h3 style="color:#000;">Institutional</h3>
-                    <h2>Voice Command</h2>
-                    <ul>
-                        <li>Everything in Global Macro</li>
-                        <li><strong>Call Ning:</strong> Voice-to-Voice AI Analyst.</li>
-                        <li><strong>Autonomous Terminal Control:</strong> Hands-free navigation of all news feeds and
-                            data using natural voice commands.</li>
-                    </ul>
-                    <a class="price-btn">SELECT PLAN</a>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="chat-bubble" onclick="toggleChat()">
@@ -686,15 +1175,15 @@
         <div class="chat-header"><span>Ning Support</span><span style="cursor:pointer;" onclick="toggleChat()">✕</span>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="msg bot">Hello. I am Ning. Ask me anything about market news, analysis, or navigating this
-                platform.</div>
+            <div class="msg bot">Hello. I am Ning. Ask me anything about market news, analysis, or the nightlife.</div>
         </div>
         <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type query..."
                 onkeypress="handleEnter(event)"><button onclick="sendMessage()">SEND</button></div>
     </div>
 
-    <footer>Ning Finance | Advance AI Intelligence | Powered by <a href="https://brubai.net/" target="_blank">BRUB
-            AI</a> | Data delayed by 15 mins</footer>
+    <footer>Ning Finance | 99% AI-Operated News Website | Powered by <a href="https://brubai.net/" target="_blank">BRUB
+            AI</a> | Data
+        delayed by 10 minutes</footer>
 
     <script type="module">
         import { Conversation } from 'https://cdn.jsdelivr.net/npm/@11labs/client/+esm';
@@ -702,13 +1191,20 @@
         // --- CONFIGURATION ---
         const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
         const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
-
         const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
         const CHAT_WEBHOOK = "https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g";
-
         const AI_NAMES = ["Andy Roid", "Artie Ficial", "Jenni Rator", "Alex Murph-e", "Termi-Narrator", "Optimus Prime-Time", "Hal 9000-Words", "Bot Ross", "Chip Munk"];
 
-        // --- HELPER: TIME ---
+        // --- HELPER FUNCTIONS ---
+        function getUserId() {
+            let userId = localStorage.getItem("ning_user_id");
+            if (!userId) {
+                userId = "user_" + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem("ning_user_id", userId);
+            }
+            return userId;
+        }
+
         function timeAgo(dateParam) {
             if (!dateParam) return 'Live';
             const date = new Date(dateParam);
@@ -717,7 +1213,6 @@
             const minutes = Math.round(seconds / 60);
             const hours = Math.round(minutes / 60);
             const days = Math.round(hours / 24);
-
             if (seconds < 60) return 'Just now';
             if (minutes < 60) return `${minutes} mins ago`;
             if (hours < 24) return `${hours} hours ago`;
@@ -737,6 +1232,10 @@
                 const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
                 const json = await response.json();
 
+                if (tableName === "Global News" && json.records && json.records.length > 0) {
+                    updateTicker(json.records);
+                }
+
                 if (!json.records || json.records.length === 0) {
                     feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
                     return;
@@ -746,18 +1245,36 @@
                 let count = 0;
                 json.records.forEach(record => {
                     const fields = record.fields;
+                    const recordId = record.id;
                     const dateStr = fields.Date || record.createdTime;
                     const t = timeAgo(dateStr);
 
                     if (t !== null) {
-                        const borderStyle = tableName === "Commentary" ? "border-top-color: #ff9800;" : "";
+                        let borderStyle = "";
+                        if (tableName === "Commentary") borderStyle = "border-top-color: #ff9800;";
+                        if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
+                        if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
+
                         const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+
+                        let imageHtml = "";
+                        if (fields["News Image"] && fields["News Image"].length > 0) {
+                            imageHtml = `<img src="${fields["News Image"][0].url}" class="card-image" alt="News Image">`;
+                        } else if (fields["Image URL"]) {
+                            imageHtml = `<img src="${fields["Image URL"]}" class="card-image" alt="News Image">`;
+                        }
+
+                        const shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
 
                         html += `
                         <div class="card" style="${borderStyle}">
+                            ${imageHtml}
                             <h3>${fields.Headline || "Update"}</h3>
                             <p>${fields.Summary || ""}</p>
-                            <div class="card-meta"><span>${t}</span><span>by: ${author}</span></div>
+                            <div class="card-meta">
+                                <span>${t} • by: ${author}</span>
+                                ${shareBtn}
+                            </div>
                         </div>`;
                         count++;
                     }
@@ -769,11 +1286,77 @@
                     feed.innerHTML = html;
                 }
 
-            } catch (e) { feed.innerHTML = `<div class="card" style="border-top-color:red"><h3>Error</h3><p>Could not load ${tableName}.</p></div>`; }
+            } catch (e) {
+                console.error(e);
+                feed.innerHTML = `<div class="card" style="border-top-color:red"><h3>Error</h3><p>Could not load ${tableName}.</p></div>`;
+            }
         }
 
-        // --- NAVIGATION LOGIC ---
-        window.nav = function (section) {
+        // --- LINKS & DEEP LINKING ---
+        window.copyLink = function (tableName, recordId) {
+            const cleanTable = encodeURIComponent(tableName);
+            const url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
+            navigator.clipboard.writeText(url).then(() => { alert("Link copied!"); }).catch(err => { prompt("Copy link:", url); });
+        }
+
+        window.checkUrlForDeepLinks = async function () {
+            const params = new URLSearchParams(window.location.search);
+            const recordId = params.get('articleId');
+            const tabName = params.get('tab');
+
+            if (tabName) {
+                let section = normalizeSection(tabName);
+                window.nav(section, false);
+            }
+
+            if (recordId && tabName) {
+                const modal = document.getElementById('articleModal');
+                const container = document.getElementById('single-article-content');
+                modal.style.display = 'block';
+                container.innerHTML = '<h2>Loading...</h2>';
+
+                try {
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
+                    const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    const record = await response.json();
+                    const fields = record.fields;
+
+                    let imageHtml = "";
+                    if (fields["News Image"] && fields["News Image"].length > 0) {
+                        imageHtml = `<img src="${fields["News Image"][0].url}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
+                    } else if (fields["Image URL"]) {
+                        imageHtml = `<img src="${fields["Image URL"]}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
+                    }
+
+                    container.innerHTML = `
+                        <div style="font-family: 'Merriweather', serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 20px; line-height:1.2;">${fields.Headline}</div>
+                        ${imageHtml}
+                        <div style="font-family: 'Inter', sans-serif; font-size: 1.1rem; line-height: 1.8; color: #333;">${fields.Summary}</div>
+                        <div style="margin-top: 30px; font-style: italic; color: #888; border-top: 1px solid #eee; padding-top: 20px;">Shared via Ning Finance</div>
+                    `;
+                } catch (e) {
+                    container.innerHTML = "<h3>Article not found.</h3>";
+                }
+            }
+        }
+
+        window.closeArticle = function () {
+            document.getElementById('articleModal').style.display = 'none';
+            const url = new URL(window.location);
+            url.searchParams.delete('articleId');
+            window.history.pushState({}, '', url);
+        }
+
+        // --- TICKER ---
+        function updateTicker(records) {
+            const ticker = document.getElementById('ticker-feed');
+            if (!ticker) return;
+            const items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
+            ticker.innerHTML = items;
+        }
+
+        // --- NAVIGATION ---
+        window.nav = function (section, pushToHistory = true) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
             const p = document.getElementById(section);
@@ -781,28 +1364,122 @@
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
-            // DYNAMIC FETCH
+            if (pushToHistory) {
+                const url = new URL(window.location);
+                let tableNameForUrl = "Global News";
+                if (section === 'asia') tableNameForUrl = "Asia News";
+                if (section === 'luxury') tableNameForUrl = "Luxury";
+                if (section === 'culture') tableNameForUrl = "Culture";
+                if (section === 'tech') tableNameForUrl = "AI News";
+                if (section === 'opinions') tableNameForUrl = "Commentary";
+                if (section === 'market') tableNameForUrl = "Market";
+                url.searchParams.set('tab', tableNameForUrl);
+                url.searchParams.delete('articleId');
+                window.history.pushState({}, '', url);
+            }
+
             if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
             if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
+            if (section === 'luxury') window.fetchAirtable("Luxury", "news-feed-luxury");
             if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
             if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
+            if (section === 'culture') window.fetchAirtable("Culture", "news-feed-culture");
+            if (section === 'market') window.fetchMarketData();
         };
 
         function normalizeSection(input) {
             let s = (input || "news").toLowerCase();
             if (s.includes('asia')) return 'asia';
-            if (s.includes('sub') || s.includes('pricing')) return 'subs';
-            if (s.includes('tech') || s.includes('ai') || s.includes('frontier')) return 'tech';
-            if (s.includes('opinions')) return 'opinions';
-            if (s.includes('indices') || s.includes('market') || s.includes('data')) return 'market';
+            if (s.includes('lux') || s.includes('life')) return 'luxury';
+            if (s.includes('culture') || s.includes('style')) return 'culture';
+            if (s.includes('tech') || s.includes('ai')) return 'tech';
+            if (s.includes('commentary') || s.includes('opinion')) return 'opinions';
+            if (s.includes('market')) return 'market';
+            if (s.includes('sub')) return 'subs';
             return 'global';
+        }
+
+        // --- MARKET DATA ---
+        window.fetchMarketData = async function () {
+            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzy0600Z_gh0Y9p_gbdjxOoqMr2Fgyr_43_W3pUKuPOk8oYT0_CuKHCS8du-nZid3QoG04NpBNZ3jE/pub?gid=0&single=true&output=csv";
+            const container = document.getElementById("market");
+            if (!container) return;
+            try {
+                const response = await fetch(csvUrl + "&t=" + new Date().getTime());
+                const data = await response.text();
+                const rows = data.split("\n").slice(1);
+                let html = `<h2><div class="header-row">PRICE ACTION <span id="status-indicator">LIVE</span></div></h2>
+                            <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">`;
+                rows.forEach(row => {
+                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (cols.length < 3) return;
+                    const name = cols[0].replace(/"/g, '').trim();
+                    const price = cols[1].replace(/"/g, '').trim();
+                    const changeStr = cols[2].replace(/"/g, '').replace('%', '').trim();
+                    if (!name) return;
+                    let changeVal = parseFloat(changeStr);
+                    const isUp = changeVal >= 0;
+                    const color = isUp ? "#16a34a" : "#dc2626";
+                    const arrow = isUp ? "▲" : "▼";
+                    html += `<div class="card" style="padding: 20px; border-top: 4px solid ${color}; min-height: 120px; justify-content: center;">
+                        <div style="font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${name}</div>
+                        <div style="font-size: 1.6rem; font-weight: 900; font-family: 'Merriweather', serif; margin: 8px 0; color: #000;">${price}</div>
+                        <div style="color: ${color}; font-weight: bold; font-size: 0.95rem; font-family: 'Inter', sans-serif;">${arrow} ${changeStr}%</div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                console.error("Market Data Error:", e);
+                container.innerHTML = `<div class="card"><h3>Data Offline</h3><p>Connecting to secure feed...</p></div>`;
+            }
+        }
+
+        // --- IMAGE POPUP LOGIC ---
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("img01");
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('card-image')) {
+                modal.style.display = "flex";
+                modalImg.src = e.target.src;
+            }
+        });
+        window.closeModal = function () { modal.style.display = "none"; }
+
+        // --- SIDEBAR CLOCK LOGIC ---
+        function updateWorldClocks() {
+            const now = new Date();
+            const zones = [
+                { id: 'manila', tz: 'Asia/Manila' },
+                { id: 'ny', tz: 'America/New_York' },
+                { id: 'toronto', tz: 'America/Toronto' },
+                { id: 'tokyo', tz: 'Asia/Tokyo' },
+                { id: 'shanghai', tz: 'Asia/Shanghai' },
+                { id: 'amsterdam', tz: 'Europe/Amsterdam' },
+                { id: 'london', tz: 'Europe/London' },
+                { id: 'saopaulo', tz: 'America/Sao_Paulo' },
+                { id: 'buenosaires', tz: 'America/Argentina/Buenos_Aires' },
+                { id: 'johannesburg', tz: 'Africa/Johannesburg' },
+                { id: 'casablanca', tz: 'Africa/Casablanca' },
+                { id: 'sydney', tz: 'Australia/Sydney' },
+                { id: 'auckland', tz: 'Pacific/Auckland' },
+                { id: 'riyadh', tz: 'Asia/Riyadh' },
+                { id: 'abudhabi', tz: 'Asia/Dubai' }
+            ];
+            zones.forEach(zone => {
+                const timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
+                const [h, m, s] = timeStr.split(':');
+                const clockEl = document.getElementById(`clock-${zone.id}`);
+                const secEl = document.getElementById(`sec-${zone.id}`);
+                if (clockEl) clockEl.innerText = `${h}:${m}`;
+                if (secEl) secEl.innerText = `:${s}`;
+            });
         }
 
         // --- VOICE LOGIC ---
         let conversation = null;
         let isConnected = false;
         const callBtn = document.getElementById('callBtn');
-
         callBtn.onclick = async () => {
             if (isConnected) {
                 if (conversation) { await conversation.endSession(); conversation = null; }
@@ -826,72 +1503,48 @@
                         Maps: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
                         navigate: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; }
                     },
-                    onConnect: () => {
-                        isConnected = true;
-                        callBtn.classList.add('active');
-                        callBtn.innerHTML = '<div class="indicator"></div> CONNECTED';
-                    },
-                    onDisconnect: () => {
-                        isConnected = false;
-                        callBtn.innerHTML = "CALL NING";
-                        callBtn.classList.remove('active');
-                    },
-                    onError: (err) => {
-                        console.error(err);
-                        alert("Connection Error: " + err);
-                        callBtn.innerHTML = "CALL NING";
-                        callBtn.classList.remove('active');
-                    }
+                    onConnect: () => { isConnected = true; callBtn.classList.add('active'); callBtn.innerHTML = '<div class="indicator"></div> CONNECTED'; },
+                    onDisconnect: () => { isConnected = false; callBtn.innerHTML = "CALL NING"; callBtn.classList.remove('active'); },
+                    onError: (err) => { alert("Connection Error: " + err); callBtn.innerHTML = "CALL NING"; callBtn.classList.remove('active'); }
                 });
-            } catch (err) {
-                console.error(err);
-                alert("Could not start call. " + err.message);
-                callBtn.innerHTML = "CALL NING";
-            }
+            } catch (err) { alert("Could not start call. " + err.message); callBtn.innerHTML = "CALL NING"; }
         };
 
-        // --- CHATBOT LOGIC ---
+        // --- CHATBOT ---
         const chatWindow = document.getElementById('chatWindow');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
-
         window.toggleChat = function () { chatWindow.classList.toggle('open'); }
         window.handleEnter = function (e) { if (e.key === 'Enter') window.sendMessage(); }
-
         window.sendMessage = async function () {
             const text = chatInput.value.trim();
             if (!text) return;
+            const userId = getUserId();
             window.addMessage(text, 'user');
             chatInput.value = '';
-
-            // Define loading div BEFORE appending
             const loadingDiv = document.createElement('div');
             loadingDiv.classList.add('msg', 'bot');
             loadingDiv.id = 'loading-msg';
             loadingDiv.innerText = "...";
             chatMessages.appendChild(loadingDiv);
-
             try {
                 const response = await fetch(CHAT_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
+                    body: JSON.stringify({ message: text, user: userId })
                 });
                 const loader = document.getElementById('loading-msg');
                 if (loader) loader.remove();
                 if (response.ok) {
                     const data = await response.text();
                     window.addMessage(data, 'bot');
-                } else {
-                    window.addMessage("Error connecting to server.", 'bot');
-                }
+                } else { window.addMessage("Error connecting.", 'bot'); }
             } catch (error) {
                 const loader = document.getElementById('loading-msg');
                 if (loader) loader.remove();
                 window.addMessage("Connection failed.", 'bot');
             }
         }
-
         window.addMessage = function (text, sender) {
             const div = document.createElement('div');
             div.classList.add('msg', sender);
@@ -901,10 +1554,16 @@
         }
 
         // --- AUTO START ---
-        // Initial load of feeds
-        window.fetchAirtable("Global News", "news-feed-global");
+        window.checkUrlForDeepLinks();
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('tab')) window.fetchAirtable("Global News", "news-feed-global");
         window.fetchAirtable("Asia News", "news-feed-asia");
+        window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
+        window.fetchMarketData();
+        updateWorldClocks();
+        setInterval(updateWorldClocks, 1000);
+        setInterval(window.fetchMarketData, 60000);
 
     </script>
 </body>
