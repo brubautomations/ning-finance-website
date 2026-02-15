@@ -1,40 +1,41 @@
-# Ning Finance | Advance AI Intelligence Platform
-🚀 Project Overview
-Ning Finance is a next-generation Market Intelligence Hub designed to replace traditional trading terminals. Unlike execution platforms, Ning focuses on signal filtering, autonomous AI analysis, and voice-native navigation.
+# Ning Finance | Advance AI Intelligence
 
-Live URL: [Insert Live Link Here] Repository: https://github.com/brub-ai/ning-finance-website
+## 🚀 Project Overview
+Ning Finance is an advanced AI intelligence news website. The platform is 99% AI-operated, auto-updating its feeds to provide users with continuous, curated news and market data across multiple sectors (Global, Asia, AI & Frontier, Luxury, and Culture).
 
-🛠 Tech Stack & Architecture
-Frontend: Vanilla HTML5, CSS3, ES6 JavaScript (No framework bloat).
+**Live URL:** (https://ningfinance.com/)  
+**Repository:** (https://github.com/brub-ai/ning-finance-website)
 
-Database (CMS): Airtable (Acts as the headless CMS for News & Opinions).
+## 🧠 Core Features
+* **Auto-Updating News Feeds:** Content is sourced and updated continuously via automated AI pipelines without requiring manual editorial oversight.
+* **Intelligent Chatbot:** An integrated AI assistant with knowledge based on subscription tiers:
+  * **Level 1 (Basic):** Trained on local market data and company profiles.
+  * **Level 2 (Pro):** Trained on Global Markets, Forex, Crypto, and Commodities.
+* **Voice Tab Navigation:** Hands-free website control via ElevenLabs. Voice commands are used strictly to navigate the DOM (e.g., switching between the News, Market Data, and Culture tabs). *Note: The voice agent operates as a navigational remote, not an audio news reader or verbal analyst.*
 
-Middleware: Make.com (Orchestrates RSS fetching, OpenAI processing, and Webhooks).
+## 🛠 Tech Stack & Architecture
+* **Frontend:** Vanilla HTML5, CSS3, ES6 JavaScript (Lightweight, no frameworks).
+* **Database (CMS):** Airtable (Acts as the headless CMS for all news and content feeds).
+* **Market Data Ingestion:** Custom real-time Google Sheets CSV parsing for live price action.
+* **Middleware:** Make.com (Orchestrates RSS fetching, AI processing, and Webhooks).
+* **AI Voice Navigation:** ElevenLabs Conversational AI (WebSDK) for client-side tab switching.
+* **Chatbot LLMs:** Google Gemini 2.5 Flash and OpenAI GPT-4o via Make.com webhooks.
 
-AI Voice & Agent: ElevenLabs Conversational AI (WebSDK) for voice-to-voice analysis and DOM navigation.
+## 🔌 Integrations & Configuration
+**1. Airtable Backend**
+* `Base ID`: [REDACTED]
+* `Tables`: Global News, Asia News, AI News, Commentary, Luxury, Culture
 
-Market Data: TradingView Advanced Market Widget (Embed).
+**2. Automation & Routing (Make.com)**
+* `Chatbot Webhook`: [REDACTED]
 
-Chatbot LLM: OpenAI GPT-4o via Make.com Webhook.
+**3. Voice Agent (ElevenLabs)**
+* `Agent ID`: [REDACTED]
 
-🔌 Integrations & Configuration
-1. Airtable Backend
+## 🚀 Deployment
+1. Clone the repository: 
+   `git clone https://github.com/brub-ai/ning-finance-website.git`
+2. Open `index.html` in any modern browser. No build steps, dependencies, or package managers required. 
 
-Base ID: apppg1HS8BHcmiyjF
-
-Tables: Global News, Asia News, AI News, Commentary
-
-2. Make.com Automation
-
-Chatbot Webhook: https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g
-
-3. ElevenLabs (Voice Agent)
-
-Agent ID: agent_0001kge5t0g6fsr95ts35fwdhn2x
-
-🚀 Deployment
-Clone: git clone https://github.com/brub-ai/ning-finance-website.git
-
-Open index.html in browser. No build step required.
-
-Powered by BRUB AI
+---
+*Powered by BRUB AI*
