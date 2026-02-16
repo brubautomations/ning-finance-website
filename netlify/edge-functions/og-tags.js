@@ -7,11 +7,20 @@ export default async (request, context) => {
   const isBot = userAgent.toLowerCase().includes("facebookexternalhit") || 
                 userAgent.toLowerCase().includes("twitterbot") ||
                 userAgent.toLowerCase().includes("linkedinbot") ||
-                userAgent.toLowerCase().includes("bot");
+                userAgent.toLowerCase().includes("bot") ||
+                userAgent.toLowerCase().includes("make");
+
+  // TRACKER LOGS - This forces text to appear in Netlify so we aren't blind!
+  console.log(`[Bouncer] Visitor detected! User-Agent: ${userAgent}`);
+  console.log(`[Bouncer] URL: ${request.url}`);
+  console.log(`[Bouncer] Is Bot? ${isBot} | Article: ${articleId} | Tab: ${tabName}`);
 
   if (!isBot || !articleId || !tabName) {
+    console.log(`[Bouncer] Human visitor or missing data. Letting them pass normally.`);
     return context.next();
   }
+
+  console.log(`[Bouncer] BOT DETECTED! Pulling data from Airtable...`);
 
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
   const AIRTABLE_TOKEN = Netlify.env.get("AIRTABLE_TOKEN");
@@ -22,7 +31,10 @@ export default async (request, context) => {
       headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
     });
     
-    if (!response.ok) return context.next();
+    if (!response.ok) {
+      console.log(`[Bouncer ERROR] Airtable refused connection: ${response.status} ${response.statusText}`);
+      return context.next();
+    }
 
     const data = await response.json();
     const fields = data.fields;
@@ -36,6 +48,8 @@ export default async (request, context) => {
     } else if (fields["Image URL"]) {
         imageUrl = fields["Image URL"];
     }
+
+    console.log(`[Bouncer SUCCESS] Image found! Injecting: ${imageUrl}`);
 
     const html = `
       <!DOCTYPE html>
@@ -59,6 +73,12 @@ export default async (request, context) => {
     });
 
   } catch (error) {
+    console.log(`[Bouncer CRASH] Code broke: ${error.message}`);
     return context.next();
   }
+};
+
+// HARDCODED TRIGGER - Bypasses the need for netlify.toml
+export const config = {
+  path: "/*"
 };
