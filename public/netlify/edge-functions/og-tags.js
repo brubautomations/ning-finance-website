@@ -14,7 +14,7 @@ export default async (request, context) => {
   }
 
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-  const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
+  const AIRTABLE_TOKEN = Netlify.env.get("AIRTABLE_TOKEN");
   
   try {
     const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tabName)}/${articleId}`;
