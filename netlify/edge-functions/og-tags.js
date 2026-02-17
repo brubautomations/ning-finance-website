@@ -4,13 +4,19 @@ export default async (request, context) => {
   const tabName = url.searchParams.get("tab");
 
   const userAgent = request.headers.get("user-agent") || "";
+  
+  // ADDED WHATSAPP, VIBER, TELEGRAM, DISCORD, AND SKYPE TO THE LIST
   const isBot = userAgent.toLowerCase().includes("facebookexternalhit") || 
                 userAgent.toLowerCase().includes("twitterbot") ||
                 userAgent.toLowerCase().includes("linkedinbot") ||
+                userAgent.toLowerCase().includes("whatsapp") ||
+                userAgent.toLowerCase().includes("viber") ||
+                userAgent.toLowerCase().includes("skype") ||
+                userAgent.toLowerCase().includes("telegram") ||
+                userAgent.toLowerCase().includes("discordbot") ||
                 userAgent.toLowerCase().includes("bot") ||
                 userAgent.toLowerCase().includes("make");
 
-  // TRACKER LOGS - This forces text to appear in Netlify so we aren't blind!
   console.log(`[Bouncer] Visitor detected! User-Agent: ${userAgent}`);
   console.log(`[Bouncer] URL: ${request.url}`);
   console.log(`[Bouncer] Is Bot? ${isBot} | Article: ${articleId} | Tab: ${tabName}`);
@@ -78,7 +84,6 @@ export default async (request, context) => {
   }
 };
 
-// HARDCODED TRIGGER - Bypasses the need for netlify.toml
 export const config = {
   path: "/*"
 };
