@@ -1228,7 +1228,8 @@
             if (!feed) return;
 
             try {
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
+                // CHANGED: Now sorting by your new "Created Time" field instead of "Date"
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Created%20Time&sort%5B0%5D%5Bdirection%5D=desc`;
                 const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
                 const json = await response.json();
 
@@ -1246,7 +1247,9 @@
                 json.records.forEach(record => {
                     const fields = record.fields;
                     const recordId = record.id;
-                    const dateStr = fields.Date || record.createdTime;
+
+                    // CHANGED: We now strictly use Airtable's system creation time so the feed order matches reality perfectly
+                    const dateStr = record.createdTime;
                     const t = timeAgo(dateStr);
 
                     if (t !== null) {
