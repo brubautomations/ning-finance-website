@@ -1228,18 +1228,21 @@
             if (!feed) return;
 
             try {
-                // CHANGED: Now sorting by your new "Created Time" field instead of "Date"
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Created%20Time&sort%5B0%5D%5Bdirection%5D=desc`;
+                // Reverted URL to prevent Airtable API crashes
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
                 const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
                 const json = await response.json();
-
-                if (tableName === "Global News" && json.records && json.records.length > 0) {
-                    updateTicker(json.records);
-                }
 
                 if (!json.records || json.records.length === 0) {
                     feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
                     return;
+                }
+
+                // THE FIX: Sort by Airtable's exact system creation time right here in the browser
+                json.records.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+
+                if (tableName === "Global News" && json.records.length > 0) {
+                    updateTicker(json.records);
                 }
 
                 let html = "";
@@ -1248,7 +1251,7 @@
                     const fields = record.fields;
                     const recordId = record.id;
 
-                    // CHANGED: We now strictly use Airtable's system creation time so the feed order matches reality perfectly
+                    // THE FIX: Use the system creation time for the "mins ago" display
                     const dateStr = record.createdTime;
                     const t = timeAgo(dateStr);
 
