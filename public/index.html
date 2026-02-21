@@ -25,7 +25,6 @@
             --up: #16a34a;
             --down: #dc2626;
             --sidebar-width: 260px;
-            /* Width of the new sidebars */
         }
 
         body {
@@ -213,7 +212,6 @@
             position: relative;
             flex-shrink: 0;
             justify-content: center;
-            /* Center navigation on desktop */
         }
 
         .tab {
@@ -255,7 +253,6 @@
             flex-shrink: 0;
             background: #fff;
             display: none;
-            /* Hidden on mobile by default */
         }
 
         .sidebar-left {
@@ -896,10 +893,11 @@
     </div>
 
     <div class="nav-tabs">
-        <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL NEWS</div>
-        <div class="tab" onclick="nav('asia')" id="tab-asia">ASIA NEWS</div>
+        <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL</div>
+        <div class="tab" onclick="nav('asia')" id="tab-asia">ASIA</div>
+        <div class="tab" onclick="nav('philippines')" id="tab-philippines">PHILIPPINES</div>
         <div class="tab" onclick="nav('market')" id="tab-market">MARKET DATA</div>
-        <div class="tab" onclick="nav('tech')" id="tab-tech">AI & FRONTIER</div>
+        <div class="tab" onclick="nav('tech')" id="tab-tech">AI & TECH</div>
         <div class="tab" onclick="nav('opinions')" id="tab-opinions">OPINIONS</div>
         <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
         <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
@@ -964,6 +962,18 @@
                     <div class="card" style="border-top-color: #ccc;">
                         <h3>Loading...</h3>
                         <p>Connecting to Asia feed.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="philippines" class="page">
+                <h2>
+                    <div class="header-row">PHILIPPINES<span id="status-indicator">LIVE FEED ACTIVE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-philippines">
+                    <div class="card" style="border-top-color: #ccc;">
+                        <h3>Loading...</h3>
+                        <p>Connecting to Philippines feed.</p>
                     </div>
                 </div>
             </div>
@@ -1374,6 +1384,7 @@
                 const url = new URL(window.location);
                 let tableNameForUrl = "Global News";
                 if (section === 'asia') tableNameForUrl = "Asia News";
+                if (section === 'philippines') tableNameForUrl = "Philippines News";
                 if (section === 'luxury') tableNameForUrl = "Luxury";
                 if (section === 'culture') tableNameForUrl = "Culture";
                 if (section === 'tech') tableNameForUrl = "AI News";
@@ -1386,6 +1397,7 @@
 
             if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
             if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
+            if (section === 'philippines') window.fetchAirtable("Philippines News", "news-feed-philippines");
             if (section === 'luxury') window.fetchAirtable("Luxury", "news-feed-luxury");
             if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
             if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
@@ -1396,6 +1408,7 @@
         function normalizeSection(input) {
             let s = (input || "news").toLowerCase();
             if (s.includes('asia')) return 'asia';
+            if (s.includes('phil') || s.includes('ph')) return 'philippines';
             if (s.includes('lux') || s.includes('life')) return 'luxury';
             if (s.includes('culture') || s.includes('style')) return 'culture';
             if (s.includes('tech') || s.includes('ai')) return 'tech';
@@ -1565,6 +1578,7 @@
         const params = new URLSearchParams(window.location.search);
         if (!params.get('tab')) window.fetchAirtable("Global News", "news-feed-global");
         window.fetchAirtable("Asia News", "news-feed-asia");
+        window.fetchAirtable("Philippines News", "news-feed-philippines"); // Added this to auto-load
         window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
         window.fetchMarketData();
