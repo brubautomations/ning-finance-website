@@ -1419,7 +1419,6 @@
         }
 
         // --- MARKET DATA ---
-        // --- MARKET DATA ---
         window.fetchMarketData = async function () {
             const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzy0600Z_gh0Y9p_gbdjxOoqMr2Fgyr_43_W3pUKuPOk8oYT0_CuKHCS8du-nZid3QoG04NpBNZ3jE/pub?gid=0&single=true&output=csv";
             const container = document.getElementById("market");
@@ -1467,12 +1466,12 @@
                 html += `
                 <div style="display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
                     <div class="card" style="flex: 1; border-top-color: #16a34a; background: #f0fdf4;">
-                        <div style="font-size: 0.8rem; font-weight: 900; color: #16a34a; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🔥 Breakout / Pop</div>
+                        <div style="font-size: 0.8rem; font-weight: 900; color: #16a34a; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🔥MOST LIKELY TO PUMP</div>
                         <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000;">${topPop.name}</div>
                         <div style="font-size: 1.2rem; color: #16a34a; font-weight: bold; font-family: 'Inter', sans-serif;">▲ ${topPop.changeStr}%</div>
                     </div>
                     <div class="card" style="flex: 1; border-top-color: #dc2626; background: #fef2f2;">
-                        <div style="font-size: 0.8rem; font-weight: 900; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🩸 Heavy Risk / Drop</div>
+                        <div style="font-size: 0.8rem; font-weight: 900; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🩸MOST LKELY TO DUMP</div>
                         <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000;">${topDrop.name}</div>
                         <div style="font-size: 1.2rem; color: #dc2626; font-weight: bold; font-family: 'Inter', sans-serif;">▼ ${topDrop.changeStr}%</div>
                     </div>
