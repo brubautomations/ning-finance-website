@@ -981,7 +981,7 @@
             <div id="market" class="page">
                 <div class="card">
                     <h3>Connecting to Live Feed...</h3>
-                    <p>Establishing secure connection to Google Database.</p>
+                    <p>Establishing secure connection to Database.</p>
                 </div>
             </div>
 
@@ -1465,18 +1465,24 @@
 
                 // 3. Render the Hero "Pop & Drop" Cards
                 html += `
-                <div style="display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
-                    <div class="card" style="flex: 1; border-top-color: #16a34a; background: #f0fdf4;">
-                        <div style="font-size: 0.8rem; font-weight: 900; color: #16a34a; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🔥MOST BULLISH</div>
-                        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000;">${topPop.name}</div>
-                        <div style="font-size: 1.2rem; color: #16a34a; font-weight: bold; font-family: 'Inter', sans-serif;">▲ ${topPop.changeStr}%</div>
-                    </div>
-                    <div class="card" style="flex: 1; border-top-color: #dc2626; background: #fef2f2;">
-                        <div style="font-size: 0.8rem; font-weight: 900; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🩸MOST BEARISH</div>
-                        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000;">${topDrop.name}</div>
-                        <div style="font-size: 1.2rem; color: #dc2626; font-weight: bold; font-family: 'Inter', sans-serif;">▼ ${topDrop.changeStr}%</div>
-                    </div>
-                </div>`;
+<div style="display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
+    <div class="card" style="flex: 1; border-top-color: #16a34a; background: #f0fdf4;">
+        <div style="font-size: 0.8rem; font-weight: 900; color: #16a34a; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🐂 MOST LONGED</div>
+        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000; margin-bottom: 5px;">${topPop.name}</div>
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #111; font-family: 'Inter', sans-serif;">${topPop.price}</div>
+            <div style="font-size: 1.1rem; color: #16a34a; font-weight: bold; font-family: 'Inter', sans-serif;">▲ ${topPop.changeStr}%</div>
+        </div>
+    </div>
+    <div class="card" style="flex: 1; border-top-color: #dc2626; background: #fef2f2;">
+        <div style="font-size: 0.8rem; font-weight: 900; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🐻 MOST SHORTED</div>
+        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000; margin-bottom: 5px;">${topDrop.name}</div>
+        <div style="display: flex; align-items: baseline; gap: 12px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #111; font-family: 'Inter', sans-serif;">${topDrop.price}</div>
+            <div style="font-size: 1.1rem; color: #dc2626; font-weight: bold; font-family: 'Inter', sans-serif;">▼ ${topDrop.changeStr}%</div>
+        </div>
+    </div>
+</div>`;
 
                 // 4. Helper function to draw each segmented category grid
                 const renderGrid = (title, categoryKeyword) => {
