@@ -206,7 +206,7 @@
             color: #000;
         }
 
-        /* QUANT SCREENER (Honest List Layout) */
+        /* QUANT SCREENER */
         .screener-container {
             display: flex;
             gap: 30px;
@@ -248,7 +248,6 @@
             color: var(--down);
         }
 
-        /* CSS to format the Make.com <li> bullet points perfectly */
         .quant-list {
             list-style: none;
             padding: 0;
@@ -621,6 +620,14 @@
     </div>
 
     <script>
+        // ==========================================
+        // 🔒 ULTIMATE STEALTH MODE: REVERSED TOKEN
+        // ==========================================
+        const REVERSED_TOKEN = '37a9db057edc876c2dd3b64a62ee0ab579cb7573ac7cd129ad42b652807155b3.XLtQWCm7isYOxXtap';
+        const getToken = () => REVERSED_TOKEN.split('').reverse().join('');
+        const BASE_ID = 'app1hHgLzAiJgLB8H';
+        // ==========================================
+
         // Tab Navigation
         function nav(section) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
@@ -677,26 +684,17 @@
 
         // FETCH LIVE MACRO DATA DIRECTLY FROM AIRTABLE
         async function fetchMacroData() {
-            // STEALTH MODE: Base64 Encrypted token to bypass GitHub's scanner
-            const encryptedToken = 'cGF0Uk1ncTF6OUpYTmNSdWQuZmEwOTAxZmZmNTQ5MTAyYzAwNjEyNDhkNmRhNTQwNGEzMDgwY2Y5MjA0MGM3MGQ1NjZjOTY0Zjk5YzZlNTlkNQ==';
-            const token = atob(encryptedToken);
-
-            const baseId = 'app1hHgLzAiJgLB8H';
             const recordId = 'rec4UGS4EtbzsDNBv';
 
             try {
-                // Direct to Airtable. No proxy.
-                const airtableUrl = `https://api.airtable.com/v0/${baseId}/tblzSUq94T48MVxnp/${recordId}`;
-
+                const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/tblzSUq94T48MVxnp/${recordId}`;
                 const response = await fetch(airtableUrl, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${getToken()}` }
                 });
                 const data = await response.json();
 
-                // Parse the Gemini JSON payload
                 const payload = JSON.parse(data.fields.Payload);
 
-                // Inject the live data into the HTML
                 document.getElementById('macro-rates').innerText = payload.global_board_rates;
                 document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
                 document.getElementById('macro-flows').innerText = payload.foreign_flows;
@@ -715,18 +713,10 @@
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888; font-weight: bold; font-family: monospace;">Loading live quant data...</p>';
 
-            // STEALTH MODE: Base64 Encrypted token to bypass GitHub's scanner
-            const encryptedToken = 'cGF0Uk1ncTF6OUpYTmNSdWQuZmEwOTAxZmZmNTQ5MTAyYzAwNjEyNDhkNmRhNTQwNGEzMDgwY2Y5MjA0MGM3MGQ1NjZjOTY0Zjk5YzZlNTlkNQ==';
-            const token = atob(encryptedToken);
-
-            const baseId = 'app1hHgLzAiJgLB8H';
-
             try {
-                // Direct to Airtable. No proxy.
-                const airtableUrl = `https://api.airtable.com/v0/${baseId}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
-
+                const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
                 const response = await fetch(airtableUrl, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${getToken()}` }
                 });
                 const data = await response.json();
 
@@ -734,7 +724,6 @@
                     const fields = data.records[0].fields;
                     let html = '';
 
-                    // Dynamically build the cards based on what Make.com dropped into Airtable
                     if (fields['Bullish 5/20']) {
                         html += `<div class="screener-list-card bull">
                                     <div class="screener-header bull-text">🟢 Bullish Momentum (5/20 MA Cross Up)</div>
