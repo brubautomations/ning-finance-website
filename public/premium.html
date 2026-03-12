@@ -620,15 +620,8 @@
     </div>
 
     <script>
-        // ==========================================
-        // 🔒 ULTIMATE STEALTH MODE: REVERSED TOKEN
-        // ==========================================
-        const REVERSED_TOKEN = '37a9db057edc876c2dd3b64a62ee0ab579cb7573ac7cd129ad42b652807155b3.XLtQWCm7isYOxXtap';
-        const getToken = () => REVERSED_TOKEN.split('').reverse().join('');
         const BASE_ID = 'app1hHgLzAiJgLB8H';
-        // ==========================================
 
-        // Tab Navigation
         function nav(section) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -636,7 +629,6 @@
             document.getElementById('tab-' + section).classList.add('active');
         }
 
-        // PDF Download Engine
         function downloadPDF() {
             const element = document.getElementById('report-to-print');
             const opt = {
@@ -649,13 +641,11 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // Dropdown Logic for Screener triggers the fetch
         function changeMarket() {
             const market = document.getElementById('market-select').value;
             fetchQuantData(market);
         }
 
-        // Chatbot Toggle
         function toggleChat() {
             const chat = document.getElementById('ai-chat');
             chat.classList.toggle('open');
@@ -682,18 +672,15 @@
             }
         });
 
-        // FETCH LIVE MACRO DATA ROUTED THROUGH NETLIFY PROXY
+        // 🟢 FETCH FROM NEW NETLIFY BACKEND SERVER 🟢
         async function fetchMacroData() {
-            const recordId = 'rec4UGS4EtbzsDNBv';
-
             try {
-                // Request hits Netlify first to bypass Airtable Browser Block
-                const airtableUrl = `/airtable-api/${BASE_ID}/tblzSUq94T48MVxnp/${recordId}`;
-                const response = await fetch(airtableUrl, {
-                    headers: { Authorization: `Bearer ${getToken()}` }
-                });
-                const data = await response.json();
+                const target = encodeURIComponent(`https://api.airtable.com/v0/${BASE_ID}/tblzSUq94T48MVxnp/rec4UGS4EtbzsDNBv`);
+                const response = await fetch(`/.netlify/functions/airtable?target=${target}`);
 
+                if (!response.ok) throw new Error("Backend server error");
+
+                const data = await response.json();
                 const payload = JSON.parse(data.fields.Payload);
 
                 document.getElementById('macro-rates').innerText = payload.global_board_rates;
@@ -709,24 +696,23 @@
             }
         }
 
-        // FETCH LIVE QUANT DATA ROUTED THROUGH NETLIFY PROXY
+        // 🟢 FETCH FROM NEW NETLIFY BACKEND SERVER 🟢
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888; font-weight: bold; font-family: monospace;">Loading live quant data...</p>';
 
             try {
-                // Request hits Netlify first to bypass Airtable Browser Block
-                const airtableUrl = `/airtable-api/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
-                const response = await fetch(airtableUrl, {
-                    headers: { Authorization: `Bearer ${getToken()}` }
-                });
+                const target = encodeURIComponent(`https://api.airtable.com/v0/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`);
+                const response = await fetch(`/.netlify/functions/airtable?target=${target}`);
+
+                if (!response.ok) throw new Error("Backend server error");
+
                 const data = await response.json();
 
                 if (data.records && data.records.length > 0) {
                     const fields = data.records[0].fields;
                     let html = '';
 
-                    // Dynamically build the cards based on what Make.com dropped into Airtable
                     if (fields['Bullish 5/20']) {
                         html += `<div class="screener-list-card bull">
                                     <div class="screener-header bull-text">🟢 Bullish Momentum (5/20 MA Cross Up)</div>
@@ -774,10 +760,9 @@
             }
         }
 
-        // Run the fetchers immediately when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             fetchMacroData();
-            fetchQuantData('ph'); // Default load the Philippine market
+            fetchQuantData('ph');
         });
 
     </script>
