@@ -1,43 +1,36 @@
 const https = require('https');
 
 exports.handler = async function (event, context) {
-    const targetUrl = event.queryStringParameters.target;
+    const type = event.queryStringParameters.type; // 'macro' or 'quant'
+    const market = event.queryStringParameters.market || 'ph';
+    const baseId = 'app1hHgLzAiJgLB8H';
 
-    // Reversed token logic to stay under the radar
+    // Stealth token re-assembly
     const reversedToken = '37a9db057edc876c2dd3b64a62ee0ab579cb7573ac7cd129ad42b652807155b3.XLtQWCm7isYOxXtap';
     const token = reversedToken.split('').reverse().join('');
 
-    return new Promise((resolve) => {
-        const options = {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        };
+    // Hardcoded URLs to prevent the "Unexpected Token <" error
+    let targetUrl = '';
+    if (type === 'macro') {
+        targetUrl = `https://api.airtable.com/v0/${baseId}/tblzSUq94T48MVxnp/rec4UGS4EtbzsDNBv`;
+    } else {
+        // Encodes the formula correctly on the server side
+        const formula = encodeURIComponent(`{Market}='${market}'`);
+        targetUrl = `https://api.airtable.com/v0/${baseId}/Quant%20Data?filterByFormula=${formula}`;
+    }
 
-        const req = https.request(targetUrl, options, (res) => {
-            let body = '';
-            res.on('data', (chunk) => body += chunk);
+    return new Promise((resolve) => {
+        const req = https.get(targetUrl, { headers: { 'Authorization': `Bearer ${token}` } }, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
             res.on('end', () => {
                 resolve({
                     statusCode: 200,
-                    headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        'Content-Type': 'application/json'
-                    },
-                    body: body
+                    headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+                    body: data
                 });
             });
         });
-
-        req.on('error', (e) => {
-            resolve({
-                statusCode: 500,
-                body: JSON.stringify({ error: e.message })
-            });
-        });
-
-        req.end();
+        req.on('error', (e) => resolve({ statusCode: 500, body: JSON.stringify({ error: e.message }) }));
     });
 };

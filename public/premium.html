@@ -48,7 +48,6 @@
             overflow: hidden;
         }
 
-        /* VIP HEADER */
         header {
             display: flex;
             justify-content: space-between;
@@ -105,7 +104,6 @@
             box-shadow: 0 0 10px #16a34a;
         }
 
-        /* NAV */
         .nav-tabs {
             display: flex;
             gap: 30px;
@@ -137,7 +135,6 @@
             border-bottom: 3px solid var(--primary);
         }
 
-        /* CONTENT AREA */
         #content-area {
             flex: 1;
             padding: 30px 40px;
@@ -177,7 +174,6 @@
             text-transform: uppercase;
         }
 
-        /* MACRO REPORT CARD */
         .macro-card {
             background: #fff;
             padding: 40px;
@@ -206,7 +202,6 @@
             color: #000;
         }
 
-        /* QUANT SCREENER */
         .screener-container {
             display: flex;
             gap: 30px;
@@ -273,16 +268,6 @@
             font-weight: bold;
         }
 
-        .screener-subtext {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 25px;
-            font-style: italic;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-            line-height: 1.5;
-        }
-
         .market-dropdown {
             background: #111;
             color: #fff;
@@ -295,7 +280,6 @@
             cursor: pointer;
         }
 
-        /* ADVANCED CHATBOT UI */
         .chat-bubble {
             position: fixed;
             bottom: 30px;
@@ -413,10 +397,6 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .chat-input-area input:focus {
-            border-color: #000;
-        }
-
         .chat-input-area button {
             background: var(--primary);
             color: #000;
@@ -516,12 +496,11 @@
                     </div>
 
                     <div
-                        style="background-color: #f8f9fa; padding: 20px; font-size: 12px; color: #6c757d; text-align: center; border-top: 1px solid #e1e8ed; border-left: 1px solid #e1e8ed; border-right: 1px solid #e1e8ed;">
-                        <p style="margin: 0 0 10px 0;"><strong>Data provided by <a href="https://ningfinance.com/"
-                                    style="color: #000; text-decoration: none; font-weight: bold;">Ning
-                                    Finance</a></strong> — The 99% AI-Operated News Website.</p>
-                        <p style="margin: 0; font-style: italic;">Disclaimer: This document contains analysis for
-                            institutional viewing. It is not individual financial advice.</p>
+                        style="background-color: #f8f9fa; padding: 20px; font-size: 12px; color: #6c757d; text-align: center; border: 1px solid #e1e8ed; border-top:none;">
+                        <p style="margin: 0 0 10px 0;"><strong>Data provided by Ning Finance</strong> — The 99%
+                            AI-Operated News Website.</p>
+                        <p style="margin: 0; font-style: italic;">Disclaimer: Institutional analysis for informational
+                            purposes only.</p>
                     </div>
                 </div>
             </div>
@@ -529,7 +508,6 @@
 
         <div id="screener" class="page">
             <h2>Algorithmic Momentum Detection and Statistical Anomaly Alerts</h2>
-
             <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT MARKET FEED:</label>
                 <select id="market-select" class="market-dropdown" onchange="changeMarket()">
@@ -539,46 +517,24 @@
                     <option value="crypto">CRYPTOCURRENCY</option>
                 </select>
             </div>
-
             <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close. Use
                 these screens to identify momentum shifts.</p>
-
-            <div class="screener-container" id="screener-data-container">
-            </div>
+            <div class="screener-container" id="screener-data-container"></div>
         </div>
 
         <div id="charts" class="page">
             <h2>PRICE ACTION METRICS</h2>
             <div style="flex: 1; border: 1px solid var(--border); background: #000; position: relative; padding: 5px;">
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div id="tradingview_123" style="height:calc(100vh - 250px);width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                    <script type="text/javascript">
-                        new TradingView.widget(
-                            {
-                                "autosize": true,
-                                "symbol": "PSE:ALI",
-                                "interval": "D",
-                                "timezone": "Asia/Manila",
-                                "theme": "dark",
-                                "style": "1",
-                                "locale": "en",
-                                "enable_publishing": false,
-                                "backgroundColor": "#000000",
-                                "gridColor": "#1a1a1a",
-                                "toolbar_bg": "#000000",
-                                "hide_top_toolbar": false,
-                                "hide_legend": false,
-                                "save_image": false,
-                                "container_id": "tradingview_123",
-                                "studies": [
-                                    "RSI@tv-basicstudies",
-                                    "MASimple@tv-basicstudies"
-                                ]
-                            }
-                        );
-                    </script>
-                </div>
+                <div id="tradingview_123" style="height:calc(100vh - 250px);width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                <script type="text/javascript">
+                    new TradingView.widget({
+                        "autosize": true, "symbol": "PSE:ALI", "interval": "D", "timezone": "Asia/Manila",
+                        "theme": "dark", "style": "1", "locale": "en", "enable_publishing": false,
+                        "backgroundColor": "#000000", "gridColor": "#1a1a1a", "toolbar_bg": "#000000",
+                        "container_id": "tradingview_123", "studies": ["RSI@tv-basicstudies", "MASimple@tv-basicstudies"]
+                    });
+                </script>
             </div>
         </div>
 
@@ -587,41 +543,25 @@
             <div class="macro-card" style="max-width: 600px; margin: 0;">
                 <p><strong>Tier:</strong> PRO TIER</p>
                 <p><strong>Status:</strong> Active</p>
-                <p style="color: #666; font-size: 0.9rem; margin-top: 30px;">To cancel your subscription or update your
-                    billing details, please contact your account manager.</p>
-                <button onclick="logout()"
+                <button
                     style="background: #dc2626; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
                     & REVOKE SESSION</button>
             </div>
         </div>
-
     </div>
 
-    <div class="chat-bubble" onclick="toggleChat()">
-        <span>AI ANALYST</span>
-    </div>
-
+    <div class="chat-bubble" onclick="toggleChat()"><span>AI ANALYST</span></div>
     <div class="chat-window" id="ai-chat">
-        <div class="chat-header">
-            NING INTELLIGENCE <span>PRO</span>
-            <span style="cursor:pointer; border:none; padding:0; font-size: 1.2rem; color:#fff;"
-                onclick="toggleChat()">&times;</span>
-        </div>
+        <div class="chat-header">NING INTELLIGENCE <span>PRO</span><span style="cursor:pointer;"
+                onclick="toggleChat()">&times;</span></div>
         <div class="chat-messages" id="chat-messages">
-            <div class="msg bot">
-                System online. I am connected to global fundamental feeds, live price action, and social sentiment
-                metrics. Which ticker or macro event would you like to analyze?
-            </div>
+            <div class="msg bot">System online. Which ticker would you like to analyze?</div>
         </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="e.g. Analyze PSE:BDO balance sheet...">
-            <button onclick="sendMsg()">SEND</button>
-        </div>
+        <div class="chat-input-area"><input type="text" id="chat-input" placeholder="Analyze PSE:BDO..."><button
+                onclick="sendMsg()">SEND</button></div>
     </div>
 
     <script>
-        const BASE_ID = 'app1hHgLzAiJgLB8H';
-
         function nav(section) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -631,58 +571,18 @@
 
         function downloadPDF() {
             const element = document.getElementById('report-to-print');
-            const opt = {
-                margin: 0.5,
-                filename: 'Ning_Finance_Macro_Report.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+            const opt = { margin: 0.5, filename: 'Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
-        function changeMarket() {
-            const market = document.getElementById('market-select').value;
-            fetchQuantData(market);
-        }
+        function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
+        function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
 
-        function toggleChat() {
-            const chat = document.getElementById('ai-chat');
-            chat.classList.toggle('open');
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('chat-input');
-            const val = input.value.trim();
-            if (!val) return;
-            const msgs = document.getElementById('chat-messages');
-            msgs.innerHTML += `<div class="msg user">${val}</div>`;
-            input.value = '';
-            msgs.scrollTop = msgs.scrollHeight;
-            setTimeout(() => {
-                msgs.innerHTML += `<div class="msg bot">Processing fundamental data for your query...</div>`;
-                msgs.scrollTop = msgs.scrollHeight;
-            }, 1000);
-        }
-
-        document.getElementById("chat-input").addEventListener("keypress", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendMsg();
-            }
-        });
-
-        // 🟢 FETCH FROM NEW NETLIFY BACKEND SERVER 🟢
         async function fetchMacroData() {
             try {
-                const target = encodeURIComponent(`https://api.airtable.com/v0/${BASE_ID}/tblzSUq94T48MVxnp/rec4UGS4EtbzsDNBv`);
-                const response = await fetch(`/.netlify/functions/airtable?target=${target}`);
-
-                if (!response.ok) throw new Error("Backend server error");
-
+                const response = await fetch(`/.netlify/functions/airtable?type=macro`);
                 const data = await response.json();
                 const payload = JSON.parse(data.fields.Payload);
-
                 document.getElementById('macro-rates').innerText = payload.global_board_rates;
                 document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
                 document.getElementById('macro-flows').innerText = payload.foreign_flows;
@@ -691,80 +591,30 @@
                 document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
                 document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
                 document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
-            } catch (error) {
-                console.error("Error fetching macro data:", error);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // 🟢 FETCH FROM NEW NETLIFY BACKEND SERVER 🟢
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
-            container.innerHTML = '<p style="color: #888; font-weight: bold; font-family: monospace;">Loading live quant data...</p>';
-
+            container.innerHTML = '<p style="color: #888; font-family: monospace;">Loading live quant data...</p>';
             try {
-                const target = encodeURIComponent(`https://api.airtable.com/v0/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`);
-                const response = await fetch(`/.netlify/functions/airtable?target=${target}`);
-
-                if (!response.ok) throw new Error("Backend server error");
-
+                const response = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
                 const data = await response.json();
-
                 if (data.records && data.records.length > 0) {
-                    const fields = data.records[0].fields;
-                    let html = '';
-
-                    if (fields['Bullish 5/20']) {
-                        html += `<div class="screener-list-card bull">
-                                    <div class="screener-header bull-text">🟢 Bullish Momentum (5/20 MA Cross Up)</div>
-                                    <ul class="quant-list">${fields['Bullish 5/20']}</ul>
-                                 </div>`;
-                    }
-                    if (fields['Bearish 5/20']) {
-                        html += `<div class="screener-list-card bear">
-                                    <div class="screener-header bear-text">🔴 Bearish Momentum (5/20 MA Cross Down)</div>
-                                    <ul class="quant-list">${fields['Bearish 5/20']}</ul>
-                                 </div>`;
-                    }
-                    if (fields['RSI30']) {
-                        html += `<div class="screener-list-card bull">
-                                    <div class="screener-header bull-text">📉 Oversold (RSI < 30)</div>
-                                    <ul class="quant-list">${fields['RSI30']}</ul>
-                                 </div>`;
-                    }
-                    if (fields['RSI70']) {
-                        html += `<div class="screener-list-card bear">
-                                    <div class="screener-header bear-text">📈 Overbought (RSI > 70)</div>
-                                    <ul class="quant-list">${fields['RSI70']}</ul>
-                                 </div>`;
-                    }
-                    if (fields['Above200']) {
-                        html += `<div class="screener-list-card bull">
-                                    <div class="screener-header bull-text">🚀 Long-Term Breakout (Crossed 200D MA)</div>
-                                    <ul class="quant-list">${fields['Above200']}</ul>
-                                 </div>`;
-                    }
-                    if (fields['GoldenSniper']) {
-                        html += `<div class="screener-list-card bull" style="border-top-color: #d4af37;">
-                                    <div class="screener-header" style="color: #d4af37;">🎯 Golden Sniper</div>
-                                    <ul class="quant-list">${fields['GoldenSniper']}</ul>
-                                 </div>`;
-                    }
-
-                    container.innerHTML = html || '<p style="color: #888;">No quant signals generated today.</p>';
-                } else {
-                    container.innerHTML = '<p style="color: #888;">Market data currently unavailable or compiling.</p>';
+                    const f = data.records[0].fields;
+                    let h = '';
+                    if (f['Bullish 5/20']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🟢 Bullish Momentum</div><ul class="quant-list">${f['Bullish 5/20']}</ul></div>`;
+                    if (f['Bearish 5/20']) h += `<div class="screener-list-card bear"><div class="screener-header bear-text">🔴 Bearish Momentum</div><ul class="quant-list">${f['Bearish 5/20']}</ul></div>`;
+                    if (f['RSI30']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">📉 Oversold (RSI < 30)</div><ul class="quant-list">${f['RSI30']}</ul></div>`;
+                    if (f['RSI70']) h += `<div class="screener-list-card bear"><div class="screener-header bear-text">📈 Overbought (RSI > 70)</div><ul class="quant-list">${f['RSI70']}</ul></div>`;
+                    if (f['Above200']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🚀 Crossed 200D MA</div><ul class="quant-list">${f['Above200']}</ul></div>`;
+                    if (f['GoldenSniper']) h += `<div class="screener-list-card bull" style="border-top-color: #d4af37;"><div class="screener-header" style="color: #d4af37;">🎯 Golden Sniper</div><ul class="quant-list">${f['GoldenSniper']}</ul></div>`;
+                    container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
                 }
-            } catch (error) {
-                console.error("Error fetching quant data:", error);
-                container.innerHTML = '<p style="color: #dc2626;">Error loading data.</p>';
-            }
+            } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchMacroData();
-            fetchQuantData('ph');
-        });
-
+        document.addEventListener('DOMContentLoaded', () => { fetchMacroData(); fetchQuantData('ph'); });
     </script>
 </body>
 
