@@ -682,12 +682,13 @@
             }
         });
 
-        // FETCH LIVE MACRO DATA DIRECTLY FROM AIRTABLE
+        // FETCH LIVE MACRO DATA ROUTED THROUGH NETLIFY PROXY
         async function fetchMacroData() {
             const recordId = 'rec4UGS4EtbzsDNBv';
 
             try {
-                const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/tblzSUq94T48MVxnp/${recordId}`;
+                // Request hits Netlify first to bypass Airtable Browser Block
+                const airtableUrl = `/airtable-api/${BASE_ID}/tblzSUq94T48MVxnp/${recordId}`;
                 const response = await fetch(airtableUrl, {
                     headers: { Authorization: `Bearer ${getToken()}` }
                 });
@@ -708,13 +709,14 @@
             }
         }
 
-        // FETCH LIVE QUANT DATA DIRECTLY FROM AIRTABLE
+        // FETCH LIVE QUANT DATA ROUTED THROUGH NETLIFY PROXY
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888; font-weight: bold; font-family: monospace;">Loading live quant data...</p>';
 
             try {
-                const airtableUrl = `https://api.airtable.com/v0/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
+                // Request hits Netlify first to bypass Airtable Browser Block
+                const airtableUrl = `/airtable-api/${BASE_ID}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
                 const response = await fetch(airtableUrl, {
                     headers: { Authorization: `Bearer ${getToken()}` }
                 });
@@ -724,6 +726,7 @@
                     const fields = data.records[0].fields;
                     let html = '';
 
+                    // Dynamically build the cards based on what Make.com dropped into Airtable
                     if (fields['Bullish 5/20']) {
                         html += `<div class="screener-list-card bull">
                                     <div class="screener-header bull-text">🟢 Bullish Momentum (5/20 MA Cross Up)</div>
