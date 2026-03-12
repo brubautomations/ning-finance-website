@@ -582,7 +582,17 @@
             try {
                 const response = await fetch(`/.netlify/functions/airtable?type=macro`);
                 const data = await response.json();
-                const payload = JSON.parse(data.fields.Payload);
+
+                // Extra safety check in case Airtable gets grumpy
+                if (data.error) {
+                    console.error("Airtable Error:", data.error);
+                    document.getElementById('macro-rates').innerText = "Airtable Connection Error";
+                    return;
+                }
+
+                // FIXED: Now we dynamically grab the newest record, no matter what ID Make.com created!
+                const payload = JSON.parse(data.records[0].fields.Payload);
+
                 document.getElementById('macro-rates').innerText = payload.global_board_rates;
                 document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
                 document.getElementById('macro-flows').innerText = payload.foreign_flows;
@@ -591,7 +601,7 @@
                 document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
                 document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
                 document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
         async function fetchQuantData(marketCode) {
