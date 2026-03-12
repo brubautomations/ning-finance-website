@@ -675,18 +675,17 @@
             }
         });
 
-        // FETCH LIVE MACRO DATA FROM AIRTABLE (WITH PROXY ENCODING)
+        // FETCH LIVE MACRO DATA DIRECTLY FROM AIRTABLE
         async function fetchMacroData() {
             const token = 'patRMgq1z9JXNcRud.623af7583522f26cdb54b55e52a8d7fffd23be18447eade77fc0aae733fb7b6c';
             const baseId = 'app1hHgLzAiJgLB8H';
             const recordId = 'rec4UGS4EtbzsDNBv';
 
             try {
-                // Using URL encoding to ensure corsproxy doesn't drop anything
+                // Direct to Airtable. No proxy.
                 const airtableUrl = `https://api.airtable.com/v0/${baseId}/tblzSUq94T48MVxnp/${recordId}`;
-                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(airtableUrl);
 
-                const response = await fetch(proxyUrl, {
+                const response = await fetch(airtableUrl, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -708,7 +707,7 @@
             }
         }
 
-        // FETCH LIVE QUANT DATA FROM AIRTABLE (WITH PROXY ENCODING)
+        // FETCH LIVE QUANT DATA DIRECTLY FROM AIRTABLE
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888; font-weight: bold; font-family: monospace;">Loading live quant data...</p>';
@@ -717,11 +716,10 @@
             const baseId = 'app1hHgLzAiJgLB8H';
 
             try {
-                // Using URL encoding to ensure corsproxy correctly parses the filterByFormula
+                // Direct to Airtable. No proxy.
                 const airtableUrl = `https://api.airtable.com/v0/${baseId}/Quant%20Data?filterByFormula={Market}='${marketCode}'`;
-                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(airtableUrl);
 
-                const response = await fetch(proxyUrl, {
+                const response = await fetch(airtableUrl, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await response.json();
