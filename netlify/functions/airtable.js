@@ -5,9 +5,8 @@ exports.handler = async function (event, context) {
     const market = event.queryStringParameters.market || 'ph';
     const baseId = 'app1hHgLzAiJgLB8H';
 
-    // STEALTH MODE: Your new token, but reversed so GitHub doesn't block the push!
-    const reversedToken = '3a68693d1ed3132aa4d8b81b9ecc629e72ce302831623929868f9ea8b17ea04f.XLtQWCm7isyOYxXtap';
-    const token = reversedToken.split('').reverse().join('');
+    // FETCHING THE REAL TOKEN FROM NETLIFY'S VAULT - NO MORE HACKS!
+    const token = process.env.AIRTABLE_PAT;
 
     let targetUrl = '';
     if (type === 'macro') {
