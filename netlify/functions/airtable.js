@@ -5,13 +5,11 @@ exports.handler = async function (event, context) {
     const market = event.queryStringParameters.market || 'ph';
     const baseId = 'app1hHgLzAiJgLB8H';
 
-    // Stealth token re-assembly
-    const reversedToken = '37a9db057edc876c2dd3b64a62ee0ab579cb7573ac7cd129ad42b652807155b3.XLtQWCm7isYOxXtap';
-    const token = reversedToken.split('').reverse().join('');
+    // THE FIX: Pasting the raw, freshly generated token directly!
+    const token = 'patXxOYsi7mCWQtLX';
 
     let targetUrl = '';
     if (type === 'macro') {
-        // Fetching the newest row automatically. No hardcoded Record IDs to break!
         targetUrl = `https://api.airtable.com/v0/${baseId}/tblzSUq94T48MVxnp?maxRecords=1`;
     } else {
         const formula = encodeURIComponent(`{Market}='${market}'`);
@@ -24,8 +22,7 @@ exports.handler = async function (event, context) {
             res.on('data', (chunk) => { data += chunk; });
             res.on('end', () => {
 
-                // BACKWARD COMPATIBILITY MAGIC
-                // We format the array down to a single object so your premium.html doesn't crash!
+                // Formatting magic so premium.html doesn't crash
                 if (type === 'macro') {
                     try {
                         const parsed = JSON.parse(data);
