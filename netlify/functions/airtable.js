@@ -5,12 +5,13 @@ exports.handler = async function (event, context) {
     const market = event.queryStringParameters.market || 'ph';
     const baseId = 'app1hHgLzAiJgLB8H';
 
-    // THE FIX: Pasting the raw, freshly generated token directly!
+    // THE FIX: Put your actual, newly generated PAT token right here!
     const token = 'patXxOYsi7mCWQtLX';
 
     let targetUrl = '';
     if (type === 'macro') {
-        targetUrl = `https://api.airtable.com/v0/${baseId}/tblzSUq94T48MVxnp?maxRecords=1`;
+        // THE FIX: We stop using the dead Table ID and just use the actual Table Name!
+        targetUrl = `https://api.airtable.com/v0/${baseId}/Macro%20Report?maxRecords=1`;
     } else {
         const formula = encodeURIComponent(`{Market}='${market}'`);
         targetUrl = `https://api.airtable.com/v0/${baseId}/Quant%20Data?filterByFormula=${formula}`;
