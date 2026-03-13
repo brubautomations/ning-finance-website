@@ -198,7 +198,7 @@
             color: #000;
         }
 
-        /* THE NEW CLEAN GRID UI */
+        /* THE NEW PREMIUM BLACK & GOLD GRID UI */
         .screener-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -207,11 +207,14 @@
         }
 
         .screener-module {
-            background: #fff;
-            border: 1px solid var(--border);
+            background: #0a0a0a;
+            /* Deep Black Background */
+            border: 1px solid var(--primary);
+            /* Ning Gold Border */
             padding: 25px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
+            border-radius: 4px;
         }
 
         .screener-header {
@@ -222,8 +225,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #111;
-            border-bottom: 1px solid var(--bg);
+            color: var(--primary);
+            /* Gold Header Text */
+            border-bottom: 1px dashed #333;
             padding-bottom: 12px;
         }
 
@@ -238,26 +242,45 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px dashed var(--border);
+            border-bottom: 1px dashed #222;
             font-family: 'Courier New', monospace;
-            color: #444;
+            color: #ccc;
+            /* Light gray for prices */
             font-size: 0.95rem;
         }
+
+        /* Hiding Make.com closing price text and fixing the dash */
+        .quant-list li strong+* {
+            display: none !important;
+        }
+
+        .quant-list li strong::after {
+            content: " -";
+            display: inline;
+            color: #666;
+        }
+
+        .quant-list li strong+*+* {
+            display: block !important;
+            color: #fff;
+        }
+
+        /* White for the actual price */
 
         .quant-list li:last-child {
             border-bottom: none;
         }
 
         .quant-list strong {
-            color: #000;
+            color: var(--primary);
             font-weight: 800;
             font-family: 'Inter', sans-serif;
         }
 
         .market-dropdown {
-            background: #fff;
-            color: #000;
-            border: 1px solid var(--border);
+            background: #000;
+            color: var(--primary);
+            border: 1px solid var(--primary);
             padding: 10px 15px;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
@@ -565,7 +588,7 @@
             } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
-        // Helper function for building the clean white cards
+        // Helper function for building the clean black/gold cards
         function buildModule(title, icon, dataList) {
             if (!dataList) return '';
             return `<div class="screener-module">
@@ -584,17 +607,17 @@
                     const f = data.records[0].fields;
                     let h = '';
 
-                    // The 10 Signals perfectly mapped
+                    // FIXED: Mapped EXACTLY to the Airtable column names from your screenshot
                     h += buildModule('Bullish Momentum', '🟢', f['Bullish 5/20']);
                     h += buildModule('Bearish Momentum', '🔴', f['Bearish 5/20']);
                     h += buildModule('Oversold (RSI < 30)', '📉', f['RSI30']);
                     h += buildModule('Overbought (RSI > 70)', '📈', f['RSI70']);
                     h += buildModule('Crossed 200D MA', '🚀', f['Above200']);
                     h += buildModule('Golden Sniper', '🎯', f['GoldenSniper']);
-                    h += buildModule('ADX Strong Trend', '🔥', f['ADX Strong']);
-                    h += buildModule('Bollinger Squeeze', '⏱️', f['Bollinger Squeeze']);
-                    h += buildModule('Inst. Volume Surge', '🐳', f['Volume Surge']);
-                    h += buildModule('Alpha Leader (RS)', '👑', f['Alpha Leader']);
+                    h += buildModule('ADX Strong Trend', '🔥', f['ADXStrong']);
+                    h += buildModule('Bollinger Squeeze', '⏱️', f['BollingerSqueeze']);
+                    h += buildModule('Inst. Volume Surge', '🐳', f['VolumeSurge']);
+                    h += buildModule('Alpha Leader (RS)', '👑', f['AlphaLeader']);
 
                     container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
                 } else {
