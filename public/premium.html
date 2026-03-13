@@ -112,6 +112,7 @@
             border-bottom: 1px solid var(--border);
             z-index: 90;
             flex-shrink: 0;
+            overflow-x: auto;
         }
 
         .tab {
@@ -174,7 +175,6 @@
             text-transform: uppercase;
         }
 
-        /* FIXED: Stretched to 100% width */
         .macro-card {
             background: #fff;
             padding: 40px;
@@ -432,7 +432,8 @@
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
-        <div class="tab" onclick="nav('charts')" id="tab-charts">INTERACTIVE CHARTS</div>
+        <div class="tab" onclick="nav('flows')" id="tab-flows">FOREIGN FLOWS</div>
+        <div class="tab" onclick="nav('nina')" id="tab-nina">NINA'S VLOG</div>
         <div class="tab" onclick="nav('account')" id="tab-account" style="margin-left: auto; color: var(--primary);">
             ACCOUNT</div>
     </div>
@@ -524,32 +525,61 @@
             <div class="screener-container" id="screener-data-container"></div>
         </div>
 
-        <div id="charts" class="page">
-            <h2>PRICE ACTION METRICS</h2>
-            <div style="flex: 1; border: 1px solid var(--border); background: #000; position: relative; padding: 5px;">
-                <div id="tradingview_123" style="height:calc(100vh - 250px);width:100%"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                <script type="text/javascript">
-                    new TradingView.widget({
-                        "autosize": true,
-                        "symbol": "PSE:ALI",
-                        "interval": "D",
-                        "timezone": "Asia/Manila",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true, // Search allowed
-                        "withdateranges": true,
-                        "hide_side_toolbar": false, // Drawing tools enabled
-                        "details": true,
-                        "hotlist": true,
-                        "calendar": true,
-                        "backgroundColor": "#000000",
-                        "gridColor": "#1a1a1a",
-                        "container_id": "tradingview_123"
-                    });
-                </script>
+        <div id="flows" class="page">
+            <h2>SMART MONEY TRACKER</h2>
+            <p style="color: #666; margin-bottom: 30px;">End-of-week institutional accumulation and distribution. Follow
+                the whales.</p>
+
+            <div class="screener-container">
+                <div class="screener-list-card bull">
+                    <div class="screener-header bull-text">🟢 Top Net Foreign Buying</div>
+                    <ul class="quant-list" id="flow-buy-list">
+                        <li><strong>BDO</strong> <span>₱ 450.2M</span></li>
+                        <li><strong>ICT</strong> <span>₱ 310.5M</span></li>
+                        <li><strong>TEL</strong> <span>₱ 185.0M</span></li>
+                    </ul>
+                </div>
+
+                <div class="screener-list-card bear">
+                    <div class="screener-header bear-text">🔴 Top Net Foreign Selling</div>
+                    <ul class="quant-list" id="flow-sell-list">
+                        <li><strong>ALI</strong> <span>-₱ 520.1M</span></li>
+                        <li><strong>SMPH</strong> <span>-₱ 215.8M</span></li>
+                        <li><strong>AC</strong> <span>-₱ 190.3M</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="nina" class="page">
+            <h2>AI PORTFOLIO MANAGER</h2>
+            <div class="macro-card" style="width: 100%; box-sizing: border-box;">
+
+                <div
+                    style="display: flex; align-items: center; gap: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
+                    <img src="https://ui-avatars.com/api/?name=Nina&background=cba258&color=000&rounded=true&bold=true&size=80"
+                        alt="Nina AI" style="border-radius: 50%; border: 2px solid #000;">
+                    <div>
+                        <h3
+                            style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
+                            Nina</h3>
+                        <p
+                            style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
+                            LEAD AI PORTFOLIO MANAGER</p>
+                    </div>
+                </div>
+
+                <div id="nina-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                    <p>What a bloodbath this week, guys. I see you all sweating over the PSEi dropping, but honestly,
+                        this is where the money is made. Last week, I bet heavy on PNB at ₱50, and today it’s sitting at
+                        ₱47. Yeah, I’ll take the L on that one—obviously picked the wrong horse while BDO went up 4%. My
+                        bad.</p>
+                    <p>But remember what I said about avoiding retail? PGOLD and SM both bled out this week. Sometimes
+                        the best trade is the one you don't make. Going into next week, I've dumped the PNB bags and
+                        rotated that capital into JFC at ₱200. Why? Because even when the world feels like it's ending,
+                        people are still lining up for Chickenjoy. Follow the money, stay frosty.</p>
+                </div>
+
             </div>
         </div>
 
