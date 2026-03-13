@@ -204,19 +204,25 @@
             color: #000;
         }
 
+        /* 3. DEAD SPACE FIX: Layout changed to Grid for perfect card control */
         .screener-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 30px;
-            flex-wrap: wrap;
+            justify-content: center;
+            justify-items: center;
         }
 
+        /* Centering and constraining each card */
         .screener-list-card {
-            flex: 1;
-            min-width: 350px;
             background: #111;
             border-radius: 4px;
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
         }
 
         .screener-list-card.bull {
@@ -254,11 +260,26 @@
         .quant-list li {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 12px 0;
             border-bottom: 1px dashed #333;
             font-family: 'Courier New', monospace;
             color: #e0e0e0;
             font-size: 0.95rem;
+        }
+
+        /* 2. PRICE FIX: Hide the text from Make.com to avoid technical re-work */
+        .quant-list li strong+* {
+            display: none !important;
+        }
+
+        .quant-list li Strong::after {
+            content: " -";
+            display: inline;
+        }
+
+        .quant-list li strong+*+* {
+            display: block !important;
         }
 
         .quant-list li:last-child {
@@ -432,8 +453,8 @@
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
-        <div class="tab" onclick="nav('flows')" id="tab-flows">FOREIGN FLOWS</div>
-        <div class="tab" onclick="nav('nina')" id="tab-nina">NINA'S VLOG</div>
+        <div class="tab" onclick="nav('flows')" id="tab-flows">SMART MONEY TRACKER</div>
+        <div class="tab" onclick="nav('nina')" id="tab-nina">NINA'S AI VLOG</div>
         <div class="tab" onclick="nav('account')" id="tab-account" style="margin-left: auto; color: var(--primary);">
             ACCOUNT</div>
     </div>
@@ -526,33 +547,15 @@
         </div>
 
         <div id="flows" class="page">
-            <h2>SMART MONEY TRACKER</h2>
+            <h2>SMART MONEY WHALE RADAR</h2>
             <p style="color: #666; margin-bottom: 30px;">End-of-week institutional accumulation and distribution. Follow
-                the whales.</p>
+                the footprints of massive capital.</p>
 
-            <div class="screener-container">
-                <div class="screener-list-card bull">
-                    <div class="screener-header bull-text">🟢 Top Net Foreign Buying</div>
-                    <ul class="quant-list" id="flow-buy-list">
-                        <li><strong>BDO</strong> <span>₱ 450.2M</span></li>
-                        <li><strong>ICT</strong> <span>₱ 310.5M</span></li>
-                        <li><strong>TEL</strong> <span>₱ 185.0M</span></li>
-                    </ul>
-                </div>
-
-                <div class="screener-list-card bear">
-                    <div class="screener-header bear-text">🔴 Top Net Foreign Selling</div>
-                    <ul class="quant-list" id="flow-sell-list">
-                        <li><strong>ALI</strong> <span>-₱ 520.1M</span></li>
-                        <li><strong>SMPH</strong> <span>-₱ 215.8M</span></li>
-                        <li><strong>AC</strong> <span>-₱ 190.3M</span></li>
-                    </ul>
-                </div>
-            </div>
+            <div class="screener-container" id="whale-flows-container"></div>
         </div>
 
         <div id="nina" class="page">
-            <h2>AI PORTFOLIO MANAGER</h2>
+            <h2>NINA'S AI VLOG</h2>
             <div class="macro-card" style="width: 100%; box-sizing: border-box;">
 
                 <div
@@ -657,6 +660,7 @@
             }
         }
 
+        // 1. DATA SYNC: JavaScript refactored to generate all 10 cards dynamically
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888; font-family: monospace;">Loading live quant data...</p>';
@@ -672,6 +676,11 @@
                     if (f['RSI70']) h += `<div class="screener-list-card bear"><div class="screener-header bear-text">📈 Overbought (RSI > 70)</div><ul class="quant-list">${f['RSI70']}</ul></div>`;
                     if (f['Above200']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🚀 Crossed 200D MA</div><ul class="quant-list">${f['Above200']}</ul></div>`;
                     if (f['GoldenSniper']) h += `<div class="screener-list-card bull" style="border-top-color: #d4af37;"><div class="screener-header" style="color: #d4af37;">🎯 Golden Sniper</div><ul class="quant-list">${f['GoldenSniper']}</ul></div>`;
+                    if (f['ADX Strong']) h += `<div class="screener-list-card bull" style="border-top-color: #8b5cf6;"><div class="screener-header" style="color: #8b5cf6;">🔥 ADX Strong Trend</div><ul class="quant-list">${f['ADX Strong']}</ul></div>`;
+                    if (f['Bollinger Squeeze']) h += `<div class="screener-list-card bull" style="border-top-color: #f97316;"><div class="screener-header" style="color: #f97316;">⏱️ Bollinger Squeeze</div><ul class="quant-list">${f['Bollinger Squeeze']}</ul></div>`;
+                    if (f['Volume Surge']) h += `<div class="screener-list-card bull" style="border-top-color: #3b82f6;"><div class="screener-header" style="color: #3b82f6;">🐳 Inst. Volume Surge</div><ul class="quant-list">${f['Volume Surge']}</ul></div>`;
+                    if (f['Alpha Leader']) h += `<div class="screener-list-card bull" style="border-top-color: #ec4899;"><div class="screener-header" style="color: #ec4899;">👑 Alpha Leader (RS)</div><ul class="quant-list">${f['Alpha Leader']}</ul></div>`;
+
                     container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
                 } else {
                     container.innerHTML = '<p style="color: #888;">No signals today or table empty.</p>';
@@ -679,7 +688,43 @@
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
-        document.addEventListener('DOMContentLoaded', () => { fetchMacroData(); fetchQuantData('ph'); });
+        // 1. DATA SYNC: Pull Nina and Smart Money data from Airtable
+        async function fetchNinaAndSmartMoney() {
+            try {
+                // Fetch the one record we care about
+                const response = await fetch(`/.netlify/functions/airtable?type=macro`);
+                const data = await response.json();
+
+                if (data.records && data.records.length > 0) {
+                    const f = data.records[0].fields;
+
+                    // Nina Vlog
+                    if (f['Nina_Weekly_Vlog']) {
+                        // Optional: Simple paragraph formatting if Nina returns raw text
+                        const formattedVlog = f['Nina_Weekly_Vlog']
+                            .split('\n')
+                            .filter(p => p.trim())
+                            .map(p => `<p>${p}</p>`)
+                            .join('');
+                        document.getElementById('nina-vlog-content').innerHTML = formattedVlog;
+                    }
+
+                    // Smart Money Flows
+                    const flowsContainer = document.getElementById('whale-flows-container');
+                    let flowHTML = '';
+                    if (f['Foreign_Buy_List']) {
+                        flowHTML += `<div class="screener-list-card bull"><div class="screener-header bull-text">🟢 Smart Money Accumulation (Top Foreign Buys)</div><ul class="quant-list">${f['Foreign_Buy_List']}</ul></div>`;
+                    }
+                    if (f['Foreign_Sell_List']) {
+                        flowHTML += `<div class="screener-list-card bear"><div class="screener-header bear-text">🔴 Institutional Distribution (Top Foreign Sells)</div><ul class="quant-list">${f['Foreign_Sell_List']}</ul></div>`;
+                    }
+                    if (!flowHTML) { flowHTML = '<p style="color: #888; font-family: monospace;">Footprints not found. Whales are currently deep-water.</p>'; }
+                    flowsContainer.innerHTML = flowHTML;
+                }
+            } catch (e) { console.error("Whale Radar fetch failed:", e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { fetchMacroData(); fetchQuantData('ph'); fetchNinaAndSmartMoney(); });
     </script>
 </body>
 
