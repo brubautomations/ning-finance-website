@@ -608,16 +608,16 @@
                     let h = '';
 
                     // FIXED: Mapped EXACTLY to the Airtable column names from your screenshot
-                    h += buildModule('Bullish Momentum', '🟢', f['Bullish 5/20']);
-                    h += buildModule('Bearish Momentum', '🔴', f['Bearish 5/20']);
+                    h += buildModule('Bullish Momentum (5/20 MA cross up)', '🟢', f['Bullish 5/20']);
+                    h += buildModule('Bearish Momentum (5/20 MA cross down)', '🔴', f['Bearish 5/20']);
                     h += buildModule('Oversold (RSI < 30)', '📉', f['RSI30']);
                     h += buildModule('Overbought (RSI > 70)', '📈', f['RSI70']);
                     h += buildModule('Crossed 200D MA', '🚀', f['Above200']);
-                    h += buildModule('Golden Sniper', '🎯', f['GoldenSniper']);
-                    h += buildModule('ADX Strong Trend', '🔥', f['ADXStrong']);
-                    h += buildModule('Bollinger Squeeze', '⏱️', f['BollingerSqueeze']);
-                    h += buildModule('Inst. Volume Surge', '🐳', f['VolumeSurge']);
-                    h += buildModule('Alpha Leader (RS)', '👑', f['AlphaLeader']);
+                    h += buildModule('Golden Sniper (Simultaneous MACD and Stochastics cross up)', '🎯', f['GoldenSniper']);
+                    h += buildModule('ADX Strong Trend (ADX > 25)', '🔥', f['ADXStrong']);
+                    h += buildModule('Bollinger Squeeze (Bollinger Bands near breaking point)', '⏱️', f['BollingerSqueeze']);
+                    h += buildModule('Inst. Volume Surge (Volume > 3x Average)', '🐳', f['VolumeSurge']);
+                    h += buildModule('Alpha Leader (Relative Strength Breakaway)', '👑', f['AlphaLeader']);
 
                     container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
                 } else {
