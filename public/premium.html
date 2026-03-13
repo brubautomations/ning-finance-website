@@ -583,14 +583,20 @@
                 const response = await fetch(`/.netlify/functions/airtable?type=macro`);
                 const data = await response.json();
 
-                // Extra safety check in case Airtable gets grumpy
+                // Safety check if Airtable returns an error (like Invalid Permissions)
                 if (data.error) {
                     console.error("Airtable Error:", data.error);
-                    document.getElementById('macro-rates').innerText = "Airtable Connection Error";
+                    document.getElementById('macro-rates').innerText = "Airtable Connection Error - Check Console";
                     return;
                 }
 
-                // FIXED: Now we dynamically grab the newest record, no matter what ID Make.com created!
+                // Safety check if the table is empty
+                if (!data.records || data.records.length === 0) {
+                    console.error("No records found in Airtable.");
+                    document.getElementById('macro-rates').innerText = "No data available in table.";
+                    return;
+                }
+
                 const payload = JSON.parse(data.records[0].fields.Payload);
 
                 document.getElementById('macro-rates').innerText = payload.global_board_rates;
@@ -601,7 +607,9 @@
                 document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
                 document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
                 document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
-            } catch (e) { console.error("Macro fetch failed:", e); }
+            } catch (e) {
+                console.error("Macro fetch failed:", e);
+            }
         }
 
         async function fetchQuantData(marketCode) {
@@ -620,6 +628,8 @@
                     if (f['Above200']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🚀 Crossed 200D MA</div><ul class="quant-list">${f['Above200']}</ul></div>`;
                     if (f['GoldenSniper']) h += `<div class="screener-list-card bull" style="border-top-color: #d4af37;"><div class="screener-header" style="color: #d4af37;">🎯 Golden Sniper</div><ul class="quant-list">${f['GoldenSniper']}</ul></div>`;
                     container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
+                } else {
+                    container.innerHTML = '<p style="color: #888;">No signals today or table empty.</p>';
                 }
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
