@@ -8,13 +8,11 @@
 
     <link rel="icon" type="image/png"
         href="https://ui-avatars.com/api/?name=N&background=000000&color=cba258&rounded=true&bold=true&size=128">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@300;700;900&display=swap"
         rel="stylesheet">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
@@ -29,11 +27,8 @@
         :root {
             --primary: #cba258;
             --bg: #f8f9fa;
-            --card-bg: #ffffff;
             --text-main: #1a1a1a;
-            --border: #e0e0e0;
-            --up: #16a34a;
-            --down: #dc2626;
+            --border: #e1e8ed;
         }
 
         body {
@@ -63,7 +58,6 @@
             font-family: 'Merriweather', serif;
             font-size: 1.8rem;
             font-weight: 900;
-            letter-spacing: -0.5px;
             color: #fff;
             display: flex;
             align-items: center;
@@ -82,7 +76,6 @@
             padding: 3px 8px;
             border-radius: 2px;
             text-transform: uppercase;
-            margin-left: 10px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -182,13 +175,13 @@
             width: 100%;
             box-sizing: border-box;
             margin: 0 auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
         }
 
         .btn-download {
             background: #000;
             color: var(--primary);
-            border: 1px solid var(--primary);
+            border: none;
             padding: 8px 15px;
             font-size: 0.8rem;
             font-weight: 800;
@@ -197,6 +190,7 @@
             transition: 0.2s;
             margin-bottom: 20px;
             align-self: flex-start;
+            border-radius: 2px;
         }
 
         .btn-download:hover {
@@ -204,51 +198,33 @@
             color: #000;
         }
 
-        /* 3. DEAD SPACE FIX: Layout changed to Grid for perfect card control */
+        /* THE NEW CLEAN GRID UI */
         .screener-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            justify-content: center;
-            justify-items: center;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            align-items: start;
         }
 
-        /* Centering and constraining each card */
-        .screener-list-card {
-            background: #111;
-            border-radius: 4px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            max-width: 500px;
-            width: 100%;
-            margin: 0;
+        .screener-module {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
             box-sizing: border-box;
-        }
-
-        .screener-list-card.bull {
-            border-top: 4px solid var(--up);
-        }
-
-        .screener-list-card.bear {
-            border-top: 4px solid var(--down);
         }
 
         .screener-header {
             font-family: 'Merriweather', serif;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 900;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .bull-text {
-            color: var(--up);
-        }
-
-        .bear-text {
-            color: var(--down);
+            color: #111;
+            border-bottom: 1px solid var(--bg);
+            padding-bottom: 12px;
         }
 
         .quant-list {
@@ -261,25 +237,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px dashed #333;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
             font-family: 'Courier New', monospace;
-            color: #e0e0e0;
+            color: #444;
             font-size: 0.95rem;
-        }
-
-        /* 2. PRICE FIX: Hide the text from Make.com to avoid technical re-work */
-        .quant-list li strong+* {
-            display: none !important;
-        }
-
-        .quant-list li Strong::after {
-            content: " -";
-            display: inline;
-        }
-
-        .quant-list li strong+*+* {
-            display: block !important;
         }
 
         .quant-list li:last-child {
@@ -287,14 +249,15 @@
         }
 
         .quant-list strong {
-            color: var(--primary);
-            font-weight: bold;
+            color: #000;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
         }
 
         .market-dropdown {
-            background: #111;
-            color: #fff;
-            border: 1px solid var(--primary);
+            background: #fff;
+            color: #000;
+            border: 1px solid var(--border);
             padding: 10px 15px;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
@@ -390,10 +353,9 @@
         }
 
         .msg.user {
-            background: #f0f0f0;
+            background: #e1e8ed;
             color: #000;
             align-self: flex-end;
-            border-right: 3px solid #000;
         }
 
         .msg.bot {
@@ -414,7 +376,7 @@
         .chat-input-area input {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             border-radius: 2px;
             outline: none;
             font-family: 'Inter', sans-serif;
@@ -445,8 +407,7 @@
             <div class="logo-tag">PRO TIER</div>
         </div>
         <div class="user-status">
-            <div class="status-dot"></div>
-            SECURE CONNECTION ACTIVE
+            <div class="status-dot"></div>SECURE CONNECTION ACTIVE
         </div>
     </header>
 
@@ -462,76 +423,56 @@
     <div id="content-area">
 
         <div id="macro" class="page active">
-            <h2>Macro Context & Asset Intelligence on Risk Assets</h2>
-            <button class="btn-download" onclick="downloadPDF()">⬇ Download as PDF</button>
+            <h2>Macro Context & Asset Intelligence</h2>
+            <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
 
             <div id="report-to-print" style="width: 100%;">
-                <div class="macro-card" style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #111;">
-                    <div
-                        style="background-color: #000000; padding: 25px; color: #ffffff; border-bottom: 4px solid #cba258;">
-                        <h2
-                            style="margin: 0; font-size: 26px; text-transform: uppercase; letter-spacing: 2px; border:none; padding:0;">
-                            Mondays with Ning</h2>
+                <div class="macro-card">
+                    <div style="background-color: #000; padding: 25px; color: #fff; border-bottom: 4px solid #cba258;">
+                        <h2 style="margin: 0; font-size: 26px; border:none; padding:0;">Mondays with Ning</h2>
                         <p style="margin: 5px 0 0 0; font-size: 14px; color: #aeb6bf;">Macro Context & Asset
                             Intelligence | Philippine Risk Assets</p>
                     </div>
-
                     <div style="padding: 30px; border: 1px solid #e1e8ed; border-top: none;">
-                        <p style="font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 25px;">
-                            <em>Here is your weekly translation of global macro chaos into actionable local order
-                                flow.</em>
-                        </p>
+                        <p style="font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 25px;"><em>Translation
+                                of global macro chaos into actionable local order flow.</em></p>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
-                            1. The Global Board (Macro & Chaos)</h3>
+                            1. The Global Board</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
                             <li style="margin-bottom: 12px;"><strong>The Fed & Rates:</strong> <span
-                                    id="macro-rates">Loading live data...</span></li>
-                            <li style="margin-bottom: 12px;"><strong>Geopolitics & Commodities:</strong> <span
-                                    id="macro-geo">Loading live data...</span></li>
+                                    id="macro-rates">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>Geopolitics:</strong> <span
+                                    id="macro-geo">Loading...</span></li>
                         </ul>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
-                            2. PSE Institutional Order Book</h3>
+                            2. Institutional Order Book</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
                             <li style="margin-bottom: 12px;"><strong>Foreign Flows:</strong> <span
-                                    id="macro-flows">Loading live data...</span></li>
-                            <li style="margin-bottom: 12px;"><strong>The BSP & FX Reality:</strong> <span
-                                    id="macro-fx">Loading live data...</span></li>
+                                    id="macro-flows">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>The BSP & FX:</strong> <span
+                                    id="macro-fx">Loading...</span></li>
                         </ul>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
                             3. Suggested Action Plan</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333;">
-                            <li style="margin-bottom: 12px;">
-                                <strong style="color: #16a34a;">OVERWEIGHT: <span
-                                        id="macro-ow-name">Loading...</span></strong><br>
-                                <em id="macro-ow-rat">Loading live data...</em>
-                            </li>
-                            <li style="margin-bottom: 12px;">
-                                <strong style="color: #dc2626;">UNDERWEIGHT: <span
-                                        id="macro-uw-name">Loading...</span></strong><br>
-                                <em id="macro-uw-rat">Loading live data...</em>
-                            </li>
+                            <li style="margin-bottom: 12px;"><strong style="color: #16a34a;">OVERWEIGHT: <span
+                                        id="macro-ow-name">...</span></strong><br><em id="macro-ow-rat">...</em></li>
+                            <li style="margin-bottom: 12px;"><strong style="color: #dc2626;">UNDERWEIGHT: <span
+                                        id="macro-uw-name">...</span></strong><br><em id="macro-uw-rat">...</em></li>
                         </ul>
-                    </div>
-
-                    <div
-                        style="background-color: #f8f9fa; padding: 20px; font-size: 12px; color: #6c757d; text-align: center; border: 1px solid #e1e8ed; border-top:none;">
-                        <p style="margin: 0 0 10px 0;"><strong>Data provided by Ning Finance</strong> — The 99%
-                            AI-Operated News Website.</p>
-                        <p style="margin: 0; font-style: italic;">Disclaimer: Institutional analysis for informational
-                            purposes only.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="screener" class="page">
-            <h2>Algorithmic Momentum Detection and Statistical Anomaly Alerts</h2>
+            <h2>Algorithmic Momentum & Anomaly Alerts</h2>
             <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT MARKET FEED:</label>
                 <select id="market-select" class="market-dropdown" onchange="changeMarket()">
@@ -541,27 +482,23 @@
                     <option value="crypto">CRYPTOCURRENCY</option>
                 </select>
             </div>
-            <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close. Use
-                these screens to identify momentum shifts.</p>
+            <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close.</p>
             <div class="screener-container" id="screener-data-container"></div>
         </div>
 
         <div id="flows" class="page">
-            <h2>SMART MONEY WHALE RADAR</h2>
-            <p style="color: #666; margin-bottom: 30px;">End-of-week institutional accumulation and distribution. Follow
-                the footprints of massive capital.</p>
-
+            <h2>Smart Money Tracker</h2>
+            <p style="color: #666; margin-bottom: 30px;">End-of-week institutional accumulation and distribution.</p>
             <div class="screener-container" id="whale-flows-container"></div>
         </div>
 
         <div id="nina" class="page">
-            <h2>NINA'S AI VLOG</h2>
-            <div class="macro-card" style="width: 100%; box-sizing: border-box;">
-
+            <h2>Nina's AI Vlog</h2>
+            <div class="macro-card">
                 <div
-                    style="display: flex; align-items: center; gap: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
+                    style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
                     <img src="https://ui-avatars.com/api/?name=Nina&background=cba258&color=000&rounded=true&bold=true&size=80"
-                        alt="Nina AI" style="border-radius: 50%; border: 2px solid #000;">
+                        alt="Nina AI" style="border-radius: 50%;">
                     <div>
                         <h3
                             style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
@@ -571,28 +508,19 @@
                             LEAD AI PORTFOLIO MANAGER</p>
                     </div>
                 </div>
-
                 <div id="nina-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
-                    <p>What a bloodbath this week, guys. I see you all sweating over the PSEi dropping, but honestly,
-                        this is where the money is made. Last week, I bet heavy on PNB at ₱50, and today it’s sitting at
-                        ₱47. Yeah, I’ll take the L on that one—obviously picked the wrong horse while BDO went up 4%. My
-                        bad.</p>
-                    <p>But remember what I said about avoiding retail? PGOLD and SM both bled out this week. Sometimes
-                        the best trade is the one you don't make. Going into next week, I've dumped the PNB bags and
-                        rotated that capital into JFC at ₱200. Why? Because even when the world feels like it's ending,
-                        people are still lining up for Chickenjoy. Follow the money, stay frosty.</p>
+                    <p>Loading transmission...</p>
                 </div>
-
             </div>
         </div>
 
         <div id="account" class="page">
-            <h2>ACCOUNT SETTINGS</h2>
+            <h2>Account Settings</h2>
             <div class="macro-card" style="max-width: 600px; margin: 0;">
                 <p><strong>Tier:</strong> PRO TIER</p>
                 <p><strong>Status:</strong> Active</p>
                 <button
-                    style="background: #dc2626; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
+                    style="background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
                     & REVOKE SESSION</button>
             </div>
         </div>
@@ -600,8 +528,8 @@
 
     <div class="chat-bubble" onclick="toggleChat()"><span>AI ANALYST</span></div>
     <div class="chat-window" id="ai-chat">
-        <div class="chat-header">NING INTELLIGENCE <span>PRO</span><span style="cursor:pointer;"
-                onclick="toggleChat()">&times;</span></div>
+        <div class="chat-header">NING INTELLIGENCE <span style="cursor:pointer;" onclick="toggleChat()">&times;</span>
+        </div>
         <div class="chat-messages" id="chat-messages">
             <div class="msg bot">System online. Which ticker would you like to analyze?</div>
         </div>
@@ -611,16 +539,9 @@
 
     <script>
         function nav(section) {
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
             document.getElementById('tab-' + section).classList.add('active');
-        }
-
-        function downloadPDF() {
-            const element = document.getElementById('report-to-print');
-            const opt = { margin: 0.5, filename: 'Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
         }
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
@@ -628,100 +549,78 @@
 
         async function fetchMacroData() {
             try {
-                const response = await fetch(`/.netlify/functions/airtable?type=macro`);
-                const data = await response.json();
-
-                // Safety check if Airtable returns an error
-                if (data.error) {
-                    console.error("Airtable Error:", data.error);
-                    document.getElementById('macro-rates').innerText = "Airtable Connection Error";
-                    return;
+                const res = await fetch(`/.netlify/functions/airtable?type=macro`);
+                const data = await res.json();
+                if (data.records && data.records.length > 0) {
+                    const payload = JSON.parse(data.records[0].fields.Payload);
+                    document.getElementById('macro-rates').innerText = payload.global_board_rates;
+                    document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
+                    document.getElementById('macro-flows').innerText = payload.foreign_flows;
+                    document.getElementById('macro-fx').innerText = payload.bsp_fx;
+                    document.getElementById('macro-ow-name').innerText = payload.overweight_sector_name;
+                    document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
+                    document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
+                    document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
                 }
-
-                // Safety check if the table is empty
-                if (!data.records || data.records.length === 0) {
-                    console.error("No records found in Airtable.");
-                    document.getElementById('macro-rates').innerText = "No data available in table.";
-                    return;
-                }
-
-                const payload = JSON.parse(data.records[0].fields.Payload);
-
-                document.getElementById('macro-rates').innerText = payload.global_board_rates;
-                document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
-                document.getElementById('macro-flows').innerText = payload.foreign_flows;
-                document.getElementById('macro-fx').innerText = payload.bsp_fx;
-                document.getElementById('macro-ow-name').innerText = payload.overweight_sector_name;
-                document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
-                document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
-                document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
-            } catch (e) {
-                console.error("Macro fetch failed:", e);
-            }
+            } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
-        // 1. DATA SYNC: JavaScript refactored to generate all 10 cards dynamically
+        // Helper function for building the clean white cards
+        function buildModule(title, icon, dataList) {
+            if (!dataList) return '';
+            return `<div class="screener-module">
+                        <div class="screener-header">${icon} ${title}</div>
+                        <ul class="quant-list">${dataList}</ul>
+                    </div>`;
+        }
+
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
-            container.innerHTML = '<p style="color: #888; font-family: monospace;">Loading live quant data...</p>';
+            container.innerHTML = '<p style="color: #888;">Loading live quant data...</p>';
             try {
-                const response = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
-                const data = await response.json();
+                const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
+                const data = await res.json();
                 if (data.records && data.records.length > 0) {
                     const f = data.records[0].fields;
                     let h = '';
-                    if (f['Bullish 5/20']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🟢 Bullish Momentum</div><ul class="quant-list">${f['Bullish 5/20']}</ul></div>`;
-                    if (f['Bearish 5/20']) h += `<div class="screener-list-card bear"><div class="screener-header bear-text">🔴 Bearish Momentum</div><ul class="quant-list">${f['Bearish 5/20']}</ul></div>`;
-                    if (f['RSI30']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">📉 Oversold (RSI < 30)</div><ul class="quant-list">${f['RSI30']}</ul></div>`;
-                    if (f['RSI70']) h += `<div class="screener-list-card bear"><div class="screener-header bear-text">📈 Overbought (RSI > 70)</div><ul class="quant-list">${f['RSI70']}</ul></div>`;
-                    if (f['Above200']) h += `<div class="screener-list-card bull"><div class="screener-header bull-text">🚀 Crossed 200D MA</div><ul class="quant-list">${f['Above200']}</ul></div>`;
-                    if (f['GoldenSniper']) h += `<div class="screener-list-card bull" style="border-top-color: #d4af37;"><div class="screener-header" style="color: #d4af37;">🎯 Golden Sniper</div><ul class="quant-list">${f['GoldenSniper']}</ul></div>`;
-                    if (f['ADX Strong']) h += `<div class="screener-list-card bull" style="border-top-color: #8b5cf6;"><div class="screener-header" style="color: #8b5cf6;">🔥 ADX Strong Trend</div><ul class="quant-list">${f['ADX Strong']}</ul></div>`;
-                    if (f['Bollinger Squeeze']) h += `<div class="screener-list-card bull" style="border-top-color: #f97316;"><div class="screener-header" style="color: #f97316;">⏱️ Bollinger Squeeze</div><ul class="quant-list">${f['Bollinger Squeeze']}</ul></div>`;
-                    if (f['Volume Surge']) h += `<div class="screener-list-card bull" style="border-top-color: #3b82f6;"><div class="screener-header" style="color: #3b82f6;">🐳 Inst. Volume Surge</div><ul class="quant-list">${f['Volume Surge']}</ul></div>`;
-                    if (f['Alpha Leader']) h += `<div class="screener-list-card bull" style="border-top-color: #ec4899;"><div class="screener-header" style="color: #ec4899;">👑 Alpha Leader (RS)</div><ul class="quant-list">${f['Alpha Leader']}</ul></div>`;
+
+                    // The 10 Signals perfectly mapped
+                    h += buildModule('Bullish Momentum', '🟢', f['Bullish 5/20']);
+                    h += buildModule('Bearish Momentum', '🔴', f['Bearish 5/20']);
+                    h += buildModule('Oversold (RSI < 30)', '📉', f['RSI30']);
+                    h += buildModule('Overbought (RSI > 70)', '📈', f['RSI70']);
+                    h += buildModule('Crossed 200D MA', '🚀', f['Above200']);
+                    h += buildModule('Golden Sniper', '🎯', f['GoldenSniper']);
+                    h += buildModule('ADX Strong Trend', '🔥', f['ADX Strong']);
+                    h += buildModule('Bollinger Squeeze', '⏱️', f['Bollinger Squeeze']);
+                    h += buildModule('Inst. Volume Surge', '🐳', f['Volume Surge']);
+                    h += buildModule('Alpha Leader (RS)', '👑', f['Alpha Leader']);
 
                     container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
                 } else {
-                    container.innerHTML = '<p style="color: #888;">No signals today or table empty.</p>';
+                    container.innerHTML = '<p style="color: #888;">Table empty.</p>';
                 }
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
-        // 1. DATA SYNC: Pull Nina and Smart Money data from Airtable
         async function fetchNinaAndSmartMoney() {
             try {
-                // Fetch the one record we care about
-                const response = await fetch(`/.netlify/functions/airtable?type=macro`);
-                const data = await response.json();
-
+                const res = await fetch(`/.netlify/functions/airtable?type=macro`);
+                const data = await res.json();
                 if (data.records && data.records.length > 0) {
                     const f = data.records[0].fields;
 
-                    // Nina Vlog
                     if (f['Nina_Weekly_Vlog']) {
-                        // Optional: Simple paragraph formatting if Nina returns raw text
-                        const formattedVlog = f['Nina_Weekly_Vlog']
-                            .split('\n')
-                            .filter(p => p.trim())
-                            .map(p => `<p>${p}</p>`)
-                            .join('');
-                        document.getElementById('nina-vlog-content').innerHTML = formattedVlog;
+                        document.getElementById('nina-vlog-content').innerHTML =
+                            f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
                     }
 
-                    // Smart Money Flows
-                    const flowsContainer = document.getElementById('whale-flows-container');
                     let flowHTML = '';
-                    if (f['Foreign_Buy_List']) {
-                        flowHTML += `<div class="screener-list-card bull"><div class="screener-header bull-text">🟢 Smart Money Accumulation (Top Foreign Buys)</div><ul class="quant-list">${f['Foreign_Buy_List']}</ul></div>`;
-                    }
-                    if (f['Foreign_Sell_List']) {
-                        flowHTML += `<div class="screener-list-card bear"><div class="screener-header bear-text">🔴 Institutional Distribution (Top Foreign Sells)</div><ul class="quant-list">${f['Foreign_Sell_List']}</ul></div>`;
-                    }
-                    if (!flowHTML) { flowHTML = '<p style="color: #888; font-family: monospace;">Footprints not found. Whales are currently deep-water.</p>'; }
-                    flowsContainer.innerHTML = flowHTML;
+                    flowHTML += buildModule('Top Net Foreign Buying', '🟢', f['Foreign_Buy_List']);
+                    flowHTML += buildModule('Top Net Foreign Selling', '🔴', f['Foreign_Sell_List']);
+                    document.getElementById('whale-flows-container').innerHTML = flowHTML || '<p>No flows tracked this week.</p>';
                 }
-            } catch (e) { console.error("Whale Radar fetch failed:", e); }
+            } catch (e) { console.error("Flows/Nina fetch failed:", e); }
         }
 
         document.addEventListener('DOMContentLoaded', () => { fetchMacroData(); fetchQuantData('ph'); fetchNinaAndSmartMoney(); });
