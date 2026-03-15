@@ -198,30 +198,6 @@
             color: #000;
         }
 
-        /* Institutional Tabs Styling */
-        .sub-nav {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .sub-tab {
-            background: #eee;
-            color: #666;
-            padding: 8px 16px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            border-radius: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-
-        .sub-tab.active {
-            background: #000;
-            color: var(--primary);
-        }
-
         .feed-definition {
             font-size: 0.85rem;
             color: #666;
@@ -580,16 +556,10 @@
 
         <div id="flows" class="page">
             <h2>INSTITUTIONAL & LEGISLATIVE FLOWS</h2>
-            <div class="sub-nav">
-                <div class="sub-tab active" id="sub-congress" onclick="switchAdvantage('congress')">Congress</div>
-                <div class="sub-tab" id="sub-contracts" onclick="switchAdvantage('contracts')">Gov Contracts</div>
-                <div class="sub-tab" id="sub-dark" onclick="switchAdvantage('dark')">Dark Pools</div>
-            </div>
 
-            <div id="feed-def" class="feed-definition">Live tracking of US congressional stock purchases and sales.
-            </div>
+            <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
 
-            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+            <div style="margin-bottom: 30px; margin-top: 25px; display: flex; align-items: center; gap: 15px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
                 <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
                     <option value="">Loading tickers...</option>
@@ -646,15 +616,6 @@
     </div>
 
     <script>
-        let currentFeed = 'congress';
-        const dataStore = { congress: '', contracts: '', dark: '' };
-
-        const feedDefs = {
-            congress: "Live tracking of US congressional stock purchases and sales. Access to legislative insider trading data.",
-            contracts: "Real-time awards of US Federal Government contracts to publicly traded companies. Tracks taxpayer-funded revenue flow.",
-            dark: "Institutional off-exchange trading intensity. DPI represents Dark Pool Index; OTC metrics track non-public buy/sell pressure."
-        };
-
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
@@ -718,14 +679,6 @@
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
-        function switchAdvantage(type) {
-            currentFeed = type;
-            document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById('sub-' + type).classList.add('active');
-            document.getElementById('feed-def').innerText = feedDefs[type];
-            renderWhaleDropdown(dataStore[type]);
-        }
-
         function renderWhaleDropdown(rawHtml) {
             const rawContainer = document.getElementById('whale-raw-data');
             const select = document.getElementById('whale-select');
@@ -753,18 +706,16 @@
                 mod.id = 'block-' + index;
                 const ticker = mod.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
 
-                // Logic for Congress Tab (Sort names A-Z and color code)
-                if (currentFeed === 'congress') {
-                    const ul = mod.querySelector('.quant-list');
-                    if (ul) {
-                        const items = Array.from(ul.querySelectorAll('li'));
-                        items.sort((a, b) => a.querySelector('strong').innerText.trim().localeCompare(b.querySelector('strong').innerText.trim()));
-                        ul.innerHTML = '';
-                        items.forEach(li => {
-                            li.innerHTML = li.innerHTML.replace('Purchase', '<span style="color:#16a34a">Purchase</span>').replace('Sale', '<span style="color:#dc2626">Sale</span>');
-                            ul.appendChild(li);
-                        });
-                    }
+                // Logic for Congress Tab (Sort names A-Z and color code RapidAPI buy/sell)
+                const ul = mod.querySelector('.quant-list');
+                if (ul) {
+                    const items = Array.from(ul.querySelectorAll('li'));
+                    items.sort((a, b) => a.querySelector('strong').innerText.trim().localeCompare(b.querySelector('strong').innerText.trim()));
+                    ul.innerHTML = '';
+                    items.forEach(li => {
+                        li.innerHTML = li.innerHTML.replace(/buy/gi, '<span style="color:#16a34a; font-weight: 800; text-transform: uppercase;">BUY</span>').replace(/sell/gi, '<span style="color:#dc2626; font-weight: 800; text-transform: uppercase;">SELL</span>');
+                        ul.appendChild(li);
+                    });
                 }
 
                 rawContainer.appendChild(mod);
@@ -800,13 +751,8 @@
                             f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
                     }
 
-                    // Map all three institutional columns to our dataStore
-                    dataStore.congress = f['Congressional_Whales'] || '';
-                    dataStore.contracts = f['GOV_CONTRACTS'] || '';
-                    dataStore.dark = f['DARK_POOLS'] || '';
-
-                    // Load the default Congress view
-                    switchAdvantage('congress');
+                    // Load Congress view
+                    renderWhaleDropdown(f['Congressional_Whales']);
                 }
             } catch (e) { console.error("Whale fetch failed:", e); }
         }
