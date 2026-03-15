@@ -207,23 +207,10 @@
             padding-left: 15px;
         }
 
-        /* PERFECT MASONRY LAYOUT - No Dead Space */
+        /* Adjusted Screener Container for Single View */
         .screener-container {
-            column-count: 3;
-            column-gap: 20px;
             width: 100%;
-        }
-
-        @media (max-width: 1200px) {
-            .screener-container {
-                column-count: 2;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .screener-container {
-                column-count: 1;
-            }
+            display: block;
         }
 
         .screener-module {
@@ -233,15 +220,14 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
             border-radius: 4px;
-            break-inside: avoid;
             margin-bottom: 20px;
-            display: inline-block;
+            display: block;
             width: 100%;
         }
 
         .screener-header {
             font-family: 'Merriweather', serif;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 900;
             margin-bottom: 15px;
             display: flex;
@@ -258,6 +244,7 @@
             margin: 0;
         }
 
+        /* General Quant List */
         .quant-list li {
             display: flex;
             justify-content: space-between;
@@ -269,7 +256,6 @@
             font-size: 0.95rem;
         }
 
-        /* Hiding Make.com closing price text for Quant tab */
         .quant-list li strong+* {
             display: none !important;
         }
@@ -285,13 +271,32 @@
             color: #ffffff;
         }
 
+        .quant-list strong {
+            color: #ffffff;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* CEO Custom formatting for the newly requested long string */
+        .quant-list-ceo li {
+            padding: 15px 0;
+            font-size: 1.05rem;
+            color: var(--primary);
+        }
+
+        /* Ensuring the dash separator doesn't apply to the CEO view if they format it directly in Make */
+        .quant-list-ceo li strong::after {
+            content: "";
+        }
+
+        .quant-list-ceo li strong+*+* {
+            display: inline !important;
+        }
+
         /* WHALE TRACKER SPECIFIC OVERRIDES */
         #whale-flows-container .screener-module {
-            width: 100%;
-            display: block;
-            margin: 0;
-            padding: 35px;
             border: 2px solid var(--primary);
+            padding: 35px;
         }
 
         #whale-flows-container .screener-header {
@@ -315,12 +320,6 @@
             color: #555;
         }
 
-        .quant-list strong {
-            color: #ffffff;
-            font-weight: 800;
-            font-family: 'Inter', sans-serif;
-        }
-
         .market-dropdown {
             background: #000;
             color: var(--primary);
@@ -331,6 +330,15 @@
             font-weight: bold;
             outline: none;
             cursor: pointer;
+        }
+
+        /* Form Row for Filters */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .chat-bubble {
@@ -540,8 +548,9 @@
 
         <div id="screener" class="page">
             <h2>Algorithmic Momentum & Anomaly Alerts</h2>
-            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT MARKET FEED:</label>
+
+            <div class="filter-row">
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">MARKET FEED:</label>
                 <select id="market-select" class="market-dropdown" onchange="changeMarket()">
                     <option value="ph">PHILIPPINES (PSE)</option>
                     <option value="japan">JAPAN (Nikkei)</option>
@@ -549,7 +558,23 @@
                     <option value="us">US EQUITIES (Nasdaq, Dow)</option>
                     <option value="crypto">CRYPTOCURRENCY</option>
                 </select>
+
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem; margin-left: 20px;">SIGNAL
+                    FILTER:</label>
+                <select id="quant-filter-select" class="market-dropdown" onchange="renderQuantView()">
+                    <option value="Bullish 5/20">🟢 Bullish Momentum (5/20 MA cross up)</option>
+                    <option value="Bearish 5/20">🔴 Bearish Momentum (5/20 MA cross down)</option>
+                    <option value="RSI30">📉 Oversold (RSI < 30)</option>
+                    <option value="RSI70">📈 Overbought (RSI > 70)</option>
+                    <option value="Above200">🚀 Crossed 200D MA</option>
+                    <option value="GoldenSniper">🎯 Golden Sniper (MACD and Stochastics)</option>
+                    <option value="ADXStrong">🔥 ADX Strong Trend (ADX > 25)</option>
+                    <option value="BollingerSqueeze">⏱️ Bollinger Squeeze</option>
+                    <option value="VolumeSurge">🐳 Inst. Volume Surge</option>
+                    <option value="AlphaLeader">👑 Alpha Leader</option>
+                </select>
             </div>
+
             <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close.</p>
             <div class="screener-container" id="screener-data-container"></div>
         </div>
@@ -616,6 +641,9 @@
     </div>
 
     <script>
+        // Store quant data globally so we can filter it without re-fetching
+        let activeQuantData = {};
+
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
@@ -643,14 +671,6 @@
             } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
-        function buildModule(title, icon, dataList) {
-            if (!dataList) return '';
-            return `<div class="screener-module">
-                        <div class="screener-header">${icon} ${title}</div>
-                        <ul class="quant-list">${dataList}</ul>
-                    </div>`;
-        }
-
         async function fetchQuantData(marketCode) {
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888;">Loading live quant data...</p>';
@@ -658,25 +678,46 @@
                 const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    const f = data.records[0].fields;
-                    let h = '';
-
-                    h += buildModule('Bullish Momentum (5/20 MA cross up)', '🟢', f['Bullish 5/20']);
-                    h += buildModule('Bearish Momentum (5/20 MA cross down)', '🔴', f['Bearish 5/20']);
-                    h += buildModule('Oversold (RSI < 30)', '📉', f['RSI30']);
-                    h += buildModule('Overbought (RSI > 70)', '📈', f['RSI70']);
-                    h += buildModule('Crossed 200D MA', '🚀', f['Above200']);
-                    h += buildModule('Golden Sniper (MACD and Stochastics)', '🎯', f['GoldenSniper']);
-                    h += buildModule('ADX Strong Trend (ADX > 25)', '🔥', f['ADXStrong']);
-                    h += buildModule('Bollinger Squeeze', '⏱️', f['BollingerSqueeze']);
-                    h += buildModule('Inst. Volume Surge', '🐳', f['VolumeSurge']);
-                    h += buildModule('Alpha Leader', '👑', f['AlphaLeader']);
-
-                    container.innerHTML = h || '<p style="color: #888;">No signals today.</p>';
+                    // Save the data to our global variable
+                    activeQuantData = data.records[0].fields;
+                    renderQuantView(); // Trigger the view based on the current dropdown selection
                 } else {
                     container.innerHTML = '<p style="color: #888;">Table empty.</p>';
+                    activeQuantData = {};
                 }
-            } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
+            } catch (e) {
+                container.innerHTML = '<p style="color:red;">Error loading.</p>';
+            }
+        }
+
+        function renderQuantView() {
+            const container = document.getElementById('screener-data-container');
+            const selectEl = document.getElementById('quant-filter-select');
+            const selectedFilter = selectEl.value;
+            const selectedText = selectEl.options[selectEl.selectedIndex].text;
+
+            // Map the selected text back into icon/title format
+            const icon = selectedText.split(' ')[0];
+            const title = selectedText.substring(selectedText.indexOf(' ') + 1);
+
+            const dataList = activeQuantData[selectedFilter];
+
+            if (dataList) {
+                // Notice we added the "quant-list-ceo" class here for styling
+                container.innerHTML = `
+                    <div class="screener-module">
+                        <div class="screener-header">${icon} ${title}</div>
+                        <ul class="quant-list quant-list-ceo">${dataList}</ul>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="screener-module">
+                        <div class="screener-header">${icon} ${title}</div>
+                        <p style="color: #666; font-style: italic;">No active signals detected for this strategy today.</p>
+                    </div>
+                `;
+            }
         }
 
         function renderWhaleDropdown(rawHtml) {
@@ -757,14 +798,14 @@
             } catch (e) { console.error("Whale fetch failed:", e); }
         }
 
-        // ORIGINAL PDF DOWNLOAD LOGIC PRESERVED
+        // PDF FIX INJECTED HERE (windowWidth: 1000 ensures layout doesn't break)
         function downloadPDF() {
             const element = document.getElementById('report-to-print');
             const opt = {
                 margin: 0.5,
                 filename: 'NingFinance_MacroReport.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, windowWidth: 1000 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();
