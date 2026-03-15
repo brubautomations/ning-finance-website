@@ -198,6 +198,30 @@
             color: #000;
         }
 
+        /* Institutional Tabs Styling */
+        .sub-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .sub-tab {
+            background: #eee;
+            color: #666;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .sub-tab.active {
+            background: #000;
+            color: var(--primary);
+        }
+
         /* PERFECT MASONRY LAYOUT - No Dead Space */
         .screener-container {
             column-count: 3;
@@ -547,8 +571,11 @@
 
         <div id="flows" class="page">
             <h2>POLITICIANS' TRADES TRACKER (applicable on us markets only)</h2>
-            <p style="color: #666; margin-bottom: 30px;">Live tracking of US congressional stock purchases and sales.
-            </p>
+            <div class="sub-nav">
+                <div class="sub-tab active" id="sub-congress" onclick="switchAdvantage('congress')">Congress</div>
+                <div class="sub-tab" id="sub-contracts" onclick="switchAdvantage('contracts')">Gov Contracts</div>
+                <div class="sub-tab" id="sub-dark" onclick="switchAdvantage('dark')">Dark Pools</div>
+            </div>
 
             <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
@@ -558,7 +585,6 @@
             </div>
 
             <div id="whale-flows-container"></div>
-
             <div id="whale-raw-data" style="display: none;"></div>
         </div>
 
@@ -608,6 +634,9 @@
     </div>
 
     <script>
+        let currentFeed = 'congress';
+        const dataStore = { congress: '', contracts: '', dark: '' };
+
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
@@ -671,61 +700,55 @@
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
-        // Logic to build the dynamic dropdown, sort data, and inject colors
+        function switchAdvantage(type) {
+            currentFeed = type;
+            document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('sub-' + type).classList.add('active');
+            renderWhaleDropdown(dataStore[type]);
+        }
+
         function renderWhaleDropdown(rawHtml) {
             const rawContainer = document.getElementById('whale-raw-data');
             const select = document.getElementById('whale-select');
 
             if (!rawHtml || rawHtml.trim() === '') {
-                select.innerHTML = '<option value="">No trades tracked recently</option>';
-                document.getElementById('whale-flows-container').innerHTML = '<p style="color: #888;">No data available.</p>';
+                select.innerHTML = '<option value="">No data found</option>';
+                document.getElementById('whale-flows-container').innerHTML = '<p style="color: #888;">No data available for this feed.</p>';
                 return;
             }
 
             rawContainer.innerHTML = rawHtml;
             const modules = Array.from(rawContainer.querySelectorAll('.screener-module'));
 
-            // Sort Tickers Alphabetically
+            // Sort Tickers Alphabetically A-Z
             modules.sort((a, b) => {
-                const tickerA = a.querySelector('.screener-header').innerText.replace('🏛️', '').trim();
-                const tickerB = b.querySelector('.screener-header').innerText.replace('🏛️', '').trim();
+                const tickerA = a.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
+                const tickerB = b.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
                 return tickerA.localeCompare(tickerB);
             });
 
             select.innerHTML = '';
-            rawContainer.innerHTML = ''; // Clear to append sorted ones
+            rawContainer.innerHTML = '';
 
             modules.forEach((mod, index) => {
-                const headerText = mod.querySelector('.screener-header').innerText;
-                const ticker = headerText.replace('🏛️', '').trim();
-                mod.id = 'whale-block-' + index;
+                mod.id = 'block-' + index;
+                const ticker = mod.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
 
-                // Sort Politicians Alphabetically inside the block
-                const ul = mod.querySelector('.quant-list');
-                if (ul) {
-                    const listItems = Array.from(ul.querySelectorAll('li'));
-                    listItems.sort((a, b) => {
-                        const nameA = a.querySelector('strong').innerText.trim();
-                        const nameB = b.querySelector('strong').innerText.trim();
-                        return nameA.localeCompare(nameB);
-                    });
-
-                    ul.innerHTML = ''; // Clear list to append sorted and colored items
-                    listItems.forEach(li => {
-                        const span = li.querySelector('span');
-                        if (span) {
-                            let spanText = span.innerHTML;
-                            // Inject Red/Green color coding
-                            spanText = spanText.replace('Purchase', '<span style="color: #16a34a;">Purchase</span>');
-                            spanText = spanText.replace('Sale', '<span style="color: #dc2626;">Sale</span>');
-                            span.innerHTML = spanText;
-                        }
-                        ul.appendChild(li);
-                    });
+                // Sort Politicians Alphabetically inside Congress
+                if (currentFeed === 'congress') {
+                    const ul = mod.querySelector('.quant-list');
+                    if (ul) {
+                        const items = Array.from(ul.querySelectorAll('li'));
+                        items.sort((a, b) => a.querySelector('strong').innerText.trim().localeCompare(b.querySelector('strong').innerText.trim()));
+                        ul.innerHTML = '';
+                        items.forEach(li => {
+                            li.innerHTML = li.innerHTML.replace('Purchase', '<span style="color:#16a34a">Purchase</span>').replace('Sale', '<span style="color:#dc2626">Sale</span>');
+                            ul.appendChild(li);
+                        });
+                    }
                 }
 
                 rawContainer.appendChild(mod);
-
                 const opt = document.createElement('option');
                 opt.value = mod.id;
                 opt.innerText = ticker;
@@ -740,14 +763,9 @@
             const selectedId = select.value;
             if (!selectedId) return;
 
-            const rawContainer = document.getElementById('whale-raw-data');
-            const selectedMod = rawContainer.querySelector('#' + selectedId);
-
-            if (selectedMod) {
-                const displayContainer = document.getElementById('whale-flows-container');
-                displayContainer.innerHTML = '';
-                const clone = selectedMod.cloneNode(true);
-                displayContainer.appendChild(clone);
+            const mod = document.getElementById('whale-raw-data').querySelector('#' + selectedId);
+            if (mod) {
+                document.getElementById('whale-flows-container').innerHTML = mod.outerHTML;
             }
         }
 
@@ -763,12 +781,22 @@
                             f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
                     }
 
-                    renderWhaleDropdown(f['Congressional_Whales']);
+                    // Map all three institutional columns to our dataStore
+                    dataStore.congress = f['Congressional_Whales'] || '';
+                    dataStore.contracts = f['GOV_CONTRACTS'] || '';
+                    dataStore.dark = f['DARK_POOLS'] || '';
+
+                    // Load the default Congress view
+                    switchAdvantage('congress');
                 }
-            } catch (e) { console.error("Flows/Nina fetch failed:", e); }
+            } catch (e) { console.error("Whale fetch failed:", e); }
         }
 
-        document.addEventListener('DOMContentLoaded', () => { fetchMacroData(); fetchQuantData('ph'); fetchNinaAndSmartMoney(); });
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMacroData();
+            fetchQuantData('ph');
+            fetchNinaAndSmartMoney();
+        });
     </script>
 </body>
 
