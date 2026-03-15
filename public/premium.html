@@ -219,17 +219,13 @@
 
         .screener-module {
             background: #000000;
-            /* Pure Black Background */
             border: 1px solid var(--primary);
-            /* Gold Border */
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
             border-radius: 4px;
             break-inside: avoid;
-            /* Prevents card from snapping in half */
             margin-bottom: 20px;
-            /* Space between rows */
             display: inline-block;
             width: 100%;
         }
@@ -243,7 +239,6 @@
             align-items: center;
             gap: 10px;
             color: var(--primary);
-            /* Keep the title Gold for contrast */
             border-bottom: 1px dashed #333;
             padding-bottom: 12px;
         }
@@ -260,14 +255,12 @@
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px dashed #333;
-            /* Darker dashes */
             font-family: 'Courier New', monospace;
             color: #ffffff;
-            /* PURE WHITE FONT */
             font-size: 0.95rem;
         }
 
-        /* Hiding Make.com closing price text and making everything white */
+        /* Hiding Make.com closing price text for Quant tab */
         .quant-list li strong+* {
             display: none !important;
         }
@@ -276,22 +269,50 @@
             content: " -";
             display: inline;
             color: #ffffff;
-            /* PURE WHITE FONT */
         }
 
         .quant-list li strong+*+* {
             display: block !important;
             color: #ffffff;
-            /* PURE WHITE FONT */
         }
 
-        .quant-list li:last-child {
-            border-bottom: none;
+        /* WHALE TRACKER SPECIFIC OVERRIDES (Fixing the hidden data bug) */
+        #whale-flows-container .screener-module {
+            width: 100%;
+            display: block;
+            margin: 0;
+            padding: 35px;
+            border: 2px solid var(--primary);
+            /* Thicker border for the big square */
+        }
+
+        #whale-flows-container .screener-header {
+            font-size: 1.5rem;
+            /* Bigger ticker text */
+            margin-bottom: 25px;
+        }
+
+        #whale-flows-container .quant-list li {
+            padding: 15px 0;
+            font-size: 1.05rem;
+        }
+
+        #whale-flows-container .quant-list li strong+* {
+            display: inline !important;
+            /* Un-hides the Quiver Data */
+            color: var(--primary) !important;
+            /* Make the amount/date Gold */
+            font-weight: bold;
+        }
+
+        #whale-flows-container .quant-list li strong::after {
+            content: " ➔ ";
+            /* Cool arrow separator instead of dash */
+            color: #555;
         }
 
         .quant-list strong {
             color: #ffffff;
-            /* PURE WHITE FONT */
             font-weight: 800;
             font-family: 'Inter', sans-serif;
         }
@@ -533,7 +554,17 @@
             <h2>POLITICIANS' TRADES TRACKER (applicable on us markets only)</h2>
             <p style="color: #666; margin-bottom: 30px;">Live tracking of US congressional stock purchases and sales.
             </p>
-            <div class="screener-container" id="whale-flows-container"></div>
+
+            <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
+                <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
+                    <option value="">Loading tickers...</option>
+                </select>
+            </div>
+
+            <div id="whale-flows-container"></div>
+
+            <div id="whale-raw-data" style="display: none;"></div>
         </div>
 
         <div id="nina" class="page">
@@ -609,7 +640,6 @@
             } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
-        // Helper function for building the clean black/gold cards
         function buildModule(title, icon, dataList) {
             if (!dataList) return '';
             return `<div class="screener-module">
@@ -646,6 +676,52 @@
             } catch (e) { container.innerHTML = '<p style="color:red;">Error loading.</p>'; }
         }
 
+        // Logic to build the dynamic dropdown from Make.com HTML
+        function renderWhaleDropdown(rawHtml) {
+            const rawContainer = document.getElementById('whale-raw-data');
+            const select = document.getElementById('whale-select');
+
+            if (!rawHtml || rawHtml.trim() === '') {
+                select.innerHTML = '<option value="">No trades tracked recently</option>';
+                document.getElementById('whale-flows-container').innerHTML = '<p style="color: #888;">No data available.</p>';
+                return;
+            }
+
+            rawContainer.innerHTML = rawHtml;
+            const modules = rawContainer.querySelectorAll('.screener-module');
+            select.innerHTML = '';
+
+            modules.forEach((mod, index) => {
+                const headerText = mod.querySelector('.screener-header').innerText;
+                const ticker = headerText.replace('🏛️', '').trim();
+
+                mod.id = 'whale-block-' + index; // Give it an ID to reference later
+
+                const opt = document.createElement('option');
+                opt.value = mod.id;
+                opt.innerText = ticker;
+                select.appendChild(opt);
+            });
+
+            changeWhaleTicker(); // Auto-load the first ticker in the list
+        }
+
+        function changeWhaleTicker() {
+            const select = document.getElementById('whale-select');
+            const selectedId = select.value;
+            if (!selectedId) return;
+
+            const rawContainer = document.getElementById('whale-raw-data');
+            const selectedMod = rawContainer.querySelector('#' + selectedId);
+
+            if (selectedMod) {
+                const displayContainer = document.getElementById('whale-flows-container');
+                displayContainer.innerHTML = ''; // Clear out the old one
+                const clone = selectedMod.cloneNode(true);
+                displayContainer.appendChild(clone);
+            }
+        }
+
         async function fetchNinaAndSmartMoney() {
             try {
                 const res = await fetch(`/.netlify/functions/airtable?type=macro`);
@@ -658,12 +734,8 @@
                             f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
                     }
 
-                    // Directly inject the HTML generated by Make.com for the Whales
-                    if (f['Congressional_Whales']) {
-                        document.getElementById('whale-flows-container').innerHTML = f['Congressional_Whales'];
-                    } else {
-                        document.getElementById('whale-flows-container').innerHTML = '<p style="color: #888;">No political trades tracked this week.</p>';
-                    }
+                    // Feed the raw HTML into the dropdown builder instead of directly displaying it
+                    renderWhaleDropdown(f['Congressional_Whales']);
                 }
             } catch (e) { console.error("Flows/Nina fetch failed:", e); }
         }
