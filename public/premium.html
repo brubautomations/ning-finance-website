@@ -202,7 +202,7 @@
         .sub-nav {
             display: flex;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .sub-tab {
@@ -220,6 +220,15 @@
         .sub-tab.active {
             background: #000;
             color: var(--primary);
+        }
+
+        .feed-definition {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 25px;
+            font-style: italic;
+            border-left: 3px solid #eee;
+            padding-left: 15px;
         }
 
         /* PERFECT MASONRY LAYOUT - No Dead Space */
@@ -570,11 +579,14 @@
         </div>
 
         <div id="flows" class="page">
-            <h2>POLITICIANS' TRADES TRACKER (applicable on us markets only)</h2>
+            <h2>INSTITUTIONAL & LEGISLATIVE FLOWS</h2>
             <div class="sub-nav">
                 <div class="sub-tab active" id="sub-congress" onclick="switchAdvantage('congress')">Congress</div>
                 <div class="sub-tab" id="sub-contracts" onclick="switchAdvantage('contracts')">Gov Contracts</div>
                 <div class="sub-tab" id="sub-dark" onclick="switchAdvantage('dark')">Dark Pools</div>
+            </div>
+
+            <div id="feed-def" class="feed-definition">Live tracking of US congressional stock purchases and sales.
             </div>
 
             <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
@@ -636,6 +648,12 @@
     <script>
         let currentFeed = 'congress';
         const dataStore = { congress: '', contracts: '', dark: '' };
+
+        const feedDefs = {
+            congress: "Live tracking of US congressional stock purchases and sales. Access to legislative insider trading data.",
+            contracts: "Real-time awards of US Federal Government contracts to publicly traded companies. Tracks taxpayer-funded revenue flow.",
+            dark: "Institutional off-exchange trading intensity. DPI represents Dark Pool Index; OTC metrics track non-public buy/sell pressure."
+        };
 
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
@@ -704,6 +722,7 @@
             currentFeed = type;
             document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
             document.getElementById('sub-' + type).classList.add('active');
+            document.getElementById('feed-def').innerText = feedDefs[type];
             renderWhaleDropdown(dataStore[type]);
         }
 
@@ -734,7 +753,7 @@
                 mod.id = 'block-' + index;
                 const ticker = mod.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
 
-                // Sort Politicians Alphabetically inside Congress
+                // Logic for Congress Tab (Sort names A-Z and color code)
                 if (currentFeed === 'congress') {
                     const ul = mod.querySelector('.quant-list');
                     if (ul) {
@@ -790,6 +809,19 @@
                     switchAdvantage('congress');
                 }
             } catch (e) { console.error("Whale fetch failed:", e); }
+        }
+
+        // ORIGINAL PDF DOWNLOAD LOGIC PRESERVED
+        function downloadPDF() {
+            const element = document.getElementById('report-to-print');
+            const opt = {
+                margin: 0.5,
+                filename: 'NingFinance_MacroReport.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
