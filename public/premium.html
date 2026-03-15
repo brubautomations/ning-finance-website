@@ -281,7 +281,11 @@
         .quant-list-ceo li {
             padding: 15px 0;
             font-size: 1.05rem;
-            color: var(--primary);
+            color: #ffffff;
+            /* White text instead of gold */
+            justify-content: flex-start;
+            /* Fixes the massive space */
+            font-weight: normal;
         }
 
         /* Ensuring the dash separator doesn't apply to the CEO view if they format it directly in Make */
@@ -696,14 +700,20 @@
             const selectedFilter = selectEl.value;
             const selectedText = selectEl.options[selectEl.selectedIndex].text;
 
-            // Map the selected text back into icon/title format
             const icon = selectedText.split(' ')[0];
             const title = selectedText.substring(selectedText.indexOf(' ') + 1);
 
-            const dataList = activeQuantData[selectedFilter];
+            let dataList = activeQuantData[selectedFilter];
 
             if (dataList) {
-                // Notice we added the "quant-list-ceo" class here for styling
+                // CEO Fix: Dynamically color price and % change based on positive/negative
+                // Also detects any currency symbol (₱, $, ¥, €, £) gracefully
+                dataList = dataList.replace(/- ([₱$¥€£])\s*([\d.,]+)\s*-\s*([+-]?[\d.]+)%/g, (match, currency, price, change) => {
+                    const val = parseFloat(change);
+                    const color = val >= 0 ? '#16a34a' : '#dc2626'; // Green if positive/flat, Red if negative
+                    return `- <span style="color: ${color}; font-weight: 800;">${currency}${price} - ${change}%</span>`;
+                });
+
                 container.innerHTML = `
                     <div class="screener-module">
                         <div class="screener-header">${icon} ${title}</div>
