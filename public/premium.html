@@ -282,18 +282,16 @@
             padding: 15px 0;
             font-size: 1.05rem;
             color: #ffffff;
-            /* White text instead of gold */
             justify-content: flex-start;
-            /* Fixes the massive space */
             font-weight: normal;
         }
 
-        /* Ensuring the dash separator doesn't apply to the CEO view if they format it directly in Make */
         .quant-list-ceo li strong::after {
             content: "";
         }
 
-        .quant-list-ceo li strong+*+* {
+        /* THE FIX: Stop the old CSS from hiding your new color-coded span */
+        .quant-list-ceo li strong+* {
             display: inline !important;
         }
 
