@@ -281,18 +281,34 @@
         .quant-list-ceo li {
             padding: 15px 0;
             font-size: 1.05rem;
-            color: #ffffff;
+            color: #d1d5db;
+            /* Light gray to make white/colors pop */
             justify-content: flex-start;
             font-weight: normal;
         }
 
-        .quant-list-ceo li strong::after {
-            content: "";
+        .quant-list-ceo li strong {
+            color: #ffffff;
+            display: inline-block;
         }
 
-        /* THE FIX: Stop the old CSS from hiding your new color-coded span */
+        .quant-list-ceo li strong::after {
+            content: "";
+            /* Kill the old dash */
+        }
+
         .quant-list-ceo li strong+* {
             display: inline !important;
+        }
+
+        /* THE NEW SPACING SEPARATOR INJECTED BY JAVASCRIPT */
+        .sep {
+            color: var(--primary);
+            margin: 0 12px;
+            /* Huge, clean spacing */
+            opacity: 0.6;
+            font-weight: 400;
+            display: inline-block;
         }
 
         /* WHALE TRACKER SPECIFIC OVERRIDES */
@@ -309,6 +325,7 @@
         #whale-flows-container .quant-list li {
             padding: 15px 0;
             font-size: 1.05rem;
+            color: #ffffff;
         }
 
         #whale-flows-container .quant-list li strong+* {
@@ -643,7 +660,6 @@
     </div>
 
     <script>
-        // Store quant data globally so we can filter it without re-fetching
         let activeQuantData = {};
 
         function nav(section) {
@@ -680,9 +696,8 @@
                 const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    // Save the data to our global variable
                     activeQuantData = data.records[0].fields;
-                    renderQuantView(); // Trigger the view based on the current dropdown selection
+                    renderQuantView();
                 } else {
                     container.innerHTML = '<p style="color: #888;">Table empty.</p>';
                     activeQuantData = {};
@@ -704,12 +719,21 @@
             let dataList = activeQuantData[selectedFilter];
 
             if (dataList) {
-                // CEO Fix: Dynamically color price and % change based on positive/negative
-                // Optimized regex to handle &nbsp; or literal spaces between the currency and price/change
-                dataList = dataList.replace(/₱\s*(?:&nbsp;)*([\d.,]+)\s*(?:&nbsp;)*([+-]?[\d.]+)%/g, (match, price, change) => {
+
+                // JANITOR FIX 1: Automatically inject a gold separator | right after the Ticker
+                dataList = dataList.replace(/<\/strong>\s*/g, '</strong> <span class="sep">|</span> ');
+
+                // JANITOR FIX 2: Automatically inject a gold separator | right before the Price
+                dataList = dataList.replace(/\s*₱/g, ' <span class="sep">|</span> ₱');
+
+                // Make the Price bold and white
+                dataList = dataList.replace(/₱([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">₱$1</span>');
+
+                // Make the Percentage Green/Red and inject a separator before it
+                dataList = dataList.replace(/\s*([+-]?[\d.]+)%/g, (match, change) => {
                     const val = parseFloat(change);
-                    const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#ffffff'); // Green for +, Red for -, White for 0
-                    return `<span style="color: ${color}; font-weight: 800;">₱${price} &nbsp;&nbsp;&nbsp; ${change}%</span>`;
+                    const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#888888');
+                    return ` <span class="sep">|</span> <span style="color: ${color}; font-weight: 800;">${change}%</span>`;
                 });
 
                 container.innerHTML = `
@@ -741,7 +765,6 @@
             rawContainer.innerHTML = rawHtml;
             const modules = Array.from(rawContainer.querySelectorAll('.screener-module'));
 
-            // Sort Tickers Alphabetically A-Z
             modules.sort((a, b) => {
                 const tickerA = a.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
                 const tickerB = b.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
@@ -755,7 +778,6 @@
                 mod.id = 'block-' + index;
                 const ticker = mod.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
 
-                // Logic for Congress Tab (Sort names A-Z and color code RapidAPI buy/sell)
                 const ul = mod.querySelector('.quant-list');
                 if (ul) {
                     const items = Array.from(ul.querySelectorAll('li'));
@@ -800,13 +822,11 @@
                             f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
                     }
 
-                    // Load Congress view
                     renderWhaleDropdown(f['Congressional_Whales']);
                 }
             } catch (e) { console.error("Whale fetch failed:", e); }
         }
 
-        // PDF FIX INJECTED HERE (windowWidth: 1000 ensures layout doesn't break)
         function downloadPDF() {
             const element = document.getElementById('report-to-print');
             const opt = {
