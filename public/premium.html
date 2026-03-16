@@ -705,11 +705,11 @@
 
             if (dataList) {
                 // CEO Fix: Dynamically color price and % change based on positive/negative
-                // Also detects any currency symbol (₱, $, ¥, €, £) gracefully
-                dataList = dataList.replace(/- ([₱$¥€£])\s*([\d.,]+)\s*-\s*([+-]?[\d.]+)%/g, (match, currency, price, change) => {
+                // Optimized regex to handle &nbsp; or literal spaces between the currency and price/change
+                dataList = dataList.replace(/₱\s*(?:&nbsp;)*([\d.,]+)\s*(?:&nbsp;)*([+-]?[\d.]+)%/g, (match, price, change) => {
                     const val = parseFloat(change);
-                    const color = val >= 0 ? '#16a34a' : '#dc2626'; // Green if positive/flat, Red if negative
-                    return `- <span style="color: ${color}; font-weight: 800;">${currency}${price} - ${change}%</span>`;
+                    const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#ffffff'); // Green for +, Red for -, White for 0
+                    return `<span style="color: ${color}; font-weight: 800;">₱${price} &nbsp;&nbsp;&nbsp; ${change}%</span>`;
                 });
 
                 container.innerHTML = `
