@@ -282,7 +282,6 @@
             padding: 15px 0;
             font-size: 1.05rem;
             color: #d1d5db;
-            /* Light gray to make white/colors pop */
             justify-content: flex-start;
             font-weight: normal;
         }
@@ -294,18 +293,15 @@
 
         .quant-list-ceo li strong::after {
             content: "";
-            /* Kill the old dash */
         }
 
         .quant-list-ceo li strong+* {
             display: inline !important;
         }
 
-        /* THE NEW SPACING SEPARATOR INJECTED BY JAVASCRIPT */
         .sep {
             color: var(--primary);
             margin: 0 12px;
-            /* Huge, clean spacing */
             opacity: 0.6;
             font-weight: 400;
             display: inline-block;
@@ -351,7 +347,6 @@
             cursor: pointer;
         }
 
-        /* Form Row for Filters */
         .filter-row {
             display: flex;
             align-items: center;
@@ -491,6 +486,34 @@
             background: #000;
             color: var(--primary);
         }
+
+        /* Ningning's Table Styling inside the Vlog */
+        #ningning-vlog-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+        }
+
+        #ningning-vlog-content th {
+            background: #000;
+            color: var(--primary);
+            text-align: left;
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        #ningning-vlog-content td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #000;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -509,7 +532,7 @@
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
-        <div class="tab" onclick="nav('nina')" id="tab-nina">NINA'S PORTFOLIO</div>
+        <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
         <div class="tab" onclick="nav('account')" id="tab-account" style="margin-left: auto; color: var(--primary);">
             ACCOUNT</div>
     </div>
@@ -614,24 +637,24 @@
             <div id="whale-raw-data" style="display: none;"></div>
         </div>
 
-        <div id="nina" class="page">
-            <h2>Nina's Portfolio</h2>
+        <div id="ningning" class="page">
+            <h2>Ningning's Desk</h2>
             <div class="macro-card">
                 <div
                     style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
-                    <img src="https://ui-avatars.com/api/?name=Nina&background=cba258&color=000&rounded=true&bold=true&size=80"
-                        alt="Nina AI" style="border-radius: 50%;">
+                    <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
+                        alt="Ningning AI" style="border-radius: 50%;">
                     <div>
                         <h3
                             style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
-                            Nina</h3>
+                            Ningning</h3>
                         <p
                             style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
                             LEAD AI PORTFOLIO MANAGER</p>
                     </div>
                 </div>
-                <div id="nina-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
-                    <p>Loading transmission...</p>
+                <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                    <p>Loading market transmission...</p>
                 </div>
             </div>
         </div>
@@ -719,17 +742,9 @@
             let dataList = activeQuantData[selectedFilter];
 
             if (dataList) {
-
-                // JANITOR FIX 1: Automatically inject a gold separator | right after the Ticker
                 dataList = dataList.replace(/<\/strong>\s*/g, '</strong> <span class="sep">|</span> ');
-
-                // JANITOR FIX 2: Automatically inject a gold separator | right before the Price
                 dataList = dataList.replace(/\s*₱/g, ' <span class="sep">|</span> ₱');
-
-                // Make the Price bold and white
                 dataList = dataList.replace(/₱([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">₱$1</span>');
-
-                // Make the Percentage Green/Red and inject a separator before it
                 dataList = dataList.replace(/\s*([+-]?[\d.]+)%/g, (match, change) => {
                     const val = parseFloat(change);
                     const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#888888');
@@ -810,21 +825,54 @@
             }
         }
 
-        async function fetchNinaAndSmartMoney() {
+        async function fetchSmartMoneyWhales() {
             try {
+                // Keep the macro fetch strictly for the Whale Tracker since it lives in the Macro Airtable row
                 const res = await fetch(`/.netlify/functions/airtable?type=macro`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    const f = data.records[0].fields;
-
-                    if (f['Nina_Weekly_Vlog']) {
-                        document.getElementById('nina-vlog-content').innerHTML =
-                            f['Nina_Weekly_Vlog'].split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
-                    }
-
-                    renderWhaleDropdown(f['Congressional_Whales']);
+                    renderWhaleDropdown(data.records[0].fields['Congressional_Whales']);
                 }
             } catch (e) { console.error("Whale fetch failed:", e); }
+        }
+
+        async function fetchNingningVlogs() {
+            const container = document.getElementById('ningning-vlog-content');
+            try {
+                // Fetch the new Ning_Vlogs table
+                const res = await fetch(`/.netlify/functions/airtable?type=ning_vlogs`);
+                const data = await res.json();
+
+                if (data.records && data.records.length > 0) {
+                    // Sort records so the newest date is always on top
+                    const sortedRecords = data.records.sort((a, b) => new Date(b.fields.Publish_Date) - new Date(a.fields.Publish_Date));
+
+                    let htmlString = '';
+
+                    // Loop through every single vlog in the table and stack them
+                    sortedRecords.forEach(record => {
+                        const rawDate = new Date(record.fields.Publish_Date);
+                        const dateStr = rawDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+                        // Wrap each vlog in a container with a dashed bottom border
+                        htmlString += `
+                            <div style="margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px dashed var(--border);">
+                                <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px;">
+                                    MARKET CLOSE ➔ ${dateStr}
+                                </div>
+                                ${record.fields.Blog_HTML}
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = htmlString;
+                } else {
+                    container.innerHTML = '<p style="color: #888;">No transmissions logged yet.</p>';
+                }
+            } catch (e) {
+                console.error("Ningning Vlog fetch failed:", e);
+                container.innerHTML = '<p style="color:red;">Error loading Ningning\'s database.</p>';
+            }
         }
 
         function downloadPDF() {
@@ -842,7 +890,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchMacroData();
             fetchQuantData('ph');
-            fetchNinaAndSmartMoney();
+            fetchSmartMoneyWhales();
+            fetchNingningVlogs(); // Fire the new Ningning fetch
         });
     </script>
 </body>

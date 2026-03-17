@@ -13,8 +13,17 @@ exports.handler = async function (event, context) {
     const token = part1 + "." + part2;
 
     let targetUrl = '';
+
+    // LANE 1: MACRO REPORT
     if (type === 'macro') {
         targetUrl = `https://api.airtable.com/v0/${baseId}/Macro%20Report?maxRecords=1`;
+
+        // LANE 2: NINGNING'S DESK (THE NEW PIPELINE)
+    } else if (type === 'ning_vlogs') {
+        // Grabs up to 50 of her most recent vlogs
+        targetUrl = `https://api.airtable.com/v0/${baseId}/Ning_Vlogs?maxRecords=50`;
+
+        // LANE 3: QUANT SCREENER
     } else {
         const formula = encodeURIComponent(`{Market}='${market}'`);
         targetUrl = `https://api.airtable.com/v0/${baseId}/Quant%20Data?filterByFormula=${formula}`;
