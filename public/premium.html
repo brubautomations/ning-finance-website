@@ -244,7 +244,6 @@
             margin: 0;
         }
 
-        /* General Quant List */
         .quant-list li {
             display: flex;
             justify-content: space-between;
@@ -277,7 +276,6 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* CEO Custom formatting for the newly requested long string */
         .quant-list-ceo li {
             padding: 15px 0;
             font-size: 1.05rem;
@@ -287,8 +285,8 @@
         }
 
         .quant-list-ceo li strong {
-            color: #ffffff;
             display: inline-block;
+            color: #ffffff;
         }
 
         .quant-list-ceo li strong::after {
@@ -355,6 +353,51 @@
             flex-wrap: wrap;
         }
 
+        /* Expired Subscription Banner */
+        .expired-banner {
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #e1e8ed;
+            border-top: 5px solid #dc2626;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .expired-banner h3 {
+            color: #dc2626;
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .expired-banner p {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .expired-banner a {
+            display: inline-block;
+            background: #000;
+            color: var(--primary);
+            padding: 12px 25px;
+            text-decoration: none;
+            font-weight: 800;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+
+        .expired-banner a:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* Chat */
         .chat-bubble {
             position: fixed;
             bottom: 30px;
@@ -489,7 +532,6 @@
             color: var(--primary);
         }
 
-        /* Ningning's Table Styling inside the Vlog */
         #ningning-vlog-content table {
             width: 100%;
             border-collapse: collapse;
@@ -525,7 +567,7 @@
         <div class="logo">NING <span>FINANCE</span>
             <div class="logo-tag">PRO TIER</div>
         </div>
-        <div class="user-status">
+        <div class="user-status" id="header-status">
             <div class="status-dot"></div>SECURE CONNECTION ACTIVE
         </div>
     </header>
@@ -546,7 +588,7 @@
             <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
 
             <div id="report-to-print" style="width: 100%;">
-                <div class="macro-card">
+                <div id="macro-data-container" class="macro-card">
                     <div style="background-color: #000; padding: 25px; color: #fff; border-bottom: 4px solid #cba258;">
                         <h2 style="margin: 0; font-size: 26px; border:none; padding:0;">Mondays with Ning</h2>
                         <p style="margin: 5px 0 0 0; font-size: 14px; color: #aeb6bf;">Macro Context & Asset
@@ -592,71 +634,75 @@
 
         <div id="screener" class="page">
             <h2>Algorithmic Momentum & Anomaly Alerts</h2>
+            <div id="screener-wrapper">
+                <div class="filter-row">
+                    <label style="font-weight: 800; color: #333; font-size: 0.9rem;">MARKET FEED:</label>
+                    <select id="market-select" class="market-dropdown" onchange="changeMarket()">
+                        <option value="ph">PHILIPPINES (PSE)</option>
+                        <option value="japan">JAPAN (Nikkei)</option>
+                        <option value="hk">HONG KONG (Hang Seng)</option>
+                        <option value="us">US EQUITIES (Nasdaq, Dow)</option>
+                        <option value="crypto">CRYPTOCURRENCY</option>
+                    </select>
 
-            <div class="filter-row">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">MARKET FEED:</label>
-                <select id="market-select" class="market-dropdown" onchange="changeMarket()">
-                    <option value="ph">PHILIPPINES (PSE)</option>
-                    <option value="japan">JAPAN (Nikkei)</option>
-                    <option value="hk">HONG KONG (Hang Seng)</option>
-                    <option value="us">US EQUITIES (Nasdaq, Dow)</option>
-                    <option value="crypto">CRYPTOCURRENCY</option>
-                </select>
+                    <label style="font-weight: 800; color: #333; font-size: 0.9rem; margin-left: 20px;">SIGNAL
+                        FILTER:</label>
+                    <select id="quant-filter-select" class="market-dropdown" onchange="renderQuantView()">
+                        <option value="Bullish 5/20">Bullish Momentum (5/20 MA cross up)</option>
+                        <option value="Bearish 5/20">Bearish Momentum (5/20 MA cross down)</option>
+                        <option value="RSI30">Oversold (RSI < 30)</option>
+                        <option value="RSI70">Overbought (RSI > 70)</option>
+                        <option value="Above200">Crossed 200D MA</option>
+                        <option value="GoldenSniper">Golden Sniper (MACD and Stochastics)</option>
+                        <option value="ADXStrong">ADX Strong Trend (ADX > 25)</option>
+                        <option value="BollingerSqueeze">Bollinger Squeeze</option>
+                        <option value="VolumeSurge">Inst. Volume Surge</option>
+                        <option value="AlphaLeader">Alpha Leader</option>
+                    </select>
+                </div>
 
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem; margin-left: 20px;">SIGNAL
-                    FILTER:</label>
-                <select id="quant-filter-select" class="market-dropdown" onchange="renderQuantView()">
-                    <option value="Bullish 5/20">Bullish Momentum (5/20 MA cross up)</option>
-                    <option value="Bearish 5/20">Bearish Momentum (5/20 MA cross down)</option>
-                    <option value="RSI30">Oversold (RSI < 30)</option>
-                    <option value="RSI70">Overbought (RSI > 70)</option>
-                    <option value="Above200">Crossed 200D MA</option>
-                    <option value="GoldenSniper">Golden Sniper (MACD and Stochastics)</option>
-                    <option value="ADXStrong">ADX Strong Trend (ADX > 25)</option>
-                    <option value="BollingerSqueeze">Bollinger Squeeze</option>
-                    <option value="VolumeSurge">Inst. Volume Surge</option>
-                    <option value="AlphaLeader">Alpha Leader</option>
-                </select>
+                <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close.</p>
+                <div class="screener-container" id="screener-data-container"></div>
             </div>
-
-            <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at market close.</p>
-            <div class="screener-container" id="screener-data-container"></div>
         </div>
 
         <div id="flows" class="page">
             <h2>INSTITUTIONAL & LEGISLATIVE FLOWS</h2>
+            <div id="flows-wrapper">
+                <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
 
-            <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
+                <div style="margin-bottom: 30px; margin-top: 25px; display: flex; align-items: center; gap: 15px;">
+                    <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
+                    <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
+                        <option value="">Loading tickers...</option>
+                    </select>
+                </div>
 
-            <div style="margin-bottom: 30px; margin-top: 25px; display: flex; align-items: center; gap: 15px;">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
-                <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
-                    <option value="">Loading tickers...</option>
-                </select>
+                <div id="whale-flows-container"></div>
+                <div id="whale-raw-data" style="display: none;"></div>
             </div>
-
-            <div id="whale-flows-container"></div>
-            <div id="whale-raw-data" style="display: none;"></div>
         </div>
 
         <div id="ningning" class="page">
             <h2>Ningning's Desk</h2>
-            <div class="macro-card">
-                <div
-                    style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
-                    <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
-                        alt="Ningning AI" style="border-radius: 50%;">
-                    <div>
-                        <h3
-                            style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
-                            Ningning</h3>
-                        <p
-                            style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
-                            LEAD AI PORTFOLIO MANAGER</p>
+            <div id="ningning-wrapper">
+                <div class="macro-card">
+                    <div
+                        style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
+                        <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
+                            alt="Ningning AI" style="border-radius: 50%;">
+                        <div>
+                            <h3
+                                style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
+                                Ningning</h3>
+                            <p
+                                style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
+                                LEAD AI PORTFOLIO MANAGER</p>
+                        </div>
                     </div>
-                </div>
-                <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
-                    <p>Loading market transmission...</p>
+                    <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                        <p>Loading market transmission...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -689,6 +735,21 @@
     <script>
         let activeQuantData = {};
 
+        const errorHtml = `
+            <div class="expired-banner">
+                <h3>SUBSCRIPTION EXPIRED</h3>
+                <p>Your premium access has expired or your session token is invalid.<br>Please verify your active subscription to access live intelligence.</p>
+                <a href="https://ningfinance.com/?tab=Subscriptions">UPGRADE TO TIER 2 OR RETURN TO FREE</a>
+            </div>
+        `;
+
+        function showExpiredState(containerId) {
+            document.getElementById(containerId).innerHTML = errorHtml;
+            const statusIndicator = document.getElementById('header-status');
+            statusIndicator.innerHTML = '<div class="status-dot" style="background-color: #dc2626; box-shadow: 0 0 10px #dc2626;"></div>ACCESS DENIED';
+            statusIndicator.style.color = '#dc2626';
+        }
+
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
@@ -699,7 +760,6 @@
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
         function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
 
-        // --- NEW CHATBOT LOGIC ---
         async function sendMsg() {
             const inputField = document.getElementById('chat-input');
             const message = inputField.value.trim();
@@ -707,24 +767,20 @@
 
             const chatMessages = document.getElementById('chat-messages');
 
-            // 1. Add User Message to UI
             const userDiv = document.createElement('div');
             userDiv.className = 'msg user';
             userDiv.textContent = message;
             chatMessages.appendChild(userDiv);
 
-            // Clear input and scroll down
             inputField.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // 2. Add temporary "Thinking..." state
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'msg bot';
             loadingDiv.textContent = 'Thinking...';
             chatMessages.appendChild(loadingDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // 3. Send to Make.com Webhook
             try {
                 const response = await fetch('https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g', {
                     method: 'POST',
@@ -732,13 +788,9 @@
                     body: JSON.stringify({ message: message, user: token })
                 });
 
-                // Get the reply text from Make.com
                 const replyText = await response.text();
-
-                // Remove loading state
                 chatMessages.removeChild(loadingDiv);
 
-                // Add Bot reply to UI
                 const botDiv = document.createElement('div');
                 botDiv.className = 'msg bot';
                 botDiv.textContent = replyText;
@@ -746,9 +798,7 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
             } catch (error) {
-                console.error('Webhook Error:', error);
                 chatMessages.removeChild(loadingDiv);
-
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'msg bot';
                 errorDiv.textContent = 'Error connecting to Ning. Please try again later.';
@@ -757,7 +807,6 @@
             }
         }
 
-        // Allow "Enter" key to send message
         document.addEventListener('DOMContentLoaded', () => {
             const chatInput = document.getElementById('chat-input');
             if (chatInput) {
@@ -768,12 +817,17 @@
                 });
             }
         });
-        // -----------------------
 
         async function fetchMacroData() {
             try {
                 const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
                 const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('macro-data-container');
+                    return;
+                }
+
                 if (data.records && data.records.length > 0) {
                     const payload = JSON.parse(data.records[0].fields.Payload);
                     document.getElementById('macro-rates').innerText = payload.global_board_rates;
@@ -794,6 +848,12 @@
             try {
                 const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}&userToken=${token}`);
                 const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('screener-wrapper');
+                    return;
+                }
+
                 if (data.records && data.records.length > 0) {
                     activeQuantData = data.records[0].fields;
                     renderQuantView();
@@ -903,9 +963,14 @@
 
         async function fetchSmartMoneyWhales() {
             try {
-                // Keep the macro fetch strictly for the Whale Tracker since it lives in the Macro Airtable row
                 const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
                 const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('flows-wrapper');
+                    return;
+                }
+
                 if (data.records && data.records.length > 0) {
                     renderWhaleDropdown(data.records[0].fields['Congressional_Whales']);
                 }
@@ -915,22 +980,23 @@
         async function fetchNingningVlogs() {
             const container = document.getElementById('ningning-vlog-content');
             try {
-                // Fetch the new Ning_Vlogs table
                 const res = await fetch(`/.netlify/functions/airtable?type=ning_vlogs&userToken=${token}`);
                 const data = await res.json();
 
+                if (data.error) {
+                    showExpiredState('ningning-wrapper');
+                    return;
+                }
+
                 if (data.records && data.records.length > 0) {
-                    // Sort records so the newest date is always on top
                     const sortedRecords = data.records.sort((a, b) => new Date(b.fields.Publish_Date) - new Date(a.fields.Publish_Date));
 
                     let htmlString = '';
 
-                    // Loop through every single vlog in the table and stack them
                     sortedRecords.forEach(record => {
                         const rawDate = new Date(record.fields.Publish_Date);
                         const dateStr = rawDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-                        // Wrap each vlog in a container with a dashed bottom border
                         htmlString += `
                             <div style="margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px dashed var(--border);">
                                 <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px;">
@@ -970,7 +1036,7 @@
             fetchMacroData();
             fetchQuantData('ph');
             fetchSmartMoneyWhales();
-            fetchNingningVlogs(); // Fire the new Ningning fetch
+            fetchNingningVlogs();
         });
     </script>
 </body>
