@@ -772,7 +772,7 @@
 
         async function fetchMacroData() {
             try {
-                const res = await fetch(`/.netlify/functions/airtable?type=macro`);
+                const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
                     const payload = JSON.parse(data.records[0].fields.Payload);
@@ -792,7 +792,7 @@
             const container = document.getElementById('screener-data-container');
             container.innerHTML = '<p style="color: #888;">Loading live quant data...</p>';
             try {
-                const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}`);
+                const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}&userToken=${token}`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
                     activeQuantData = data.records[0].fields;
@@ -904,7 +904,7 @@
         async function fetchSmartMoneyWhales() {
             try {
                 // Keep the macro fetch strictly for the Whale Tracker since it lives in the Macro Airtable row
-                const res = await fetch(`/.netlify/functions/airtable?type=macro`);
+                const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
                 const data = await res.json();
                 if (data.records && data.records.length > 0) {
                     renderWhaleDropdown(data.records[0].fields['Congressional_Whales']);
@@ -916,7 +916,7 @@
             const container = document.getElementById('ningning-vlog-content');
             try {
                 // Fetch the new Ning_Vlogs table
-                const res = await fetch(`/.netlify/functions/airtable?type=ning_vlogs`);
+                const res = await fetch(`/.netlify/functions/airtable?type=ning_vlogs&userToken=${token}`);
                 const data = await res.json();
 
                 if (data.records && data.records.length > 0) {
