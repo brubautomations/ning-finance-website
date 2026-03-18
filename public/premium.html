@@ -440,6 +440,7 @@
             font-size: 0.9rem;
             line-height: 1.5;
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .msg.user {
@@ -692,6 +693,7 @@
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
             document.getElementById('tab-' + section).classList.add('active');
+            localStorage.setItem('activeNingTab', section);
         }
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
@@ -962,6 +964,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('activeNingTab') || 'macro';
+            nav(savedTab);
+
             fetchMacroData();
             fetchQuantData('ph');
             fetchSmartMoneyWhales();
