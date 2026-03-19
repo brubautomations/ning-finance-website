@@ -639,10 +639,12 @@
                     <label style="font-weight: 800; color: #333; font-size: 0.9rem;">MARKET FEED:</label>
                     <select id="market-select" class="market-dropdown" onchange="changeMarket()">
                         <option value="ph">PHILIPPINES (PSE)</option>
+                        <option value="us">US EQUITIES (Nasdaq, S&P 500)</option>
+                        <option value="us russell">US EQUITIES (Russell 2000)</option>
+                        <option value="crypto">CRYPTOCURRENCY (Binance)</option>
                         <option value="japan">JAPAN (Nikkei)</option>
                         <option value="hk">HONG KONG (Hang Seng)</option>
-                        <option value="us">US EQUITIES (Nasdaq, Dow)</option>
-                        <option value="crypto">CRYPTOCURRENCY</option>
+                        <option value="korea">KOREA (Kospi)</option>
                     </select>
 
                     <label style="font-weight: 800; color: #333; font-size: 0.9rem; margin-left: 20px;">SIGNAL
@@ -878,9 +880,11 @@
             let dataList = activeQuantData[selectedFilter];
 
             if (dataList) {
+                // UPDATED REGEX: Now catches ₱, $, ¥, HK$, and ₩ to style them beautifully
                 dataList = dataList.replace(/<\/strong>\s*/g, '</strong> <span class="sep">|</span> ');
-                dataList = dataList.replace(/\s*₱/g, ' <span class="sep">|</span> ₱');
-                dataList = dataList.replace(/₱([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">₱$1</span>');
+                dataList = dataList.replace(/\s*(₱|\$|¥|HK\$|₩)/g, ' <span class="sep">|</span> $1');
+                dataList = dataList.replace(/(₱|\$|¥|HK\$|₩)([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">$1$2</span>');
+
                 dataList = dataList.replace(/\s*([+-]?[\d.]+)%/g, (match, change) => {
                     const val = parseFloat(change);
                     const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#888888');
