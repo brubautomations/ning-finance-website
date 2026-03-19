@@ -577,6 +577,11 @@
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
         <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
+
+        <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
+        <div class="tab" onclick="nav('ecosystem')" id="tab-ecosystem" style="color: #cba258; font-weight: 900;">
+            ECOSYSTEM ANALYTICS</div>
+
         <div class="tab" onclick="nav('account')" id="tab-account" style="margin-left: auto; color: var(--primary);">
             ACCOUNT</div>
     </div>
@@ -640,7 +645,7 @@
                     <select id="market-select" class="market-dropdown" onchange="changeMarket()">
                         <option value="ph">PHILIPPINES (PSE)</option>
                         <option value="us">US EQUITIES (Nasdaq, S&P 500)</option>
-                        <option value="vietnam">VIETNAM (VN-Index)</option>
+                        <option value="vn">VIETNAM (VN-Index)</option>
                         <option value="crypto">CRYPTOCURRENCY (Binance)</option>
                         <option value="japan">JAPAN (Nikkei)</option>
                         <option value="hk">HONG KONG (Hang Seng)</option>
@@ -706,6 +711,20 @@
                         <p>Loading market transmission...</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="avm" class="page">
+            <h2>Automated Valuation Model</h2>
+            <div class="macro-card">
+                <p style="color: #888; font-style: italic;">Module initializing...</p>
+            </div>
+        </div>
+
+        <div id="ecosystem" class="page">
+            <h2>Corporate Supply Chains and Direct Market Competition</h2>
+            <div class="macro-card">
+                <p style="color: #888; font-style: italic;">Module initializing...</p>
             </div>
         </div>
 
@@ -880,7 +899,6 @@
             let dataList = activeQuantData[selectedFilter];
 
             if (dataList) {
-                // UPDATED REGEX: Now catches ₱, $, ¥, HK$, ₩, and ₫ to style them beautifully
                 dataList = dataList.replace(/<\/strong>\s*/g, '</strong> <span class="sep">|</span> ');
                 dataList = dataList.replace(/\s*(₱|\$|¥|HK\$|₩|₫)/g, ' <span class="sep">|</span> $1');
                 dataList = dataList.replace(/(₱|\$|¥|HK\$|₩|₫)([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">$1$2</span>');
