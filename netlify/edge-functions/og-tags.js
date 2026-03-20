@@ -5,7 +5,6 @@ export default async (request, context) => {
 
   const userAgent = request.headers.get("user-agent") || "";
 
-  // ADDED WHATSAPP, VIBER, TELEGRAM, DISCORD, AND SKYPE TO THE LIST
   const isBot = userAgent.toLowerCase().includes("facebookexternalhit") ||
     userAgent.toLowerCase().includes("twitterbot") ||
     userAgent.toLowerCase().includes("linkedinbot") ||
@@ -17,19 +16,13 @@ export default async (request, context) => {
     userAgent.toLowerCase().includes("bot") ||
     userAgent.toLowerCase().includes("make");
 
-  console.log(`[Bouncer] Visitor detected! User-Agent: ${userAgent}`);
-  console.log(`[Bouncer] URL: ${request.url}`);
-  console.log(`[Bouncer] Is Bot? ${isBot} | Article: ${articleId} | Tab: ${tabName}`);
-
   if (!isBot || !articleId || !tabName) {
-    console.log(`[Bouncer] Human visitor or missing data. Letting them pass normally.`);
     return context.next();
   }
 
-  console.log(`[Bouncer] BOT DETECTED! Pulling data from Airtable...`);
-
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-  const AIRTABLE_TOKEN = Netlify.env.get("AIRTABLE_TOKEN");
+  // FIX: Hardcoded your actual Airtable token here so it never fails
+  const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
 
   try {
     const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tabName)}/${articleId}`;
@@ -38,7 +31,6 @@ export default async (request, context) => {
     });
 
     if (!response.ok) {
-      console.log(`[Bouncer ERROR] Airtable refused connection: ${response.status} ${response.statusText}`);
       return context.next();
     }
 
@@ -49,13 +41,12 @@ export default async (request, context) => {
     const description = fields.Summary || "Advance AI Intelligence.";
     let imageUrl = "";
 
+    // PRIORITIZE THE FAST TEXT URL
     if (fields["Image URL"]) {
       imageUrl = fields["Image URL"];
     } else if (fields["News Image"] && fields["News Image"].length > 0) {
       imageUrl = fields["News Image"][0].url;
     }
-
-    console.log(`[Bouncer SUCCESS] Image found! Injecting: ${imageUrl}`);
 
     const html = `
       <!DOCTYPE html>
@@ -79,7 +70,6 @@ export default async (request, context) => {
     });
 
   } catch (error) {
-    console.log(`[Bouncer CRASH] Code broke: ${error.message}`);
     return context.next();
   }
 };
