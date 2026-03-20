@@ -4,18 +4,18 @@ export default async (request, context) => {
   const tabName = url.searchParams.get("tab");
 
   const userAgent = request.headers.get("user-agent") || "";
-  
+
   // ADDED WHATSAPP, VIBER, TELEGRAM, DISCORD, AND SKYPE TO THE LIST
-  const isBot = userAgent.toLowerCase().includes("facebookexternalhit") || 
-                userAgent.toLowerCase().includes("twitterbot") ||
-                userAgent.toLowerCase().includes("linkedinbot") ||
-                userAgent.toLowerCase().includes("whatsapp") ||
-                userAgent.toLowerCase().includes("viber") ||
-                userAgent.toLowerCase().includes("skype") ||
-                userAgent.toLowerCase().includes("telegram") ||
-                userAgent.toLowerCase().includes("discordbot") ||
-                userAgent.toLowerCase().includes("bot") ||
-                userAgent.toLowerCase().includes("make");
+  const isBot = userAgent.toLowerCase().includes("facebookexternalhit") ||
+    userAgent.toLowerCase().includes("twitterbot") ||
+    userAgent.toLowerCase().includes("linkedinbot") ||
+    userAgent.toLowerCase().includes("whatsapp") ||
+    userAgent.toLowerCase().includes("viber") ||
+    userAgent.toLowerCase().includes("skype") ||
+    userAgent.toLowerCase().includes("telegram") ||
+    userAgent.toLowerCase().includes("discordbot") ||
+    userAgent.toLowerCase().includes("bot") ||
+    userAgent.toLowerCase().includes("make");
 
   console.log(`[Bouncer] Visitor detected! User-Agent: ${userAgent}`);
   console.log(`[Bouncer] URL: ${request.url}`);
@@ -30,13 +30,13 @@ export default async (request, context) => {
 
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
   const AIRTABLE_TOKEN = Netlify.env.get("AIRTABLE_TOKEN");
-  
+
   try {
     const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tabName)}/${articleId}`;
     const response = await fetch(airtableUrl, {
       headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
     });
-    
+
     if (!response.ok) {
       console.log(`[Bouncer ERROR] Airtable refused connection: ${response.status} ${response.statusText}`);
       return context.next();
@@ -44,15 +44,15 @@ export default async (request, context) => {
 
     const data = await response.json();
     const fields = data.fields;
-    
+
     const title = fields.Headline || "Ning Finance Update";
     const description = fields.Summary || "Advance AI Intelligence.";
-    let imageUrl = ""; 
-    
-    if (fields["News Image"] && fields["News Image"].length > 0) {
-        imageUrl = fields["News Image"][0].url;
-    } else if (fields["Image URL"]) {
-        imageUrl = fields["Image URL"];
+    let imageUrl = "";
+
+    if (fields["Image URL"]) {
+      imageUrl = fields["Image URL"];
+    } else if (fields["News Image"] && fields["News Image"].length > 0) {
+      imageUrl = fields["News Image"][0].url;
     }
 
     console.log(`[Bouncer SUCCESS] Image found! Injecting: ${imageUrl}`);
