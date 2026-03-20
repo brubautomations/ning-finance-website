@@ -1,0 +1,35 @@
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+
+User-agent: twitterbot
+Allow: /
+
+User-agent: linkedinbot
+Allow: /
+
+User-agent: whatsapp
+Allow: /
+
+User-agent: viber
+Allow: /
+
+User-agent: skype
+Allow: /
+
+User-agent: telegram
+Allow: /
+
+User-agent: discordbot
+Allow: /
+
+User-agent: bot
+Allow: /
+
+User-agent: make
+Allow: /
+
+User-agent: netlify
+Allow: /
