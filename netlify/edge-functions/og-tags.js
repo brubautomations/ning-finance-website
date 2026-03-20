@@ -4,44 +4,36 @@ export default async (request, context) => {
   const tabName = url.searchParams.get("tab");
 
   const userAgent = request.headers.get("user-agent") || "";
+  const isBot = /facebookexternalhit|twitterbot|linkedinbot|whatsapp|viber|skype|telegram|discordbot/i.test(userAgent);
 
-  const isBot = userAgent.toLowerCase().includes("facebookexternalhit") ||
-    userAgent.toLowerCase().includes("twitterbot") ||
-    userAgent.toLowerCase().includes("linkedinbot") ||
-    userAgent.toLowerCase().includes("whatsapp") ||
-    userAgent.toLowerCase().includes("viber") ||
-    userAgent.toLowerCase().includes("skype") ||
-    userAgent.toLowerCase().includes("telegram") ||
-    userAgent.toLowerCase().includes("discordbot") ||
-    userAgent.toLowerCase().includes("bot") ||
-    userAgent.toLowerCase().includes("make");
-
+  // 1. If it's a human, let them pass normally
   if (!isBot || !articleId || !tabName) {
     return context.next();
   }
 
+  // 2. It is a Bot. We MUST return a 200 OK status to bypass Netlify 403 blocks.
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-  // FIX: Hardcoded your actual Airtable token here so it never fails
   const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
+  const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tabName)}/${articleId}`;
 
   try {
-    const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tabName)}/${articleId}`;
     const response = await fetch(airtableUrl, {
       headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
     });
 
+    // TRAP 1: Did Airtable block us?
     if (!response.ok) {
-      return context.next();
+      const errorHtml = `<html><head><meta property="og:title" content="DIAGNOSTIC: Airtable Blocked Us (Error ${response.status})" /></head><body></body></html>`;
+      return new Response(errorHtml, { headers: { "Content-Type": "text/html" }, status: 200 });
     }
 
     const data = await response.json();
-    const fields = data.fields;
+    const fields = data.fields || {};
 
     const title = fields.Headline || "Ning Finance Update";
     const description = fields.Summary || "Advance AI Intelligence.";
     let imageUrl = "";
 
-    // PRIORITIZE THE FAST TEXT URL
     if (fields["Image URL"]) {
       imageUrl = fields["Image URL"];
     } else if (fields["News Image"] && fields["News Image"].length > 0) {
@@ -58,19 +50,19 @@ export default async (request, context) => {
         <meta property="og:image" content="${imageUrl}" />
         <meta property="og:url" content="${request.url}" />
         <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary_large_image" />
         <title>${title}</title>
       </head>
       <body></body>
       </html>
     `;
 
-    return new Response(html, {
-      headers: { "Content-Type": "text/html" },
-    });
+    // SUCCESS: Return the actual preview
+    return new Response(html, { headers: { "Content-Type": "text/html" }, status: 200 });
 
   } catch (error) {
-    return context.next();
+    // TRAP 2: Did the code crash?
+    const crashHtml = `<html><head><meta property="og:title" content="DIAGNOSTIC CRASH: ${error.message}" /></head><body></body></html>`;
+    return new Response(crashHtml, { headers: { "Content-Type": "text/html" }, status: 200 });
   }
 };
 
