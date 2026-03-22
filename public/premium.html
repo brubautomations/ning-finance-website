@@ -176,6 +176,7 @@
             box-sizing: border-box;
             margin: 0 auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
         }
 
         .btn-download {
@@ -554,6 +555,52 @@
             color: #000;
             font-weight: 600;
         }
+
+        /* STRATEGIC INTELLIGENCE PANEL STYLES */
+        .intel-header {
+            font-family: 'Merriweather', serif;
+            font-size: 1.2rem;
+            color: #000;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .intel-sub-title {
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            display: block;
+        }
+
+        .intel-body {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .swot-box {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .swot-box h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 
@@ -734,6 +781,38 @@
                 <div id="ecosystem-loading"
                     style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; display: none; text-align: center;">
                     Fetching Intelligence...</div>
+            </div>
+
+            <div id="intel-section" style="display: none; margin-top: 40px; margin-bottom: 100px;">
+                <div class="macro-card">
+                    <div class="intel-header" id="intel-ticker">STRATEGIC OVERVIEW</div>
+
+                    <span class="intel-sub-title">Corporate Intelligence</span>
+                    <div class="intel-body" id="intel-description"></div>
+
+                    <span class="intel-sub-title">Ecosystem Analysis & Network Logic</span>
+                    <div class="intel-body" id="intel-logic"></div>
+
+                    <span class="intel-sub-title">SWOT Matrix</span>
+                    <div class="swot-grid">
+                        <div class="swot-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                            <h4 style="color: #166534;">Strengths</h4>
+                            <div id="swot-s" style="font-size: 0.85rem; color: #14532d;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #fef2f2; border-color: #fecaca;">
+                            <h4 style="color: #991b1b;">Weaknesses</h4>
+                            <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #eff6ff; border-color: #bfdbfe;">
+                            <h4 style="color: #1e40af;">Opportunities</h4>
+                            <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #fffbeb; border-color: #fde68a;">
+                            <h4 style="color: #92400e;">Threats</h4>
+                            <div id="swot-t" style="font-size: 0.85rem; color: #78350f;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1072,9 +1151,11 @@
 
             const chartContainer = document.getElementById('ecosystem-chart');
             const loadingMsg = document.getElementById('ecosystem-loading');
+            const intelSection = document.getElementById('intel-section');
 
             loadingMsg.style.display = 'block';
             loadingMsg.innerText = 'Fetching Intelligence...';
+            intelSection.style.display = 'none';
 
             if (!ecosystemChart) {
                 ecosystemChart = echarts.init(chartContainer);
@@ -1106,24 +1187,51 @@
 
                 const recordFields = data.records[0].fields;
                 const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
-
-                // --- DATA PATH FIX HERE ---
                 const fullPayload = JSON.parse(rawJsonStr);
                 const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
+
+                // --- POPULATE WRITE-UPS BELOW MAP ---
+                intelSection.style.display = 'block';
+                document.getElementById('intel-ticker').innerText = `${tickerInput} | STRATEGIC INTELLIGENCE BRIEF`;
+                document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
+                document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
+
+                // Parse SWOT (Assuming it was stored as a JSON string or object)
+                const swot = typeof recordFields['SWOT'] === 'string' ? JSON.parse(recordFields['SWOT']) : recordFields['SWOT'];
+                document.getElementById('swot-s').innerText = swot?.strengths?.join('\n') || "Loading...";
+                document.getElementById('swot-w').innerText = swot?.weaknesses?.join('\n') || "Loading...";
+                document.getElementById('swot-o').innerText = swot?.opportunities?.join('\n') || "Loading...";
+                document.getElementById('swot-t').innerText = swot?.threats?.join('\n') || "Loading...";
 
                 loadingMsg.style.display = 'none';
 
                 const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro'];
                 const eCategories = categoryList.map(name => ({ name: name }));
 
+                // --- VISUAL CLUSTERING LOGIC ---
+                // We define "Corners" for each category to force them to group together
+                const centers = {
+                    'Target': [0, 0],
+                    'Competitor': [-300, -300],
+                    'Supplier': [-300, 300],
+                    'Client': [300, 300],
+                    'Macro': [300, -300]
+                };
+
                 const eNodes = ecoData.nodes.map(node => {
                     let catIndex = categoryList.indexOf(node.category);
                     if (catIndex === -1) catIndex = 0;
+
+                    const center = centers[node.category] || [0, 0];
+
                     return {
                         id: node.id,
                         name: node.id,
                         category: catIndex,
-                        symbolSize: node.category === 'Target' ? 65 : 40,
+                        symbolSize: node.category === 'Target' ? 75 : 45,
+                        // Gravity pull to specific centers
+                        x: center[0] + (Math.random() * 50),
+                        y: center[1] + (Math.random() * 50),
                         label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
                     };
                 });
@@ -1164,7 +1272,12 @@
                         categories: eCategories,
                         roam: true,
                         label: { position: 'right' },
-                        force: { repulsion: 800, edgeLength: 150, gravity: 0.1 },
+                        force: {
+                            repulsion: 1200,
+                            edgeLength: 180,
+                            gravity: 0.15,
+                            layoutAnimation: true
+                        },
                         lineStyle: { color: 'source', opacity: 0.6 }
                     }]
                 };
@@ -1181,7 +1294,6 @@
             const btn = document.getElementById('dispatch-btn');
             const loadingMsg = document.getElementById('ecosystem-loading');
 
-            // --- ANTI-SPAM LOCKOUT ---
             btn.disabled = true;
             btn.style.opacity = '0.5';
             btn.innerText = 'PROMPT SENT...';
