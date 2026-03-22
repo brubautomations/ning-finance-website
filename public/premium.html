@@ -1084,18 +1084,36 @@
             ecosystemChart.clear();
 
             try {
-                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=({Ticker}='${tickerInput}')`;
+                // We URL-encode the formula so the browser doesn't break the {} brackets
+                const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
+                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+
                 const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${ECO_PAT}` }
                 });
                 const data = await response.json();
+
+                // Advanced Error Catching: If Airtable rejects the token or table name
+                if (data.error) {
+                    console.error("Airtable Error:", data.error);
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span><br><span style="font-size:0.8rem; color:#888;">Press F12 and check the Console for details.</span>`;
+                    return;
+                }
 
                 if (!data.records || data.records.length === 0) {
                     loadingMsg.innerHTML = `No data found for ${tickerInput}. <br><br>Click "GENERATE NEW" to dispatch AI.`;
                     return;
                 }
 
-                const rawJsonStr = data.records[0].fields.JSON_Data;
+                // Look for the JSON data regardless of whether it has a space or an underscore
+                const recordFields = data.records[0].fields;
+                const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
+
+                if (!rawJsonStr) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Found the ticker, but the JSON column is empty or misnamed.</span>`;
+                    return;
+                }
+
                 const ecoData = JSON.parse(rawJsonStr);
 
                 loadingMsg.style.display = 'none';
@@ -1160,7 +1178,7 @@
 
             } catch (err) {
                 console.error("Fetch Error:", err);
-                loadingMsg.innerText = "Error loading ecosystem map.";
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Error parsing the ecosystem map.</span>`;
             }
         }
 
