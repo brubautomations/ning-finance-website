@@ -797,19 +797,19 @@
                     <div class="swot-grid">
                         <div class="swot-box" style="background: #f0fdf4; border-color: #bbf7d0;">
                             <h4 style="color: #166534;">Strengths</h4>
-                            <div id="swot-s" style="font-size: 0.85rem; color: #14532d;"></div>
+                            <div id="swot-s" style="font-size: 0.85rem; color: #14532d; white-space: pre-wrap;"></div>
                         </div>
                         <div class="swot-box" style="background: #fef2f2; border-color: #fecaca;">
                             <h4 style="color: #991b1b;">Weaknesses</h4>
-                            <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d;"></div>
+                            <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d; white-space: pre-wrap;"></div>
                         </div>
                         <div class="swot-box" style="background: #eff6ff; border-color: #bfdbfe;">
                             <h4 style="color: #1e40af;">Opportunities</h4>
-                            <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a;"></div>
+                            <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a; white-space: pre-wrap;"></div>
                         </div>
                         <div class="swot-box" style="background: #fffbeb; border-color: #fde68a;">
                             <h4 style="color: #92400e;">Threats</h4>
-                            <div id="swot-t" style="font-size: 0.85rem; color: #78350f;"></div>
+                            <div id="swot-t" style="font-size: 0.85rem; color: #78350f; white-space: pre-wrap;"></div>
                         </div>
                     </div>
                 </div>
@@ -1190,38 +1190,35 @@
                 const fullPayload = JSON.parse(rawJsonStr);
                 const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
 
-                // --- POPULATE WRITE-UPS BELOW MAP ---
+                // --- POPULATE WRITE-UPS BELOW MAP (RESTORED LOGIC) ---
                 intelSection.style.display = 'block';
                 document.getElementById('intel-ticker').innerText = `${tickerInput} | STRATEGIC INTELLIGENCE BRIEF`;
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
                 document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
 
-                // Parse SWOT (Assuming it was stored as a JSON string or object)
-                const swot = typeof recordFields['SWOT'] === 'string' ? JSON.parse(recordFields['SWOT']) : recordFields['SWOT'];
-                document.getElementById('swot-s').innerText = swot?.strengths?.join('\n') || "Loading...";
-                document.getElementById('swot-w').innerText = swot?.weaknesses?.join('\n') || "Loading...";
-                document.getElementById('swot-o').innerText = swot?.opportunities?.join('\n') || "Loading...";
-                document.getElementById('swot-t').innerText = swot?.threats?.join('\n') || "Loading...";
+                const swotRaw = recordFields['SWOT'];
+                const swot = typeof swotRaw === 'string' ? JSON.parse(swotRaw) : swotRaw;
+                document.getElementById('swot-s').innerText = swot?.strengths?.join('\n') || "";
+                document.getElementById('swot-w').innerText = swot?.weaknesses?.join('\n') || "";
+                document.getElementById('swot-o').innerText = swot?.opportunities?.join('\n') || "";
+                document.getElementById('swot-t').innerText = swot?.threats?.join('\n') || "";
 
                 loadingMsg.style.display = 'none';
 
                 const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro'];
                 const eCategories = categoryList.map(name => ({ name: name }));
 
-                // --- VISUAL CLUSTERING LOGIC ---
-                // We define "Corners" for each category to force them to group together
                 const centers = {
                     'Target': [0, 0],
-                    'Competitor': [-300, -300],
-                    'Supplier': [-300, 300],
-                    'Client': [300, 300],
-                    'Macro': [300, -300]
+                    'Competitor': [-350, -350],
+                    'Supplier': [-350, 350],
+                    'Client': [350, 350],
+                    'Macro': [350, -350]
                 };
 
                 const eNodes = ecoData.nodes.map(node => {
                     let catIndex = categoryList.indexOf(node.category);
                     if (catIndex === -1) catIndex = 0;
-
                     const center = centers[node.category] || [0, 0];
 
                     return {
@@ -1229,21 +1226,18 @@
                         name: node.id,
                         category: catIndex,
                         symbolSize: node.category === 'Target' ? 75 : 45,
-                        // Gravity pull to specific centers
-                        x: center[0] + (Math.random() * 50),
-                        y: center[1] + (Math.random() * 50),
+                        x: center[0] + (Math.random() * 80),
+                        y: center[1] + (Math.random() * 80),
                         label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
                     };
                 });
 
-                const eLinks = ecoData.links.map(link => {
-                    return {
-                        source: link.source,
-                        target: link.target,
-                        tooltip: { formatter: link.description },
-                        lineStyle: { width: 2, curveness: 0.1 }
-                    };
-                });
+                const eLinks = ecoData.links.map(link => ({
+                    source: link.source,
+                    target: link.target,
+                    tooltip: { formatter: link.description },
+                    lineStyle: { width: 2, curveness: 0.1 }
+                }));
 
                 const option = {
                     backgroundColor: '#1a1a1a',
@@ -1271,10 +1265,9 @@
                         links: eLinks,
                         categories: eCategories,
                         roam: true,
-                        label: { position: 'right' },
                         force: {
-                            repulsion: 1200,
-                            edgeLength: 180,
+                            repulsion: 1500,
+                            edgeLength: 200,
                             gravity: 0.15,
                             layoutAnimation: true
                         },
