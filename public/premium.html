@@ -726,8 +726,6 @@
                     <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI, JFC"
                         style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
                     <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
-                    <button class="btn-download" onclick="generateEcosystem()"
-                        style="margin: 0; background: #333; color: #fff;">⚡ GENERATE NEW</button>
                 </div>
             </div>
 
@@ -1065,7 +1063,7 @@
         // --- ECOSYSTEM ANALYTICS MODULE JS ---
         let ecosystemChart;
         const ECO_BASE_ID = 'app1hHgLzAIJgLB8H';
-        const ECO_PAT = 'patXxOYsi7mCWQtLX';
+        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
         const ECO_WEBHOOK = 'https://hook.us2.make.com/wukhpww2ay34q52gsr3l4ixdpor1q0yy';
 
         async function loadEcosystem() {
@@ -1084,7 +1082,7 @@
             ecosystemChart.clear();
 
             try {
-                // We URL-encode the formula so the browser doesn't break the {} brackets
+                // URL encode formula for safety
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                 const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
 
@@ -1093,19 +1091,23 @@
                 });
                 const data = await response.json();
 
-                // Advanced Error Catching: If Airtable rejects the token or table name
                 if (data.error) {
                     console.error("Airtable Error:", data.error);
                     loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span><br><span style="font-size:0.8rem; color:#888;">Press F12 and check the Console for details.</span>`;
                     return;
                 }
 
+                // If record is NOT found, then and only then show the Generate New button
                 if (!data.records || data.records.length === 0) {
-                    loadingMsg.innerHTML = `No data found for ${tickerInput}. <br><br>Click "GENERATE NEW" to dispatch AI.`;
+                    loadingMsg.innerHTML = `
+                        No data found for ${tickerInput}.<br><br>
+                        <button onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
+                            ⚡ DISPATCH AI TO ANALYZE
+                        </button>`;
                     return;
                 }
 
-                // Look for the JSON data regardless of whether it has a space or an underscore
+                // Parse the clean JSON from Airtable
                 const recordFields = data.records[0].fields;
                 const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
 
@@ -1182,15 +1184,8 @@
             }
         }
 
-        async function generateEcosystem() {
-            const tickerInput = document.getElementById('ecosystem-ticker').value.toUpperCase().trim();
-            if (!tickerInput) {
-                alert("Please enter a ticker first.");
-                return;
-            }
-
+        async function generateEcosystem(tickerInput) {
             const loadingMsg = document.getElementById('ecosystem-loading');
-            loadingMsg.style.display = 'block';
             loadingMsg.innerHTML = `Commanding AI to analyze ${tickerInput}...<br>This takes about 15 seconds. Please wait.`;
 
             if (ecosystemChart) ecosystemChart.clear();
@@ -1199,12 +1194,13 @@
                 await fetch(`${ECO_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
 
                 setTimeout(() => {
+                    document.getElementById('ecosystem-ticker').value = tickerInput;
                     loadEcosystem();
                 }, 15000);
 
             } catch (err) {
                 console.error("Webhook Error:", err);
-                loadingMsg.innerText = "Failed to trigger AI generation.";
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to trigger AI generation.</span>`;
             }
         }
 
