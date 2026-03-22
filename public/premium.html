@@ -1190,7 +1190,7 @@
                 const fullPayload = JSON.parse(rawJsonStr);
                 const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
 
-                // --- POPULATE WRITE-UPS BELOW MAP (RESTORED LOGIC) ---
+                // --- POPULATE WRITE-UPS BELOW MAP ---
                 intelSection.style.display = 'block';
                 document.getElementById('intel-ticker').innerText = `${tickerInput} | STRATEGIC INTELLIGENCE BRIEF`;
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
@@ -1208,6 +1208,7 @@
                 const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro'];
                 const eCategories = categoryList.map(name => ({ name: name }));
 
+                // --- VISUAL CLUSTERING LOGIC ---
                 const centers = {
                     'Target': [0, 0],
                     'Competitor': [-350, -350],
