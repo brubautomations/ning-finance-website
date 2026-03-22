@@ -1082,7 +1082,6 @@
             ecosystemChart.clear();
 
             try {
-                // URL encode formula for safety
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                 const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
 
@@ -1092,31 +1091,25 @@
                 const data = await response.json();
 
                 if (data.error) {
-                    console.error("Airtable Error:", data.error);
-                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span><br><span style="font-size:0.8rem; color:#888;">Press F12 and check the Console for details.</span>`;
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span>`;
                     return;
                 }
 
-                // If record is NOT found, then and only then show the Generate New button
                 if (!data.records || data.records.length === 0) {
                     loadingMsg.innerHTML = `
                         No data found for ${tickerInput}.<br><br>
-                        <button onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
+                        <button id="dispatch-btn" onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
                             ⚡ DISPATCH AI TO ANALYZE
                         </button>`;
                     return;
                 }
 
-                // Parse the clean JSON from Airtable
                 const recordFields = data.records[0].fields;
                 const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
 
-                if (!rawJsonStr) {
-                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Found the ticker, but the JSON column is empty or misnamed.</span>`;
-                    return;
-                }
-
-                const ecoData = JSON.parse(rawJsonStr);
+                // --- DATA PATH FIX HERE ---
+                const fullPayload = JSON.parse(rawJsonStr);
+                const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
 
                 loadingMsg.style.display = 'none';
 
@@ -1185,22 +1178,45 @@
         }
 
         async function generateEcosystem(tickerInput) {
+            const btn = document.getElementById('dispatch-btn');
             const loadingMsg = document.getElementById('ecosystem-loading');
-            loadingMsg.innerHTML = `Commanding AI to analyze ${tickerInput}...<br>This takes about 15 seconds. Please wait.`;
 
-            if (ecosystemChart) ecosystemChart.clear();
+            // --- ANTI-SPAM LOCKOUT ---
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.innerText = 'PROMPT SENT...';
+
+            loadingMsg.innerHTML = `Commanding AI to analyze ${tickerInput}...<br>This takes about 20 seconds. Please wait.`;
 
             try {
                 await fetch(`${ECO_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
 
+                let attempts = 0;
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
+                    const checkUrl = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+                    const res = await fetch(checkUrl, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
+                    const checkData = await res.json();
+
+                    if ((checkData.records && checkData.records.length > 0) || attempts > 6) {
+                        clearInterval(pollInterval);
+                        loadEcosystem();
+                    }
+                }, 5000);
+
                 setTimeout(() => {
-                    document.getElementById('ecosystem-ticker').value = tickerInput;
-                    loadEcosystem();
-                }, 15000);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.innerText = '⚡ DISPATCH AI TO ANALYZE';
+                    }
+                }, 60000);
 
             } catch (err) {
-                console.error("Webhook Error:", err);
                 loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to trigger AI generation.</span>`;
+                btn.disabled = false;
+                btn.style.opacity = '1';
             }
         }
 
