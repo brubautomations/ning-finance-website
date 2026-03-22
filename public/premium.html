@@ -788,10 +788,10 @@
                 <div class="macro-card" style="margin: 0;">
                     <div class="intel-header" id="intel-ticker">STRATEGIC OVERVIEW</div>
 
-                    <span class="intel-sub-title">Corporate Intelligence</span>
+                    <span class="intel-sub-title">About the Company</span>
                     <div class="intel-body" id="intel-description"></div>
 
-                    <span class="intel-sub-title">Ecosystem Analysis & Network Logic</span>
+                    <span class="intel-sub-title">Ecosystem & Network Analysis</span>
                     <div class="intel-body" id="intel-logic"></div>
 
                     <span class="intel-sub-title">SWOT Matrix</span>
@@ -1191,7 +1191,7 @@
 
                 // --- 1. POPULATE THE WRITE-UP FIRST (SO IT ALWAYS SHOWS) ---
                 intelSection.style.display = 'block';
-                document.getElementById('intel-ticker').innerText = `${tickerInput} | STRATEGIC INTELLIGENCE BRIEF`;
+                document.getElementById('intel-ticker').innerText = `${tickerInput} | CORPORATE SUMMARY`;
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
                 document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
 
