@@ -1223,8 +1223,8 @@
                     const center = centers[node.category] || [0, 0];
 
                     return {
-                        id: node.id,
-                        name: node.id,
+                        id: String(node.id),
+                        name: String(node.id),
                         category: catIndex,
                         symbolSize: node.category === 'Target' ? 75 : 45,
                         x: center[0] + (Math.random() * 80),
@@ -1233,12 +1233,21 @@
                     };
                 });
 
-                const eLinks = ecoData.links.map(link => ({
-                    source: link.source,
-                    target: link.target,
-                    tooltip: { formatter: link.description },
-                    lineStyle: { width: 2, curveness: 0.1 }
-                }));
+                // --- THE CRASH PREVENTER ---
+                // This stops ECharts from crashing if Gemini hallucinations a broken link
+                const validNodeIds = new Set(eNodes.map(n => n.id));
+                const eLinks = ecoData.links
+                    .filter(link => {
+                        const hasSource = validNodeIds.has(String(link.source));
+                        const hasTarget = validNodeIds.has(String(link.target));
+                        return hasSource && hasTarget; // Only allow perfect matches
+                    })
+                    .map(link => ({
+                        source: String(link.source),
+                        target: String(link.target),
+                        tooltip: { formatter: link.description },
+                        lineStyle: { width: 2, curveness: 0.1 }
+                    }));
 
                 const option = {
                     backgroundColor: '#1a1a1a',
