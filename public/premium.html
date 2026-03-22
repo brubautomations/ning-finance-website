@@ -14,7 +14,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@300;700;900&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -207,7 +207,6 @@
             padding-left: 15px;
         }
 
-        /* Adjusted Screener Container for Single View */
         .screener-container {
             width: 100%;
             display: block;
@@ -305,7 +304,6 @@
             display: inline-block;
         }
 
-        /* WHALE TRACKER SPECIFIC OVERRIDES */
         #whale-flows-container .screener-module {
             border: 2px solid var(--primary);
             padding: 35px;
@@ -353,7 +351,6 @@
             flex-wrap: wrap;
         }
 
-        /* Expired Subscription Banner */
         .expired-banner {
             background: #fff;
             padding: 40px;
@@ -397,7 +394,6 @@
             color: #000;
         }
 
-        /* Chat */
         .chat-bubble {
             position: fixed;
             bottom: 30px;
@@ -723,8 +719,21 @@
 
         <div id="ecosystem" class="page">
             <h2>Corporate Supply Chains and Direct Market Competition</h2>
-            <div class="macro-card">
-                <p style="color: #888; font-style: italic;">Module initializing...</p>
+
+            <div class="filter-row">
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI, JFC"
+                        style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
+                    <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
+                </div>
+            </div>
+
+            <div class="macro-card" style="padding: 0; background: #1a1a1a; overflow: hidden; position: relative;">
+                <div id="ecosystem-chart" style="width: 100%; height: 700px;"></div>
+                <div id="ecosystem-loading"
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; display: none; text-align: center;">
+                    Fetching Intelligence...</div>
             </div>
         </div>
 
@@ -1050,6 +1059,152 @@
             };
             html2pdf().set(opt).from(element).save();
         }
+
+        // --- ECOSYSTEM ANALYTICS MODULE JS ---
+        let ecosystemChart;
+        const ECO_BASE_ID = 'app1hHgLzAIJgLB8H';
+        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
+        const ECO_WEBHOOK = 'https://hook.us2.make.com/wukhpww2ay34q52gsr3l4ixdpor1q0yy';
+
+        async function loadEcosystem() {
+            const tickerInput = document.getElementById('ecosystem-ticker').value.toUpperCase().trim();
+            if (!tickerInput) return;
+
+            const chartContainer = document.getElementById('ecosystem-chart');
+            const loadingMsg = document.getElementById('ecosystem-loading');
+
+            loadingMsg.style.display = 'block';
+            loadingMsg.innerText = 'Fetching Intelligence...';
+
+            if (!ecosystemChart) {
+                ecosystemChart = echarts.init(chartContainer);
+            }
+            ecosystemChart.clear();
+
+            try {
+                // URL encode formula for safety
+                const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
+                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${ECO_PAT}` }
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error("Airtable Error:", data.error);
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span><br><span style="font-size:0.8rem; color:#888;">Press F12 and check the Console for details.</span>`;
+                    return;
+                }
+
+                // If record is NOT found, then and only then show the Generate New button
+                if (!data.records || data.records.length === 0) {
+                    loadingMsg.innerHTML = `
+                        No data found for ${tickerInput}.<br><br>
+                        <button onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
+                            ⚡ DISPATCH AI TO ANALYZE
+                        </button>`;
+                    return;
+                }
+
+                // Parse the clean JSON from Airtable
+                const recordFields = data.records[0].fields;
+                const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
+
+                if (!rawJsonStr) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Found the ticker, but the JSON column is empty or misnamed.</span>`;
+                    return;
+                }
+
+                const ecoData = JSON.parse(rawJsonStr);
+
+                loadingMsg.style.display = 'none';
+
+                const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro'];
+                const eCategories = categoryList.map(name => ({ name: name }));
+
+                const eNodes = ecoData.nodes.map(node => {
+                    let catIndex = categoryList.indexOf(node.category);
+                    if (catIndex === -1) catIndex = 0;
+                    return {
+                        id: node.id,
+                        name: node.id,
+                        category: catIndex,
+                        symbolSize: node.category === 'Target' ? 65 : 40,
+                        label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
+                    };
+                });
+
+                const eLinks = ecoData.links.map(link => {
+                    return {
+                        source: link.source,
+                        target: link.target,
+                        tooltip: { formatter: link.description },
+                        lineStyle: { width: 2, curveness: 0.1 }
+                    };
+                });
+
+                const option = {
+                    backgroundColor: '#1a1a1a',
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            if (params.dataType === 'edge') {
+                                return `<div style="max-width:250px; white-space:normal;"><strong>${params.data.source} ➔ ${params.data.target}</strong><br/>${params.data.tooltip.formatter}</div>`;
+                            }
+                            return `<strong>${params.data.name}</strong><br/>Sector: ${categoryList[params.data.category]}`;
+                        }
+                    },
+                    legend: [{
+                        data: categoryList,
+                        textStyle: { color: '#ccc', fontWeight: 'bold' },
+                        orient: 'vertical',
+                        right: 20,
+                        top: 20
+                    }],
+                    color: ['#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6'],
+                    series: [{
+                        type: 'graph',
+                        layout: 'force',
+                        data: eNodes,
+                        links: eLinks,
+                        categories: eCategories,
+                        roam: true,
+                        label: { position: 'right' },
+                        force: { repulsion: 800, edgeLength: 150, gravity: 0.1 },
+                        lineStyle: { color: 'source', opacity: 0.6 }
+                    }]
+                };
+
+                ecosystemChart.setOption(option);
+
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Error parsing the ecosystem map.</span>`;
+            }
+        }
+
+        async function generateEcosystem(tickerInput) {
+            const loadingMsg = document.getElementById('ecosystem-loading');
+            loadingMsg.innerHTML = `Commanding AI to analyze ${tickerInput}...<br>This takes about 15 seconds. Please wait.`;
+
+            if (ecosystemChart) ecosystemChart.clear();
+
+            try {
+                await fetch(`${ECO_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
+
+                setTimeout(() => {
+                    document.getElementById('ecosystem-ticker').value = tickerInput;
+                    loadEcosystem();
+                }, 15000);
+
+            } catch (err) {
+                console.error("Webhook Error:", err);
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to trigger AI generation.</span>`;
+            }
+        }
+
+        window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedTab = localStorage.getItem('activeNingTab') || 'macro';
