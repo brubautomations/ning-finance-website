@@ -1187,7 +1187,16 @@
 
                 const recordFields = data.records[0].fields;
                 const rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
-                const fullPayload = JSON.parse(rawJsonStr);
+
+                // Extremely robust parsing to prevent crashes
+                let fullPayload;
+                try {
+                    fullPayload = JSON.parse(rawJsonStr);
+                } catch (e) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Data format error. Please regenerate mapping.</span>`;
+                    return;
+                }
+
                 const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
 
                 // --- POPULATE WRITE-UPS BELOW MAP ---
@@ -1211,41 +1220,38 @@
                 // --- VISUAL CLUSTERING LOGIC ---
                 const centers = {
                     'Target': [0, 0],
+                    'Focal': [0, 0], // In case Airtable uses Focal instead of Target
                     'Competitor': [-350, -350],
                     'Supplier': [-350, 350],
                     'Client': [350, 350],
                     'Macro': [350, -350]
                 };
 
-                const eNodes = ecoData.nodes.map(node => {
+                const eNodes = (ecoData.nodes || []).map(node => {
                     let catIndex = categoryList.indexOf(node.category);
-                    if (catIndex === -1) catIndex = 0;
+                    if (catIndex === -1) catIndex = 0; // Default to center if category is unknown
+
                     const center = centers[node.category] || [0, 0];
 
                     return {
                         id: String(node.id),
-                        name: String(node.id),
+                        name: node.label ? String(node.label) : String(node.id),
                         category: catIndex,
-                        symbolSize: node.category === 'Target' ? 75 : 45,
+                        symbolSize: catIndex === 0 ? 75 : 45,
                         x: center[0] + (Math.random() * 80),
                         y: center[1] + (Math.random() * 80),
                         label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
                     };
                 });
 
-                // --- THE CRASH PREVENTER ---
-                // This stops ECharts from crashing if Gemini hallucinations a broken link
+                // --- THE CRASH PREVENTER (ACTUALLY APPLIED THIS TIME) ---
                 const validNodeIds = new Set(eNodes.map(n => n.id));
-                const eLinks = ecoData.links
-                    .filter(link => {
-                        const hasSource = validNodeIds.has(String(link.source));
-                        const hasTarget = validNodeIds.has(String(link.target));
-                        return hasSource && hasTarget; // Only allow perfect matches
-                    })
+                const eLinks = (ecoData.links || [])
+                    .filter(link => validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target))) // Destroys bad links instead of crashing the map
                     .map(link => ({
                         source: String(link.source),
                         target: String(link.target),
-                        tooltip: { formatter: link.description },
+                        tooltip: { formatter: link.description || "" },
                         lineStyle: { width: 2, curveness: 0.1 }
                     }));
 
@@ -1289,7 +1295,7 @@
 
             } catch (err) {
                 console.error("Fetch Error:", err);
-                loadingMsg.innerHTML = `<span style="color:#dc2626;">Error parsing the ecosystem map.</span>`;
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Error rendering the ecosystem map data.</span>`;
             }
         }
 
