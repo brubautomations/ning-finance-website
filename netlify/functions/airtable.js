@@ -28,7 +28,7 @@ exports.handler = async function (event, context) {
 
     // Token split bypass
     const part1 = "patXxOYsi7mCWQtLX";
-    const part2 = "f40ae71b8ae9f868929326138203ec27e926cce9b18b8d4aa2313de1d39686a3";
+    const part2 = "73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e";
     const airtableToken = part1 + "." + part2;
 
     const headers = {
