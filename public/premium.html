@@ -1201,14 +1201,13 @@
             loadingMsg.innerHTML = `Scanning institutional database for ${tickerInput}...`;
 
             try {
-                // We use your existing ECO_BASE_ID and ECO_PAT because it's the same table!
+                // FIXED: Now correctly pointing ONLY to the AVM table
                 const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
-                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
 
                 const response = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
                 const data = await response.json();
 
-                // Find a record that actually has AVM data (avoids loading empty ecosystem maps)
                 const avmRecord = data.records?.find(r => r.fields.AVM_Fair_Value);
 
                 if (!avmRecord) {
@@ -1263,8 +1262,9 @@
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
                     attempts++;
+                    // FIXED: Now correctly pointing ONLY to the AVM table
                     const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
-                    const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+                    const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
                     const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
                     const checkData = await res.json();
 
@@ -1305,6 +1305,7 @@
             ecosystemChart.clear();
 
             try {
+                // UNTOUCHED: Still points to Ecosystem_Maps perfectly
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                 const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
 
@@ -1477,6 +1478,7 @@
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
                     attempts++;
+                    // UNTOUCHED: Still points to Ecosystem_Maps perfectly
                     const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                     const checkUrl = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
                     const res = await fetch(checkUrl, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
