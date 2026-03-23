@@ -1179,9 +1179,9 @@
 
                 if (!data.records || data.records.length === 0) {
                     loadingMsg.innerHTML = `
-                        No data found for ${tickerInput}.<br><br>
+                        No previous data found for ${tickerInput}.<br><br>
                         <button id="dispatch-btn" onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
-                            ⚡ DISPATCH AI TO ANALYZE
+                            ⚡ DISPATCH NING TO ANALYZE
                         </button>`;
                     return;
                 }
@@ -1328,7 +1328,7 @@
             btn.style.opacity = '0.5';
             btn.innerText = 'PROMPT SENT...';
 
-            loadingMsg.innerHTML = `Commanding AI to analyze ${tickerInput}...<br>This takes about 20 seconds. Please wait.`;
+            loadingMsg.innerHTML = `Ning AI is analyzing ${tickerInput}...<br>This takes about 20 seconds. Please wait.`;
 
             try {
                 await fetch(`${ECO_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
