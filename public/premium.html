@@ -703,7 +703,7 @@
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
-        <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S BLOG</div>
+        <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
 
         <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
         <div class="tab" onclick="nav('ecosystem')" id="tab-ecosystem" style="color: #cba258; font-weight: 900;">
@@ -818,7 +818,7 @@
         </div>
 
         <div id="ningning" class="page">
-            <h2>Prop's Desk</h2>
+            <h2>Ningning's Desk</h2>
             <div id="ningning-wrapper">
                 <div class="macro-card">
                     <div
@@ -831,7 +831,7 @@
                                 Ningning</h3>
                             <p
                                 style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
-                                AI PORTFOLIO MANAGER</p>
+                                LEAD AI PORTFOLIO MANAGER</p>
                         </div>
                     </div>
                     <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
@@ -894,11 +894,25 @@
 
                 <div class="macro-card" style="margin-bottom: 80px;">
                     <div class="intel-header">COMPUTATION LOGIC</div>
-                    <div id="avm-logic" class="intel-body"></div>
+                    <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
 
                     <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
                     <div id="avm-conclusion" class="intel-body"
-                        style="font-weight: 600; font-size: 1.05rem; color: #000;"></div>
+                        style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
+
+                    <div
+                        style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
+                        <p
+                            style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
+                            ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
+                        <p
+                            style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
+                            Ning AI is an automated quantitative model. The valuations, logic, and conclusions provided
+                            are for informational and educational purposes only, and DO NOT constitute financial advice.
+                            If you blindly follow an AI, buy a stock, and get burned, that is entirely your problem. We
+                            provide the math, you assume the risk. Do your own due diligence.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -907,9 +921,9 @@
             <h2>Corporate Supply Chains and Direct Market Competition</h2>
 
             <div class="filter-row" style="margin-bottom: 10px;">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH:</label>
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI, PALANTIR"
+                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI, JFC"
                         style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
                     <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
                 </div>
