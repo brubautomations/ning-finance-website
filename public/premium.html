@@ -194,9 +194,16 @@
             border-radius: 2px;
         }
 
-        .btn-download:hover {
+        .btn-download:hover:not(:disabled) {
             background: var(--primary);
             color: #000;
+        }
+
+        .btn-download:disabled {
+            background: #555 !important;
+            color: #999 !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
         }
 
         .feed-definition {
@@ -350,6 +357,73 @@
             gap: 15px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+        }
+
+        /* AUTOCOMPLETE STYLES (Added for AVM) */
+        .autocomplete-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 300px;
+        }
+
+        .autocomplete-input {
+            background: #fff;
+            color: #000;
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .autocomplete-input:focus {
+            border-color: var(--primary);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #000;
+            border: 1px solid var(--primary);
+            z-index: 1000;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .autocomplete-list li {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .autocomplete-list li span.tick {
+            font-weight: 900;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .autocomplete-list li span.name {
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 3px;
+        }
+
+        .autocomplete-list li:hover {
+            background: #222;
         }
 
         .expired-banner {
@@ -761,11 +835,16 @@
             <h2>Automated Valuation Model</h2>
 
             <div class="filter-row">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">ENTER TICKER:</label>
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH ASSET:</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="avm-ticker" class="market-dropdown" placeholder="e.g., AAPL, NVDA"
-                        style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
-                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">ANALYZE</button>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="avm-search-input" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="avm-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="avm-selected-ticker">
+                    <input type="hidden" id="avm-selected-name">
+                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">LOAD DATA</button>
                 </div>
             </div>
 
@@ -775,6 +854,11 @@
             </div>
 
             <div id="avm-results" style="display: none;">
+                <div id="avm-company-header"
+                    style="font-family: 'Merriweather', serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 20px; color: #1a1a1a; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                    COMPANY NAME | TICKER
+                </div>
+
                 <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
                     <div class="macro-card"
                         style="flex: 1; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
@@ -812,7 +896,7 @@
         <div id="ecosystem" class="page">
             <h2>Corporate Supply Chains and Direct Market Competition</h2>
 
-            <div class="filter-row">
+            <div class="filter-row" style="margin-bottom: 10px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI, JFC"
@@ -820,6 +904,10 @@
                     <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
                 </div>
             </div>
+            <p style="color: #d97706; font-size: 0.85rem; font-weight: 700; margin-top: 0; margin-bottom: 25px;">
+                ⚠️ NOTE: Please type the exact ticker or full legal company name clearly to avoid vague AI analysis
+                (e.g., type "Apple Inc" instead of just "Apple").
+            </p>
 
             <div id="map-container-wrapper"
                 style="background-color: #1a1a1a; width: 100%; border-radius: 4px; position: relative; margin-bottom: 25px; border: 1px solid var(--border);">
@@ -1185,23 +1273,98 @@
             html2pdf().set(opt).from(element).save();
         }
 
+        // --- SMART SEARCH BAR LOGIC ---
+        const RAPID_API_KEY = '2f5dcbce4dmshb006bd68b766612p1b7a94jsn4331c7925f7a';
+
+        function setupAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const hiddenTicker = document.getElementById(hiddenTickerId);
+            const hiddenName = document.getElementById(hiddenNameId);
+            let debounceTimer;
+
+            input.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    list.style.display = 'none';
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://mboum-finance.p.rapidapi.com/v1/markets/search?search=${query}`, {
+                            headers: {
+                                'X-RapidAPI-Key': RAPID_API_KEY,
+                                'X-RapidAPI-Host': 'mboum-finance.p.rapidapi.com'
+                            }
+                        });
+                        const data = await res.json();
+
+                        list.innerHTML = '';
+
+                        // Filter for logical equities
+                        const validQuotes = data.body?.filter(q => q.symbol && q.shortname && q.quoteType === "EQUITY") || [];
+
+                        if (validQuotes.length === 0) {
+                            list.innerHTML = '<li style="color:#888;">No valid equities found</li>';
+                        } else {
+                            validQuotes.forEach(quote => {
+                                const li = document.createElement('li');
+                                li.innerHTML = `<span class="tick">${quote.symbol}</span><span class="name">${quote.shortname} - ${quote.exchDisp || quote.exchange}</span>`;
+                                li.onclick = () => {
+                                    input.value = `${quote.symbol} - ${quote.shortname}`;
+                                    hiddenTicker.value = quote.symbol;
+                                    hiddenName.value = quote.shortname;
+                                    list.style.display = 'none';
+                                };
+                                list.appendChild(li);
+                            });
+                        }
+                        list.style.display = 'block';
+
+                    } catch (e) {
+                        console.error("Search failed", e);
+                    }
+                }, 500);
+            });
+
+            // Close list when clicking outside
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
+            });
+        }
+
         // --- AVM MODULE JS ---
+        const ECO_BASE_ID = 'app1hHgLzAlJgLB8H';
+        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
         const AVM_WEBHOOK = 'https://hook.us2.make.com/tqi872uuhurc9slv6phelhhhltpvwu6g';
 
         async function loadAVM() {
-            const tickerInput = document.getElementById('avm-ticker').value.toUpperCase().trim();
+            const rawInput = document.getElementById('avm-search-input').value.trim();
+            const selectedTicker = document.getElementById('avm-selected-ticker').value;
+            const selectedName = document.getElementById('avm-selected-name').value;
+
+            // Fallback if they ignore the dropdown and just type a ticker manually
+            const tickerInput = selectedTicker ? selectedTicker.toUpperCase() : rawInput.split('-')[0].trim().toUpperCase();
+            const companyName = selectedName ? selectedName : tickerInput;
+
             if (!tickerInput) return;
 
             const resultsDiv = document.getElementById('avm-results');
             const loadingMsg = document.getElementById('avm-loading');
-            const btn = document.getElementById('avm-btn');
+
+            // Set Dynamic Header immediately
+            document.getElementById('avm-company-header').innerText = `${companyName} | ${tickerInput}`;
 
             resultsDiv.style.display = 'none';
             loadingMsg.style.display = 'block';
             loadingMsg.innerHTML = `Scanning institutional database for ${tickerInput}...`;
 
             try {
-                // FIXED: Now correctly pointing ONLY to the AVM table
                 const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
                 const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
 
@@ -1212,8 +1375,8 @@
 
                 if (!avmRecord) {
                     loadingMsg.innerHTML = `
-                        No valuation data found for ${tickerInput}.<br><br>
-                        <button onclick="generateAVM('${tickerInput}')" style="background:#cba258; color:#000; border:none; padding:10px 20px; font-weight:900; cursor:pointer; margin-top:15px; border-radius:3px; text-transform:uppercase; letter-spacing:1px;">
+                        No valuation data found for ${companyName} (${tickerInput}).<br><br>
+                        <button id="dispatch-avm-btn" onclick="generateAVM('${tickerInput}', '${companyName.replace(/'/g, "\\'")}')" style="background:#cba258; color:#000; border:none; padding:10px 20px; font-weight:900; cursor:pointer; margin-top:15px; border-radius:3px; text-transform:uppercase; letter-spacing:1px;">
                             ⚡ RUN LIVE VALUATION MODEL
                         </button>`;
                     return;
@@ -1250,9 +1413,27 @@
             }
         }
 
-        async function generateAVM(tickerInput) {
+        async function generateAVM(tickerInput, companyName) {
+            const dispatchBtn = document.getElementById('dispatch-avm-btn');
+
+            // 1. Anti-Spam Lockout Trigger
+            if (dispatchBtn) {
+                dispatchBtn.disabled = true;
+                dispatchBtn.style.opacity = '0.5';
+                dispatchBtn.innerText = 'PROMPT SENT... EVALUATING';
+            }
+
             const loadingMsg = document.getElementById('avm-loading');
-            loadingMsg.innerHTML = `Executing Quantitative Models for ${tickerInput}...<br>This takes about 15 seconds. Please wait.`;
+            loadingMsg.innerHTML = `Executing Quantitative Models for ${companyName}...<br>This takes about 60 seconds. Please wait.`;
+
+            // 2. Unlock the button after 60 seconds just in case of an API timeout
+            setTimeout(() => {
+                if (dispatchBtn) {
+                    dispatchBtn.disabled = false;
+                    dispatchBtn.style.opacity = '1';
+                    dispatchBtn.innerText = '⚡ RUN LIVE VALUATION MODEL';
+                }
+            }, 60000);
 
             try {
                 // Ping Make.com to run the AI
@@ -1262,7 +1443,6 @@
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
                     attempts++;
-                    // FIXED: Now correctly pointing ONLY to the AVM table
                     const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
                     const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
                     const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
@@ -1270,7 +1450,7 @@
 
                     const avmRecord = checkData.records?.find(r => r.fields.AVM_Fair_Value);
 
-                    if (avmRecord || attempts > 6) {
+                    if (avmRecord || attempts > 12) { // Allow up to 60 seconds polling
                         clearInterval(pollInterval);
                         loadAVM(); // Reload the UI with the fresh data
                     }
@@ -1278,13 +1458,15 @@
 
             } catch (err) {
                 loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to execute model. Make sure webhook is correct.</span>`;
+                if (dispatchBtn) {
+                    dispatchBtn.disabled = false;
+                    dispatchBtn.style.opacity = '1';
+                }
             }
         }
 
         // --- ECOSYSTEM ANALYTICS MODULE JS ---
         let ecosystemChart;
-        const ECO_BASE_ID = 'app1hHgLzAlJgLB8H';
-        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
         const ECO_WEBHOOK = 'https://hook.us2.make.com/wukhpww2ay34q52gsr3l4ixdpor1q0yy';
 
         async function loadEcosystem() {
@@ -1305,7 +1487,6 @@
             ecosystemChart.clear();
 
             try {
-                // UNTOUCHED: Still points to Ecosystem_Maps perfectly
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                 const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
 
@@ -1337,7 +1518,7 @@
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
                 document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
 
-                // Bulletproof SWOT parsing: Case insensitive so it works even if Gemini capitalizes 'Strengths'
+                // Bulletproof SWOT parsing
                 const swotRaw = recordFields['SWOT'];
                 let swotObj = {};
                 if (swotRaw) {
@@ -1364,7 +1545,7 @@
                     fullPayload = JSON.parse(rawJsonStr);
                 } catch (e) {
                     loadingMsg.innerHTML = `<span style="color:#dc2626;">AI Map Generation Failed. Please dispatch AI again.</span>`;
-                    return; // Stops here, but leaves the text box visible!
+                    return;
                 }
 
                 const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
@@ -1373,7 +1554,7 @@
 
                 if (nodesArray.length === 0) {
                     loadingMsg.innerHTML = `<span style="color:#dc2626;">AI did not return map coordinates. Please dispatch AI again.</span>`;
-                    return; // Stops here, but leaves the text box visible!
+                    return;
                 }
 
                 loadingMsg.style.display = 'none';
@@ -1392,7 +1573,7 @@
 
                 const eNodes = nodesArray.map(node => {
                     let catIndex = categoryList.findIndex(c => c.toLowerCase() === String(node.category).toLowerCase());
-                    if (catIndex === -1) catIndex = 0; // Default to center if category is unknown
+                    if (catIndex === -1) catIndex = 0;
 
                     const center = centers[categoryList[catIndex]] || [0, 0];
 
@@ -1407,7 +1588,6 @@
                     };
                 });
 
-                // THE CRASH PREVENTER: Checks every link. If Gemini hallucinated a connection, throw away the bad line, save the rest of the map.
                 const validNodeIds = new Set(eNodes.map(n => n.id));
                 const eLinks = linksArray
                     .filter(link => validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target)))
@@ -1430,7 +1610,7 @@
                         }
                     },
                     legend: [{
-                        data: categoryList.slice(0, 5), // Hide 'Focal' from legend
+                        data: categoryList.slice(0, 5),
                         textStyle: { color: '#ccc', fontWeight: 'bold' },
                         orient: 'vertical',
                         right: 20,
@@ -1478,7 +1658,6 @@
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
                     attempts++;
-                    // UNTOUCHED: Still points to Ecosystem_Maps perfectly
                     const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
                     const checkUrl = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
                     const res = await fetch(checkUrl, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
@@ -1510,6 +1689,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedTab = localStorage.getItem('activeNingTab') || 'macro';
             nav(savedTab);
+
+            setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
 
             fetchMacroData();
             fetchQuantData('ph');
