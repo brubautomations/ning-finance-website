@@ -680,6 +680,16 @@
 
 <body>
 
+    <div id="lockdown-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px);">
+        <div
+            style="font-family: 'Merriweather', serif; font-size: 2rem; font-weight: 900; color: #000; margin-bottom: 10px; text-transform: uppercase; text-align: center;">
+            Executing Quantitative Valuation</div>
+        <div
+            style="font-family: 'Inter', sans-serif; font-size: 1.1rem; color: #dc2626; font-weight: 700; text-align: center;">
+            Do not close or refresh this window.</div>
+    </div>
+
     <header>
         <div class="logo">NING <span>FINANCE</span>
             <div class="logo-tag">PRO TIER</div>
@@ -844,7 +854,7 @@
                     </div>
                     <input type="hidden" id="avm-selected-ticker">
                     <input type="hidden" id="avm-selected-name">
-                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">LOAD DATA</button>
+                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">COMPUTE</button>
                 </div>
             </div>
 
@@ -905,8 +915,7 @@
                 </div>
             </div>
             <p style="color: #d97706; font-size: 0.85rem; font-weight: 700; margin-top: 0; margin-bottom: 25px;">
-                ⚠️ NOTE: Please type the exact ticker or full legal company name clearly to avoid vague AI analysis
-                (e.g., type "Apple Inc" instead of just "Apple").
+                ⚠️ NOTE: Please type the exact ticker or company name clearly to avoid vague analysis
             </p>
 
             <div id="map-container-wrapper"
@@ -977,6 +986,26 @@
 
     <script>
         let activeQuantData = {};
+
+        // --- LOCKDOWN & REFRESH INTERCEPT LOGIC ---
+        let isComputing = false;
+
+        window.addEventListener('beforeunload', function (e) {
+            if (isComputing) {
+                e.preventDefault();
+                e.returnValue = ''; // Standard way to trigger the browser's "Leave site?" prompt
+            }
+        });
+
+        function showLockdown() {
+            isComputing = true;
+            document.getElementById('lockdown-overlay').style.display = 'flex';
+        }
+
+        function hideLockdown() {
+            isComputing = false;
+            document.getElementById('lockdown-overlay').style.display = 'none';
+        }
 
         const errorHtml = `
             <div class="expired-banner">
@@ -1377,7 +1406,7 @@
                     loadingMsg.innerHTML = `
                         No valuation data found for ${companyName} (${tickerInput}).<br><br>
                         <button id="dispatch-avm-btn" onclick="generateAVM('${tickerInput}', '${companyName.replace(/'/g, "\\'")}')" style="background:#cba258; color:#000; border:none; padding:10px 20px; font-weight:900; cursor:pointer; margin-top:15px; border-radius:3px; text-transform:uppercase; letter-spacing:1px;">
-                            ⚡ RUN LIVE VALUATION MODEL
+                            ⚡ COMPUTE LIVE VALUATION
                         </button>`;
                     return;
                 }
@@ -1416,23 +1445,26 @@
         async function generateAVM(tickerInput, companyName) {
             const dispatchBtn = document.getElementById('dispatch-avm-btn');
 
-            // 1. Anti-Spam Lockout Trigger
             if (dispatchBtn) {
                 dispatchBtn.disabled = true;
                 dispatchBtn.style.opacity = '0.5';
                 dispatchBtn.innerText = 'PROMPT SENT... EVALUATING';
             }
 
+            // TRIGGER LOCKDOWN OVERLAY & REFRESH INTERCEPT
+            showLockdown();
+
             const loadingMsg = document.getElementById('avm-loading');
             loadingMsg.innerHTML = `Executing Quantitative Models for ${companyName}...<br>This takes about 60 seconds. Please wait.`;
 
-            // 2. Unlock the button after 60 seconds just in case of an API timeout
+            // Timeout safety to unlock the screen if Make.com fails entirely
             setTimeout(() => {
                 if (dispatchBtn) {
                     dispatchBtn.disabled = false;
                     dispatchBtn.style.opacity = '1';
-                    dispatchBtn.innerText = '⚡ RUN LIVE VALUATION MODEL';
+                    dispatchBtn.innerText = '⚡ COMPUTE LIVE VALUATION';
                 }
+                hideLockdown();
             }, 60000);
 
             try {
@@ -1452,6 +1484,7 @@
 
                     if (avmRecord || attempts > 12) { // Allow up to 60 seconds polling
                         clearInterval(pollInterval);
+                        hideLockdown(); // UNLOCK ON SUCCESS
                         loadAVM(); // Reload the UI with the fresh data
                     }
                 }, 5000);
@@ -1462,6 +1495,7 @@
                     dispatchBtn.disabled = false;
                     dispatchBtn.style.opacity = '1';
                 }
+                hideLockdown(); // UNLOCK ON ERROR
             }
         }
 
