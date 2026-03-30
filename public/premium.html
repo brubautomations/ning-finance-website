@@ -811,19 +811,78 @@
 
         <div id="flows" class="page">
             <h2>INSTITUTIONAL & LEGISLATIVE FLOWS</h2>
-            <div id="flows-wrapper">
-                <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
+            <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
 
-                <div style="margin-bottom: 30px; margin-top: 25px; display: flex; align-items: center; gap: 15px;">
-                    <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
-                    <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
-                        <option value="">Loading tickers...</option>
-                    </select>
+            <style>
+                #whale-timeline::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                #whale-timeline::-webkit-scrollbar-track {
+                    background: #111;
+                }
+
+                #whale-timeline::-webkit-scrollbar-thumb {
+                    background: #333;
+                    border-radius: 3px;
+                }
+
+                #whale-timeline::-webkit-scrollbar-thumb:hover {
+                    background: var(--primary);
+                }
+            </style>
+
+            <div id="flows-wrapper" style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+                <div style="flex: 2; min-width: 400px; display: flex; flex-direction: column; gap: 30px;">
+
+                    <div class="macro-card"
+                        style="margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
+                        <div
+                            style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 15px;">
+                            <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=50"
+                                style="border-radius: 50%;">
+                            <div>
+                                <h3
+                                    style="margin: 0; color: var(--primary); font-family: 'Merriweather', serif; font-size: 1.2rem; border: none; padding: 0;">
+                                    NING'S SURVEILLANCE</h3>
+                                <div style="font-size: 0.7rem; color: #888; font-weight: 800; letter-spacing: 1px;">AI
+                                    PATTERN RECOGNITION</div>
+                            </div>
+                        </div>
+                        <div id="whale-analysis" style="line-height: 1.6; font-size: 0.95rem; color: #ddd;">
+                            Initializing AI analysis...
+                        </div>
+                    </div>
+
+                    <div class="macro-card" style="margin: 0;">
+                        <h3
+                            style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; font-family: 'Merriweather', serif; font-size: 1.2rem; border-left: none;">
+                            TICKER DEEP DIVE</h3>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+                            <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
+                            <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
+                                <option value="">Loading tickers...</option>
+                            </select>
+                        </div>
+                        <div id="whale-flows-container"></div>
+                    </div>
                 </div>
 
-                <div id="whale-flows-container"></div>
-                <div id="whale-raw-data" style="display: none;"></div>
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="macro-card"
+                        style="margin: 0; background: #111; border: 1px solid #333; height: 800px; display: flex; flex-direction: column; padding: 25px;">
+                        <h3
+                            style="color: #fff; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 15px; font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; border-left: none; font-size: 1rem;">
+                            🔴 THE LIVE TAPE</h3>
+                        <div id="whale-timeline" style="flex: 1; overflow-y: auto; padding-right: 10px;">
+                            <div style="color: #666; font-style: italic;">Loading raw feed...</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+            <div id="whale-raw-data" style="display: none;"></div>
         </div>
 
         <div id="ningning" class="page">
@@ -1208,53 +1267,6 @@
             }
         }
 
-        function renderWhaleDropdown(rawHtml) {
-            const rawContainer = document.getElementById('whale-raw-data');
-            const select = document.getElementById('whale-select');
-
-            if (!rawHtml || rawHtml.trim() === '') {
-                select.innerHTML = '<option value="">No data found</option>';
-                document.getElementById('whale-flows-container').innerHTML = '<p style="color: #888;">No data available for this feed.</p>';
-                return;
-            }
-
-            rawContainer.innerHTML = rawHtml;
-            const modules = Array.from(rawContainer.querySelectorAll('.screener-module'));
-
-            modules.sort((a, b) => {
-                const tickerA = a.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
-                const tickerB = b.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
-                return tickerA.localeCompare(tickerB);
-            });
-
-            select.innerHTML = '';
-            rawContainer.innerHTML = '';
-
-            modules.forEach((mod, index) => {
-                mod.id = 'block-' + index;
-                const ticker = mod.querySelector('.screener-header').innerText.replace(/[🏛️📜🕵️]/g, '').trim();
-
-                const ul = mod.querySelector('.quant-list');
-                if (ul) {
-                    const items = Array.from(ul.querySelectorAll('li'));
-                    items.sort((a, b) => a.querySelector('strong').innerText.trim().localeCompare(b.querySelector('strong').innerText.trim()));
-                    ul.innerHTML = '';
-                    items.forEach(li => {
-                        li.innerHTML = li.innerHTML.replace(/buy/gi, '<span style="color:#16a34a; font-weight: 800; text-transform: uppercase;">BUY</span>').replace(/sell/gi, '<span style="color:#dc2626; font-weight: 800; text-transform: uppercase;">SELL</span>');
-                        ul.appendChild(li);
-                    });
-                }
-
-                rawContainer.appendChild(mod);
-                const opt = document.createElement('option');
-                opt.value = mod.id;
-                opt.innerText = ticker;
-                select.appendChild(opt);
-            });
-
-            changeWhaleTicker();
-        }
-
         function changeWhaleTicker() {
             const select = document.getElementById('whale-select');
             const selectedId = select.value;
@@ -1277,9 +1289,95 @@
                 }
 
                 if (data.records && data.records.length > 0) {
-                    renderWhaleDropdown(data.records[0].fields['Congressional_Whales']);
+                    const rawData = data.records[0].fields['Congressional_Whales'];
+
+                    if (rawData && rawData.includes('|||NING_SPLIT|||')) {
+                        const parts = rawData.split('|||NING_SPLIT|||');
+                        const analysis = parts[0].trim();
+                        // Parse the raw array
+                        const rawJsonArr = JSON.parse(parts[1].trim());
+
+                        renderWhaleDashboard(analysis, rawJsonArr);
+                    } else {
+                        // Handle legacy fallback just in case
+                        document.getElementById('whale-analysis').innerHTML = "Awaiting AI Analysis generation...";
+                        // If it's old HTML format
+                        document.getElementById('whale-timeline').innerHTML = "<div style='color: #666; font-style: italic;'>Timeline requires next data sync...</div>";
+                    }
                 }
             } catch (e) { console.error("Whale fetch failed:", e); }
+        }
+
+        function renderWhaleDashboard(analysis, trades) {
+            // 1. RENDER AI ANALYSIS
+            document.getElementById('whale-analysis').innerHTML = analysis;
+
+            // 2. RENDER TIMELINE (RIGHT PANEL)
+            trades.sort((a, b) => new Date(b.trade_date) - new Date(a.trade_date));
+            let timelineHtml = '';
+            trades.slice(0, 40).forEach(t => {
+                const isBuy = t.trade_type.toLowerCase().includes('buy');
+                const color = isBuy ? '#16a34a' : '#dc2626';
+                timelineHtml += `
+                <div style="border-left: 3px solid ${color}; padding-left: 15px; margin-bottom: 25px;">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 3px; font-family: 'Courier New', monospace;">
+                        ${t.trade_date} <span style="color:#555;">(${t.days_until_disclosure}D delay)</span>
+                    </div>
+                    <div style="font-weight: 900; color: #fff; font-size: 1.1rem; margin: 2px 0;">
+                        ${t.ticker} <span style="color: ${color}; font-size: 0.85rem; vertical-align: middle;">${t.trade_type.toUpperCase()}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #aaa;">${t.name} <span style="color:#666;">(${t.party}-${t.state_name})</span></div>
+                    <div style="font-family: 'Courier New', monospace; font-size: 0.85rem; color: var(--primary); margin-top: 5px; font-weight: bold;">
+                        ${t.trade_amount}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('whale-timeline').innerHTML = timelineHtml;
+
+            // 3. RENDER DROPDOWN (LEFT PANEL)
+            const select = document.getElementById('whale-select');
+            const rawContainer = document.getElementById('whale-raw-data');
+
+            // Group by ticker using pure JS
+            const grouped = {};
+            trades.forEach(t => {
+                if (!grouped[t.ticker]) grouped[t.ticker] = [];
+                grouped[t.ticker].push(t);
+            });
+
+            const tickers = Object.keys(grouped).sort();
+            select.innerHTML = '<option value="">Select a ticker...</option>';
+            rawContainer.innerHTML = '';
+
+            tickers.forEach((ticker, index) => {
+                const blockId = 'block-' + index;
+
+                // Add option to dropdown
+                const opt = document.createElement('option');
+                opt.value = blockId;
+                opt.innerText = ticker;
+                select.appendChild(opt);
+
+                // Build HTML list
+                let listHtml = '';
+                grouped[ticker].sort((a, b) => a.name.localeCompare(b.name)); // Sort names alphabetically
+                grouped[ticker].forEach(t => {
+                    const typeHtml = t.trade_type.toLowerCase().includes('buy')
+                        ? '<span style="color:#16a34a; font-weight: 800; text-transform: uppercase;">BUY</span>'
+                        : '<span style="color:#dc2626; font-weight: 800; text-transform: uppercase;">SELL</span>';
+                    listHtml += `<li><strong style="color: #fff; font-weight: 800; font-family: 'Inter', sans-serif;">${t.name} (${t.party}-${t.state_name})</strong> <span style="color: #fff; font-family: 'Courier New', monospace; font-size: 0.95rem;"> - ${typeHtml} | ${t.trade_amount} @ $${t.value_at_purchase || 'N/A'} | ${t.trade_date} (${t.days_until_disclosure}D delay)</span></li>`;
+                });
+
+                // Save to hidden container
+                rawContainer.innerHTML += `
+                <div class="screener-module" id="${blockId}">
+                    <div class="screener-header">🏛️ ${ticker}</div>
+                    <ul class="quant-list" style="list-style: none; padding: 0; margin: 0;">${listHtml}</ul>
+                </div>`;
+            });
+
+            // Initialize the view
+            changeWhaleTicker();
         }
 
         async function fetchNingningVlogs() {
