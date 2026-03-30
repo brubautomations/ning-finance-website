@@ -722,37 +722,43 @@
             <div id="report-to-print" style="width: 100%;">
                 <div id="macro-data-container" class="macro-card">
                     <div style="background-color: #000; padding: 25px; color: #fff; border-bottom: 4px solid #cba258;">
-                        <h2 style="margin: 0; font-size: 26px; border:none; padding:0;">Mondays with Ning</h2>
+                        <h2 style="margin: 0; font-size: 26px; border:none; padding:0; color: #fff;">Mondays with Ning
+                        </h2>
                         <p style="margin: 5px 0 0 0; font-size: 14px; color: #aeb6bf;">Macro Context & Asset
                             Intelligence | Philippine Risk Assets</p>
                     </div>
                     <div style="padding: 30px; border: 1px solid #e1e8ed; border-top: none;">
                         <p style="font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 25px;"><em>Translation
-                                of global macro chaos that happened last week into actionable local order flow.</em></p>
+                                of global macro chaos that happened over the weekend into actionable local order
+                                flow.</em></p>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
-                            1. The Global Board</h3>
+                            1. The Global Board (Risk, Rates & Softs)</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
-                            <li style="margin-bottom: 12px;"><strong>The Fed & Rates:</strong> <span
+                            <li style="margin-bottom: 12px;"><strong>Equities & Liquidity:</strong> <span
+                                    id="macro-risk">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>The Fed & Yields:</strong> <span
                                     id="macro-rates">Loading...</span></li>
-                            <li style="margin-bottom: 12px;"><strong>Geopolitics:</strong> <span
+                            <li style="margin-bottom: 12px;"><strong>Geopolitics & Energy:</strong> <span
                                     id="macro-geo">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>Ags, Softs & Dr. Copper:</strong> <span
+                                    id="macro-ags">Loading...</span></li>
                         </ul>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
-                            2. Institutional Order Book</h3>
+                            2. Philippine Institutional Reality</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
-                            <li style="margin-bottom: 12px;"><strong>Foreign Flows:</strong> <span
+                            <li style="margin-bottom: 12px;"><strong>PSEi & Foreign Flows:</strong> <span
                                     id="macro-flows">Loading...</span></li>
-                            <li style="margin-bottom: 12px;"><strong>The BSP & FX:</strong> <span
+                            <li style="margin-bottom: 12px;"><strong>BSP, FX & Bond Yields:</strong> <span
                                     id="macro-fx">Loading...</span></li>
                         </ul>
 
                         <h3
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
-                            3. Suggested Action Plan</h3>
+                            3. Tactical Allocation</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333;">
                             <li style="margin-bottom: 12px;"><strong style="color: #16a34a;">OVERWEIGHT: <span
                                         id="macro-ow-name">...</span></strong><br><span id="macro-ow-rat">...</span>
@@ -1122,14 +1128,20 @@
 
                 if (data.records && data.records.length > 0) {
                     const payload = JSON.parse(data.records[0].fields.Payload);
-                    document.getElementById('macro-rates').innerText = payload.global_board_rates;
-                    document.getElementById('macro-geo').innerText = payload.global_board_geopolitics;
-                    document.getElementById('macro-flows').innerText = payload.foreign_flows;
-                    document.getElementById('macro-fx').innerText = payload.bsp_fx;
-                    document.getElementById('macro-ow-name').innerText = payload.overweight_sector_name;
-                    document.getElementById('macro-ow-rat').innerText = payload.overweight_rationale;
-                    document.getElementById('macro-uw-name').innerText = payload.underweight_sector_name;
-                    document.getElementById('macro-uw-rat').innerText = payload.underweight_rationale;
+
+                    // Helper function: converts markdown asterisks to HTML bold tags JUST IN CASE she forgets
+                    const formatBold = (text) => text ? text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') : '';
+
+                    document.getElementById('macro-risk').innerHTML = formatBold(payload.global_risk_appetite);
+                    document.getElementById('macro-rates').innerHTML = formatBold(payload.global_board_rates);
+                    document.getElementById('macro-geo').innerHTML = formatBold(payload.global_board_geopolitics);
+                    document.getElementById('macro-ags').innerHTML = formatBold(payload.global_ags_and_metals);
+                    document.getElementById('macro-flows').innerHTML = formatBold(payload.pse_and_flows);
+                    document.getElementById('macro-fx').innerHTML = formatBold(payload.bsp_fx_bonds);
+                    document.getElementById('macro-ow-name').innerHTML = formatBold(payload.overweight_sector_name);
+                    document.getElementById('macro-ow-rat').innerHTML = formatBold(payload.overweight_rationale);
+                    document.getElementById('macro-uw-name').innerHTML = formatBold(payload.underweight_sector_name);
+                    document.getElementById('macro-uw-rat').innerHTML = formatBold(payload.underweight_rationale);
                 }
             } catch (e) { console.error("Macro fetch failed:", e); }
         }
