@@ -1309,8 +1309,18 @@
         }
 
         function renderWhaleDashboard(analysis, trades) {
-            // 1. RENDER AI ANALYSIS
-            document.getElementById('whale-analysis').innerHTML = analysis;
+            // 1. RENDER AI ANALYSIS WITH FORMATTING SAFETY NET
+            let formattedAnalysis = analysis;
+
+            // Fallback: If AI uses ** for bold, convert it to HTML <b> tags with a crisp white color
+            formattedAnalysis = formattedAnalysis.replace(/\*\*(.*?)\*\*/g, '<b style="color: #fff;">$1</b>');
+
+            // Fallback: If AI forgets <br><br> tags and uses raw newlines, convert them so it isn't crowded
+            if (!formattedAnalysis.includes('<br>')) {
+                formattedAnalysis = formattedAnalysis.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+            }
+
+            document.getElementById('whale-analysis').innerHTML = formattedAnalysis;
 
             // 2. RENDER TIMELINE (RIGHT PANEL)
             trades.sort((a, b) => new Date(b.trade_date) - new Date(a.trade_date));
