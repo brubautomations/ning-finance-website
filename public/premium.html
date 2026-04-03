@@ -1463,10 +1463,9 @@
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        list.innerHTML = '<li style="color:#888; padding:8px 12px; font-style:italic; background:#fff;">Searching...</li>';
+                        list.innerHTML = '<li style="color:#888;padding:8px 12px;font-style:italic;background:#fff;">Searching...</li>';
                         list.style.display = 'block';
 
-                        // Finnhub search — CORS friendly, free, global coverage
                         const res = await fetch(
                             `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0`
                         );
@@ -1477,66 +1476,91 @@
                         list.innerHTML = '';
 
                         if (results.length === 0) {
-                            list.innerHTML = '<li style="color:#888; padding:8px 12px; background:#fff;">No results. Try exact ticker e.g. AAPL or 352820.KS</li>';
+                            list.innerHTML = '<li style="color:#888;padding:8px 12px;background:#fff;">No results found</li>';
                             list.style.display = 'block';
                             return;
                         }
 
-                        // Finnhub → EODHD exchange suffix translation
-                        // Finnhub uses different suffixes than EODHD
-                        const FINNHUB_TO_EODHD = {
-                            '.PM': '.PSE',   // Philippines
-                            '.KS': '.KS',    // Korea KRX (same)
-                            '.KQ': '.KQ',    // Korea KOSDAQ (same)
-                            '.L': '.LSE',   // London
-                            '.DE': '.XETRA', // Germany
-                            '.T': '.TSE',   // Japan Tokyo
-                            '.HK': '.HK',    // Hong Kong (same)
-                            '.AX': '.AU',    // Australia
-                            '.SI': '.SGX',   // Singapore
-                            '.NS': '.NSE',   // India NSE
-                            '.BO': '.BSE',   // India BSE
-                            '.KL': '.KLSE',  // Malaysia
-                            '.BK': '.SET',   // Thailand
-                            '.JK': '.IDX',   // Indonesia
-                            '.TO': '.TSX',   // Canada Toronto
-                            '.V': '.TSX',   // Canada TSX Venture
-                            '.PA': '.PA',    // France
-                            '.MI': '.MI',    // Italy
-                            '.MC': '.MC',    // Spain
-                            '.AS': '.AS',    // Netherlands
+                        // ─────────────────────────────────────────────────
+                        // FINNHUB SUFFIX → EODHD EXCHANGE CODE TRANSLATION
+                        // Verified against EODHD exchange list
+                        // ─────────────────────────────────────────────────
+                        const SUFFIX_MAP = {
+                            // Asia Pacific
+                            '.PM': '.PSE',   // 🇵🇭 Philippines (Finnhub .PM → EODHD .PSE)
+                            '.KS': '.KO',    // 🇰🇷 Korea KRX (Finnhub .KS → EODHD .KO)
+                            '.KQ': '.KQ',    // 🇰🇷 Korea KOSDAQ (same)
+                            '.T': '.TSE',   // 🇯🇵 Japan Tokyo (Finnhub .T → EODHD .TSE)
+                            '.HK': '.HK',    // 🇭🇰 Hong Kong (same)
+                            '.SS': '.SHG',   // 🇨🇳 China Shanghai (Finnhub .SS → EODHD .SHG)
+                            '.SZ': '.SHE',   // 🇨🇳 China Shenzhen (Finnhub .SZ → EODHD .SHE)
+                            '.AX': '.AU',    // 🇦🇺 Australia (Finnhub .AX → EODHD .AU)
+                            '.SI': '.SGX',   // 🇸🇬 Singapore (Finnhub .SI → EODHD .SGX)
+                            '.NS': '.NSE',   // 🇮🇳 India NSE (Finnhub .NS → EODHD .NSE)
+                            '.BO': '.BSE',   // 🇮🇳 India BSE (Finnhub .BO → EODHD .BSE)
+                            '.KL': '.KLSE',  // 🇲🇾 Malaysia (Finnhub .KL → EODHD .KLSE)
+                            '.BK': '.BK',    // 🇹🇭 Thailand (same)
+                            '.JK': '.JK',    // 🇮🇩 Indonesia (same)
+                            '.VN': '.VN',    // 🇻🇳 Vietnam (same)
+                            '.TW': '.TW',    // 🇹🇼 Taiwan (same)
+                            // Europe
+                            '.L': '.LSE',   // 🇬🇧 London (Finnhub .L → EODHD .LSE)
+                            '.DE': '.XETRA', // 🇩🇪 Germany XETRA (Finnhub .DE → EODHD .XETRA)
+                            '.F': '.F',     // 🇩🇪 Frankfurt (same)
+                            '.PA': '.PA',    // 🇫🇷 France Paris (same)
+                            '.AS': '.AS',    // 🇳🇱 Netherlands (same)
+                            '.MI': '.MI',    // 🇮🇹 Italy (same)
+                            '.MC': '.MC',    // 🇪🇸 Spain (same)
+                            '.SW': '.SW',    // 🇨🇭 Switzerland (same)
+                            '.OL': '.OL',    // 🇳🇴 Norway (same)
+                            '.ST': '.ST',    // 🇸🇪 Sweden (same)
+                            '.CO': '.CO',    // 🇩🇰 Denmark (same)
+                            '.HE': '.HE',    // 🇫🇮 Finland (same)
+                            // Americas
+                            '.TO': '.TO',    // 🇨🇦 Canada Toronto (same)
+                            '.V': '.V',     // 🇨🇦 Canada Venture (same)
+                            '.MX': '.MX',    // 🇲🇽 Mexico (same)
+                            '.SA': '.SA',    // 🇧🇷 Brazil (same)
                         };
 
                         function toEODHD(sym) {
                             if (!sym) return null;
-                            // Check if symbol has a Finnhub suffix that maps to EODHD
                             const dotIdx = sym.lastIndexOf('.');
                             if (dotIdx > 0) {
-                                const suffix = sym.substring(dotIdx); // e.g. '.PM'
-                                const base = sym.substring(0, dotIdx); // e.g. 'ALI'
-                                if (FINNHUB_TO_EODHD[suffix]) {
-                                    return base + FINNHUB_TO_EODHD[suffix];
-                                }
-                                return sym; // unknown suffix, keep as-is
+                                const suf = sym.substring(dotIdx);
+                                const base = sym.substring(0, dotIdx);
+                                return base + (SUFFIX_MAP[suf] || suf); // use map or keep original
                             }
-                            return sym + '.US'; // no suffix = US stock
+                            return sym + '.US'; // no dot = US stock
                         }
 
-                        function getFlag(sym) {
-                            if (!sym) return '🌍 Global';
-                            if (sym.includes('.PSE') || sym.includes('.PM')) return '🇵🇭 Philippines';
-                            if (sym.includes('.KS') || sym.includes('.KQ')) return '🇰🇷 Korea';
-                            if (sym.includes('.T') || sym.includes('.TSE')) return '🇯🇵 Japan';
-                            if (sym.includes('.HK')) return '🇭🇰 Hong Kong';
-                            if (sym.includes('.L') || sym.includes('.LSE')) return '🇬🇧 London';
-                            if (sym.includes('.DE') || sym.includes('.XETRA')) return '🇩🇪 Germany';
-                            if (sym.includes('.AX') || sym.includes('.AU')) return '🇦🇺 Australia';
-                            if (sym.includes('.SI') || sym.includes('.SGX')) return '🇸🇬 Singapore';
-                            if (sym.includes('.NS') || sym.includes('.BO')) return '🇮🇳 India';
-                            if (sym.includes('.KL') || sym.includes('.KLSE')) return '🇲🇾 Malaysia';
-                            if (sym.includes('.TO') || sym.includes('.TSX')) return '🇨🇦 Canada';
-                            if (sym.includes('.PA')) return '🇫🇷 France';
-                            if (!sym.includes('.')) return '🇺🇸 US';
+                        function getFlag(finnhubSym) {
+                            if (!finnhubSym) return '🌍';
+                            const s = finnhubSym.toUpperCase();
+                            if (s.includes('.PM')) return '🇵🇭 Philippines';
+                            if (s.includes('.KS') || s.includes('.KQ')) return '🇰🇷 Korea';
+                            if (s.includes('.T') && !s.includes('.TO')) return '🇯🇵 Japan';
+                            if (s.includes('.HK')) return '🇭🇰 Hong Kong';
+                            if (s.includes('.SS') || s.includes('.SZ')) return '🇨🇳 China';
+                            if (s.includes('.AX')) return '🇦🇺 Australia';
+                            if (s.includes('.SI')) return '🇸🇬 Singapore';
+                            if (s.includes('.NS') || s.includes('.BO')) return '🇮🇳 India';
+                            if (s.includes('.KL')) return '🇲🇾 Malaysia';
+                            if (s.includes('.BK')) return '🇹🇭 Thailand';
+                            if (s.includes('.JK')) return '🇮🇩 Indonesia';
+                            if (s.includes('.VN')) return '🇻🇳 Vietnam';
+                            if (s.includes('.TW')) return '🇹🇼 Taiwan';
+                            if (s.includes('.L')) return '🇬🇧 London';
+                            if (s.includes('.DE') || s.includes('.F') || s.includes('.XETRA')) return '🇩🇪 Germany';
+                            if (s.includes('.PA')) return '🇫🇷 France';
+                            if (s.includes('.SW')) return '🇨🇭 Switzerland';
+                            if (s.includes('.AS')) return '🇳🇱 Netherlands';
+                            if (s.includes('.MI')) return '🇮🇹 Italy';
+                            if (s.includes('.MC')) return '🇪🇸 Spain';
+                            if (s.includes('.TO') || s.includes('.V')) return '🇨🇦 Canada';
+                            if (s.includes('.SA')) return '🇧🇷 Brazil';
+                            if (s.includes('.MX')) return '🇲🇽 Mexico';
+                            if (!s.includes('.')) return '🇺🇸 US';
                             return '🌍 Global';
                         }
 
@@ -1544,13 +1568,13 @@
                             const eodhTicker = toEODHD(item.symbol);
                             if (!eodhTicker) return;
                             const li = document.createElement('li');
-                            li.style.cssText = 'padding:8px 12px; cursor:pointer; border-bottom:1px solid #e8e8e8; background:#fff;';
+                            li.style.cssText = 'padding:8px 12px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
                             li.innerHTML = `
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <span style="font-weight:900;font-family:'Courier New',monospace;color:#1a1a1a;font-size:0.9rem;">${eodhTicker}</span>
                                     <span style="font-size:0.75rem;color:#666;background:#f0f0f0;padding:2px 8px;border-radius:3px;">${getFlag(item.symbol)}</span>
                                 </div>
-                                <div style="font-size:0.82rem;color:#666;margin-top:2px;">${item.description || ''}</div>
+                                <div style="font-size:0.82rem;color:#555;margin-top:2px;">${item.description || ''}</div>
                             `;
                             li.onmouseover = () => li.style.background = '#fdf8ee';
                             li.onmouseout = () => li.style.background = '#fff';
@@ -1566,7 +1590,7 @@
 
                     } catch (e) {
                         console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:#fff;">Search error — try typing exact ticker</li>';
+                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:#fff;">Search error — try typing the exact ticker</li>';
                         list.style.display = 'block';
                     }
                 }, 400);
@@ -1577,6 +1601,10 @@
                 if (e.target !== input && e.target !== list) {
                     list.style.display = 'none';
                 }
+            });
+            // Enter key triggers COMPUTE
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { list.style.display = 'none'; document.getElementById('avm-btn').click(); }
             });
         }
 
@@ -1590,35 +1618,11 @@
             const selectedTicker = document.getElementById('avm-selected-ticker').value;
             const selectedName = document.getElementById('avm-selected-name').value;
 
-            // Fallback if they ignore the dropdown and just type a ticker manually
-            const rawTicker = selectedTicker ? selectedTicker.toUpperCase() : rawInput.split('-')[0].trim().toUpperCase();
-
-            // Translate Finnhub exchange suffixes to EODHD format
-            const SUFFIX_MAP = {
-                '.PM': '.PSE',   // Philippines
-                '.L': '.LSE',   // London
-                '.DE': '.XETRA', // Germany
-                '.T': '.TSE',   // Japan
-                '.AX': '.AU',    // Australia
-                '.SI': '.SGX',   // Singapore
-                '.NS': '.NSE',   // India NSE
-                '.BO': '.BSE',   // India BSE
-                '.KL': '.KLSE',  // Malaysia
-                '.BK': '.SET',   // Thailand
-                '.JK': '.IDX',   // Indonesia
-                '.TO': '.TSX',   // Canada
-                '.PA': '.PA',    // France (same)
-                '.MI': '.MI',    // Italy (same)
-                '.MC': '.MC',    // Spain (same)
-                '.AS': '.AS',    // Netherlands (same)
-            };
-            let tickerInput = rawTicker;
-            const dotPos = rawTicker.lastIndexOf('.');
-            if (dotPos > 0) {
-                const suf = rawTicker.substring(dotPos);
-                if (SUFFIX_MAP[suf]) tickerInput = rawTicker.substring(0, dotPos) + SUFFIX_MAP[suf];
-            }
-
+            // Translate Finnhub suffix → EODHD format before sending to webhook
+            const rawTicker = (selectedTicker || rawInput.split('(').pop().replace(')', '').trim() || rawInput.split('-')[0].trim()).toUpperCase();
+            const _SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.L': '.LSE', '.DE': '.XETRA', '.SS': '.SHG', '.SZ': '.SHE' };
+            const _d = rawTicker.lastIndexOf('.');
+            const tickerInput = (_d > 0 && _SMAP[rawTicker.substring(_d)]) ? rawTicker.substring(0, _d) + _SMAP[rawTicker.substring(_d)] : rawTicker;
             const companyName = selectedName ? selectedName : tickerInput;
 
             if (!tickerInput) return;
