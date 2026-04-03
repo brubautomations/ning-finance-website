@@ -4,32 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NING FINANCE | ADVANCED AI INTELLIGENCE</title>
-
-    <meta property="og:title" content="NING FINANCE | ADVANCED AI INTELLIGENCE" />
-    <meta property="og:description" content="99% AI-Operated Newsroom and Market Data Terminal." />
-    <meta property="og:image"
-        content="https://ui-avatars.com/api/?name=NING+FINANCE&background=000000&color=cba258&size=800&font-size=0.15&bold=true" />
+    <title>NING FINANCE | PRO TIER</title>
 
     <link rel="icon" type="image/png"
         href="https://ui-avatars.com/api/?name=N&background=000000&color=cba258&rounded=true&bold=true&size=128">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@300;700;900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@300;700;900&display=swap"
         rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (!token || token.length < 10) {
+            window.location.replace('index.html');
+        }
+    </script>
 
     <style>
         :root {
             --primary: #cba258;
             --bg: #f8f9fa;
-            --card-bg: #ffffff;
             --text-main: #1a1a1a;
-            --border: #e0e0e0;
-            --up: #16a34a;
-            --down: #dc2626;
-            --sidebar-width: 260px;
+            --border: #e1e8ed;
         }
 
         body {
@@ -44,16 +43,14 @@
             overflow: hidden;
         }
 
-        /* HEADER */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 40px;
-            background: #fff;
-            border-bottom: 3px solid var(--primary);
+            background: #000;
+            border-bottom: 4px solid var(--primary);
             z-index: 100;
-            position: relative;
             flex-shrink: 0;
         }
 
@@ -61,7 +58,7 @@
             font-family: 'Merriweather', serif;
             font-size: 1.8rem;
             font-weight: 900;
-            letter-spacing: -0.5px;
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -74,139 +71,32 @@
         .logo-tag {
             font-family: 'Inter', sans-serif;
             font-size: 0.65rem;
-            background: #000;
-            color: #fff;
-            padding: 2px 6px;
-            border-radius: 2px;
-            text-transform: uppercase;
-            margin-left: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        /* TICKER */
-        .ticker-bar {
-            background: #000;
-            border-bottom: 1px solid #222;
-            display: flex;
-            height: 35px;
-            overflow: hidden;
-            align-items: center;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 95;
-        }
-
-        .ticker-label {
             background: var(--primary);
             color: #000;
-            padding: 0 15px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            font-weight: 900;
-            font-family: 'Inter', sans-serif;
+            padding: 3px 8px;
+            border-radius: 2px;
             text-transform: uppercase;
-            font-size: 0.7rem;
-            z-index: 2;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
-        .ticker-track {
-            flex: 1;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-            width: 100%;
-        }
-
-        .ticker-content {
-            display: inline-block;
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: scroll-left 400s linear infinite;
-            will-change: transform;
-            transform: translateZ(0);
-        }
-
-        .ticker-content:hover {
-            animation-play-state: paused;
-        }
-
-        .ticker-item {
-            display: inline-block;
-            color: #e0e0e0;
-            margin-right: 50px;
-        }
-
-        .ticker-item span {
-            color: var(--primary);
-            margin-right: 8px;
-            font-weight: bold;
-        }
-
-        @keyframes scroll-left {
-            0% {
-                transform: translate3d(0, 0, 0);
-            }
-
-            100% {
-                transform: translate3d(-100%, 0, 0);
-            }
-        }
-
-        /* CALL BUTTON */
-        #callBtn {
-            background: #000;
+        .user-status {
             color: #fff;
-            border: 1px solid #000;
-            padding: 10px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.3s;
-            white-space: nowrap;
+            font-weight: 600;
         }
 
-        #callBtn:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: #000;
-        }
-
-        #callBtn.active {
-            background: var(--primary);
-            color: #000;
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(203, 162, 88, 0.4);
-        }
-
-        .indicator {
-            height: 8px;
+        .status-dot {
             width: 8px;
-            background: #fff;
+            height: 8px;
+            background-color: #16a34a;
             border-radius: 50%;
-            display: none;
+            box-shadow: 0 0 10px #16a34a;
         }
 
-        #callBtn.active .indicator {
-            display: block;
-            background: #cc0000;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: 0;
-            }
-        }
-
-        /* NAV */
         .nav-tabs {
             display: flex;
             gap: 30px;
@@ -214,9 +104,8 @@
             padding: 0 40px;
             border-bottom: 1px solid var(--border);
             z-index: 90;
-            position: relative;
             flex-shrink: 0;
-            justify-content: center;
+            overflow-x: auto;
         }
 
         .tab {
@@ -232,7 +121,7 @@
         }
 
         .tab:hover {
-            color: var(--primary);
+            color: #000;
         }
 
         .tab.active {
@@ -240,166 +129,22 @@
             border-bottom: 3px solid var(--primary);
         }
 
-        /* --- LAYOUT SYSTEM --- */
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            max-width: 1800px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /* SIDEBARS */
-        .sidebar {
-            width: var(--sidebar-width);
-            padding: 30px 20px;
-            overflow-y: auto;
-            flex-shrink: 0;
-            background: #fff;
-            display: none;
-        }
-
-        .sidebar-left {
-            border-right: 1px solid #e0e0e0;
-        }
-
-        .sidebar-right {
-            border-left: 1px solid #e0e0e0;
-        }
-
-        .sidebar-widget {
-            margin-bottom: 40px;
-        }
-
-        .sidebar-title {
-            font-family: 'Merriweather', serif;
-            font-size: 0.8rem;
-            font-weight: 900;
-            margin-bottom: 15px;
-            color: #000;
-            text-transform: uppercase;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 5px;
-            display: inline-block;
-        }
-
-        /* AD VERTICAL CONTAINER */
-        .ad-container {
-            width: 100%;
-            text-align: center;
-        }
-
-        .ad-label {
-            font-size: 0.6rem;
-            color: #ccc;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .vertical-banner {
-            width: 100%;
-            height: auto;
-            min-height: 400px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #f0f0f0;
-            display: block;
-        }
-
-        /* WORLD CLOCKS (Right Side) */
-        .world-clock {
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 5px;
-        }
-
-        .city-label {
-            font-size: 0.7rem;
-            color: #888;
-            text-transform: uppercase;
-            font-weight: 700;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .time-display {
-            font-size: 1.1rem;
-            color: #000;
-            font-weight: bold;
-            letter-spacing: -0.5px;
-        }
-
-        .sec-display {
-            font-size: 0.8rem;
-            color: var(--primary);
-        }
-
-        .continent-label {
-            font-size: 0.65rem;
-            color: var(--primary);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 2px;
-        }
-
-        /* FX RATES (New) */
-        .fx-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-            font-family: 'Courier New', monospace;
-        }
-
-        .fx-row:last-child {
-            border-bottom: none;
-        }
-
-        .fx-pair {
-            font-size: 0.8rem;
-            color: #666;
-            font-weight: 700;
-        }
-
-        .fx-price {
-            font-size: 1.1rem;
-            color: #000;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-        }
-
-        .fx-base {
-            font-size: 0.75rem;
-            color: var(--primary);
-            font-weight: 900;
-            margin-right: 5px;
-        }
-
-        /* CONTENT AREA */
         #content-area {
             flex: 1;
-            padding: 40px;
+            padding: 30px 40px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            background: #fcfcfc;
         }
 
         .page {
             display: none;
             animation: fadeIn 0.4s ease;
+            height: 100%;
         }
 
         .page.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes fadeIn {
@@ -417,1099 +162,1784 @@
         h2 {
             font-family: 'Merriweather', serif;
             font-size: 1.5rem;
-            margin-bottom: 25px;
+            margin: 0 0 20px 0;
             border-left: 5px solid var(--primary);
             padding-left: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
             text-transform: uppercase;
-            letter-spacing: -0.5px;
         }
 
-        .header-row {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        #status-indicator {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.7rem;
-            color: #16a34a;
-            background: #eefdf2;
-            border: 1px solid #bbf7d0;
-            padding: 5px 10px;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-left: 10px;
-        }
-
-        .ai-caveat {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.7rem;
-            color: #888;
-            font-weight: 400;
-            margin-top: 5px;
-            text-transform: none;
-            letter-spacing: 0;
-            font-style: italic;
-        }
-
-        /* CARDS */
-        .vertical-feed {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 25px;
-            border: 1px solid var(--border);
-            border-top: 4px solid #000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            display: block;
-            cursor: zoom-in;
-            transition: opacity 0.2s;
-        }
-
-        .card-image:hover {
-            opacity: 0.9;
-        }
-
-        .card h3 {
-            font-family: 'Merriweather', serif;
-            margin: 0 0 10px 0;
-            font-size: 1.3rem;
-            line-height: 1.3;
-        }
-
-        .card p {
-            font-size: 1rem;
-            color: #444;
-            line-height: 1.6;
-            margin: 0 0 15px 0;
-            flex-grow: 1;
-        }
-
-        .card-meta {
-            font-size: 0.75rem;
-            color: #888;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-style: italic;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* SHARE BUTTON */
-        .share-btn {
-            background: transparent;
-            border: 1px solid #ddd;
-            color: #666;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            text-transform: uppercase;
-            margin-left: 15px;
-            transition: 0.2s;
-        }
-
-        .share-btn:hover {
-            background: #000;
-            color: #fff;
-            border-color: #000;
-        }
-
-        /* MODALS */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.9);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            display: block;
-            border-radius: 4px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            animation: zoom 0.3s;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .close-modal:hover {
-            color: var(--primary);
-        }
-
-        /* ARTICLE MODAL */
-        #articleModal {
-            display: none;
-            position: fixed;
-            z-index: 3000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(255, 255, 255, 0.98);
-        }
-
-        .article-container {
-            max-width: 800px;
-            margin: 50px auto;
+        .macro-card {
+            background: #fff;
             padding: 40px;
-            position: relative;
-        }
-
-        .close-article {
-            position: absolute;
-            top: 0;
-            right: 0;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #999;
-            transition: 0.2s;
-        }
-
-        .close-article:hover {
-            color: #000;
-        }
-
-        /* PRICING */
-        .pricing-container {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            align-items: stretch;
-            margin-top: 20px;
-        }
-
-        .price-card {
-            flex: 1;
-            min-height: 450px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            position: relative;
-            transition: transform 0.3s;
-        }
-
-        .price-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .price-card h3 {
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 20px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-        }
-
-        .price-card h2 {
-            font-family: 'Merriweather', serif;
-            font-size: 1.8rem;
-            margin: 0 0 30px 0;
-            padding: 0;
-            border: none;
-            color: #000;
-            text-transform: none;
-            letter-spacing: normal;
-        }
-
-        .price-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 30px 0;
-            flex-grow: 1;
-        }
-
-        .price-card li {
-            font-size: 0.95rem;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            color: #444;
-            line-height: 1.5;
-        }
-
-        .price-card li::before {
-            content: "•";
-            color: var(--primary);
-            margin-right: 10px;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .price-btn {
-            display: block;
+            border: 1px solid var(--border);
             width: 100%;
-            padding: 15px;
-            background: #000;
-            color: #fff;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: auto;
+            box-sizing: border-box;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
         }
 
-        .price-btn:hover {
+        .btn-download {
+            background: #000;
+            color: var(--primary);
+            border: none;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+            margin-bottom: 20px;
+            align-self: flex-start;
+            border-radius: 2px;
+        }
+
+        .btn-download:hover:not(:disabled) {
             background: var(--primary);
             color: #000;
         }
 
-        footer {
-            padding: 15px;
-            text-align: center;
-            color: #999;
+        .btn-download:disabled {
+            background: #555 !important;
+            color: #999 !important;
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .feed-definition {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 25px;
+            font-style: italic;
+            border-left: 3px solid #eee;
+            padding-left: 15px;
+        }
+
+        .screener-container {
+            width: 100%;
+            display: block;
+        }
+
+        .screener-module {
+            background: #000000;
+            border: 1px solid var(--primary);
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        .screener-header {
+            font-family: 'Merriweather', serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            border-bottom: 1px dashed #333;
+            padding-bottom: 12px;
+        }
+
+        .quant-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .quant-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #333;
+            font-family: 'Courier New', monospace;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .quant-list li strong+* {
+            display: none !important;
+        }
+
+        .quant-list li strong::after {
+            content: " -";
+            display: inline;
+            color: #ffffff;
+        }
+
+        .quant-list li strong+*+* {
+            display: block !important;
+            color: #ffffff;
+        }
+
+        .quant-list strong {
+            color: #ffffff;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .quant-list-ceo li {
+            padding: 15px 0;
+            font-size: 1.05rem;
+            color: #d1d5db;
+            justify-content: flex-start;
+            font-weight: normal;
+        }
+
+        .quant-list-ceo li strong {
+            display: inline-block;
+            color: #ffffff;
+        }
+
+        .quant-list-ceo li strong::after {
+            content: "";
+        }
+
+        .quant-list-ceo li strong+* {
+            display: inline !important;
+        }
+
+        .sep {
+            color: var(--primary);
+            margin: 0 12px;
+            opacity: 0.6;
+            font-weight: 400;
+            display: inline-block;
+        }
+
+        #whale-flows-container .screener-module {
+            border: 2px solid var(--primary);
+            padding: 35px;
+        }
+
+        #whale-flows-container .screener-header {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+        }
+
+        #whale-flows-container .quant-list li {
+            padding: 15px 0;
+            font-size: 1.05rem;
+            color: #ffffff;
+        }
+
+        #whale-flows-container .quant-list li strong+* {
+            display: inline !important;
+            color: var(--primary) !important;
+            font-weight: bold;
+        }
+
+        #whale-flows-container .quant-list li strong::after {
+            content: " ➔ ";
+            color: #555;
+        }
+
+        .market-dropdown {
+            background: #000;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* AUTOCOMPLETE STYLES (Added for AVM) */
+        .autocomplete-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 300px;
+        }
+
+        .autocomplete-input {
+            background: #fff;
+            color: #000;
+            border: 1px solid var(--border);
+            padding: 10px 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            text-transform: uppercase;
+        }
+
+        .autocomplete-input:focus {
+            border-color: var(--primary);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #000;
+            border: 1px solid var(--primary);
+            z-index: 1000;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .autocomplete-list li {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .autocomplete-list li span.tick {
+            font-weight: 900;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .autocomplete-list li span.name {
             font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 3px;
+        }
+
+        .autocomplete-list li:hover {
+            background: #222;
+        }
+
+        .expired-banner {
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #e1e8ed;
+            border-top: 5px solid #dc2626;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .expired-banner h3 {
+            color: #dc2626;
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .expired-banner p {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .expired-banner a {
+            display: inline-block;
+            background: #000;
+            color: var(--primary);
+            padding: 12px 25px;
+            text-decoration: none;
+            font-weight: 800;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+
+        .expired-banner a:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .chat-bubble {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #000;
+            color: var(--primary);
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 30px rgba(203, 162, 88, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chat-bubble:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid #000;
+        }
+
+        .chat-window.open {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-weight: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            font-family: 'Merriweather', serif;
+        }
+
+        .chat-header span {
+            color: var(--primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--primary);
+            padding: 2px 6px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fcfcfc;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            padding: 12px 18px;
+            border-radius: 4px;
+            max-width: 85%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .msg.user {
+            background: #e1e8ed;
+            color: #000;
+            align-self: flex-end;
+        }
+
+        .msg.bot {
+            background: #000;
+            color: #fff;
+            align-self: flex-start;
+            border-left: 3px solid var(--primary);
+        }
+
+        .chat-input-area {
+            padding: 15px;
             background: #fff;
             border-top: 1px solid var(--border);
-            flex-shrink: 0;
+            display: flex;
+            gap: 10px;
         }
 
-        footer a {
-            color: #666;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.2s;
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
         }
 
-        footer a:hover {
+        .chat-input-area button {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0 20px;
+            border-radius: 2px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chat-input-area button:hover {
+            background: #000;
             color: var(--primary);
         }
 
-        /* RESPONSIVE */
-        @media (min-width: 1400px) {
-            .sidebar {
-                display: block;
-            }
+        #ningning-vlog-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background: #fff;
         }
 
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
-            }
+        #ningning-vlog-content th {
+            background: #000;
+            color: var(--primary);
+            text-align: left;
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
 
-            .logo {
-                width: 100%;
-                justify-content: center;
-            }
+        #ningning-vlog-content td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #000;
+            font-weight: 600;
+        }
 
-            #callBtn {
-                width: 100%;
-                justify-content: center;
-            }
+        /* STRATEGIC INTELLIGENCE PANEL STYLES */
+        .intel-header {
+            font-family: 'Merriweather', serif;
+            font-size: 1.2rem;
+            color: #000;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
 
-            .nav-tabs {
-                padding: 0 15px;
-                gap: 20px;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-                justify-content: flex-start;
-            }
+        .intel-sub-title {
+            font-weight: 800;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            display: block;
+        }
 
-            .nav-tabs::-webkit-scrollbar {
-                display: none;
-            }
+        .intel-body {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 30px;
+        }
 
-            #content-area {
-                padding: 20px 15px;
-            }
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
 
-            .pricing-container {
-                flex-direction: column;
-            }
+        .swot-box {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
 
-            h2 {
-                font-size: 1.2rem;
-            }
-
-            .header-row {
-                justify-content: flex-start;
-            }
+        .swot-box h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.8rem;
+            text-transform: uppercase;
         }
     </style>
 </head>
 
 <body>
 
+    <div id="lockdown-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px);">
+        <div id="lockdown-title"
+            style="font-family: 'Merriweather', serif; font-size: 2rem; font-weight: 900; color: #000; margin-bottom: 10px; text-transform: uppercase; text-align: center;">
+            Executing Quantitative Valuation</div>
+        <div
+            style="font-family: 'Inter', sans-serif; font-size: 1.1rem; color: #dc2626; font-weight: 700; text-align: center;">
+            Do not close or refresh this window.</div>
+    </div>
+
     <header>
         <div class="logo">NING <span>FINANCE</span>
-            <div class="logo-tag">ADVANCED AI INTELLIGENCE NEWS WEBSITE</div>
+            <div class="logo-tag">PRO TIER</div>
         </div>
-        <button id="callBtn">
-            <div class="indicator"></div> CALL NING
-        </button>
+        <div class="user-status" id="header-status">
+            <div class="status-dot"></div>SECURE CONNECTION ACTIVE
+        </div>
     </header>
 
-    <div class="ticker-bar">
-        <div class="ticker-label">THE FLASH</div>
-        <div class="ticker-track">
-            <div class="ticker-content" id="ticker-feed">
-                <div class="ticker-item">Connecting to secure global feeds...</div>
-            </div>
-        </div>
-    </div>
-
     <div class="nav-tabs">
-        <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL</div>
-        <div class="tab" onclick="nav('asia')" id="tab-asia">ASIA</div>
-        <div class="tab" onclick="nav('philippines')" id="tab-philippines">PHILIPPINES</div>
-        <div class="tab" onclick="nav('market')" id="tab-market">MARKET DATA</div>
-        <div class="tab" onclick="nav('tech')" id="tab-tech">AI & TECH</div>
-        <div class="tab" onclick="nav('opinions')" id="tab-opinions">OPINIONS</div>
-        <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
-        <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
-        <div class="tab" onclick="nav('subs')" id="tab-subs">SUBSCRIPTIONS</div>
+        <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
+        <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
+        <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
+        <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
+
+        <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
+        <div class="tab" onclick="nav('ecosystem')" id="tab-ecosystem" style="color: #cba258; font-weight: 900;">
+            ECOSYSTEM ANALYTICS</div>
+
+        <div class="tab" onclick="nav('account')" id="tab-account" style="margin-left: auto; color: var(--primary);">
+            ACCOUNT</div>
     </div>
 
-    <div id="imageModal" class="modal" onclick="closeModal()">
-        <span class="close-modal">&times;</span>
-        <img class="modal-content" id="img01">
-    </div>
+    <div id="content-area">
 
-    <div id="articleModal" class="modal" style="background-color: rgba(255, 255, 255, 0.98);">
-        <div class="article-container">
-            <span class="close-article" onclick="closeArticle()">&times;</span>
-            <div id="single-article-content">
-            </div>
-        </div>
-    </div>
+        <div id="macro" class="page active">
+            <h2>Macro Context & Asset Intelligence</h2>
+            <button class="btn-download" onclick="downloadPDF()">⬇ Download PDF</button>
 
-    <div class="main-container">
-
-        <aside class="sidebar sidebar-left">
-            <div class="sidebar-widget ad-container">
-                <span class="ad-label">Advertisement</span>
-
-                <a href="https://www.omegawatches.com/" target="_blank">
-                    <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWlpM3J1bnI0emFxNTg0cWJqNWRlOXFycnk1MTM1czN0aTEzbnltdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cgkgAXwJowFeDUJxDP/giphy.gif"
-                        class="vertical-banner" alt="Digital Billboard">
-                </a>
-
-            </div>
-
-            <div class="sidebar-widget"
-                style="border: 1px solid #000; padding: 20px; text-align: center; border-radius: 4px; background:#f9f9f9;">
-                <div style="font-size: 0.65rem; font-weight: 700; margin-bottom: 5px; color:#666;">SUBSCRIBE TO</div>
-                <div style="font-family: 'Merriweather'; font-size: 1.2rem; font-weight: 900; margin-bottom: 5px;">NING
-                    FINANCE</div>
-                <div style="font-size: 0.65rem; color:#444; margin-bottom: 15px;">ADVANCED AI INTELLIGENCE ACCESS</div>
-                <button onclick="nav('subs')"
-                    style="background:#000; color:#fff; border:none; padding:10px 20px; font-size:0.7rem; font-weight:bold; cursor:pointer; width:100%;">UPGRADE</button>
-            </div>
-        </aside>
-
-        <div id="content-area">
-            <div id="global" class="page active">
-                <h2>
-                    <div class="header-row">GLOBAL NEWS <span id="status-indicator">LIVE FEED ACTIVE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-global">
-                    <div class="card" style="border-top-color: #ccc;">
-                        <h3>Loading...</h3>
-                        <p>Connecting to secure feed.</p>
+            <div id="report-to-print" style="width: 100%;">
+                <div id="macro-data-container" class="macro-card">
+                    <div style="background-color: #000; padding: 25px; color: #fff; border-bottom: 4px solid #cba258;">
+                        <h2 style="margin: 0; font-size: 26px; border:none; padding:0; color: #fff;">Mondays with Ning
+                        </h2>
+                        <p style="margin: 5px 0 0 0; font-size: 14px; color: #aeb6bf;">Macro Context & Asset
+                            Intelligence | Philippine Risk Assets</p>
                     </div>
-                </div>
-            </div>
+                    <div style="padding: 30px; border: 1px solid #e1e8ed; border-top: none;">
+                        <p style="font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 25px;"><em>Translation
+                                of global macro chaos that happened over the weekend into actionable local order
+                                flow.</em></p>
 
-            <div id="asia" class="page">
-                <h2>
-                    <div class="header-row">ASIA NEWS<span id="status-indicator">LIVE FEED ACTIVE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-asia">
-                    <div class="card" style="border-top-color: #ccc;">
-                        <h3>Loading...</h3>
-                        <p>Connecting to Asia feed.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="philippines" class="page">
-                <h2>
-                    <div class="header-row">PHILIPPINES<span id="status-indicator">LIVE FEED ACTIVE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-philippines">
-                    <div class="card" style="border-top-color: #ccc;">
-                        <h3>Loading...</h3>
-                        <p>Connecting to Philippines feed.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="market" class="page">
-                <div class="card">
-                    <h3>Connecting to Live Feed...</h3>
-                    <p>Establishing secure connection to Database.</p>
-                </div>
-            </div>
-
-            <div id="tech" class="page">
-                <h2>
-                    <div class="header-row">AI & FRONTIER <span id="status-indicator">LIVE FEED ACTIVE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-ai">
-                    <div class="card" style="border-top-color: #29b6f6;">
-                        <h3>Loading...</h3>
-                        <p>Fetching Frontier Intelligence.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="opinions" class="page">
-                <h2>
-                    <div class="header-row">OPINIONS & COMMENTARY<span id="status-indicator"
-                            style="color:#ff9800; border-color:#ff9800; background:#fff8e1;">EDITOR'S DESK</span></div>
-                    <div class="ai-caveat">Analysis generated by AI models trained on financial data. Not investment
-                        advice.
-                    </div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-opinions">
-                    <div class="card" style="border-top-color: #ff9800;">
-                        <h3>Loading...</h3>
-                        <p>Fetching analysis.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="luxury" class="page">
-                <h2>
-                    <div class="header-row">LUXE LIVING<span id="status-indicator"
-                            style="color:#b45309; border-color:#b45309; background:#fffbeb;">CONCIERGE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-luxury">
-                    <div class="card" style="border-top-color: #b45309;">
-                        <h3>Loading...</h3>
-                        <p>Curating exclusive assets.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="culture" class="page">
-                <h2>
-                    <div class="header-row">CULTURE <span id="status-indicator"
-                            style="color:#db2777; border-color:#db2777; background:#fce7f3;">ICONS & STYLE</span></div>
-                </h2>
-                <div class="vertical-feed" id="news-feed-culture">
-                    <div class="card" style="border-top-color: #db2777;">
-                        <h3>Loading...</h3>
-                        <p>Curating cultural influence.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="subs" class="page">
-                <h2>SUBSCRIPTIONS</h2>
-                <div class="pricing-container">
-
-                    <div class="card price-card">
-                        <h3>Tier 1</h3>
-                        <h2>Free</h2>
-                        <ul>
-                            <li><strong>Live News Feeds</strong> and Commentary.</li>
-                            <li><strong>Market Data</strong> and Market Breadth.</li>
-                            <li><strong>Call Ning:</strong> The Voice Navigation Website Control.</li>
+                        <h3
+                            style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
+                            1. The Global Board (Risk, Rates & Softs)</h3>
+                        <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
+                            <li style="margin-bottom: 12px;"><strong>Equities & Liquidity:</strong> <span
+                                    id="macro-risk">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>The Fed & Yields:</strong> <span
+                                    id="macro-rates">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>Geopolitics & Energy:</strong> <span
+                                    id="macro-geo">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>Ags, Softs & Dr. Copper:</strong> <span
+                                    id="macro-ags">Loading...</span></li>
                         </ul>
-                        <a class="price-btn" style="background: #ccc; color: #666; cursor: default;">CURRENT PLAN</a>
-                    </div>
 
-                    <div class="card price-card" style="border-top-color: var(--primary);">
-                        <h3 style="color:var(--primary);">Tier 2</h3>
-                        <h2>$25 / mo</h2>
-                        <ul>
-                            <li>Everything in Free.</li>
-                            <li><strong>Advanced Chatbot:</strong> Trained on Multi-Asset Markets (Forex, Crypto,
-                                Commodities, Equities) and Social Intelligence.</li>
-                            <li><strong>Autonomous AI Portfolio Manager:</strong> Follow a live AI agent as it actively
-                                manages a prop portfolio. It scans the market, executes entries and exits, breaks down
-                                its tactical reasoning, and logs every trade for a 100% transparent, auditable track
-                                record.</li>
-                            <li><strong>Institutional Flow Tracker:</strong> Gain an edge by tracking restricted smart
-                                money movements and high-level legislative capital flows.</li>
-                            <li><strong>Algorithmic Screener:</strong> Automated momentum detection and statistical
-                                anomaly alerts triggered directly at EOD/EOW.</li>
-                            <li><strong>Macro Asset Intelligence:</strong> Weekly institutional-grade market reports
-                                translating global macroeconomic chaos into actionable strategies.</li>
+                        <h3
+                            style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
+                            2. Philippine Institutional Reality</h3>
+                        <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
+                            <li style="margin-bottom: 12px;"><strong>PSEi & Foreign Flows:</strong> <span
+                                    id="macro-flows">Loading...</span></li>
+                            <li style="margin-bottom: 12px;"><strong>BSP, FX & Bond Yields:</strong> <span
+                                    id="macro-fx">Loading...</span></li>
                         </ul>
-                        <a href="https://paymongo.page/l/ning-finance-pro" class="price-btn" target="_blank">UPGRADE
-                            NOW</a>
-                    </div>
 
-                    <div class="card price-card" style="border-top-color: #000;">
-                        <h3 style="color:#000;">Tier 3</h3>
-                        <h2>$1,000 / mo</h2>
-                        <ul>
-                            <li>Everything in Pro.</li>
-                            <li><strong>Automated Valuation Model (AVM):</strong> Instantly calculates a stock's
-                                intrinsic fair value using DCF to spot market price anomalies.</li>
-                            <li><strong>Ecosystem Analytics:</strong> Interactive mapping of corporate supply chains and
-                                direct market competition.</li>
+                        <h3
+                            style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
+                            3. Tactical Allocation</h3>
+                        <ul style="font-size: 14px; line-height: 1.7; color: #333;">
+                            <li style="margin-bottom: 12px;"><strong style="color: #16a34a;">OVERWEIGHT: <span
+                                        id="macro-ow-name">...</span></strong><br><span id="macro-ow-rat">...</span>
+                            </li>
+                            <li style="margin-bottom: 12px;"><strong style="color: #dc2626;">UNDERWEIGHT: <span
+                                        id="macro-uw-name">...</span></strong><br><span id="macro-uw-rat">...</span>
+                            </li>
                         </ul>
-                        <a href="#" class="price-btn">CONTACT SALES</a>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        <aside class="sidebar sidebar-right">
-            <div class="sidebar-widget">
-                <div class="sidebar-title">WORLD CLOCK</div>
+        <div id="screener" class="page">
+            <h2>Algorithmic Momentum & Anomaly Alerts</h2>
+            <div id="screener-wrapper">
+                <div class="filter-row">
+                    <label style="font-weight: 800; color: #333; font-size: 0.9rem;">MARKET FEED:</label>
+                    <select id="market-select" class="market-dropdown" onchange="changeMarket()">
+                        <option value="ph">PHILIPPINES (PSE)</option>
+                        <option value="us">US EQUITIES (Nasdaq, S&P 500)</option>
+                        <option value="vn">VIETNAM (VN-Index)</option>
+                        <option value="crypto">CRYPTOCURRENCY (Binance)</option>
+                        <option value="japan">JAPAN (Nikkei)</option>
+                        <option value="hk">HONG KONG (Hang Seng)</option>
+                        <option value="korea">KOREA (Kospi)</option>
+                    </select>
 
-                <div class="world-clock">
-                    <span class="city-label">MANILA (PHT)</span>
-                    <span class="time-display" id="clock-manila">00:00</span> <span class="sec-display"
-                        id="sec-manila">:00</span>
+                    <label style="font-weight: 800; color: #333; font-size: 0.9rem; margin-left: 20px;">SIGNAL
+                        FILTER:</label>
+                    <select id="quant-filter-select" class="market-dropdown" onchange="renderQuantView()">
+                        <option value="Bullish 5/20">Bullish Momentum (5/20 MA cross up)</option>
+                        <option value="Bearish 5/20">Bearish Momentum (5/20 MA cross down)</option>
+                        <option value="RSI30">Oversold (RSI < 30)</option>
+                        <option value="RSI70">Overbought (RSI > 70)</option>
+                        <option value="Above200">Crossed 200D MA</option>
+                        <option value="GoldenSniper">Golden Sniper (MACD and Stochastics)</option>
+                        <option value="ADXStrong">ADX Strong Trend (ADX > 25)</option>
+                        <option value="BollingerSqueeze">Bollinger Squeeze</option>
+                        <option value="VolumeSurge">Inst. Volume Surge</option>
+                        <option value="AlphaLeader">Alpha Leader</option>
+                    </select>
                 </div>
 
-                <div class="continent-label">NORTH AMERICA</div>
-                <div class="world-clock">
-                    <span class="city-label">NEW YORK</span>
-                    <span class="time-display" id="clock-ny">00:00</span> <span class="sec-display"
-                        id="sec-ny">:00</span>
+                <p style="color: #666; margin-bottom: 30px;">Automated technical signals triggered at least 1 hour after
+                    market close.</p>
+                <div class="screener-container" id="screener-data-container"></div>
+            </div>
+        </div>
+
+        <div id="flows" class="page">
+            <h2>INSTITUTIONAL & LEGISLATIVE FLOWS</h2>
+            <div class="feed-definition">Live tracking of US congressional stock purchases and sales.</div>
+
+            <style>
+                #whale-timeline::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                #whale-timeline::-webkit-scrollbar-track {
+                    background: #111;
+                }
+
+                #whale-timeline::-webkit-scrollbar-thumb {
+                    background: #333;
+                    border-radius: 3px;
+                }
+
+                #whale-timeline::-webkit-scrollbar-thumb:hover {
+                    background: var(--primary);
+                }
+            </style>
+
+            <div id="flows-wrapper" style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+                <div style="flex: 2; min-width: 400px; display: flex; flex-direction: column; gap: 30px;">
+
+                    <div class="macro-card"
+                        style="margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
+                        <div
+                            style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px dashed #333; padding-bottom: 15px;">
+                            <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=50"
+                                style="border-radius: 50%;">
+                            <div>
+                                <h3
+                                    style="margin: 0; color: var(--primary); font-family: 'Merriweather', serif; font-size: 1.2rem; border: none; padding: 0;">
+                                    NING'S SURVEILLANCE</h3>
+                                <div style="font-size: 0.7rem; color: #888; font-weight: 800; letter-spacing: 1px;">AI
+                                    PATTERN RECOGNITION</div>
+                            </div>
+                        </div>
+                        <div id="whale-analysis" style="line-height: 1.6; font-size: 0.95rem; color: #ddd;">
+                            Initializing AI analysis...
+                        </div>
+                    </div>
+
+                    <div class="macro-card" style="margin: 0;">
+                        <h3
+                            style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; font-family: 'Merriweather', serif; font-size: 1.2rem; border-left: none;">
+                            TICKER DEEP DIVE</h3>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+                            <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SELECT TICKER:</label>
+                            <select id="whale-select" class="market-dropdown" onchange="changeWhaleTicker()">
+                                <option value="">Loading tickers...</option>
+                            </select>
+                        </div>
+                        <div id="whale-flows-container"></div>
+                    </div>
                 </div>
 
-                <div class="continent-label">ASIA</div>
-                <div class="world-clock">
-                    <span class="city-label">TOKYO</span>
-                    <span class="time-display" id="clock-tokyo">00:00</span> <span class="sec-display"
-                        id="sec-tokyo">:00</span>
-                </div>
-
-                <div class="continent-label">EUROPE</div>
-                <div class="world-clock">
-                    <span class="city-label">LONDON</span>
-                    <span class="time-display" id="clock-london">00:00</span> <span class="sec-display"
-                        id="sec-london">:00</span>
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="macro-card"
+                        style="margin: 0; background: #111; border: 1px solid #333; height: 800px; display: flex; flex-direction: column; padding: 25px;">
+                        <h3
+                            style="color: #fff; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 15px; font-family: 'Inter', sans-serif; font-weight: 900; letter-spacing: 1px; border-left: none; font-size: 1rem;">
+                            🔴 THE LIVE TAPE</h3>
+                        <div id="whale-timeline" style="flex: 1; overflow-y: auto; padding-right: 10px;">
+                            <div style="color: #666; font-style: italic;">Loading raw feed...</div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
+            <div id="whale-raw-data" style="display: none;"></div>
+        </div>
 
-            <div class="sidebar-widget" style="margin-top: 40px;">
-                <div class="sidebar-title">LIVE FX RATES</div>
-                <div id="fx-rates-container">
-                    <div style="font-size: 0.8rem; color: #888; font-style: italic;">Connecting to FX feed...</div>
+        <div id="ningning" class="page">
+            <h2>Ningning's Desk</h2>
+            <div id="ningning-wrapper">
+                <div class="macro-card">
+                    <div
+                        style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
+                        <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
+                            alt="Ningning AI" style="border-radius: 50%;">
+                        <div>
+                            <h3
+                                style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
+                                Ningning</h3>
+                            <p
+                                style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
+                                LEAD AI PORTFOLIO MANAGER</p>
+                        </div>
+                    </div>
+                    <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                        <p>Loading market transmission...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="avm" class="page">
+            <h2>Automated Valuation Model</h2>
+
+            <div class="filter-row">
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH ASSET:</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="avm-search-input" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="avm-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="avm-selected-ticker">
+                    <input type="hidden" id="avm-selected-name">
+                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">COMPUTE</button>
                 </div>
             </div>
 
-        </aside>
+            <div id="avm-loading"
+                style="display: none; padding: 40px; text-align: center; color: var(--primary); font-weight: bold; background: #000; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--primary);">
+                Initializing Quantitative Models...
+            </div>
 
+            <div id="avm-results" style="display: none;">
+
+                <!-- COMPANY HEADER -->
+                <div id="avm-company-header"
+                    style="font-family: 'Merriweather', serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 20px; color: #1a1a1a; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                    COMPANY NAME | TICKER
+                </div>
+                <div id="avm-method-badge"
+                    style="display:inline-block; background:#f0f0f0; color:#666; font-size:0.75rem; font-weight:800; letter-spacing:1px; padding:4px 10px; border-radius:3px; margin-bottom:20px; text-transform:uppercase;">
+                </div>
+
+                <!-- ROW 1: FAIR VALUE + VERDICT + FUNDAMENTALS -->
+                <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div class="macro-card"
+                        style="flex: 1; min-width:200px; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
+                        <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; letter-spacing: 1px;">
+                            INTRINSIC FAIR VALUE</div>
+                        <div id="avm-fair-value"
+                            style="font-size: 3rem; font-family: 'Merriweather', serif; font-weight: 900; margin: 10px 0;">
+                            $0.00</div>
+                        <div id="avm-verdict"
+                            style="font-size: 0.85rem; font-weight: 900; padding: 6px 12px; border-radius: 3px; display: inline-block; letter-spacing: 1px;">
+                            VERDICT</div>
+                    </div>
+                    <div class="macro-card" style="flex: 2; min-width:300px; margin: 0;">
+                        <div
+                            style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                            FUNDAMENTAL METRICS</div>
+                        <div id="avm-fundamentals"
+                            style="font-size: 1rem; color: #000; font-family: 'Courier New', monospace; font-weight: 800; line-height: 1.8;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 2: MULTIPLES + RISK PROFILE -->
+                <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div class="macro-card" style="flex: 1; min-width:280px; margin: 0;">
+                        <div
+                            style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                            VALUATION MULTIPLES</div>
+                        <div id="avm-multiples"
+                            style="font-size: 0.95rem; color: #000; font-family: 'Courier New', monospace; font-weight: 700; line-height: 2;">
+                        </div>
+                    </div>
+                    <div class="macro-card" style="flex: 1; min-width:280px; margin: 0;">
+                        <div
+                            style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                            RISK PROFILE</div>
+                        <div id="avm-risk"
+                            style="font-size: 0.95rem; color: #000; font-family: 'Courier New', monospace; font-weight: 700; line-height: 2;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: EPS TREND -->
+                <div class="macro-card" style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                        EPS TRAJECTORY (5-YEAR)</div>
+                    <div id="avm-eps"
+                        style="font-size: 0.95rem; color: #000; font-family: 'Courier New', monospace; font-weight: 700; line-height: 1.8;">
+                    </div>
+                </div>
+
+                <!-- ROW 4: COMPUTATION + CONCLUSION -->
+                <div class="macro-card" style="margin-bottom: 80px;">
+                    <div class="intel-header">COMPUTATION LOGIC</div>
+                    <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
+
+                    <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
+                    <div id="avm-conclusion" class="intel-body"
+                        style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
+
+                    <div
+                        style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
+                        <p
+                            style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
+                            ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
+                        <p
+                            style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
+                            Ning AI is an automated quantitative model. The valuations, logic, and conclusions provided
+                            are for informational and educational purposes only, and DO NOT constitute financial advice.
+                            If you blindly follow an AI, buy a stock, and get burned, that is entirely your problem. We
+                            provide the math, you assume the risk. Do your own due diligence.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ecosystem" class="page">
+            <h2>Corporate Supply Chains and Direct Market Competition</h2>
+
+            <div class="filter-row" style="margin-bottom: 10px;">
+                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI,PALANTIR"
+                        style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
+                    <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
+                </div>
+            </div>
+            <p style="color: #d97706; font-size: 0.85rem; font-weight: 700; margin-top: 0; margin-bottom: 25px;">
+                ⚠️ NOTE: Please type the exact ticker or company name clearly to avoid vague analysis
+            </p>
+
+            <div id="map-container-wrapper"
+                style="background-color: #1a1a1a; width: 100%; border-radius: 4px; position: relative; margin-bottom: 25px; border: 1px solid var(--border);">
+                <div id="ecosystem-chart" style="width: 100%; height: 700px;"></div>
+                <div id="ecosystem-loading"
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; text-align: center; display: none;">
+                </div>
+            </div>
+
+            <div id="intel-section" style="display: none; margin-top: 20px; margin-bottom: 100px;">
+                <div class="macro-card" style="margin: 0;">
+                    <div class="intel-header" id="intel-ticker">STRATEGIC OVERVIEW</div>
+
+                    <span class="intel-sub-title">About the Company</span>
+                    <div class="intel-body" id="intel-description"></div>
+
+                    <span class="intel-sub-title">Ecosystem & Network Analysis</span>
+                    <div class="intel-body" id="intel-logic"></div>
+
+                    <span class="intel-sub-title">SWOT Matrix</span>
+                    <div class="swot-grid">
+                        <div class="swot-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                            <h4 style="color: #166534;">Strengths</h4>
+                            <div id="swot-s" style="font-size: 0.85rem; color: #14532d; white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #fef2f2; border-color: #fecaca;">
+                            <h4 style="color: #991b1b;">Weaknesses</h4>
+                            <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d; white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #eff6ff; border-color: #bfdbfe;">
+                            <h4 style="color: #1e40af;">Opportunities</h4>
+                            <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a; white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="swot-box" style="background: #fffbeb; border-color: #fde68a;">
+                            <h4 style="color: #92400e;">Threats</h4>
+                            <div id="swot-t" style="font-size: 0.85rem; color: #78350f; white-space: pre-wrap;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="account" class="page">
+            <h2>Account Settings</h2>
+            <div class="macro-card" style="max-width: 600px; margin: 0;">
+                <p><strong>Tier:</strong> PRO TIER</p>
+                <p><strong>Status:</strong> Active</p>
+                <button
+                    style="background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
+                    & REVOKE SESSION</button>
+            </div>
+        </div>
     </div>
 
-    <footer>Ning Finance | 99% AI-Operated News Website | Powered by <a href="https://brubai.net/" target="_blank">BRUB
-            AI</a> | Data
-        delayed by 5 minutes</footer>
+    <div class="chat-bubble" onclick="toggleChat()"><span>NING</span></div>
+    <div class="chat-window" id="ai-chat">
+        <div class="chat-header">ADVANCED AI CHATBOT <span style="cursor:pointer;" onclick="toggleChat()">&times;</span>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="msg bot">Hi I'm Ning, anything you want to ask me?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type your message...">
+            <button onclick="sendMsg()">SEND</button>
+        </div>
+    </div>
 
-    <script type="module">
-        import { Conversation } from 'https://cdn.jsdelivr.net/npm/@11labs/client/+esm';
+    <script>
+        let activeQuantData = {};
 
-        // --- CONFIGURATION ---
-        const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-        const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
-        const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
-        const AI_NAMES = ["Andy Roid", "Artie Ficial", "Jenni Rator", "Alex Murph-e", "Termi-Narrator", "Optimus Prime-Time", "Hal 9000-Words", "Bot Ross", "Chip Munk"];
+        // --- LOCKDOWN & REFRESH INTERCEPT LOGIC ---
+        let isComputing = false;
 
-        // --- HELPER FUNCTIONS ---
-        function getUserId() {
-            let userId = localStorage.getItem("ning_user_id");
-            if (!userId) {
-                userId = "user_" + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem("ning_user_id", userId);
+        window.addEventListener('beforeunload', function (e) {
+            if (isComputing) {
+                e.preventDefault();
+                e.returnValue = ''; // Standard way to trigger the browser's "Leave site?" prompt
             }
-            return userId;
+        });
+
+        function showLockdown(titleText) {
+            isComputing = true;
+            if (titleText) {
+                document.getElementById('lockdown-title').innerText = titleText;
+            }
+            document.getElementById('lockdown-overlay').style.display = 'flex';
         }
 
-        function timeAgo(dateParam) {
-            if (!dateParam) return 'Live';
-            const date = new Date(dateParam);
-            const now = new Date();
-            const seconds = Math.round((now - date) / 1000);
-            const minutes = Math.round(seconds / 60);
-            const hours = Math.round(minutes / 60);
-            const days = Math.round(hours / 24);
-            if (seconds < 60) return 'Just now';
-            if (minutes < 60) return `${minutes} mins ago`;
-            if (hours < 24) return `${hours} hours ago`;
-            if (days > 30) return null;
-            return `${days} days ago`;
+        function hideLockdown() {
+            isComputing = false;
+            document.getElementById('lockdown-overlay').style.display = 'none';
         }
 
-        function getRandomName() { return AI_NAMES[Math.floor(Math.random() * AI_NAMES.length)]; }
+        const errorHtml = `
+            <div class="expired-banner">
+                <h3>SUBSCRIPTION EXPIRED</h3>
+                <p>Your premium access has expired or your session token is invalid.<br>Please verify your active subscription to access live intelligence.</p>
+                <a href="https://ningfinance.com/?tab=Subscriptions">UPGRADE TO TIER 2 OR RETURN TO FREE</a>
+            </div>
+        `;
 
-        // --- FETCH AIRTABLE ---
-        window.fetchAirtable = async function (tableName, containerId) {
-            const feed = document.getElementById(containerId);
-            if (!feed) return;
+        function showExpiredState(containerId) {
+            document.getElementById(containerId).innerHTML = errorHtml;
+            const statusIndicator = document.getElementById('header-status');
+            statusIndicator.innerHTML = '<div class="status-dot" style="background-color: #dc2626; box-shadow: 0 0 10px #dc2626;"></div>ACCESS DENIED';
+            statusIndicator.style.color = '#dc2626';
+        }
+
+        function nav(section) {
+            document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.getElementById('tab-' + section).classList.add('active');
+            localStorage.setItem('activeNingTab', section);
+        }
+
+        function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
+        function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
+
+        async function sendMsg() {
+            const inputField = document.getElementById('chat-input');
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user';
+            userDiv.textContent = message;
+            chatMessages.appendChild(userDiv);
+
+            inputField.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'msg bot';
+            loadingDiv.textContent = 'Thinking...';
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                // Reverted URL to prevent Airtable API crashes
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
-                const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                const json = await response.json();
+                const response = await fetch('https://hook.us2.make.com/tjl6dgw6iv4aicyls7gix0u943j8kg7g', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, user: token })
+                });
 
-                if (!json.records || json.records.length === 0) {
-                    feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
+                const replyText = await response.text();
+                chatMessages.removeChild(loadingDiv);
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot';
+                botDiv.textContent = replyText;
+                chatMessages.appendChild(botDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            } catch (error) {
+                chatMessages.removeChild(loadingDiv);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'msg bot';
+                errorDiv.textContent = 'Error connecting to Ning. Please try again later.';
+                chatMessages.appendChild(errorDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        sendMsg();
+                    }
+                });
+            }
+        });
+
+        async function fetchMacroData() {
+            try {
+                const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('macro-data-container');
                     return;
                 }
 
-                // THE FIX: Sort by Airtable's exact system creation time right here in the browser
-                json.records.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+                if (data.records && data.records.length > 0) {
+                    const payload = JSON.parse(data.records[0].fields.Payload);
 
-                if (tableName === "Global News" && json.records.length > 0) {
-                    updateTicker(json.records);
+                    // Helper function: converts markdown asterisks to HTML bold tags JUST IN CASE she forgets
+                    const formatBold = (text) => text ? text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') : '';
+
+                    document.getElementById('macro-risk').innerHTML = formatBold(payload.global_risk_appetite);
+                    document.getElementById('macro-rates').innerHTML = formatBold(payload.global_board_rates);
+                    document.getElementById('macro-geo').innerHTML = formatBold(payload.global_board_geopolitics);
+                    document.getElementById('macro-ags').innerHTML = formatBold(payload.global_ags_and_metals);
+                    document.getElementById('macro-flows').innerHTML = formatBold(payload.pse_and_flows);
+                    document.getElementById('macro-fx').innerHTML = formatBold(payload.bsp_fx_bonds);
+                    document.getElementById('macro-ow-name').innerHTML = formatBold(payload.overweight_sector_name);
+                    document.getElementById('macro-ow-rat').innerHTML = formatBold(payload.overweight_rationale);
+                    document.getElementById('macro-uw-name').innerHTML = formatBold(payload.underweight_sector_name);
+                    document.getElementById('macro-uw-rat').innerHTML = formatBold(payload.underweight_rationale);
                 }
-
-                let html = "";
-                let count = 0;
-                json.records.forEach(record => {
-                    const fields = record.fields;
-                    const recordId = record.id;
-
-                    // THE FIX: Use the system creation time for the "mins ago" display
-                    const dateStr = record.createdTime;
-                    const t = timeAgo(dateStr);
-
-                    if (t !== null) {
-                        let borderStyle = "";
-                        if (tableName === "Commentary") borderStyle = "border-top-color: #ff9800;";
-                        if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
-                        if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
-
-                        const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
-
-                        let imageHtml = "";
-                        if (fields["News Image"] && fields["News Image"].length > 0) {
-                            imageHtml = `<img src="${fields["News Image"][0].url}" class="card-image" alt="News Image">`;
-                        } else if (fields["Image URL"]) {
-                            imageHtml = `<img src="${fields["Image URL"]}" class="card-image" alt="News Image">`;
-                        }
-
-                        const shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
-
-                        html += `
-                        <div class="card" style="${borderStyle}">
-                            ${imageHtml}
-                            <h3>${fields.Headline || "Update"}</h3>
-                            <p>${fields.Summary || ""}</p>
-                            <div class="card-meta">
-                                <span>${t} • by: ${author}</span>
-                                ${shareBtn}
-                            </div>
-                        </div>`;
-                        count++;
-                    }
-                });
-
-                if (count === 0) {
-                    feed.innerHTML = `<div class="card"><h3>Archive Mode</h3><p>No new updates in the last 30 days.</p></div>`;
-                } else {
-                    feed.innerHTML = html;
-                }
-
-            } catch (e) {
-                console.error(e);
-                feed.innerHTML = `<div class="card" style="border-top-color:red"><h3>Error</h3><p>Could not load ${tableName}.</p></div>`;
-            }
+            } catch (e) { console.error("Macro fetch failed:", e); }
         }
 
-        // --- LINKS & DEEP LINKING ---
-        window.copyLink = function (tableName, recordId) {
-            const cleanTable = encodeURIComponent(tableName);
-            const url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
-            navigator.clipboard.writeText(url).then(() => { alert("Link copied!"); }).catch(err => { prompt("Copy link:", url); });
-        }
-
-        window.checkUrlForDeepLinks = async function () {
-            const params = new URLSearchParams(window.location.search);
-            const recordId = params.get('articleId');
-            const tabName = params.get('tab');
-
-            if (tabName) {
-                let section = normalizeSection(tabName);
-                window.nav(section, false);
-            }
-
-            if (recordId && tabName) {
-                const modal = document.getElementById('articleModal');
-                const container = document.getElementById('single-article-content');
-                modal.style.display = 'block';
-                container.innerHTML = '<h2>Loading...</h2>';
-
-                try {
-                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
-                    const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    const record = await response.json();
-                    const fields = record.fields;
-
-                    let imageHtml = "";
-                    if (fields["News Image"] && fields["News Image"].length > 0) {
-                        imageHtml = `<img src="${fields["News Image"][0].url}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
-                    } else if (fields["Image URL"]) {
-                        imageHtml = `<img src="${fields["Image URL"]}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
-                    }
-
-                    container.innerHTML = `
-                        <div style="font-family: 'Merriweather', serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 20px; line-height:1.2;">${fields.Headline}</div>
-                        ${imageHtml}
-                        <div style="font-family: 'Inter', sans-serif; font-size: 1.1rem; line-height: 1.8; color: #333;">${fields.Summary}</div>
-                        <div style="margin-top: 30px; font-style: italic; color: #888; border-top: 1px solid #eee; padding-top: 20px;">Shared via Ning Finance</div>
-                    `;
-                } catch (e) {
-                    container.innerHTML = "<h3>Article not found.</h3>";
-                }
-            }
-        }
-
-        window.closeArticle = function () {
-            document.getElementById('articleModal').style.display = 'none';
-            const url = new URL(window.location);
-            url.searchParams.delete('articleId');
-            window.history.pushState({}, '', url);
-        }
-
-        // --- TICKER ---
-        function updateTicker(records) {
-            const ticker = document.getElementById('ticker-feed');
-            if (!ticker) return;
-            const items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
-            ticker.innerHTML = items;
-        }
-
-        // --- NAVIGATION ---
-        window.nav = function (section, pushToHistory = true) {
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            const p = document.getElementById(section);
-            const t = document.getElementById('tab-' + section);
-            if (p) p.classList.add('active');
-            if (t) t.classList.add('active');
-
-            if (pushToHistory) {
-                const url = new URL(window.location);
-                let tableNameForUrl = "Global News";
-                if (section === 'asia') tableNameForUrl = "Asia News";
-                if (section === 'philippines') tableNameForUrl = "Philippines News";
-                if (section === 'luxury') tableNameForUrl = "Luxury";
-                if (section === 'culture') tableNameForUrl = "Culture";
-                if (section === 'tech') tableNameForUrl = "AI News";
-                if (section === 'opinions') tableNameForUrl = "Commentary";
-                if (section === 'market') tableNameForUrl = "Market";
-                if (section === 'subs') tableNameForUrl = "Subscriptions";
-                url.searchParams.set('tab', tableNameForUrl);
-                url.searchParams.delete('articleId');
-                window.history.pushState({}, '', url);
-            }
-
-            if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
-            if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
-            if (section === 'philippines') window.fetchAirtable("Philippines News", "news-feed-philippines");
-            if (section === 'luxury') window.fetchAirtable("Luxury", "news-feed-luxury");
-            if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
-            if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
-            if (section === 'culture') window.fetchAirtable("Culture", "news-feed-culture");
-            if (section === 'market') window.fetchMarketData();
-        };
-
-        function normalizeSection(input) {
-            let s = (input || "news").toLowerCase();
-            if (s.includes('asia')) return 'asia';
-            if (s.includes('phil') || s.includes('ph')) return 'philippines';
-            if (s.includes('lux') || s.includes('life')) return 'luxury';
-            if (s.includes('culture') || s.includes('style')) return 'culture';
-            if (s.includes('tech') || s.includes('ai')) return 'tech';
-            if (s.includes('commentary') || s.includes('opinion')) return 'opinions';
-            if (s.includes('market')) return 'market';
-            if (s.includes('sub')) return 'subs';
-            return 'global';
-        }
-
-        // --- MARKET DATA ---
-        window.fetchMarketData = async function () {
-            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzy0600Z_gh0Y9p_gbdjxOoqMr2Fgyr_43_W3pUKuPOk8oYT0_CuKHCS8du-nZid3QoG04NpBNZ3jE/pub?gid=0&single=true&output=csv";
-            const container = document.getElementById("market");
-            if (!container) return;
+        async function fetchQuantData(marketCode) {
+            const container = document.getElementById('screener-data-container');
+            container.innerHTML = '<p style="color: #888;">Loading live quant data...</p>';
             try {
-                const response = await fetch(csvUrl + "&t=" + new Date().getTime());
-                const data = await response.text();
-                const rows = data.split("\n").slice(1);
-
-                let assets = [];
-
-                rows.forEach(row => {
-                    const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (cols.length < 3) return;
-
-                    const name = cols[0].replace(/"/g, '').trim();
-                    const price = cols[1].replace(/"/g, '').trim();
-                    const changeStr = cols[2].replace(/"/g, '').replace('%', '').trim();
-                    const category = cols[3] ? cols[3].replace(/"/g, '').trim().toLowerCase() : 'other';
-
-                    if (!name) return;
-
-                    assets.push({
-                        name,
-                        price,
-                        changeStr,
-                        changeVal: parseFloat(changeStr),
-                        category
-                    });
-                });
-
-                if (assets.length === 0) return;
-
-                let sortedAssets = [...assets].sort((a, b) => b.changeVal - a.changeVal);
-                let topPop = sortedAssets[0];
-                let topDrop = sortedAssets[sortedAssets.length - 1];
-
-                let html = `<h2><div class="header-row">MARKET BREADTH <span id="status-indicator">DELAYED 5 MINUTES</span></div></h2>`;
-
-                html += `
-<div style="display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap;">
-    <div class="card" style="flex: 1; border-top-color: #16a34a; background: #f0fdf4;">
-        <div style="font-size: 0.8rem; font-weight: 900; color: #16a34a; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🐂 MOST LONGED</div>
-        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000; margin-bottom: 5px;">${topPop.name}</div>
-        <div style="display: flex; align-items: baseline; gap: 12px;">
-            <div style="font-size: 1.5rem; font-weight: bold; color: #111; font-family: 'Inter', sans-serif;">${topPop.price}</div>
-            <div style="font-size: 1.1rem; color: #16a34a; font-weight: bold; font-family: 'Inter', sans-serif;">▲ ${topPop.changeStr}%</div>
-        </div>
-    </div>
-    <div class="card" style="flex: 1; border-top-color: #dc2626; background: #fef2f2;">
-        <div style="font-size: 0.8rem; font-weight: 900; color: #dc2626; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">🐻 MOST SHORTED</div>
-        <div style="font-size: 1.8rem; font-weight: 900; font-family: 'Merriweather', serif; color: #000; margin-bottom: 5px;">${topDrop.name}</div>
-        <div style="display: flex; align-items: baseline; gap: 12px;">
-            <div style="font-size: 1.5rem; font-weight: bold; color: #111; font-family: 'Inter', sans-serif;">${topDrop.price}</div>
-            <div style="font-size: 1.1rem; color: #dc2626; font-weight: bold; font-family: 'Inter', sans-serif;">▼ ${topDrop.changeStr}%</div>
-        </div>
-    </div>
-</div>`;
-
-                const renderGrid = (title, categoryKeyword) => {
-                    const filtered = assets.filter(a => a.category.includes(categoryKeyword));
-                    if (filtered.length === 0) return '';
-
-                    let gridHtml = `<h3 style="font-family: 'Inter', sans-serif; text-transform: uppercase; font-weight: 900; font-size: 1rem; margin-top: 30px; border-bottom: 2px solid #000; padding-bottom: 10px; color:#000;">${title}</h3>`;
-                    gridHtml += `<div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px;">`;
-
-                    filtered.forEach(item => {
-                        const isUp = item.changeVal >= 0;
-                        const color = isUp ? "#16a34a" : "#dc2626";
-                        const arrow = isUp ? "▲" : "▼";
-                        gridHtml += `
-                        <div class="card" style="padding: 20px; border-top: 4px solid ${color}; min-height: 120px; justify-content: center;">
-                            <div style="font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${item.name}</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; font-family: 'Merriweather', serif; margin: 8px 0; color: #000;">${item.price}</div>
-                            <div style="color: ${color}; font-weight: bold; font-size: 0.95rem; font-family: 'Inter', sans-serif;">${arrow} ${item.changeStr}%</div>
-                        </div>`;
-                    });
-                    gridHtml += `</div>`;
-                    return gridHtml;
-                };
-
-                html += renderGrid('Global Indices', 'indices');
-                html += renderGrid('Equities', 'equities');
-                html += renderGrid('Crypto Assets', 'crypto');
-                html += renderGrid('Commodities', 'commodities');
-                html += renderGrid('Currencies', 'currencies');
-
-                container.innerHTML = html;
-            } catch (e) {
-                console.error("Market Data Error:", e);
-                container.innerHTML = `<div class="card"><h3>Data Offline</h3><p>Connecting to secure feed...</p></div>`;
-            }
-        }
-
-        // --- LIVE FX TICKER ---
-        // Uses open.er-api.com — free, no API key needed, updates every few hours
-        // Falls back to fawazahmed0 CDN if primary fails
-        async function fetchFxRates() {
-            const container = document.getElementById('fx-rates-container');
-            if (!container) return;
-
-            let r = null;
-
-            // Primary: ExchangeRate-API free tier (no key, reliable)
-            try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const res = await fetch(`/.netlify/functions/airtable?type=quant&market=${marketCode}&userToken=${token}`);
                 const data = await res.json();
-                if (data.result === 'success') r = data.rates;
-            } catch (e) { }
 
-            // Fallback: fawazahmed0 CDN
-            if (!r) {
-                try {
-                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                    const data = await res.json();
-                    // normalize to uppercase keys
-                    const raw = data.usd;
-                    r = {};
-                    for (const k in raw) r[k.toUpperCase()] = raw[k];
-                } catch (e) { }
+                if (data.error) {
+                    showExpiredState('screener-wrapper');
+                    return;
+                }
+
+                if (data.records && data.records.length > 0) {
+                    activeQuantData = data.records[0].fields;
+                    renderQuantView();
+                } else {
+                    container.innerHTML = '<p style="color: #888;">Table empty.</p>';
+                    activeQuantData = {};
+                }
+            } catch (e) {
+                container.innerHTML = '<p style="color:red;">Error loading.</p>';
             }
-
-            if (!r) {
-                container.innerHTML = '<div style="color:#dc2626;font-size:0.8rem;font-weight:bold;">FX feed unavailable.</div>';
-                return;
-            }
-
-            const usdPhp = r.PHP;
-            const eurPhp = r.PHP / r.EUR;
-            const jpyPhp = r.PHP / r.JPY;
-            const cadPhp = r.PHP / r.CAD;
-            const fmt = v => v.toFixed(2);
-
-            container.innerHTML = `
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">US USD</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(usdPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">EU EUR</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(eurPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">JP JPY</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(jpyPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">CA CAD</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(cadPhp)}</span>
-                </div>
-            `;
         }
 
-        // --- IMAGE POPUP LOGIC ---
-        const modal = document.getElementById("imageModal");
-        const modalImg = document.getElementById("img01");
-        document.addEventListener('click', function (e) {
-            if (e.target && e.target.classList.contains('card-image')) {
-                modal.style.display = "flex";
-                modalImg.src = e.target.src;
-            }
-        });
-        window.closeModal = function () { modal.style.display = "none"; }
+        function renderQuantView() {
+            const container = document.getElementById('screener-data-container');
+            const selectEl = document.getElementById('quant-filter-select');
+            const selectedFilter = selectEl.value;
+            const selectedText = selectEl.options[selectEl.selectedIndex].text;
 
-        // --- SIDEBAR CLOCK LOGIC ---
-        function updateWorldClocks() {
-            const now = new Date();
-            const zones = [
-                { id: 'manila', tz: 'Asia/Manila' },
-                { id: 'ny', tz: 'America/New_York' },
-                { id: 'tokyo', tz: 'Asia/Tokyo' },
-                { id: 'london', tz: 'Europe/London' }
-            ];
-            zones.forEach(zone => {
-                const timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
-                const [h, m, s] = timeStr.split(':');
-                const clockEl = document.getElementById(`clock-${zone.id}`);
-                const secEl = document.getElementById(`sec-${zone.id}`);
-                if (clockEl) clockEl.innerText = `${h}:${m}`;
-                if (secEl) secEl.innerText = `:${s}`;
+            const icon = selectedText.split(' ')[0];
+            const title = selectedText.substring(selectedText.indexOf(' ') + 1);
+
+            let dataList = activeQuantData[selectedFilter];
+
+            if (dataList) {
+                dataList = dataList.replace(/<\/strong>\s*/g, '</strong> <span class="sep">|</span> ');
+                dataList = dataList.replace(/\s*(₱|\$|¥|HK\$|₩|₫)/g, ' <span class="sep">|</span> $1');
+                dataList = dataList.replace(/(₱|\$|¥|HK\$|₩|₫)([\d.,]+)/g, '<span style="color:#ffffff; font-weight:800;">$1$2</span>');
+
+                dataList = dataList.replace(/\s*([+-]?[\d.]+)%/g, (match, change) => {
+                    const val = parseFloat(change);
+                    const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#888888');
+                    return ` <span class="sep">|</span> <span style="color: ${color}; font-weight: 800;">${change}%</span>`;
+                });
+
+                container.innerHTML = `
+                    <div class="screener-module">
+                        <div class="screener-header">${icon} ${title}</div>
+                        <ul class="quant-list quant-list-ceo">${dataList}</ul>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="screener-module">
+                        <div class="screener-header">${icon} ${title}</div>
+                        <p style="color: #666; font-style: italic;">No active signals detected for this strategy today.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function changeWhaleTicker() {
+            const select = document.getElementById('whale-select');
+            const selectedId = select.value;
+            if (!selectedId) return;
+
+            const mod = document.getElementById('whale-raw-data').querySelector('#' + selectedId);
+            if (mod) {
+                document.getElementById('whale-flows-container').innerHTML = mod.outerHTML;
+            }
+        }
+
+        async function fetchSmartMoneyWhales() {
+            try {
+                const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('flows-wrapper');
+                    return;
+                }
+
+                if (data.records && data.records.length > 0) {
+                    const rawData = data.records[0].fields['Congressional_Whales'];
+
+                    if (rawData && rawData.includes('|||NING_SPLIT|||')) {
+                        const parts = rawData.split('|||NING_SPLIT|||');
+                        const analysis = parts[0].trim();
+                        // Parse the raw array
+                        const rawJsonArr = JSON.parse(parts[1].trim());
+
+                        renderWhaleDashboard(analysis, rawJsonArr);
+                    } else {
+                        // Handle legacy fallback just in case
+                        document.getElementById('whale-analysis').innerHTML = "Awaiting AI Analysis generation...";
+                        // If it's old HTML format
+                        document.getElementById('whale-timeline').innerHTML = "<div style='color: #666; font-style: italic;'>Timeline requires next data sync...</div>";
+                    }
+                }
+            } catch (e) { console.error("Whale fetch failed:", e); }
+        }
+
+        function renderWhaleDashboard(analysis, trades) {
+            // 1. RENDER AI ANALYSIS WITH FORMATTING SAFETY NET
+            let formattedAnalysis = analysis;
+
+            // Fallback: If AI uses ** for bold, convert it to HTML <b> tags with a crisp white color
+            formattedAnalysis = formattedAnalysis.replace(/\*\*(.*?)\*\*/g, '<b style="color: #fff;">$1</b>');
+
+            // Fallback: If AI forgets <br><br> tags and uses raw newlines, convert them so it isn't crowded
+            if (!formattedAnalysis.includes('<br>')) {
+                formattedAnalysis = formattedAnalysis.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+            }
+
+            document.getElementById('whale-analysis').innerHTML = formattedAnalysis;
+
+            // 2. RENDER TIMELINE (RIGHT PANEL)
+            trades.sort((a, b) => new Date(b.trade_date) - new Date(a.trade_date));
+            let timelineHtml = '';
+            trades.slice(0, 40).forEach(t => {
+                const isBuy = t.trade_type.toLowerCase().includes('buy');
+                const color = isBuy ? '#16a34a' : '#dc2626';
+                timelineHtml += `
+                <div style="border-left: 3px solid ${color}; padding-left: 15px; margin-bottom: 25px;">
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 3px; font-family: 'Courier New', monospace;">
+                        ${t.trade_date} <span style="color:#555;">(${t.days_until_disclosure}D delay)</span>
+                    </div>
+                    <div style="font-weight: 900; color: #fff; font-size: 1.1rem; margin: 2px 0;">
+                        ${t.ticker} <span style="color: ${color}; font-size: 0.85rem; vertical-align: middle;">${t.trade_type.toUpperCase()}</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #aaa;">${t.name} <span style="color:#666;">(${t.party}-${t.state_name})</span></div>
+                    <div style="font-family: 'Courier New', monospace; font-size: 0.85rem; color: var(--primary); margin-top: 5px; font-weight: bold;">
+                        ${t.trade_amount}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('whale-timeline').innerHTML = timelineHtml;
+
+            // 3. RENDER DROPDOWN (LEFT PANEL)
+            const select = document.getElementById('whale-select');
+            const rawContainer = document.getElementById('whale-raw-data');
+
+            // Group by ticker using pure JS
+            const grouped = {};
+            trades.forEach(t => {
+                if (!grouped[t.ticker]) grouped[t.ticker] = [];
+                grouped[t.ticker].push(t);
+            });
+
+            const tickers = Object.keys(grouped).sort();
+            select.innerHTML = '<option value="">Select a ticker...</option>';
+            rawContainer.innerHTML = '';
+
+            tickers.forEach((ticker, index) => {
+                const blockId = 'block-' + index;
+
+                // Add option to dropdown
+                const opt = document.createElement('option');
+                opt.value = blockId;
+                opt.innerText = ticker;
+                select.appendChild(opt);
+
+                // Build HTML list
+                let listHtml = '';
+                grouped[ticker].sort((a, b) => a.name.localeCompare(b.name)); // Sort names alphabetically
+                grouped[ticker].forEach(t => {
+                    const typeHtml = t.trade_type.toLowerCase().includes('buy')
+                        ? '<span style="color:#16a34a; font-weight: 800; text-transform: uppercase;">BUY</span>'
+                        : '<span style="color:#dc2626; font-weight: 800; text-transform: uppercase;">SELL</span>';
+                    listHtml += `<li><strong style="color: #fff; font-weight: 800; font-family: 'Inter', sans-serif;">${t.name} (${t.party}-${t.state_name})</strong> <span style="color: #fff; font-family: 'Courier New', monospace; font-size: 0.95rem;"> - ${typeHtml} | ${t.trade_amount} @ $${t.value_at_purchase || 'N/A'} | ${t.trade_date} (${t.days_until_disclosure}D delay)</span></li>`;
+                });
+
+                // Save to hidden container
+                rawContainer.innerHTML += `
+                <div class="screener-module" id="${blockId}">
+                    <div class="screener-header">🏛️ ${ticker}</div>
+                    <ul class="quant-list" style="list-style: none; padding: 0; margin: 0;">${listHtml}</ul>
+                </div>`;
+            });
+
+            // Initialize the view
+            changeWhaleTicker();
+        }
+
+        async function fetchNingningVlogs() {
+            const container = document.getElementById('ningning-vlog-content');
+            try {
+                const res = await fetch(`/.netlify/functions/airtable?type=ning_vlogs&userToken=${token}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    showExpiredState('ningning-wrapper');
+                    return;
+                }
+
+                if (data.records && data.records.length > 0) {
+                    const sortedRecords = data.records.sort((a, b) => new Date(b.fields.Publish_Date) - new Date(a.fields.Publish_Date));
+
+                    let htmlString = '';
+
+                    sortedRecords.forEach(record => {
+                        const rawDate = new Date(record.fields.Publish_Date);
+                        const dateStr = rawDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+                        htmlString += `
+                            <div style="margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px dashed var(--border);">
+                                <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px;">
+                                    MARKET CLOSE ➔ ${dateStr}
+                                </div>
+                                ${record.fields.Blog_HTML}
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = htmlString;
+                } else {
+                    container.innerHTML = '<p style="color: #888;">No transmissions logged yet.</p>';
+                }
+            } catch (e) {
+                console.error("Ningning Vlog fetch failed:", e);
+                container.innerHTML = '<p style="color:red;">Error loading Ningning\'s database.</p>';
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('report-to-print');
+            const opt = {
+                margin: 0.5,
+                filename: 'NingFinance_MacroReport.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, windowWidth: 1000 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // --- SMART SEARCH BAR LOGIC ---
+        const RAPID_API_KEY = '2f5dcbce4dmshb006bd68b766612p1b7a94jsn4331c7925f7a';
+
+        function setupAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const hiddenTicker = document.getElementById(hiddenTickerId);
+            const hiddenName = document.getElementById(hiddenNameId);
+            let debounceTimer;
+
+            input.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    list.style.display = 'none';
+                    return;
+                }
+
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`https://mboum-finance.p.rapidapi.com/v1/markets/search?search=${query}`, {
+                            headers: {
+                                'X-RapidAPI-Key': RAPID_API_KEY,
+                                'X-RapidAPI-Host': 'mboum-finance.p.rapidapi.com'
+                            }
+                        });
+                        const data = await res.json();
+
+                        list.innerHTML = '';
+
+                        // Filter for logical equities
+                        const validQuotes = data.body?.filter(q => q.symbol && q.shortname && q.quoteType === "EQUITY") || [];
+
+                        if (validQuotes.length === 0) {
+                            list.innerHTML = '<li style="color:#888;">No valid equities found</li>';
+                        } else {
+                            validQuotes.forEach(quote => {
+                                const li = document.createElement('li');
+                                li.innerHTML = `<span class="tick">${quote.symbol}</span><span class="name">${quote.shortname} - ${quote.exchDisp || quote.exchange}</span>`;
+                                li.onclick = () => {
+                                    input.value = `${quote.symbol} - ${quote.shortname}`;
+                                    hiddenTicker.value = quote.symbol;
+                                    hiddenName.value = quote.shortname;
+                                    list.style.display = 'none';
+                                };
+                                list.appendChild(li);
+                            });
+                        }
+                        list.style.display = 'block';
+
+                    } catch (e) {
+                        console.error("Search failed", e);
+                    }
+                }, 500);
+            });
+
+            // Close list when clicking outside
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
             });
         }
 
-        // --- VOICE LOGIC ---
-        let conversation = null;
-        let isConnected = false;
-        const callBtn = document.getElementById('callBtn');
-        callBtn.onclick = async () => {
-            if (isConnected) {
-                if (conversation) { await conversation.endSession(); conversation = null; }
-                isConnected = false;
-                callBtn.innerHTML = "CALL NING";
-                callBtn.classList.remove('active');
-                return;
-            }
-            callBtn.innerHTML = "CONNECTING...";
+        // --- AVM MODULE JS ---
+        const ECO_BASE_ID = 'app1hHgLzAlJgLB8H';
+        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
+        const AVM_WEBHOOK = 'https://hook.us2.make.com/tqi872uuhurc9slv6phelhhhltpvwu6g';
+
+        async function loadAVM() {
+            const rawInput = document.getElementById('avm-search-input').value.trim();
+            const selectedTicker = document.getElementById('avm-selected-ticker').value;
+            const selectedName = document.getElementById('avm-selected-name').value;
+
+            // Fallback if they ignore the dropdown and just type a ticker manually
+            const tickerInput = selectedTicker ? selectedTicker.toUpperCase() : rawInput.split('-')[0].trim().toUpperCase();
+            const companyName = selectedName ? selectedName : tickerInput;
+
+            if (!tickerInput) return;
+
+            const resultsDiv = document.getElementById('avm-results');
+            const loadingMsg = document.getElementById('avm-loading');
+
+            // Set Dynamic Header immediately
+            document.getElementById('avm-company-header').innerText = `${companyName} | ${tickerInput}`;
+
+            resultsDiv.style.display = 'none';
+            loadingMsg.style.display = 'block';
+            loadingMsg.innerHTML = `Scanning institutional database for ${tickerInput}...`;
+
             try {
-                await navigator.mediaDevices.getUserMedia({ audio: true });
-                conversation = await Conversation.startSession({
-                    agentId: AGENT_ID,
-                    onModeChange: (mode) => {
-                        if (mode.mode === 'speaking') {
-                            callBtn.classList.add('active');
-                            callBtn.innerHTML = '<div class="indicator"></div> LISTENING...';
+                const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
+                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
+
+                const response = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
+                const data = await response.json();
+
+                const avmRecord = data.records?.find(r => r.fields.AVM_Fair_Value || r.fields.AVM_Verdict);
+
+                if (!avmRecord) {
+                    loadingMsg.innerHTML = `
+                        No valuation data found for ${companyName} (${tickerInput}).<br><br>
+                        <button id="dispatch-avm-btn" onclick="generateAVM('${tickerInput}', '${companyName.replace(/'/g, "\\'")}')" style="background:#cba258; color:#000; border:none; padding:10px 20px; font-weight:900; cursor:pointer; margin-top:15px; border-radius:3px; text-transform:uppercase; letter-spacing:1px;">
+                            ⚡ COMPUTE LIVE VALUATION
+                        </button>`;
+                    return;
+                }
+
+                const fields = avmRecord.fields;
+
+                // Populate UI
+                // ── Populate all AVM fields ──────────────────────────────
+                document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
+                document.getElementById('avm-logic').innerText = fields.AVM_Logic || 'N/A';
+                document.getElementById('avm-conclusion').innerText = fields.AVM_Conclusion || 'N/A';
+
+                // Method badge
+                const methodBadge = document.getElementById('avm-method-badge');
+                if (methodBadge) methodBadge.innerText = (fields.AVM_Method || 'DCF') + ' VALUATION';
+
+                // Fundamental metrics — format pipe-separated into line-per-metric
+                const fundRaw = fields.AVM_Fundamental_Data || '';
+                document.getElementById('avm-fundamentals').innerHTML =
+                    fundRaw.split('|').map(s => s.trim()).filter(Boolean)
+                        .map(s => `<div>${s}</div>`).join('');
+
+                // Multiples — same treatment
+                const multRaw = fields.AVM_Multiples || '';
+                document.getElementById('avm-multiples').innerHTML =
+                    multRaw.split('|').map(s => s.trim()).filter(Boolean)
+                        .map(s => `<div>${s}</div>`).join('');
+
+                // Risk profile — same treatment
+                const riskRaw = fields.AVM_Risk_Profile || '';
+                document.getElementById('avm-risk').innerHTML =
+                    riskRaw.split('|').map(s => s.trim()).filter(Boolean)
+                        .map(s => `<div>${s}</div>`).join('');
+
+                // EPS trend — replace arrows for display
+                const epsRaw = fields.AVM_EPS_Trend || '';
+                document.getElementById('avm-eps').innerHTML =
+                    epsRaw.replace(/→/g, ' <span style="color:var(--primary)">→</span> ');
+
+                // Verdict color logic
+                const verdictBox = document.getElementById('avm-verdict');
+                const verdictText = fields.AVM_Verdict || 'UNKNOWN';
+                verdictBox.innerText = verdictText;
+                if (verdictText.includes('UNDERVALUED')) { verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('OVERVALUED')) { verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('SPECULATIVE')) { verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('FAIRLY')) { verdictBox.style.background = '#2563eb'; verdictBox.style.color = '#fff'; }
+                else { verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; }
+
+                loadingMsg.style.display = 'none';
+                resultsDiv.style.display = 'block';
+
+            } catch (err) {
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">System Error: Could not connect to database.</span>`;
+            }
+        }
+
+        async function generateAVM(tickerInput, companyName) {
+            const dispatchBtn = document.getElementById('dispatch-avm-btn');
+
+            if (dispatchBtn) {
+                dispatchBtn.disabled = true;
+                dispatchBtn.style.opacity = '0.5';
+                dispatchBtn.innerText = 'PROMPT SENT... EVALUATING';
+            }
+
+            // TRIGGER LOCKDOWN OVERLAY & REFRESH INTERCEPT
+            showLockdown('Executing Quantitative Valuation');
+
+            const loadingMsg = document.getElementById('avm-loading');
+            loadingMsg.innerHTML = `Executing Quantitative Models for ${companyName}...<br>This takes about 60 seconds. Please wait.`;
+
+            // Timeout safety to unlock the screen if Make.com fails entirely
+            setTimeout(() => {
+                if (dispatchBtn) {
+                    dispatchBtn.disabled = false;
+                    dispatchBtn.style.opacity = '1';
+                    dispatchBtn.innerText = '⚡ COMPUTE LIVE VALUATION';
+                }
+                hideLockdown();
+            }, 60000);
+
+            try {
+                // Ping Make.com to run the AI
+                await fetch(`${AVM_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
+
+                // Poll Airtable every 5 seconds until the result appears
+                let attempts = 0;
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
+                    const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
+                    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
+                    const checkData = await res.json();
+
+                    const avmRecord = checkData.records?.find(r => r.fields.AVM_Fair_Value || r.fields.AVM_Verdict);
+
+                    if (avmRecord || attempts > 12) { // Allow up to 60 seconds polling
+                        clearInterval(pollInterval);
+                        hideLockdown(); // UNLOCK ON SUCCESS
+                        loadAVM(); // Reload the UI with the fresh data
+                    }
+                }, 5000);
+
+            } catch (err) {
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to execute model. Make sure webhook is correct.</span>`;
+                if (dispatchBtn) {
+                    dispatchBtn.disabled = false;
+                    dispatchBtn.style.opacity = '1';
+                }
+                hideLockdown(); // UNLOCK ON ERROR
+            }
+        }
+
+        // --- ECOSYSTEM ANALYTICS MODULE JS ---
+        let ecosystemChart;
+        const ECO_WEBHOOK = 'https://hook.us2.make.com/wukhpww2ay34q52gsr3l4ixdpor1q0yy';
+
+        async function loadEcosystem() {
+            const tickerInput = document.getElementById('ecosystem-ticker').value.toUpperCase().trim();
+            if (!tickerInput) return;
+
+            const chartContainer = document.getElementById('ecosystem-chart');
+            const loadingMsg = document.getElementById('ecosystem-loading');
+            const intelSection = document.getElementById('intel-section');
+
+            loadingMsg.style.display = 'block';
+            loadingMsg.innerText = 'Fetching Intelligence...';
+            intelSection.style.display = 'none';
+
+            if (!ecosystemChart) {
+                ecosystemChart = echarts.init(chartContainer);
+            }
+            ecosystemChart.clear();
+
+            try {
+                const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
+                const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${ECO_PAT}` }
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">Database Error: ${data.error.type}</span>`;
+                    return;
+                }
+
+                if (!data.records || data.records.length === 0) {
+                    loadingMsg.innerHTML = `
+                        No previous data found for ${tickerInput}.<br><br>
+                        <button id="dispatch-btn" onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
+                            ⚡ DISPATCH NING TO ANALYZE
+                        </button>`;
+                    return;
+                }
+
+                const recordFields = data.records[0].fields;
+                let rawJsonStr = recordFields['JSON Data'] || recordFields.JSON_Data;
+
+                // --- 1. POPULATE THE WRITE-UP FIRST (SO IT ALWAYS SHOWS) ---
+                intelSection.style.display = 'block';
+                document.getElementById('intel-ticker').innerText = `${tickerInput} | CORPORATE AND INDUSTRY ANALYSIS`;
+                document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
+                document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
+
+                // Bulletproof SWOT parsing
+                const swotRaw = recordFields['SWOT'];
+                let swotObj = {};
+                if (swotRaw) {
+                    try {
+                        swotObj = typeof swotRaw === 'string' ? JSON.parse(swotRaw) : swotRaw;
+                    } catch (e) { console.warn("SWOT parse failed"); }
+                }
+
+                const getSwotArray = (obj, key) => {
+                    const foundKey = Object.keys(obj).find(k => k.toLowerCase() === key.toLowerCase());
+                    return foundKey ? obj[foundKey] : [];
+                };
+
+                const formatSwot = (arr) => Array.isArray(arr) ? arr.join('\n\n') : (arr || "Pending AI Data...");
+
+                document.getElementById('swot-s').innerText = formatSwot(getSwotArray(swotObj, 'strengths'));
+                document.getElementById('swot-w').innerText = formatSwot(getSwotArray(swotObj, 'weaknesses'));
+                document.getElementById('swot-o').innerText = formatSwot(getSwotArray(swotObj, 'opportunities'));
+                document.getElementById('swot-t').innerText = formatSwot(getSwotArray(swotObj, 'threats'));
+
+                // --- 2. BULLETPROOF MAP DATA PARSING ---
+                let fullPayload;
+                try {
+                    fullPayload = JSON.parse(rawJsonStr);
+                } catch (e) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">AI Map Generation Failed. Please dispatch AI again.</span>`;
+                    return;
+                }
+
+                const ecoData = fullPayload.map_data ? fullPayload.map_data : fullPayload;
+                const nodesArray = ecoData.nodes || [];
+                const linksArray = ecoData.links || [];
+
+                if (nodesArray.length === 0) {
+                    loadingMsg.innerHTML = `<span style="color:#dc2626;">AI did not return map coordinates. Please dispatch AI again.</span>`;
+                    return;
+                }
+
+                loadingMsg.style.display = 'none';
+
+                const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro', 'Focal'];
+                const eCategories = categoryList.map(name => ({ name: name }));
+
+                const centers = {
+                    'Target': [0, 0],
+                    'Focal': [0, 0],
+                    'Competitor': [-350, -350],
+                    'Supplier': [-350, 350],
+                    'Client': [350, 350],
+                    'Macro': [350, -350]
+                };
+
+                const eNodes = nodesArray.map(node => {
+                    let catIndex = categoryList.findIndex(c => c.toLowerCase() === String(node.category).toLowerCase());
+                    if (catIndex === -1) catIndex = 0;
+
+                    const center = centers[categoryList[catIndex]] || [0, 0];
+
+                    return {
+                        id: String(node.id),
+                        name: node.label ? String(node.label) : String(node.id),
+                        category: catIndex,
+                        symbolSize: catIndex <= 1 ? 75 : 45,
+                        x: center[0] + (Math.random() * 80),
+                        y: center[1] + (Math.random() * 80),
+                        label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
+                    };
+                });
+
+                const validNodeIds = new Set(eNodes.map(n => n.id));
+                const eLinks = linksArray
+                    .filter(link => validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target)))
+                    .map(link => ({
+                        source: String(link.source),
+                        target: String(link.target),
+                        tooltip: { formatter: link.description || "" },
+                        lineStyle: { width: 2, curveness: 0.1 }
+                    }));
+
+                const option = {
+                    backgroundColor: '#1a1a1a',
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            if (params.dataType === 'edge') {
+                                return `<div style="max-width:250px; white-space:normal;"><strong>${params.data.source} ➔ ${params.data.target}</strong><br/>${params.data.tooltip.formatter}</div>`;
+                            }
+                            return `<strong>${params.data.name}</strong><br/>Sector: ${categoryList[params.data.category]}`;
                         }
                     },
-                    clientTools: {
-                        Maps: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
-                        navigate: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; },
-                        scroll_to_section: (parameters) => { let section = normalizeSection(parameters.section); window.nav(section); return "Navigated to " + section; }
-                    },
-                    onConnect: () => { isConnected = true; callBtn.classList.add('active'); callBtn.innerHTML = '<div class="indicator"></div> CONNECTED'; },
-                    onDisconnect: () => { isConnected = false; callBtn.innerHTML = "CALL NING"; callBtn.classList.remove('active'); },
-                    onError: (err) => { alert("Connection Error: " + err); callBtn.innerHTML = "CALL NING"; callBtn.classList.remove('active'); }
-                });
-            } catch (err) { alert("Could not start call. " + err.message); callBtn.innerHTML = "CALL NING"; }
-        };
+                    legend: [{
+                        data: categoryList.slice(0, 5),
+                        textStyle: { color: '#ccc', fontWeight: 'bold' },
+                        orient: 'vertical',
+                        right: 20,
+                        top: 20
+                    }],
+                    color: ['#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6', '#cba258'],
+                    series: [{
+                        type: 'graph',
+                        layout: 'force',
+                        data: eNodes,
+                        links: eLinks,
+                        categories: eCategories,
+                        roam: true,
+                        force: {
+                            repulsion: 1500,
+                            edgeLength: 200,
+                            gravity: 0.15,
+                            layoutAnimation: true
+                        },
+                        lineStyle: { color: 'source', opacity: 0.6 }
+                    }]
+                };
 
-        // --- AUTO START ---
-        window.checkUrlForDeepLinks();
-        const params = new URLSearchParams(window.location.search);
-        if (!params.get('tab')) window.fetchAirtable("Global News", "news-feed-global");
-        window.fetchAirtable("Asia News", "news-feed-asia");
-        window.fetchAirtable("Philippines News", "news-feed-philippines");
-        window.fetchAirtable("Luxury", "news-feed-luxury");
-        window.fetchAirtable("AI News", "news-feed-ai");
+                ecosystemChart.setOption(option);
 
-        window.fetchMarketData();
-        fetchFxRates(); // INITIALIZE FX
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Critical Map Render Error.</span>`;
+            }
+        }
 
-        updateWorldClocks();
-        setInterval(updateWorldClocks, 1000);
-        setInterval(window.fetchMarketData, 60000);
-        setInterval(fetchFxRates, 60000);  // REFRESH FX EVERY 60 SECONDS
+        async function generateEcosystem(tickerInput) {
+            const btn = document.getElementById('dispatch-btn');
+            const loadingMsg = document.getElementById('ecosystem-loading');
 
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.innerText = 'PROMPT SENT...';
+            }
+
+            // TRIGGER LOCKDOWN OVERLAY & REFRESH INTERCEPT
+            showLockdown('Executing Ecosystem Analysis');
+
+            loadingMsg.innerHTML = `Ning AI is analyzing ${tickerInput}...<br>This takes about 20 seconds. Please wait.`;
+
+            // Timeout safety to unlock the screen if Make.com fails entirely
+            setTimeout(() => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.innerText = '⚡ DISPATCH AI TO ANALYZE';
+                }
+                hideLockdown();
+            }, 60000);
+
+            try {
+                await fetch(`${ECO_WEBHOOK}?ticker=${tickerInput}`, { mode: 'no-cors' });
+
+                let attempts = 0;
+                const pollInterval = setInterval(async () => {
+                    attempts++;
+                    const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
+                    const checkUrl = `https://api.airtable.com/v0/${ECO_BASE_ID}/Ecosystem_Maps?filterByFormula=${formula}`;
+                    const res = await fetch(checkUrl, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
+                    const checkData = await res.json();
+
+                    if ((checkData.records && checkData.records.length > 0) || attempts > 12) {
+                        clearInterval(pollInterval);
+                        hideLockdown(); // UNLOCK ON SUCCESS
+                        loadEcosystem();
+                    }
+                }, 5000);
+
+            } catch (err) {
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Failed to trigger AI generation.</span>`;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+                hideLockdown(); // UNLOCK ON ERROR
+            }
+        }
+
+        window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('activeNingTab') || 'macro';
+            nav(savedTab);
+
+            setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
+
+            fetchMacroData();
+            fetchQuantData('ph');
+            fetchSmartMoneyWhales();
+            fetchNingningVlogs();
+        });
     </script>
 </body>
 
