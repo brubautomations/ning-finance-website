@@ -1445,12 +1445,6 @@
         // --- SMART SEARCH BAR LOGIC ---
         const RAPID_API_KEY = '2f5dcbce4dmshb006bd68b766612p1b7a94jsn4331c7925f7a';
 
-        // ============================================================
-        // SMART SEARCH — powered by EODHD
-        // Shows company name + exchange + country so users can pick
-        // the correct stock (e.g. HYBE Korea vs HYBE OTC Markets)
-        // Returns EODHD format ticker: CODE.EXCHANGE (e.g. 352820.KS)
-        // ============================================================
         function setupAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
@@ -1458,94 +1452,73 @@
             const hiddenName = document.getElementById(hiddenNameId);
             let debounceTimer;
 
-            // Exchange label mapping — human readable names
-            const EXCHANGE_LABELS = {
-                'PSE': '🇵🇭 Philippines',
-                'US': '🇺🇸 US (OTC/Pink)',
-                'NASDAQ': '🇺🇸 NASDAQ',
-                'NYSE': '🇺🇸 NYSE',
-                'AMEX': '🇺🇸 AMEX',
-                'KQ': '🇰🇷 Korea (KOSDAQ)',
-                'KS': '🇰🇷 Korea (KRX)',
-                'LSE': '🇬🇧 London',
-                'XETRA': '🇩🇪 Germany',
-                'TSE': '🇯🇵 Japan (Tokyo)',
-                'HK': '🇭🇰 Hong Kong',
-                'SHE': '🇨🇳 China (Shenzhen)',
-                'SHG': '🇨🇳 China (Shanghai)',
-                'BSE': '🇮🇳 India (BSE)',
-                'NSE': '🇮🇳 India (NSE)',
-                'ASX': '🇦🇺 Australia',
-                'TSX': '🇨🇦 Canada',
-                'SGX': '🇸🇬 Singapore',
-                'KLSE': '🇲🇾 Malaysia',
-                'SET': '🇹🇭 Thailand',
-                'IDX': '🇮🇩 Indonesia',
-            };
-
-            function getExchangeLabel(exch, country) {
-                return EXCHANGE_LABELS[exch] || `${country || exch}`;
-            }
-
             input.addEventListener('input', function () {
                 clearTimeout(debounceTimer);
                 const query = this.value.trim();
-                if (query.length < 2) { list.style.display = 'none'; return; }
+
+                if (query.length < 2) {
+                    list.style.display = 'none';
+                    return;
+                }
 
                 debounceTimer = setTimeout(async () => {
                     try {
                         list.innerHTML = '<li style="color:#888; padding:8px 12px; font-style:italic;">Searching...</li>';
                         list.style.display = 'block';
 
+                        // Finnhub search — CORS friendly, free, global coverage
                         const res = await fetch(
-                            `https://eodhd.com/api/search/${encodeURIComponent(query)}?api_token=6904bd249d0335.81953936&fmt=json&limit=15`
+                            `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0`
                         );
-                        const results = await res.json();
+                        const data = await res.json();
+                        const results = (data.result || []).filter(r =>
+                            r.type === 'Common Stock' || r.type === 'EQS' || r.type === 'DR' || r.type === ''
+                        );
                         list.innerHTML = '';
 
-                        if (!results || results.length === 0) {
-                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No results found. Try the exact ticker (e.g. AAPL.US)</li>';
+                        if (results.length === 0) {
+                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No results. Try exact ticker e.g. AAPL or 352820.KS</li>';
                             list.style.display = 'block';
                             return;
                         }
 
-                        // Filter to stocks only, sort: PSE first, then major exchanges, then others
-                        const stocks = results.filter(r => r.Type === 'Common Stock' || r.Type === 'Preferred Stock' || !r.Type);
-                        const priority = (r) => {
-                            if (r.Exchange === 'PSE') return 0;
-                            if (['NASDAQ', 'NYSE', 'AMEX'].includes(r.Exchange)) return 1;
-                            if (['KS', 'KQ'].includes(r.Exchange)) return 2;
-                            if (['LSE', 'XETRA', 'TSE'].includes(r.Exchange)) return 3;
-                            return 4;
-                        };
-                        stocks.sort((a, b) => priority(a) - priority(b));
-
-                        const toShow = stocks.slice(0, 10);
-                        if (toShow.length === 0) {
-                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No stocks found</li>';
-                            list.style.display = 'block';
-                            return;
+                        // Convert Finnhub symbol to EODHD format
+                        function toEODHD(sym) {
+                            if (!sym) return null;
+                            if (sym.includes('.')) return sym; // already has exchange suffix
+                            return sym + '.US';               // US stocks default
                         }
 
-                        toShow.forEach(item => {
-                            if (!item.Code) return;
-                            const fullTicker = `${item.Code}.${item.Exchange}`;
-                            const exchLabel = getExchangeLabel(item.Exchange, item.Country);
+                        function getFlag(sym) {
+                            if (sym.includes('.PSE')) return '🇵🇭 Philippines';
+                            if (sym.includes('.KS') || sym.includes('.KQ')) return '🇰🇷 Korea';
+                            if (sym.includes('.T')) return '🇯🇵 Japan';
+                            if (sym.includes('.HK')) return '🇭🇰 Hong Kong';
+                            if (sym.includes('.L')) return '🇬🇧 London';
+                            if (sym.includes('.DE')) return '🇩🇪 Germany';
+                            if (sym.includes('.AX')) return '🇦🇺 Australia';
+                            if (!sym.includes('.')) return '🇺🇸 US';
+                            return '🌍 Global';
+                        }
+
+                        results.slice(0, 10).forEach(item => {
+                            const eodhTicker = toEODHD(item.symbol);
+                            if (!eodhTicker) return;
                             const li = document.createElement('li');
-                            li.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0;';
+                            li.style.cssText = 'padding:8px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0;';
                             li.innerHTML = `
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-weight:900; font-family:'Courier New',monospace; color:#1a1a1a; font-size:0.9rem;">${fullTicker}</span>
-                                    <span style="font-size:0.75rem; color:#888; background:#f5f5f5; padding:2px 6px; border-radius:3px;">${exchLabel}</span>
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="font-weight:900;font-family:'Courier New',monospace;color:#1a1a1a;font-size:0.9rem;">${eodhTicker}</span>
+                                    <span style="font-size:0.75rem;color:#888;background:#f5f5f5;padding:2px 6px;border-radius:3px;">${getFlag(item.symbol)}</span>
                                 </div>
-                                <div style="font-size:0.82rem; color:#555; margin-top:2px;">${item.Name || ''}</div>
+                                <div style="font-size:0.82rem;color:#555;margin-top:2px;">${item.description || ''}</div>
                             `;
                             li.onmouseover = () => li.style.background = '#f9f5ee';
                             li.onmouseout = () => li.style.background = '';
                             li.onclick = () => {
-                                input.value = `${item.Name} (${fullTicker})`;
-                                hiddenTicker.value = fullTicker;
-                                hiddenName.value = item.Name || fullTicker;
+                                input.value = `${item.description} (${eodhTicker})`;
+                                hiddenTicker.value = eodhTicker;
+                                hiddenName.value = item.description || eodhTicker;
                                 list.style.display = 'none';
                             };
                             list.appendChild(li);
@@ -1554,20 +1527,17 @@
 
                     } catch (e) {
                         console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#dc2626; padding:8px 12px;">Search error — try typing the exact ticker</li>';
+                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;">Search error — try typing exact ticker</li>';
                         list.style.display = 'block';
                     }
                 }, 400);
             });
 
-            // Close on outside click
-            document.addEventListener('click', e => {
-                if (e.target !== input && !list.contains(e.target)) list.style.display = 'none';
-            });
-
-            // Enter triggers COMPUTE
-            input.addEventListener('keydown', e => {
-                if (e.key === 'Enter') { list.style.display = 'none'; document.getElementById('avm-btn').click(); }
+            // Close list when clicking outside
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
             });
         }
 
