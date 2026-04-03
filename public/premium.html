@@ -1445,6 +1445,12 @@
         // --- SMART SEARCH BAR LOGIC ---
         const RAPID_API_KEY = '2f5dcbce4dmshb006bd68b766612p1b7a94jsn4331c7925f7a';
 
+        // ============================================================
+        // SMART SEARCH — powered by EODHD
+        // Shows company name + exchange + country so users can pick
+        // the correct stock (e.g. HYBE Korea vs HYBE OTC Markets)
+        // Returns EODHD format ticker: CODE.EXCHANGE (e.g. 352820.KS)
+        // ============================================================
         function setupAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
@@ -1452,58 +1458,116 @@
             const hiddenName = document.getElementById(hiddenNameId);
             let debounceTimer;
 
+            // Exchange label mapping — human readable names
+            const EXCHANGE_LABELS = {
+                'PSE': '🇵🇭 Philippines',
+                'US': '🇺🇸 US (OTC/Pink)',
+                'NASDAQ': '🇺🇸 NASDAQ',
+                'NYSE': '🇺🇸 NYSE',
+                'AMEX': '🇺🇸 AMEX',
+                'KQ': '🇰🇷 Korea (KOSDAQ)',
+                'KS': '🇰🇷 Korea (KRX)',
+                'LSE': '🇬🇧 London',
+                'XETRA': '🇩🇪 Germany',
+                'TSE': '🇯🇵 Japan (Tokyo)',
+                'HK': '🇭🇰 Hong Kong',
+                'SHE': '🇨🇳 China (Shenzhen)',
+                'SHG': '🇨🇳 China (Shanghai)',
+                'BSE': '🇮🇳 India (BSE)',
+                'NSE': '🇮🇳 India (NSE)',
+                'ASX': '🇦🇺 Australia',
+                'TSX': '🇨🇦 Canada',
+                'SGX': '🇸🇬 Singapore',
+                'KLSE': '🇲🇾 Malaysia',
+                'SET': '🇹🇭 Thailand',
+                'IDX': '🇮🇩 Indonesia',
+            };
+
+            function getExchangeLabel(exch, country) {
+                return EXCHANGE_LABELS[exch] || `${country || exch}`;
+            }
+
             input.addEventListener('input', function () {
                 clearTimeout(debounceTimer);
                 const query = this.value.trim();
-
-                if (query.length < 2) {
-                    list.style.display = 'none';
-                    return;
-                }
+                if (query.length < 2) { list.style.display = 'none'; return; }
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        const res = await fetch(`https://mboum-finance.p.rapidapi.com/v1/markets/search?search=${query}`, {
-                            headers: {
-                                'X-RapidAPI-Key': RAPID_API_KEY,
-                                'X-RapidAPI-Host': 'mboum-finance.p.rapidapi.com'
-                            }
-                        });
-                        const data = await res.json();
+                        list.innerHTML = '<li style="color:#888; padding:8px 12px; font-style:italic;">Searching...</li>';
+                        list.style.display = 'block';
 
+                        const res = await fetch(
+                            `https://eodhd.com/api/search/${encodeURIComponent(query)}?api_token=6904bd249d0335.81953936&fmt=json&limit=15`
+                        );
+                        const results = await res.json();
                         list.innerHTML = '';
 
-                        // Filter for logical equities
-                        const validQuotes = data.body?.filter(q => q.symbol && q.shortname && q.quoteType === "EQUITY") || [];
-
-                        if (validQuotes.length === 0) {
-                            list.innerHTML = '<li style="color:#888;">No valid equities found</li>';
-                        } else {
-                            validQuotes.forEach(quote => {
-                                const li = document.createElement('li');
-                                li.innerHTML = `<span class="tick">${quote.symbol}</span><span class="name">${quote.shortname} - ${quote.exchDisp || quote.exchange}</span>`;
-                                li.onclick = () => {
-                                    input.value = `${quote.symbol} - ${quote.shortname}`;
-                                    hiddenTicker.value = quote.symbol;
-                                    hiddenName.value = quote.shortname;
-                                    list.style.display = 'none';
-                                };
-                                list.appendChild(li);
-                            });
+                        if (!results || results.length === 0) {
+                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No results found. Try the exact ticker (e.g. AAPL.US)</li>';
+                            list.style.display = 'block';
+                            return;
                         }
+
+                        // Filter to stocks only, sort: PSE first, then major exchanges, then others
+                        const stocks = results.filter(r => r.Type === 'Common Stock' || r.Type === 'Preferred Stock' || !r.Type);
+                        const priority = (r) => {
+                            if (r.Exchange === 'PSE') return 0;
+                            if (['NASDAQ', 'NYSE', 'AMEX'].includes(r.Exchange)) return 1;
+                            if (['KS', 'KQ'].includes(r.Exchange)) return 2;
+                            if (['LSE', 'XETRA', 'TSE'].includes(r.Exchange)) return 3;
+                            return 4;
+                        };
+                        stocks.sort((a, b) => priority(a) - priority(b));
+
+                        const toShow = stocks.slice(0, 10);
+                        if (toShow.length === 0) {
+                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No stocks found</li>';
+                            list.style.display = 'block';
+                            return;
+                        }
+
+                        toShow.forEach(item => {
+                            if (!item.Code) return;
+                            const fullTicker = `${item.Code}.${item.Exchange}`;
+                            const exchLabel = getExchangeLabel(item.Exchange, item.Country);
+                            const li = document.createElement('li');
+                            li.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0;';
+                            li.innerHTML = `
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-weight:900; font-family:'Courier New',monospace; color:#1a1a1a; font-size:0.9rem;">${fullTicker}</span>
+                                    <span style="font-size:0.75rem; color:#888; background:#f5f5f5; padding:2px 6px; border-radius:3px;">${exchLabel}</span>
+                                </div>
+                                <div style="font-size:0.82rem; color:#555; margin-top:2px;">${item.Name || ''}</div>
+                            `;
+                            li.onmouseover = () => li.style.background = '#f9f5ee';
+                            li.onmouseout = () => li.style.background = '';
+                            li.onclick = () => {
+                                input.value = `${item.Name} (${fullTicker})`;
+                                hiddenTicker.value = fullTicker;
+                                hiddenName.value = item.Name || fullTicker;
+                                list.style.display = 'none';
+                            };
+                            list.appendChild(li);
+                        });
                         list.style.display = 'block';
 
                     } catch (e) {
-                        console.error("Search failed", e);
+                        console.error('Search failed', e);
+                        list.innerHTML = '<li style="color:#dc2626; padding:8px 12px;">Search error — try typing the exact ticker</li>';
+                        list.style.display = 'block';
                     }
-                }, 500);
+                }, 400);
             });
 
-            // Close list when clicking outside
-            document.addEventListener('click', function (e) {
-                if (e.target !== input && e.target !== list) {
-                    list.style.display = 'none';
-                }
+            // Close on outside click
+            document.addEventListener('click', e => {
+                if (e.target !== input && !list.contains(e.target)) list.style.display = 'none';
+            });
+
+            // Enter triggers COMPUTE
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { list.style.display = 'none'; document.getElementById('avm-btn').click(); }
             });
         }
 
@@ -1553,27 +1617,26 @@
 
                 const fields = avmRecord.fields;
 
-                // ── Populate fields ──────────────────────────────────────
+                // Populate UI
                 document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
+                document.getElementById('avm-fundamentals').innerText = fields.AVM_Fundamental_Data || 'N/A';
                 document.getElementById('avm-logic').innerText = fields.AVM_Logic || 'N/A';
                 document.getElementById('avm-conclusion').innerText = fields.AVM_Conclusion || 'N/A';
 
-                // Fundamental metrics — clean up raw numbers into readable format
-                const rawFund = fields.AVM_Fundamental_Data || 'N/A';
-                document.getElementById('avm-fundamentals').innerText = formatAVMNumbers(rawFund);
-
-                // Verdict — stored by Gemini, just color it
+                // Verdict Color Logic
                 const verdictBox = document.getElementById('avm-verdict');
                 const verdictText = fields.AVM_Verdict || 'UNKNOWN';
                 verdictBox.innerText = verdictText;
-                verdictBox.style.fontSize = '0.82rem';
-                verdictBox.style.padding = '6px 14px';
 
-                if (verdictText.includes('UNDERVALUED')) { verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; }
-                else if (verdictText.includes('OVERVALUED')) { verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; }
-                else if (verdictText.includes('SPECULATIVE')) { verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; }
-                else if (verdictText.includes('FAIRLY')) { verdictBox.style.background = '#2563eb'; verdictBox.style.color = '#fff'; }
-                else { verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; }
+                if (verdictText.includes('UNDERVALUED')) {
+                    verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; // Green
+                } else if (verdictText.includes('OVERVALUED')) {
+                    verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; // Red
+                } else if (verdictText.includes('SPECULATIVE')) {
+                    verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; // Orange
+                } else {
+                    verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; // Dark Grey
+                }
 
                 loadingMsg.style.display = 'none';
                 resultsDiv.style.display = 'block';
@@ -1883,27 +1946,6 @@
             fetchSmartMoneyWhales();
             fetchNingningVlogs();
         });
-
-        // ============================================================
-        // NUMBER FORMATTER — converts raw values like ₱26,388,403,000
-        // into readable ₱26.4B, ₱214.5M, ₱1.2T etc.
-        // Applied to fundamental_data field before display.
-        // ============================================================
-        function formatAVMNumbers(text) {
-            if (!text) return 'N/A';
-            // Match any number with 6+ digits (possibly with commas)
-            return text.replace(/([₱$€£¥]?)([\d,]+(?:\.\d+)?)/g, function (match, sym, numStr) {
-                const n = parseFloat(numStr.replace(/,/g, ''));
-                if (isNaN(n) || n < 1000000) return match; // leave small numbers alone
-                let formatted;
-                if (n >= 1e12) formatted = (n / 1e12).toFixed(2) + 'T';
-                else if (n >= 1e9) formatted = (n / 1e9).toFixed(2) + 'B';
-                else if (n >= 1e6) formatted = (n / 1e6).toFixed(2) + 'M';
-                else formatted = numStr;
-                return (sym || '') + formatted;
-            });
-        }
-
     </script>
 </body>
 
