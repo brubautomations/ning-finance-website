@@ -1370,53 +1370,62 @@
         }
 
         // --- LIVE FX TICKER ---
-        // Uses frankfurter.app — free, no API key, updates throughout trading day
+        // Uses open.er-api.com — free, no API key needed, updates every few hours
+        // Falls back to fawazahmed0 CDN if primary fails
         async function fetchFxRates() {
             const container = document.getElementById('fx-rates-container');
             if (!container) return;
 
+            let r = null;
+
+            // Primary: ExchangeRate-API free tier (no key, reliable)
             try {
-                // Fetch live rates: EUR, JPY, CAD all vs USD, then cross to PHP
-                const [phpRes, crossRes] = await Promise.all([
-                    fetch('https://api.frankfurter.app/latest?from=USD&to=PHP,EUR,JPY,CAD'),
-                    fetch('https://api.frankfurter.app/latest?from=PHP&to=USD,EUR,JPY,CAD')
-                ]);
-                const phpData = await phpRes.json();
-                const r = phpData.rates;
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                if (data.result === 'success') r = data.rates;
+            } catch (e) { }
 
-                // USD/PHP direct
-                const usdPhp = r.PHP;
-                // EUR/PHP = (USD/PHP) / (USD/EUR)
-                const eurPhp = r.PHP / r.EUR;
-                // JPY/PHP = (USD/PHP) / (USD/JPY)
-                const jpyPhp = r.PHP / r.JPY;
-                // CAD/PHP = (USD/PHP) / (USD/CAD)
-                const cadPhp = r.PHP / r.CAD;
-
-                const fmt = (val, dec) => val.toFixed(dec || 2);
-
-                container.innerHTML = `
-                    <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">US USD</span> / PHP</span>
-                        <span class="fx-price">₱${fmt(usdPhp)}</span>
-                    </div>
-                    <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">EU EUR</span> / PHP</span>
-                        <span class="fx-price">₱${fmt(eurPhp)}</span>
-                    </div>
-                    <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">JP JPY</span> / PHP</span>
-                        <span class="fx-price">₱${fmt(jpyPhp)}</span>
-                    </div>
-                    <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">CA CAD</span> / PHP</span>
-                        <span class="fx-price">₱${fmt(cadPhp)}</span>
-                    </div>
-                `;
-            } catch (e) {
-                console.error("FX Fetch Error:", e);
-                container.innerHTML = `<div style="color: #dc2626; font-size: 0.8rem; font-weight: bold;">Connection to FX tape severed.</div>`;
+            // Fallback: fawazahmed0 CDN
+            if (!r) {
+                try {
+                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                    const data = await res.json();
+                    // normalize to uppercase keys
+                    const raw = data.usd;
+                    r = {};
+                    for (const k in raw) r[k.toUpperCase()] = raw[k];
+                } catch (e) { }
             }
+
+            if (!r) {
+                container.innerHTML = '<div style="color:#dc2626;font-size:0.8rem;font-weight:bold;">FX feed unavailable.</div>';
+                return;
+            }
+
+            const usdPhp = r.PHP;
+            const eurPhp = r.PHP / r.EUR;
+            const jpyPhp = r.PHP / r.JPY;
+            const cadPhp = r.PHP / r.CAD;
+            const fmt = v => v.toFixed(2);
+
+            container.innerHTML = `
+                <div class="fx-row">
+                    <span class="fx-pair"><span class="fx-base">US USD</span> / PHP</span>
+                    <span class="fx-price">₱${fmt(usdPhp)}</span>
+                </div>
+                <div class="fx-row">
+                    <span class="fx-pair"><span class="fx-base">EU EUR</span> / PHP</span>
+                    <span class="fx-price">₱${fmt(eurPhp)}</span>
+                </div>
+                <div class="fx-row">
+                    <span class="fx-pair"><span class="fx-base">JP JPY</span> / PHP</span>
+                    <span class="fx-price">₱${fmt(jpyPhp)}</span>
+                </div>
+                <div class="fx-row">
+                    <span class="fx-pair"><span class="fx-base">CA CAD</span> / PHP</span>
+                    <span class="fx-price">₱${fmt(cadPhp)}</span>
+                </div>
+            `;
         }
 
         // --- IMAGE POPUP LOGIC ---
