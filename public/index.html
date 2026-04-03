@@ -1369,41 +1369,48 @@
             }
         }
 
-        // --- NEW: LIVE FX TICKER (NO API KEY REQUIRED) ---
+        // --- LIVE FX TICKER ---
+        // Uses frankfurter.app — free, no API key, updates throughout trading day
         async function fetchFxRates() {
             const container = document.getElementById('fx-rates-container');
             if (!container) return;
 
             try {
-                // Fetch daily rates against USD
-                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                const data = await res.json();
-                const rates = data.usd;
+                // Fetch live rates: EUR, JPY, CAD all vs USD, then cross to PHP
+                const [phpRes, crossRes] = await Promise.all([
+                    fetch('https://api.frankfurter.app/latest?from=USD&to=PHP,EUR,JPY,CAD'),
+                    fetch('https://api.frankfurter.app/latest?from=PHP&to=USD,EUR,JPY,CAD')
+                ]);
+                const phpData = await phpRes.json();
+                const r = phpData.rates;
 
-                // Base is USD. To get cross rates for PHP:
-                const usdPhp = rates.php;
-                const eurPhp = rates.php / rates.eur;
-                const jpyPhp = rates.php / rates.jpy;
-                const cadPhp = rates.php / rates.cad;
+                // USD/PHP direct
+                const usdPhp = r.PHP;
+                // EUR/PHP = (USD/PHP) / (USD/EUR)
+                const eurPhp = r.PHP / r.EUR;
+                // JPY/PHP = (USD/PHP) / (USD/JPY)
+                const jpyPhp = r.PHP / r.JPY;
+                // CAD/PHP = (USD/PHP) / (USD/CAD)
+                const cadPhp = r.PHP / r.CAD;
 
-                const formatFx = (val) => val.toFixed(2);
+                const fmt = (val, dec) => val.toFixed(dec || 2);
 
                 container.innerHTML = `
                     <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">🇺🇸 USD</span> / PHP</span>
-                        <span class="fx-price">₱${formatFx(usdPhp)}</span>
+                        <span class="fx-pair"><span class="fx-base">US USD</span> / PHP</span>
+                        <span class="fx-price">₱${fmt(usdPhp)}</span>
                     </div>
                     <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">🇪🇺 EUR</span> / PHP</span>
-                        <span class="fx-price">₱${formatFx(eurPhp)}</span>
+                        <span class="fx-pair"><span class="fx-base">EU EUR</span> / PHP</span>
+                        <span class="fx-price">₱${fmt(eurPhp)}</span>
                     </div>
                     <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">🇯🇵 JPY</span> / PHP</span>
-                        <span class="fx-price">₱${formatFx(jpyPhp)}</span>
+                        <span class="fx-pair"><span class="fx-base">JP JPY</span> / PHP</span>
+                        <span class="fx-price">₱${fmt(jpyPhp)}</span>
                     </div>
                     <div class="fx-row">
-                        <span class="fx-pair"><span class="fx-base">🇨🇦 CAD</span> / PHP</span>
-                        <span class="fx-price">₱${formatFx(cadPhp)}</span>
+                        <span class="fx-pair"><span class="fx-base">CA CAD</span> / PHP</span>
+                        <span class="fx-price">₱${fmt(cadPhp)}</span>
                     </div>
                 `;
             } catch (e) {
@@ -1492,7 +1499,7 @@
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
         setInterval(window.fetchMarketData, 60000);
-        setInterval(fetchFxRates, 600000); // REFRESH FX EVERY 10 MINS
+        setInterval(fetchFxRates, 60000);  // REFRESH FX EVERY 60 SECONDS
 
     </script>
 </body>
