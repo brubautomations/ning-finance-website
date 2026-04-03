@@ -1456,63 +1456,53 @@
                 clearTimeout(debounceTimer);
                 const query = this.value.trim();
 
-                if (query.length < 2) { list.style.display = 'none'; return; }
+                if (query.length < 2) {
+                    list.style.display = 'none';
+                    return;
+                }
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        // EODHD search — covers PSE, US, and 70+ global exchanges
-                        const res = await fetch(
-                            `https://eodhd.com/api/search/${encodeURIComponent(query)}?api_token=6904bd249d0335.81953936&fmt=json&limit=10`
-                        );
-                        const results = await res.json();
+                        const res = await fetch(`https://mboum-finance.p.rapidapi.com/v1/markets/search?search=${query}`, {
+                            headers: {
+                                'X-RapidAPI-Key': RAPID_API_KEY,
+                                'X-RapidAPI-Host': 'mboum-finance.p.rapidapi.com'
+                            }
+                        });
+                        const data = await res.json();
+
                         list.innerHTML = '';
 
-                        if (!results || results.length === 0) {
-                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No results found</li>';
-                            list.style.display = 'block';
-                            return;
+                        // Filter for logical equities
+                        const validQuotes = data.body?.filter(q => q.symbol && q.shortname && q.quoteType === "EQUITY") || [];
+
+                        if (validQuotes.length === 0) {
+                            list.innerHTML = '<li style="color:#888;">No valid equities found</li>';
+                        } else {
+                            validQuotes.forEach(quote => {
+                                const li = document.createElement('li');
+                                li.innerHTML = `<span class="tick">${quote.symbol}</span><span class="name">${quote.shortname} - ${quote.exchDisp || quote.exchange}</span>`;
+                                li.onclick = () => {
+                                    input.value = `${quote.symbol} - ${quote.shortname}`;
+                                    hiddenTicker.value = quote.symbol;
+                                    hiddenName.value = quote.shortname;
+                                    list.style.display = 'none';
+                                };
+                                list.appendChild(li);
+                            });
                         }
-
-                        // Show top results — prioritise PSE then US
-                        const sorted = [...results].sort((a, b) => {
-                            const pse = (x) => x.Exchange === 'PSE' ? 0 : x.Exchange === 'US' ? 1 : 2;
-                            return pse(a) - pse(b);
-                        });
-
-                        sorted.forEach(item => {
-                            if (!item.Code || !item.Name) return;
-                            // Build EODHD-format ticker: CODE.EXCHANGE (e.g. ALI.PSE, AAPL.US)
-                            const fullTicker = `${item.Code}.${item.Exchange}`;
-                            const li = document.createElement('li');
-                            li.innerHTML = `<span class="tick">${fullTicker}</span><span class="name">${item.Name} — ${item.Exchange}</span>`;
-                            li.onclick = () => {
-                                input.value = `${item.Name} (${fullTicker})`;
-                                hiddenTicker.value = fullTicker;
-                                hiddenName.value = item.Name;
-                                list.style.display = 'none';
-                            };
-                            list.appendChild(li);
-                        });
                         list.style.display = 'block';
 
                     } catch (e) {
-                        console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#888; padding:8px 12px;">Search error</li>';
-                        list.style.display = 'block';
+                        console.error("Search failed", e);
                     }
-                }, 400);
+                }, 500);
             });
 
-            // Close list on outside click
+            // Close list when clicking outside
             document.addEventListener('click', function (e) {
-                if (e.target !== input && e.target !== list) list.style.display = 'none';
-            });
-
-            // Allow Enter key to trigger compute
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
+                if (e.target !== input && e.target !== list) {
                     list.style.display = 'none';
-                    document.getElementById('avm-btn').click();
                 }
             });
         }
@@ -1563,39 +1553,27 @@
 
                 const fields = avmRecord.fields;
 
-                // ── Static fields from Airtable ──────────────────────────
+                // ── Populate fields ──────────────────────────────────────
                 document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
-                document.getElementById('avm-fundamentals').innerText = fields.AVM_Fundamental_Data || 'N/A';
                 document.getElementById('avm-logic').innerText = fields.AVM_Logic || 'N/A';
                 document.getElementById('avm-conclusion').innerText = fields.AVM_Conclusion || 'N/A';
 
-                // ── Verdict — computed live from TradingView price ────────
-                // Strip currency symbol to get plain number from fair value
-                const fairValueRaw = fields.AVM_Fair_Value || '';
-                const fairValueNum = parseFloat(fairValueRaw.replace(/[^0-9.]/g, ''));
-                const avmCurrency = fairValueRaw.replace(/[0-9.,\s]/g, '').trim() || '';
+                // Fundamental metrics — clean up raw numbers into readable format
+                const rawFund = fields.AVM_Fundamental_Data || 'N/A';
+                document.getElementById('avm-fundamentals').innerText = formatAVMNumbers(rawFund);
 
-                // Show "fetching" immediately, then update once live price arrives
+                // Verdict — stored by Gemini, just color it
                 const verdictBox = document.getElementById('avm-verdict');
-                verdictBox.innerText = 'FETCHING LIVE PRICE...';
-                verdictBox.style.background = '#555';
-                verdictBox.style.color = '#fff';
+                const verdictText = fields.AVM_Verdict || 'UNKNOWN';
+                verdictBox.innerText = verdictText;
+                verdictBox.style.fontSize = '0.82rem';
+                verdictBox.style.padding = '6px 14px';
 
-                if (!isNaN(fairValueNum) && fairValueNum > 0) {
-                    // Clear any previous refresh interval
-                    if (window._avmPriceInterval) {
-                        clearInterval(window._avmPriceInterval);
-                        window._avmPriceInterval = null;
-                    }
-                    fetchLivePriceAndSetVerdict(tickerInput, fairValueNum, avmCurrency);
-                    // Refresh verdict every 60s while page open
-                    window._avmPriceInterval = setInterval(() => {
-                        fetchLivePriceAndSetVerdict(tickerInput, fairValueNum, avmCurrency);
-                    }, 60000);
-                } else {
-                    verdictBox.innerText = 'FAIR VALUE UNAVAILABLE';
-                    verdictBox.style.background = '#333';
-                }
+                if (verdictText.includes('UNDERVALUED')) { verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('OVERVALUED')) { verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('SPECULATIVE')) { verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; }
+                else if (verdictText.includes('FAIRLY')) { verdictBox.style.background = '#2563eb'; verdictBox.style.color = '#fff'; }
+                else { verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; }
 
                 loadingMsg.style.display = 'none';
                 resultsDiv.style.display = 'block';
@@ -1907,85 +1885,23 @@
         });
 
         // ============================================================
-        // LIVE PRICE ENGINE
-        // Fetches current price from TradingView for AVM verdict.
-        // PSE tickers (.PSE suffix) → Philippines scanner
-        // US/Global tickers        → Global scanner
-        // Verdict thresholds: >+20% UNDERVALUED | <-20% OVERVALUED | else FAIRLY VALUED
+        // NUMBER FORMATTER — converts raw values like ₱26,388,403,000
+        // into readable ₱26.4B, ₱214.5M, ₱1.2T etc.
+        // Applied to fundamental_data field before display.
         // ============================================================
-        async function fetchLivePriceAndSetVerdict(ticker, fairValue, currency) {
-            const verdictBox = document.getElementById('avm-verdict');
-            if (!verdictBox) return;
-
-            try {
-                let livePrice = null;
-
-                // Detect exchange — EODHD format is CODE.EXCHANGE e.g. ALI.PSE, AAPL.US
-                const parts = ticker.toUpperCase().split('.');
-                const baseSymbol = parts[0];
-                const exchange = parts[1] || '';
-                const isPSE = exchange === 'PSE';
-
-                if (isPSE) {
-                    // Philippine Stock Exchange via TradingView scanner
-                    const res = await fetch('https://scanner.tradingview.com/philippines/scan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            filter: [{ left: 'type', operation: 'equal', right: 'stock' }],
-                            columns: ['name', 'close']
-                        })
-                    });
-                    const data = await res.json();
-                    const match = (data.data || []).find(r => r.d && r.d[0] === baseSymbol);
-                    if (match && match.d[1]) livePrice = match.d[1];
-
-                } else {
-                    // US / Global via TradingView global scanner
-                    // Try common US exchanges
-                    const exchanges = ['NASDAQ', 'NYSE', 'AMEX', 'TSX'];
-                    const tickers = exchanges.map(ex => `${ex}:${baseSymbol}`);
-                    const res = await fetch('https://scanner.tradingview.com/global/scan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            symbols: { tickers },
-                            columns: ['close']
-                        })
-                    });
-                    const data = await res.json();
-                    const match = (data.data || []).find(r => r.d && r.d[0] != null);
-                    if (match) livePrice = match.d[0];
-                }
-
-                if (livePrice && livePrice > 0) {
-                    // Compute upside % vs fair value
-                    const upside = ((fairValue - livePrice) / livePrice) * 100;
-                    const apsAbs = Math.abs(upside).toFixed(1);
-                    const dir = upside >= 0 ? 'Upside' : 'Downside';
-
-                    let label, bg;
-                    if (upside > 20) { label = 'UNDERVALUED'; bg = '#16a34a'; }
-                    else if (upside < -20) { label = 'OVERVALUED'; bg = '#dc2626'; }
-                    else { label = 'FAIRLY VALUED'; bg = '#2563eb'; }
-
-                    const cur = currency || '';
-                    verdictBox.innerText = `${label} (Current: ${cur}${livePrice.toFixed(2)} | Fair Value: ${cur}${fairValue.toFixed(2)} | ${apsAbs}% ${dir})`;
-                    verdictBox.style.background = bg;
-                    verdictBox.style.color = '#fff';
-                    verdictBox.style.fontSize = '0.8rem';
-                    verdictBox.style.padding = '6px 12px';
-                } else {
-                    verdictBox.innerText = `FAIR VALUE: ${currency}${fairValue.toFixed(2)} — Live price unavailable`;
-                    verdictBox.style.background = '#555';
-                    verdictBox.style.color = '#fff';
-                }
-            } catch (e) {
-                console.warn('Live price fetch error:', e);
-                verdictBox.innerText = `FAIR VALUE: ${currency}${fairValue.toFixed(2)}`;
-                verdictBox.style.background = '#333';
-                verdictBox.style.color = '#fff';
-            }
+        function formatAVMNumbers(text) {
+            if (!text) return 'N/A';
+            // Match any number with 6+ digits (possibly with commas)
+            return text.replace(/([₱$€£¥]?)([\d,]+(?:\.\d+)?)/g, function (match, sym, numStr) {
+                const n = parseFloat(numStr.replace(/,/g, ''));
+                if (isNaN(n) || n < 1000000) return match; // leave small numbers alone
+                let formatted;
+                if (n >= 1e12) formatted = (n / 1e12).toFixed(2) + 'T';
+                else if (n >= 1e9) formatted = (n / 1e9).toFixed(2) + 'B';
+                else if (n >= 1e6) formatted = (n / 1e6).toFixed(2) + 'M';
+                else formatted = numStr;
+                return (sym || '') + formatted;
+            });
         }
 
     </script>
