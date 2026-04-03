@@ -1463,7 +1463,7 @@
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        list.innerHTML = '<li style="color:#888; padding:8px 12px; font-style:italic;">Searching...</li>';
+                        list.innerHTML = '<li style="color:#888; padding:8px 12px; font-style:italic; background:#fff;">Searching...</li>';
                         list.style.display = 'block';
 
                         // Finnhub search — CORS friendly, free, global coverage
@@ -1477,26 +1477,65 @@
                         list.innerHTML = '';
 
                         if (results.length === 0) {
-                            list.innerHTML = '<li style="color:#888; padding:8px 12px;">No results. Try exact ticker e.g. AAPL or 352820.KS</li>';
+                            list.innerHTML = '<li style="color:#888; padding:8px 12px; background:#fff;">No results. Try exact ticker e.g. AAPL or 352820.KS</li>';
                             list.style.display = 'block';
                             return;
                         }
 
-                        // Convert Finnhub symbol to EODHD format
+                        // Finnhub → EODHD exchange suffix translation
+                        // Finnhub uses different suffixes than EODHD
+                        const FINNHUB_TO_EODHD = {
+                            '.PM': '.PSE',   // Philippines
+                            '.KS': '.KS',    // Korea KRX (same)
+                            '.KQ': '.KQ',    // Korea KOSDAQ (same)
+                            '.L': '.LSE',   // London
+                            '.DE': '.XETRA', // Germany
+                            '.T': '.TSE',   // Japan Tokyo
+                            '.HK': '.HK',    // Hong Kong (same)
+                            '.AX': '.AU',    // Australia
+                            '.SI': '.SGX',   // Singapore
+                            '.NS': '.NSE',   // India NSE
+                            '.BO': '.BSE',   // India BSE
+                            '.KL': '.KLSE',  // Malaysia
+                            '.BK': '.SET',   // Thailand
+                            '.JK': '.IDX',   // Indonesia
+                            '.TO': '.TSX',   // Canada Toronto
+                            '.V': '.TSX',   // Canada TSX Venture
+                            '.PA': '.PA',    // France
+                            '.MI': '.MI',    // Italy
+                            '.MC': '.MC',    // Spain
+                            '.AS': '.AS',    // Netherlands
+                        };
+
                         function toEODHD(sym) {
                             if (!sym) return null;
-                            if (sym.includes('.')) return sym; // already has exchange suffix
-                            return sym + '.US';               // US stocks default
+                            // Check if symbol has a Finnhub suffix that maps to EODHD
+                            const dotIdx = sym.lastIndexOf('.');
+                            if (dotIdx > 0) {
+                                const suffix = sym.substring(dotIdx); // e.g. '.PM'
+                                const base = sym.substring(0, dotIdx); // e.g. 'ALI'
+                                if (FINNHUB_TO_EODHD[suffix]) {
+                                    return base + FINNHUB_TO_EODHD[suffix];
+                                }
+                                return sym; // unknown suffix, keep as-is
+                            }
+                            return sym + '.US'; // no suffix = US stock
                         }
 
                         function getFlag(sym) {
-                            if (sym.includes('.PSE')) return '🇵🇭 Philippines';
+                            if (!sym) return '🌍 Global';
+                            if (sym.includes('.PSE') || sym.includes('.PM')) return '🇵🇭 Philippines';
                             if (sym.includes('.KS') || sym.includes('.KQ')) return '🇰🇷 Korea';
-                            if (sym.includes('.T')) return '🇯🇵 Japan';
+                            if (sym.includes('.T') || sym.includes('.TSE')) return '🇯🇵 Japan';
                             if (sym.includes('.HK')) return '🇭🇰 Hong Kong';
-                            if (sym.includes('.L')) return '🇬🇧 London';
-                            if (sym.includes('.DE')) return '🇩🇪 Germany';
-                            if (sym.includes('.AX')) return '🇦🇺 Australia';
+                            if (sym.includes('.L') || sym.includes('.LSE')) return '🇬🇧 London';
+                            if (sym.includes('.DE') || sym.includes('.XETRA')) return '🇩🇪 Germany';
+                            if (sym.includes('.AX') || sym.includes('.AU')) return '🇦🇺 Australia';
+                            if (sym.includes('.SI') || sym.includes('.SGX')) return '🇸🇬 Singapore';
+                            if (sym.includes('.NS') || sym.includes('.BO')) return '🇮🇳 India';
+                            if (sym.includes('.KL') || sym.includes('.KLSE')) return '🇲🇾 Malaysia';
+                            if (sym.includes('.TO') || sym.includes('.TSX')) return '🇨🇦 Canada';
+                            if (sym.includes('.PA')) return '🇫🇷 France';
                             if (!sym.includes('.')) return '🇺🇸 US';
                             return '🌍 Global';
                         }
@@ -1505,16 +1544,16 @@
                             const eodhTicker = toEODHD(item.symbol);
                             if (!eodhTicker) return;
                             const li = document.createElement('li');
-                            li.style.cssText = 'padding:8px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0;';
+                            li.style.cssText = 'padding:8px 12px; cursor:pointer; border-bottom:1px solid #e8e8e8; background:#fff;';
                             li.innerHTML = `
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <span style="font-weight:900;font-family:'Courier New',monospace;color:#1a1a1a;font-size:0.9rem;">${eodhTicker}</span>
-                                    <span style="font-size:0.75rem;color:#888;background:#f5f5f5;padding:2px 6px;border-radius:3px;">${getFlag(item.symbol)}</span>
+                                    <span style="font-size:0.75rem;color:#666;background:#f0f0f0;padding:2px 8px;border-radius:3px;">${getFlag(item.symbol)}</span>
                                 </div>
-                                <div style="font-size:0.82rem;color:#555;margin-top:2px;">${item.description || ''}</div>
+                                <div style="font-size:0.82rem;color:#666;margin-top:2px;">${item.description || ''}</div>
                             `;
-                            li.onmouseover = () => li.style.background = '#f9f5ee';
-                            li.onmouseout = () => li.style.background = '';
+                            li.onmouseover = () => li.style.background = '#fdf8ee';
+                            li.onmouseout = () => li.style.background = '#fff';
                             li.onclick = () => {
                                 input.value = `${item.description} (${eodhTicker})`;
                                 hiddenTicker.value = eodhTicker;
@@ -1527,7 +1566,7 @@
 
                     } catch (e) {
                         console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;">Search error — try typing exact ticker</li>';
+                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:#fff;">Search error — try typing exact ticker</li>';
                         list.style.display = 'block';
                     }
                 }, 400);
@@ -1552,7 +1591,34 @@
             const selectedName = document.getElementById('avm-selected-name').value;
 
             // Fallback if they ignore the dropdown and just type a ticker manually
-            const tickerInput = selectedTicker ? selectedTicker.toUpperCase() : rawInput.split('-')[0].trim().toUpperCase();
+            const rawTicker = selectedTicker ? selectedTicker.toUpperCase() : rawInput.split('-')[0].trim().toUpperCase();
+
+            // Translate Finnhub exchange suffixes to EODHD format
+            const SUFFIX_MAP = {
+                '.PM': '.PSE',   // Philippines
+                '.L': '.LSE',   // London
+                '.DE': '.XETRA', // Germany
+                '.T': '.TSE',   // Japan
+                '.AX': '.AU',    // Australia
+                '.SI': '.SGX',   // Singapore
+                '.NS': '.NSE',   // India NSE
+                '.BO': '.BSE',   // India BSE
+                '.KL': '.KLSE',  // Malaysia
+                '.BK': '.SET',   // Thailand
+                '.JK': '.IDX',   // Indonesia
+                '.TO': '.TSX',   // Canada
+                '.PA': '.PA',    // France (same)
+                '.MI': '.MI',    // Italy (same)
+                '.MC': '.MC',    // Spain (same)
+                '.AS': '.AS',    // Netherlands (same)
+            };
+            let tickerInput = rawTicker;
+            const dotPos = rawTicker.lastIndexOf('.');
+            if (dotPos > 0) {
+                const suf = rawTicker.substring(dotPos);
+                if (SUFFIX_MAP[suf]) tickerInput = rawTicker.substring(0, dotPos) + SUFFIX_MAP[suf];
+            }
+
             const companyName = selectedName ? selectedName : tickerInput;
 
             if (!tickerInput) return;
