@@ -675,6 +675,55 @@
             font-size: 0.8rem;
             text-transform: uppercase;
         }
+
+        /* UNFAIR ADVANTAGE SUB-TABS */
+        #whale-timeline::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #whale-timeline::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        #whale-timeline::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        #whale-timeline::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        .ua-tab {
+            padding: 10px 22px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
+            color: #888;
+            white-space: nowrap;
+            transition: 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .ua-tab.active {
+            color: #000;
+            border-bottom-color: var(--primary);
+        }
+
+        .ua-tab:hover {
+            color: #000;
+        }
+
+        .ua-subpage {
+            display: none;
+        }
+
+        .ua-subpage.active {
+            display: block;
+        }
     </style>
 </head>
 
@@ -811,56 +860,6 @@
 
         <div id="flows" class="page">
             <h2>UNFAIR ADVANTAGE</h2>
-
-            <style>
-                #whale-timeline::-webkit-scrollbar {
-                    width: 6px;
-                }
-
-                #whale-timeline::-webkit-scrollbar-track {
-                    background: #111;
-                }
-
-                #whale-timeline::-webkit-scrollbar-thumb {
-                    background: #333;
-                    border-radius: 3px;
-                }
-
-                #whale-timeline::-webkit-scrollbar-thumb:hover {
-                    background: var(--primary);
-                }
-
-                .ua-tab {
-                    padding: 10px 22px;
-                    cursor: pointer;
-                    font-size: 0.78rem;
-                    font-weight: 800;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    border-bottom: 3px solid transparent;
-                    color: #888;
-                    white-space: nowrap;
-                    transition: 0.2s;
-                    margin-bottom: -2px;
-                }
-
-                .ua-tab.active {
-                    color: #000;
-                    border-bottom-color: var(--primary);
-                }
-
-                .ua-tab:hover {
-                    color: #000;
-                }
-
-                .ua-subpage {
-                    display: none;
-                }
-
-                .ua-subpage.active {
-                    display: block;
-                }
-            </style>
 
             <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;">
                 <div class="ua-tab active" id="ua-tab-congressional" onclick="switchUATab('congressional')">
