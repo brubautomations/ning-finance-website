@@ -1564,11 +1564,13 @@
                 var payload;
                 try { payload = JSON.parse(raw); } catch (e) { payload = {}; }
 
-                var newsStr = payload.news || '[]';
-                var earningsStr = payload.earnings || '{}';
-
-                renderNews(newsStr, nc);
-                renderEarnings(earningsStr, ec);
+                // Handle both fresh fetch (array) and cache hit (double-encoded string)
+                function safeStr(val) {
+                    if (typeof val === 'string') return val;
+                    return JSON.stringify(val);
+                }
+                renderNews(safeStr(payload.news || '[]'), nc);
+                renderEarnings(safeStr(payload.earnings || '{}'), ec);
 
             } catch (e) {
                 var err = '<div class="card" style="border-top-color:#dc2626; padding:25px;"><strong style="color:#dc2626;">Could not load data.</strong><br><span style="color:#555; font-size:0.85rem;">Make sure the scenario is active and try again.</span></div>';
@@ -1580,7 +1582,10 @@
         // ---- RENDER NEWS ----
         function renderNews(newsStr, container) {
             var articles;
-            try { articles = JSON.parse(newsStr); } catch (e) { articles = []; }
+            try {
+                articles = JSON.parse(newsStr);
+                if (typeof articles === 'string') articles = JSON.parse(articles);
+            } catch (e) { articles = []; }
             if (!Array.isArray(articles) || articles.length === 0) {
                 container.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No news found for this company.</div>';
                 return;
@@ -1624,7 +1629,10 @@
         // ---- RENDER EARNINGS ----
         function renderEarnings(earningsStr, container) {
             var raw;
-            try { raw = JSON.parse(earningsStr); } catch (e) { raw = {}; }
+            try {
+                raw = JSON.parse(earningsStr);
+                if (typeof raw === 'string') raw = JSON.parse(raw);
+            } catch (e) { raw = {}; }
             var list = raw.earnings || (Array.isArray(raw) ? raw : []);
             if (!list.length) {
                 container.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No earnings calendar data found for this company.</div>';
