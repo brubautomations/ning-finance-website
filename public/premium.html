@@ -705,7 +705,6 @@
             color: #888;
             white-space: nowrap;
             transition: 0.2s;
-            margin-bottom: -2px;
         }
 
         .ua-tab.active {
@@ -719,10 +718,14 @@
 
         .ua-subpage {
             display: none;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .ua-subpage.active {
             display: block;
+            flex: 1;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -861,7 +864,8 @@
         <div id="flows" class="page">
             <h2>UNFAIR ADVANTAGE</h2>
 
-            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;">
+            <div
+                style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;flex-shrink:0;">
                 <div class="ua-tab active" id="ua-tab-congressional" onclick="switchUATab('congressional')">
                     CONGRESSIONAL TRACKER</div>
                 <div class="ua-tab" id="ua-tab-insider" onclick="switchUATab('insider')">INSIDER TRANSACTIONS</div>
