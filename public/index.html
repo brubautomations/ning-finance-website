@@ -889,10 +889,86 @@
             </div>
 
             <div id="market" class="page">
-                <div class="card">
-                    <h3>Connecting to Live Feed...</h3>
-                    <p>Establishing secure connection to Database.</p>
+
+                <!-- MARKET SUB-TAB BAR -->
+                <div
+                    style="display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:30px; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-shrink:0;">
+                    <div id="mkt-tab-breadth" onclick="switchMarketTab('breadth')"
+                        style="padding:12px 22px; cursor:pointer; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; border-bottom:3px solid var(--primary); color:#000; white-space:nowrap; transition:0.2s; margin-bottom:-2px;">
+                        MARKET BREADTH
+                    </div>
+                    <div id="mkt-tab-news" onclick="switchMarketTab('news')"
+                        style="padding:12px 22px; cursor:pointer; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; border-bottom:3px solid transparent; color:#888; white-space:nowrap; transition:0.2s; margin-bottom:-2px;">
+                        COMPANY NEWS
+                    </div>
+                    <div id="mkt-tab-dividends" onclick="switchMarketTab('dividends')"
+                        style="padding:12px 22px; cursor:pointer; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; border-bottom:3px solid transparent; color:#888; white-space:nowrap; transition:0.2s; margin-bottom:-2px;">
+                        DIVIDENDS
+                    </div>
+                    <div id="mkt-tab-earnings" onclick="switchMarketTab('earnings')"
+                        style="padding:12px 22px; cursor:pointer; font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; border-bottom:3px solid transparent; color:#888; white-space:nowrap; transition:0.2s; margin-bottom:-2px;">
+                        EARNINGS CALENDAR
+                    </div>
                 </div>
+
+                <!-- SUB-PAGE: MARKET BREADTH (existing, untouched) -->
+                <div id="mkt-breadth" class="mkt-subpage">
+                    <!-- fetchMarketData() injects directly into #market so we re-target via a wrapper -->
+                    <div id="market-breadth-inner"></div>
+                </div>
+
+                <!-- SHARED SEARCH BAR (hidden until non-breadth tab is active) -->
+                <div id="mkt-search-bar" style="display:none; margin-bottom:28px;">
+                    <div
+                        style="font-size:0.75rem; font-weight:800; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">
+                        SEARCH ANY COMPANY OR TICKER GLOBALLY
+                    </div>
+                    <div style="position:relative; max-width:480px;">
+                        <input type="text" id="mkt-search-input" autocomplete="off"
+                            placeholder="Type a company name or ticker... e.g. Jollibee, Apple, Samsung"
+                            style="width:100%; box-sizing:border-box; padding:13px 18px; border:2px solid var(--border); border-radius:3px; font-family:'Inter',sans-serif; font-size:0.95rem; font-weight:600; outline:none; transition:border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'"
+                            onblur="this.style.borderColor='var(--border)'">
+                        <ul id="mkt-suggestions"
+                            style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:2px solid var(--primary); border-top:none; z-index:1000; list-style:none; padding:0; margin:0; max-height:280px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                        </ul>
+                    </div>
+                    <div id="mkt-selected-label"
+                        style="display:none; margin-top:10px; font-size:0.8rem; font-weight:700; color:#000;">
+                        <!-- shows selected company name -->
+                    </div>
+                </div>
+
+                <!-- SUB-PAGE: COMPANY NEWS -->
+                <div id="mkt-news" class="mkt-subpage" style="display:none;">
+                    <div id="mkt-news-container">
+                        <div class="card"
+                            style="border-top-color:#ccc; text-align:center; padding:40px; color:#888; font-style:italic;">
+                            Search for a company above to load their latest news.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PAGE: DIVIDENDS -->
+                <div id="mkt-dividends" class="mkt-subpage" style="display:none;">
+                    <div id="mkt-dividends-container">
+                        <div class="card"
+                            style="border-top-color:#ccc; text-align:center; padding:40px; color:#888; font-style:italic;">
+                            Search for a company above to load their dividend history.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PAGE: EARNINGS CALENDAR -->
+                <div id="mkt-earnings" class="mkt-subpage" style="display:none;">
+                    <div id="mkt-earnings-container">
+                        <div class="card"
+                            style="border-top-color:#ccc; text-align:center; padding:40px; color:#888; font-style:italic;">
+                            Search for a company above to load their earnings calendar.
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="tech" class="page">
@@ -1277,7 +1353,7 @@
         // --- MARKET DATA ---
         window.fetchMarketData = async function () {
             const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRzy0600Z_gh0Y9p_gbdjxOoqMr2Fgyr_43_W3pUKuPOk8oYT0_CuKHCS8du-nZid3QoG04NpBNZ3jE/pub?gid=0&single=true&output=csv";
-            const container = document.getElementById("market");
+            const container = document.getElementById("market-breadth-inner");
             if (!container) return;
             try {
                 const response = await fetch(csvUrl + "&t=" + new Date().getTime());
@@ -1369,7 +1445,287 @@
             }
         }
 
-        // --- LIVE FX TICKER ---
+        // =====================================================
+        // MARKET DATA SUB-TABS — Company News, Dividends, Earnings
+        // =====================================================
+
+        const FINNHUB_KEY = 'd77sidhr01qsamsi1magd77sidhr01qsamsi1mb0';
+        const EODHD_KEY = '6904bd249d0335.81953936';
+
+        let mktCurrentTicker = null;
+        let mktCurrentCompany = null;
+        let mktDebounce = null;
+
+        window.switchMarketTab = function (tab) {
+            ['breadth', 'news', 'dividends', 'earnings'].forEach(t => {
+                const el = document.getElementById('mkt-tab-' + t);
+                if (!el) return;
+                el.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent';
+                el.style.color = t === tab ? '#000' : '#888';
+            });
+            document.querySelectorAll('.mkt-subpage').forEach(el => el.style.display = 'none');
+            const page = document.getElementById('mkt-' + tab);
+            if (page) page.style.display = 'block';
+            document.getElementById('mkt-search-bar').style.display = tab === 'breadth' ? 'none' : 'block';
+        };
+
+        function setupMarketSearch() {
+            const input = document.getElementById('mkt-search-input');
+            const list = document.getElementById('mkt-suggestions');
+            if (!input) return;
+
+            input.addEventListener('input', function () {
+                clearTimeout(mktDebounce);
+                const q = this.value.trim();
+                if (q.length < 2) { list.style.display = 'none'; return; }
+
+                mktDebounce = setTimeout(async () => {
+                    try {
+                        list.innerHTML = '<li style="padding:10px 16px; color:#888; font-style:italic; font-size:0.85rem;">Searching...</li>';
+                        list.style.display = 'block';
+
+                        const res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=' + FINNHUB_KEY);
+                        const data = await res.json();
+                        const results = (data.result || []).filter(r =>
+                            r.type === 'Common Stock' || r.type === 'EQS' || r.type === 'DR' || r.type === ''
+                        ).slice(0, 10);
+
+                        if (results.length === 0) {
+                            list.innerHTML = '<li style="padding:10px 16px; color:#888; font-size:0.85rem;">No results found.</li>';
+                            return;
+                        }
+
+                        list.innerHTML = '';
+                        results.forEach(item => {
+                            const eodhd = toEodhdTicker(item.symbol);
+                            const flag = getMarketFlag(item.symbol);
+                            const li = document.createElement('li');
+                            li.style.cssText = 'padding:11px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; background:#fff; transition:background 0.15s;';
+                            li.innerHTML =
+                                '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+                                '<span style="font-weight:900; font-family:Courier New,monospace; color:#000; font-size:0.9rem;">' + eodhd + '</span>' +
+                                '<span style="font-size:0.72rem; color:#666; background:#f5f5f5; padding:2px 8px; border-radius:2px;">' + flag + '</span>' +
+                                '</div>' +
+                                '<div style="font-size:0.8rem; color:#555; margin-top:2px;">' + (item.description || '') + '</div>';
+                            li.onmouseover = function () { this.style.background = '#fffbf0'; };
+                            li.onmouseout = function () { this.style.background = '#fff'; };
+                            li.onclick = function () {
+                                input.value = (item.description || eodhd) + ' (' + eodhd + ')';
+                                list.style.display = 'none';
+                                mktCurrentTicker = eodhd;
+                                mktCurrentCompany = item.description || eodhd;
+                                const label = document.getElementById('mkt-selected-label');
+                                label.style.display = 'block';
+                                label.innerHTML = 'Showing data for: <strong>' + mktCurrentCompany + '</strong> <span style="color:var(--primary); font-family:Courier New,monospace;">' + eodhd + '</span>';
+                                loadCompanyNews(eodhd);
+                                loadDividends(eodhd);
+                                loadEarnings(eodhd);
+                            };
+                            list.appendChild(li);
+                        });
+                        list.style.display = 'block';
+                    } catch (e) {
+                        list.innerHTML = '<li style="padding:10px 16px; color:#dc2626; font-size:0.85rem;">Search error — try typing the exact ticker.</li>';
+                    }
+                }, 400);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target !== input) list.style.display = 'none';
+            });
+        }
+
+        function toEodhdTicker(sym) {
+            if (!sym) return null;
+            const MAP = {
+                '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.HK': '.HK',
+                '.SS': '.SHG', '.SZ': '.SHE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE',
+                '.BO': '.BSE', '.KL': '.KLSE', '.BK': '.BK', '.JK': '.JK', '.VN': '.VN',
+                '.TW': '.TW', '.L': '.LSE', '.DE': '.XETRA', '.F': '.F', '.PA': '.PA',
+                '.AS': '.AS', '.MI': '.MI', '.MC': '.MC', '.SW': '.SW', '.OL': '.OL',
+                '.ST': '.ST', '.CO': '.CO', '.HE': '.HE', '.TO': '.TO', '.V': '.V',
+                '.MX': '.MX', '.SA': '.SA'
+            };
+            const dot = sym.lastIndexOf('.');
+            if (dot > 0) {
+                const suf = sym.substring(dot);
+                const base = sym.substring(0, dot);
+                return base + (MAP[suf] || suf);
+            }
+            return sym + '.US';
+        }
+
+        function getMarketFlag(sym) {
+            if (!sym) return '🌍 Global';
+            const s = sym.toUpperCase();
+            if (s.includes('.PM')) return '🇵🇭 Philippines';
+            if (s.includes('.KS') || s.includes('.KQ')) return '🇰🇷 Korea';
+            if (s.includes('.T') && !s.includes('.TO')) return '🇯🇵 Japan';
+            if (s.includes('.HK')) return '🇭🇰 Hong Kong';
+            if (s.includes('.SS') || s.includes('.SZ')) return '🇨🇳 China';
+            if (s.includes('.AX')) return '🇦🇺 Australia';
+            if (s.includes('.SI')) return '🇸🇬 Singapore';
+            if (s.includes('.NS') || s.includes('.BO')) return '🇮🇳 India';
+            if (s.includes('.KL')) return '🇲🇾 Malaysia';
+            if (s.includes('.BK')) return '🇹🇭 Thailand';
+            if (s.includes('.JK')) return '🇮🇩 Indonesia';
+            if (s.includes('.VN')) return '🇻🇳 Vietnam';
+            if (s.includes('.TW')) return '🇹🇼 Taiwan';
+            if (s.includes('.L')) return '🇬🇧 UK';
+            if (s.includes('.DE') || s.includes('.F')) return '🇩🇪 Germany';
+            if (s.includes('.PA')) return '🇫🇷 France';
+            if (s.includes('.SW')) return '🇨🇭 Switzerland';
+            if (s.includes('.TO') || s.includes('.V')) return '🇨🇦 Canada';
+            if (s.includes('.SA')) return '🇧🇷 Brazil';
+            if (s.includes('.MX')) return '🇲🇽 Mexico';
+            if (!s.includes('.')) return '🇺🇸 US';
+            return '🌍 Global';
+        }
+
+        async function loadCompanyNews(ticker) {
+            const c = document.getElementById('mkt-news-container');
+            c.innerHTML = '<div class="card" style="border-top-color:#ccc; padding:30px; text-align:center; color:var(--primary); font-weight:700;">Loading news for ' + ticker + '...</div>';
+            try {
+                const res = await fetch('https://eodhd.com/api/news?s=' + encodeURIComponent(ticker) + '&offset=0&limit=20&api_token=' + EODHD_KEY + '&fmt=json');
+                const articles = await res.json();
+                if (!Array.isArray(articles) || articles.length === 0) {
+                    c.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No news found for <strong>' + ticker + '</strong>.<br><small style="color:#aaa;">CORS may be blocking this — we can route via Make.com if needed.</small></div>';
+                    return;
+                }
+                let html = '<div style="font-size:0.75rem; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:18px;">' + articles.length + ' articles — ' + mktCurrentCompany + '</div>';
+                articles.forEach(function (a) {
+                    const d = a.date ? new Date(a.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+                    const src = a.link ? '<a href="' + a.link + '" target="_blank" rel="noopener" style="color:var(--primary); font-weight:800; font-size:0.75rem; text-decoration:none; text-transform:uppercase; letter-spacing:0.5px;">READ FULL STORY ↗</a>' : '';
+                    html += '<div class="card" style="margin-bottom:15px; border-top-color:var(--primary);">' +
+                        '<h3 style="font-size:1.05rem; margin-bottom:8px; line-height:1.4;">' + (a.title || 'Update') + '</h3>' +
+                        '<p style="font-size:0.9rem; color:#555; line-height:1.65; margin-bottom:12px;">' + (a.content || a.summary || '') + '</p>' +
+                        '<div class="card-meta"><span>' + d + (a.source ? ' · ' + a.source : '') + '</span>' + src + '</div>' +
+                        '</div>';
+                });
+                c.innerHTML = html;
+            } catch (e) {
+                c.innerHTML = '<div class="card" style="border-top-color:#dc2626; padding:25px;"><strong style="color:#dc2626;">Could not load news.</strong><br><span style="color:#555; font-size:0.85rem;">EODHD may be blocking direct browser calls. We can route this through Make.com if needed.</span></div>';
+            }
+        }
+
+        async function loadDividends(ticker) {
+            const c = document.getElementById('mkt-dividends-container');
+            c.innerHTML = '<div class="card" style="border-top-color:#ccc; padding:30px; text-align:center; color:var(--primary); font-weight:700;">Loading dividend history for ' + ticker + '...</div>';
+            try {
+                const res = await fetch('https://eodhd.com/api/div/' + encodeURIComponent(ticker) + '?api_token=' + EODHD_KEY + '&fmt=json');
+                const divs = await res.json();
+                if (!Array.isArray(divs) || divs.length === 0) {
+                    c.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No dividend records for <strong>' + ticker + '</strong>.<br><small style="color:#aaa;">This company may not pay dividends, or CORS is blocking the request.</small></div>';
+                    return;
+                }
+                const sorted = divs.slice().sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+                const trail4 = sorted.slice(0, 4).reduce(function (s, d) { return s + (parseFloat(d.value) || 0); }, 0);
+                let html = '<div style="display:flex; gap:15px; margin-bottom:25px; flex-wrap:wrap;">' +
+                    '<div class="card" style="flex:1; min-width:150px; border-top-color:#16a34a; padding:22px;">' +
+                    '<div style="font-size:0.72rem; font-weight:900; color:#16a34a; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">LAST DIVIDEND</div>' +
+                    '<div style="font-size:2rem; font-family:Merriweather,serif; font-weight:900;">' + Number(sorted[0].value).toFixed(4) + '</div>' +
+                    '<div style="font-size:0.78rem; color:#888; margin-top:5px;">' + sorted[0].date + ' · ex-date: ' + (sorted[0].declarationDate || 'N/A') + '</div>' +
+                    '</div>' +
+                    '<div class="card" style="flex:1; min-width:150px; border-top-color:var(--primary); padding:22px;">' +
+                    '<div style="font-size:0.72rem; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">TRAILING 4 DIVS</div>' +
+                    '<div style="font-size:2rem; font-family:Merriweather,serif; font-weight:900;">' + trail4.toFixed(4) + '</div>' +
+                    '<div style="font-size:0.78rem; color:#888; margin-top:5px;">Annualised payout estimate</div>' +
+                    '</div>' +
+                    '<div class="card" style="flex:1; min-width:150px; border-top-color:#000; padding:22px;">' +
+                    '<div style="font-size:0.72rem; font-weight:900; color:#000; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">TOTAL RECORDS</div>' +
+                    '<div style="font-size:2rem; font-family:Merriweather,serif; font-weight:900;">' + sorted.length + '</div>' +
+                    '<div style="font-size:0.78rem; color:#888; margin-top:5px;">Historical payments on record</div>' +
+                    '</div></div>' +
+                    '<div style="background:#fff; border:1px solid var(--border); overflow:auto;">' +
+                    '<table style="width:100%; border-collapse:collapse; font-family:Courier New,monospace; font-size:0.85rem;">' +
+                    '<thead><tr style="background:#000;">' +
+                    '<th style="padding:11px 16px; text-align:left; color:var(--primary);">PAY DATE</th>' +
+                    '<th style="padding:11px 16px; text-align:left; color:var(--primary);">EX-DATE</th>' +
+                    '<th style="padding:11px 16px; text-align:right; color:var(--primary);">AMOUNT</th>' +
+                    '<th style="padding:11px 16px; text-align:left; color:var(--primary);">CURRENCY</th>' +
+                    '<th style="padding:11px 16px; text-align:left; color:var(--primary);">PERIOD</th>' +
+                    '</tr></thead><tbody>';
+                sorted.slice(0, 40).forEach(function (d, i) {
+                    const bg = i % 2 === 0 ? '#fff' : '#f9f9f9';
+                    html += '<tr style="background:' + bg + '; border-bottom:1px solid #f0f0f0;">' +
+                        '<td style="padding:10px 16px;">' + (d.date || '—') + '</td>' +
+                        '<td style="padding:10px 16px; color:#888;">' + (d.declarationDate || '—') + '</td>' +
+                        '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + (d.value ? Number(d.value).toFixed(4) : '—') + '</td>' +
+                        '<td style="padding:10px 16px; color:#888;">' + (d.currency || '—') + '</td>' +
+                        '<td style="padding:10px 16px; color:#888;">' + (d.period || '—') + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                c.innerHTML = html;
+            } catch (e) {
+                c.innerHTML = '<div class="card" style="border-top-color:#dc2626; padding:25px;"><strong style="color:#dc2626;">Could not load dividend data.</strong><br><span style="color:#555; font-size:0.85rem;">EODHD may be blocking direct browser calls. We can route this through Make.com if needed.</span></div>';
+            }
+        }
+
+        async function loadEarnings(ticker) {
+            const c = document.getElementById('mkt-earnings-container');
+            c.innerHTML = '<div class="card" style="border-top-color:#ccc; padding:30px; text-align:center; color:var(--primary); font-weight:700;">Loading earnings data for ' + ticker + '...</div>';
+            try {
+                const res = await fetch('https://eodhd.com/api/calendar/earnings?api_token=' + EODHD_KEY + '&fmt=json&symbols=' + encodeURIComponent(ticker));
+                const raw = await res.json();
+                const list = raw.earnings || (Array.isArray(raw) ? raw : []);
+                if (!list.length) {
+                    c.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No earnings calendar data found for <strong>' + ticker + '</strong>.</div>';
+                    return;
+                }
+                const sorted = list.slice().sort(function (a, b) { return new Date(b.report_date || b.date) - new Date(a.report_date || a.date); });
+                const today = new Date();
+                const upcoming = sorted.filter(function (e) { return new Date(e.report_date || e.date) >= today; });
+                const past = sorted.filter(function (e) { return new Date(e.report_date || e.date) < today; });
+
+                function thead() {
+                    return '<div style="background:#fff; border:1px solid var(--border); overflow:auto; margin-bottom:25px;">' +
+                        '<table style="width:100%; border-collapse:collapse; font-family:Courier New,monospace; font-size:0.85rem;">' +
+                        '<thead><tr style="background:#000;">' +
+                        '<th style="padding:11px 16px; text-align:left; color:var(--primary);">DATE</th>' +
+                        '<th style="padding:11px 16px; text-align:left; color:var(--primary);">TIMING</th>' +
+                        '<th style="padding:11px 16px; text-align:right; color:var(--primary);">EPS EST.</th>' +
+                        '<th style="padding:11px 16px; text-align:right; color:var(--primary);">EPS ACTUAL</th>' +
+                        '<th style="padding:11px 16px; text-align:right; color:var(--primary);">REV EST.</th>' +
+                        '<th style="padding:11px 16px; text-align:right; color:var(--primary);">REV ACTUAL</th>' +
+                        '</tr></thead><tbody>';
+                }
+                function trow(e, i) {
+                    const bg = i % 2 === 0 ? '#fff' : '#f9f9f9';
+                    const beat = (e.actual_eps != null && e.estimate_eps != null) ? (parseFloat(e.actual_eps) >= parseFloat(e.estimate_eps)) : null;
+                    const badge = beat === true ? '<span style="background:#16a34a;color:#fff;font-size:0.68rem;padding:2px 6px;border-radius:2px;font-weight:800;margin-left:4px;">BEAT</span>'
+                        : beat === false ? '<span style="background:#dc2626;color:#fff;font-size:0.68rem;padding:2px 6px;border-radius:2px;font-weight:800;margin-left:4px;">MISS</span>' : '';
+                    function fmtR(v) { return v ? '$' + Number(v / 1e9).toFixed(2) + 'B' : '—'; }
+                    return '<tr style="background:' + bg + '; border-bottom:1px solid #f0f0f0;">' +
+                        '<td style="padding:10px 16px;">' + (e.report_date || e.date || '—') + '</td>' +
+                        '<td style="padding:10px 16px; color:#888;">' + (e.before_after_market || '—') + '</td>' +
+                        '<td style="padding:10px 16px; text-align:right; color:#555;">' + (e.estimate_eps != null ? Number(e.estimate_eps).toFixed(2) : '—') + '</td>' +
+                        '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + (e.actual_eps != null ? Number(e.actual_eps).toFixed(2) : '—') + badge + '</td>' +
+                        '<td style="padding:10px 16px; text-align:right; color:#555;">' + fmtR(e.estimate_revenue) + '</td>' +
+                        '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + fmtR(e.actual_revenue) + '</td>' +
+                        '</tr>';
+                }
+
+                let html = '';
+                if (upcoming.length) {
+                    html += '<div style="font-size:0.78rem; font-weight:900; text-transform:uppercase; color:#000; letter-spacing:0.5px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--primary);">UPCOMING EARNINGS (' + upcoming.length + ')</div>';
+                    html += thead();
+                    upcoming.forEach(function (e, i) { html += trow(e, i); });
+                    html += '</tbody></table></div>';
+                }
+                if (past.length) {
+                    html += '<div style="font-size:0.78rem; font-weight:900; text-transform:uppercase; color:#888; letter-spacing:0.5px; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--border); margin-top:10px;">HISTORICAL RESULTS (' + past.length + ')</div>';
+                    html += thead();
+                    past.slice(0, 20).forEach(function (e, i) { html += trow(e, i); });
+                    html += '</tbody></table></div>';
+                }
+                c.innerHTML = html || '<div class="card" style="padding:30px; text-align:center; color:#888;">No data to display.</div>';
+            } catch (e) {
+                c.innerHTML = '<div class="card" style="border-top-color:#dc2626; padding:25px;"><strong style="color:#dc2626;">Could not load earnings data.</strong><br><span style="color:#555; font-size:0.85rem;">EODHD may be blocking direct browser calls. We can route this through Make.com if needed.</span></div>';
+            }
+        }
+
+        // =====================================================
         // Uses open.er-api.com — free, no API key needed, updates every few hours
         // Falls back to fawazahmed0 CDN if primary fails
         async function fetchFxRates() {
@@ -1503,7 +1859,8 @@
         window.fetchAirtable("AI News", "news-feed-ai");
 
         window.fetchMarketData();
-        fetchFxRates(); // INITIALIZE FX
+        fetchFxRates();
+        setupMarketSearch();
 
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
