@@ -862,7 +862,7 @@
         </div>
 
         <div id="flows" class="page">
-            <h2>UNFAIR ADVANTAGE</h2>
+            <h2>SMART MONEY MOVEMENT TRACKER</h2>
 
             <div
                 style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;flex-shrink:0;">
@@ -1461,8 +1461,13 @@
             }
 
             const sorted = txns.slice().sort(function (a, b) { return new Date(b.transactionDate || b.date) - new Date(a.transactionDate || a.date); });
-            const buys = sorted.filter(function (t) { return (t.transactionCode || '').toLowerCase() === 'p' || parseFloat(t.shares || 0) > 0; });
-            const sells = sorted.filter(function (t) { return (t.transactionCode || '').toLowerCase() === 's'; });
+            // EODHD uses 'Buy'/'Sell' in transactionCode, or transactionAmount positive/negative
+            const isBuyTxn = function (t) {
+                var code = (t.transactionCode || t.transaction_code || '').toLowerCase();
+                return code === 'buy' || code === 'p' || parseFloat(t.transactionAmount || t.shares || 0) > 0;
+            };
+            const buys = sorted.filter(isBuyTxn);
+            const sells = sorted.filter(function (t) { return !isBuyTxn(t); });
 
             let html = '<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">' +
                 '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;border:1px solid #16a34a;">' +
@@ -1490,17 +1495,19 @@
                 '</tr></thead><tbody>';
 
             sorted.slice(0, 50).forEach(function (t, i) {
-                const isBuy = (t.transactionCode || '').toLowerCase() === 'p' || parseFloat(t.shares || 0) > 0;
+                const isBuy = isBuyTxn(t);
                 const tc = isBuy ? '#16a34a' : '#dc2626';
                 const tl = isBuy ? 'BUY' : 'SELL';
                 const bg = i % 2 === 0 ? '#0a0a0a' : '#000';
-                const val = t.value || (t.shares && t.transactionPrice ? (parseFloat(t.shares || 0) * parseFloat(t.transactionPrice || 0)).toFixed(0) : null);
+                const shares = t.transactionAmount || t.shares || null;
+                const price = t.transactionPrice || null;
+                const val = t.transactionValue || t.value || (shares && price ? (parseFloat(shares) * parseFloat(price)).toFixed(0) : null);
                 html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
                     '<td style="padding:10px 14px;color:#aaa;">' + (t.transactionDate || t.date || '—') + '</td>' +
-                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (t.ownerName || t.name || '—') + '</td>' +
-                    '<td style="padding:10px 14px;color:#888;">' + (t.ownerRelationship || t.title || '—') + '</td>' +
+                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (t.ownerName || t.owner_name || t.name || '—') + '</td>' +
+                    '<td style="padding:10px 14px;color:#888;">' + (t.ownerType || t.ownerRelationship || t.title || '—') + '</td>' +
                     '<td style="padding:10px 14px;text-align:right;"><span style="background:' + tc + ';color:#fff;font-size:0.68rem;padding:2px 7px;border-radius:2px;font-weight:800;">' + tl + '</span></td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (t.shares ? Number(t.shares).toLocaleString() : '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (shares ? Number(shares).toLocaleString() : '—') + '</td>' +
                     '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + (val ? '$' + Number(val).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—') + '</td>' +
                     '</tr>';
             });
@@ -1536,7 +1543,7 @@
                 '</div>' +
                 '<div class="screener-module" style="flex:1;min-width:140px;padding:20px;border:1px solid var(--primary);">' +
                 '<div class="screener-header" style="font-size:0.85rem;">TOTAL SHARES HELD</div>' +
-                '<div style="font-size:1.5rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + (totalSh / 1e6).toFixed(1) + 'M</div>' +
+                '<div style="font-size:1.5rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + (totalSh >= 1000 ? (totalSh / 1000).toFixed(1) + 'B' : totalSh.toFixed(1) + 'M') + ' shares</div>' +
                 '</div></div>';
 
             html += '<div style="background:#000;border:1px solid var(--primary);overflow:auto;">' +
@@ -1559,7 +1566,7 @@
                 html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
                     '<td style="padding:10px 14px;color:#555;">' + (i + 1) + '</td>' +
                     '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (h.name || '—') + '</td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (h.totalShares ? Number(h.totalShares).toLocaleString() : '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (h.totalShares ? (parseFloat(h.totalShares) >= 1000 ? (parseFloat(h.totalShares) / 1000).toFixed(2) + 'B' : parseFloat(h.totalShares).toFixed(3) + 'M') : '—') + '</td>' +
                     '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + pct + '%</td>' +
                     '<td style="padding:10px 14px;text-align:right;color:' + cc + ';font-weight:800;">' + cl + '</td>' +
                     '<td style="padding:10px 14px;color:#888;">' + (h.date || h.reportDate || '—') + '</td>' +
