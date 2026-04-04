@@ -883,174 +883,234 @@
 
             </div>
             <div id="whale-raw-data" style="display: none;"></div>
-        </div>
+        </div><!-- /ua-congressional -->
 
-        <div id="ningning" class="page">
-            <h2>Ningning's Desk</h2>
-            <div id="ningning-wrapper">
-                <div class="macro-card">
-                    <div
-                        style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
-                        <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
-                            alt="Ningning AI" style="border-radius: 50%;">
-                        <div>
-                            <h3
-                                style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
-                                Ningning</h3>
-                            <p
-                                style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
-                                LEAD AI PORTFOLIO MANAGER</p>
-                        </div>
-                    </div>
-                    <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
-                        <p>Loading market transmission...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="avm" class="page">
-            <h2>Automated Valuation Model</h2>
-
-            <div class="filter-row">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH ASSET:</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
+        <!-- INSIDER TRANSACTIONS -->
+        <div id="ua-insider" class="ua-subpage">
+            <div class="feed-definition">Officer and director stock transactions globally. Search any ticker across any
+                market.</div>
+            <div style="margin-bottom:25px;">
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-weight:800; color:#333; font-size:0.9rem;">SEARCH ASSET:</label>
                     <div class="autocomplete-wrapper">
-                        <input type="text" id="avm-search-input" class="autocomplete-input"
+                        <input type="text" id="insider-search-input" class="autocomplete-input"
                             placeholder="Search company or ticker..." autocomplete="off">
-                        <ul id="avm-suggestions" class="autocomplete-list"></ul>
+                        <ul id="insider-suggestions" class="autocomplete-list"></ul>
                     </div>
-                    <input type="hidden" id="avm-selected-ticker">
-                    <input type="hidden" id="avm-selected-name">
-                    <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">COMPUTE</button>
+                    <input type="hidden" id="insider-selected-ticker">
+                    <input type="hidden" id="insider-selected-name">
+                    <button class="btn-download" id="insider-btn" onclick="loadSmartMoney('insider')"
+                        style="margin:0;">LOAD</button>
                 </div>
             </div>
+            <div id="insider-loading"
+                style="display:none; padding:30px; text-align:center; color:var(--primary); font-weight:bold; background:#000; border-radius:4px; margin-bottom:20px; border:1px solid var(--primary);">
+                Loading insider transactions...</div>
+            <div id="insider-results" style="display:none;">
+                <div id="insider-company-header"
+                    style="font-family:'Merriweather',serif; font-size:1.3rem; font-weight:900; margin-bottom:20px; color:#1a1a1a; text-transform:uppercase; border-bottom:2px solid var(--primary); padding-bottom:10px;">
+                </div>
+                <div id="insider-content"></div>
+            </div>
+        </div>
 
-            <div id="avm-loading"
-                style="display: none; padding: 40px; text-align: center; color: var(--primary); font-weight: bold; background: #000; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--primary);">
-                Initializing Quantitative Models...
+        <!-- INSTITUTIONAL HOLDERS -->
+        <div id="ua-institutional" class="ua-subpage">
+            <div class="feed-definition">Fund and institutional ownership, position sizes, and quarter-over-quarter
+                changes.</div>
+            <div style="margin-bottom:25px;">
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-weight:800; color:#333; font-size:0.9rem;">SEARCH ASSET:</label>
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="institutional-search-input" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="institutional-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="institutional-selected-ticker">
+                    <input type="hidden" id="institutional-selected-name">
+                    <button class="btn-download" id="institutional-btn" onclick="loadSmartMoney('institutional')"
+                        style="margin:0;">LOAD</button>
+                </div>
+            </div>
+            <div id="institutional-loading"
+                style="display:none; padding:30px; text-align:center; color:var(--primary); font-weight:bold; background:#000; border-radius:4px; margin-bottom:20px; border:1px solid var(--primary);">
+                Loading institutional holders...</div>
+            <div id="institutional-results" style="display:none;">
+                <div id="institutional-company-header"
+                    style="font-family:'Merriweather',serif; font-size:1.3rem; font-weight:900; margin-bottom:20px; color:#1a1a1a; text-transform:uppercase; border-bottom:2px solid var(--primary); padding-bottom:10px;">
+                </div>
+                <div id="institutional-content"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="ningning" class="page">
+        <h2>Ningning's Desk</h2>
+        <div id="ningning-wrapper">
+            <div class="macro-card">
+                <div
+                    style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
+                    <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
+                        alt="Ningning AI" style="border-radius: 50%;">
+                    <div>
+                        <h3
+                            style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
+                            Ningning</h3>
+                        <p
+                            style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
+                            LEAD AI PORTFOLIO MANAGER</p>
+                    </div>
+                </div>
+                <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                    <p>Loading market transmission...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="avm" class="page">
+        <h2>Automated Valuation Model</h2>
+
+        <div class="filter-row">
+            <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH ASSET:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="avm-search-input" class="autocomplete-input"
+                        placeholder="Search company or ticker..." autocomplete="off">
+                    <ul id="avm-suggestions" class="autocomplete-list"></ul>
+                </div>
+                <input type="hidden" id="avm-selected-ticker">
+                <input type="hidden" id="avm-selected-name">
+                <button class="btn-download" id="avm-btn" onclick="loadAVM()" style="margin: 0;">COMPUTE</button>
+            </div>
+        </div>
+
+        <div id="avm-loading"
+            style="display: none; padding: 40px; text-align: center; color: var(--primary); font-weight: bold; background: #000; border-radius: 4px; margin-bottom: 20px; border: 1px solid var(--primary);">
+            Initializing Quantitative Models...
+        </div>
+
+        <div id="avm-results" style="display: none;">
+            <div id="avm-company-header"
+                style="font-family: 'Merriweather', serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 20px; color: #1a1a1a; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
+                COMPANY NAME | TICKER
             </div>
 
-            <div id="avm-results" style="display: none;">
-                <div id="avm-company-header"
-                    style="font-family: 'Merriweather', serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 20px; color: #1a1a1a; text-transform: uppercase; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">
-                    COMPANY NAME | TICKER
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div class="macro-card"
+                    style="flex: 1; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
+                    <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; letter-spacing: 1px;">
+                        INTRINSIC FAIR VALUE</div>
+                    <div id="avm-fair-value"
+                        style="font-size: 3rem; font-family: 'Merriweather', serif; font-weight: 900; margin: 10px 0;">
+                        $0.00</div>
+                    <div id="avm-verdict"
+                        style="font-size: 0.85rem; font-weight: 900; padding: 6px 12px; border-radius: 3px; display: inline-block; letter-spacing: 1px;">
+                        VERDICT</div>
                 </div>
-
-                <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <div class="macro-card"
-                        style="flex: 1; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
-                        <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; letter-spacing: 1px;">
-                            INTRINSIC FAIR VALUE</div>
-                        <div id="avm-fair-value"
-                            style="font-size: 3rem; font-family: 'Merriweather', serif; font-weight: 900; margin: 10px 0;">
-                            $0.00</div>
-                        <div id="avm-verdict"
-                            style="font-size: 0.85rem; font-weight: 900; padding: 6px 12px; border-radius: 3px; display: inline-block; letter-spacing: 1px;">
-                            VERDICT</div>
-                    </div>
-                    <div class="macro-card"
-                        style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
-                        <div
-                            style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
-                            FUNDAMENTAL METRICS</div>
-                        <div id="avm-fundamentals"
-                            style="font-size: 1.1rem; color: #000; font-family: 'Courier New', monospace; font-weight: 800; line-height: 1.6;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="macro-card" style="margin-bottom: 80px;">
-                    <div class="intel-header">COMPUTATION LOGIC</div>
-                    <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
-
-                    <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
-                    <div id="avm-conclusion" class="intel-body"
-                        style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
-
+                <div class="macro-card"
+                    style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
                     <div
-                        style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
-                        <p
-                            style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
-                            ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
-                        <p
-                            style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
-                            Ning AI is an automated quantitative model. The valuations, logic, and conclusions provided
-                            are for informational and educational purposes only, and DO NOT constitute financial advice.
-                            If you blindly follow an AI, buy a stock, and get burned, that is entirely your problem. We
-                            provide the math, you assume the risk. Do your own due diligence.
-                        </p>
+                        style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                        FUNDAMENTAL METRICS</div>
+                    <div id="avm-fundamentals"
+                        style="font-size: 1.1rem; color: #000; font-family: 'Courier New', monospace; font-weight: 800; line-height: 1.6;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="macro-card" style="margin-bottom: 80px;">
+                <div class="intel-header">COMPUTATION LOGIC</div>
+                <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
+
+                <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
+                <div id="avm-conclusion" class="intel-body"
+                    style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
+
+                <div
+                    style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
+                    <p
+                        style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
+                        ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
+                    <p
+                        style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
+                        Ning AI is an automated quantitative model. The valuations, logic, and conclusions provided
+                        are for informational and educational purposes only, and DO NOT constitute financial advice.
+                        If you blindly follow an AI, buy a stock, and get burned, that is entirely your problem. We
+                        provide the math, you assume the risk. Do your own due diligence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ecosystem" class="page">
+        <h2>Corporate Supply Chains and Direct Market Competition</h2>
+
+        <div class="filter-row" style="margin-bottom: 10px;">
+            <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI,PALANTIR"
+                    style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
+                <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
+            </div>
+        </div>
+        <p style="color: #d97706; font-size: 0.85rem; font-weight: 700; margin-top: 0; margin-bottom: 25px;">
+            ⚠️ NOTE: Please type the exact ticker or company name clearly to avoid vague analysis
+        </p>
+
+        <div id="map-container-wrapper"
+            style="background-color: #1a1a1a; width: 100%; border-radius: 4px; position: relative; margin-bottom: 25px; border: 1px solid var(--border);">
+            <div id="ecosystem-chart" style="width: 100%; height: 700px;"></div>
+            <div id="ecosystem-loading"
+                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; text-align: center; display: none;">
+            </div>
+        </div>
+
+        <div id="intel-section" style="display: none; margin-top: 20px; margin-bottom: 100px;">
+            <div class="macro-card" style="margin: 0;">
+                <div class="intel-header" id="intel-ticker">STRATEGIC OVERVIEW</div>
+
+                <span class="intel-sub-title">About the Company</span>
+                <div class="intel-body" id="intel-description"></div>
+
+                <span class="intel-sub-title">Ecosystem & Network Analysis</span>
+                <div class="intel-body" id="intel-logic"></div>
+
+                <span class="intel-sub-title">SWOT Matrix</span>
+                <div class="swot-grid">
+                    <div class="swot-box" style="background: #f0fdf4; border-color: #bbf7d0;">
+                        <h4 style="color: #166534;">Strengths</h4>
+                        <div id="swot-s" style="font-size: 0.85rem; color: #14532d; white-space: pre-wrap;"></div>
+                    </div>
+                    <div class="swot-box" style="background: #fef2f2; border-color: #fecaca;">
+                        <h4 style="color: #991b1b;">Weaknesses</h4>
+                        <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d; white-space: pre-wrap;"></div>
+                    </div>
+                    <div class="swot-box" style="background: #eff6ff; border-color: #bfdbfe;">
+                        <h4 style="color: #1e40af;">Opportunities</h4>
+                        <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a; white-space: pre-wrap;"></div>
+                    </div>
+                    <div class="swot-box" style="background: #fffbeb; border-color: #fde68a;">
+                        <h4 style="color: #92400e;">Threats</h4>
+                        <div id="swot-t" style="font-size: 0.85rem; color: #78350f; white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="ecosystem" class="page">
-            <h2>Corporate Supply Chains and Direct Market Competition</h2>
-
-            <div class="filter-row" style="margin-bottom: 10px;">
-                <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI,PALANTIR"
-                        style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
-                    <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
-                </div>
-            </div>
-            <p style="color: #d97706; font-size: 0.85rem; font-weight: 700; margin-top: 0; margin-bottom: 25px;">
-                ⚠️ NOTE: Please type the exact ticker or company name clearly to avoid vague analysis
-            </p>
-
-            <div id="map-container-wrapper"
-                style="background-color: #1a1a1a; width: 100%; border-radius: 4px; position: relative; margin-bottom: 25px; border: 1px solid var(--border);">
-                <div id="ecosystem-chart" style="width: 100%; height: 700px;"></div>
-                <div id="ecosystem-loading"
-                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--primary); font-weight: bold; text-align: center; display: none;">
-                </div>
-            </div>
-
-            <div id="intel-section" style="display: none; margin-top: 20px; margin-bottom: 100px;">
-                <div class="macro-card" style="margin: 0;">
-                    <div class="intel-header" id="intel-ticker">STRATEGIC OVERVIEW</div>
-
-                    <span class="intel-sub-title">About the Company</span>
-                    <div class="intel-body" id="intel-description"></div>
-
-                    <span class="intel-sub-title">Ecosystem & Network Analysis</span>
-                    <div class="intel-body" id="intel-logic"></div>
-
-                    <span class="intel-sub-title">SWOT Matrix</span>
-                    <div class="swot-grid">
-                        <div class="swot-box" style="background: #f0fdf4; border-color: #bbf7d0;">
-                            <h4 style="color: #166534;">Strengths</h4>
-                            <div id="swot-s" style="font-size: 0.85rem; color: #14532d; white-space: pre-wrap;"></div>
-                        </div>
-                        <div class="swot-box" style="background: #fef2f2; border-color: #fecaca;">
-                            <h4 style="color: #991b1b;">Weaknesses</h4>
-                            <div id="swot-w" style="font-size: 0.85rem; color: #7f1d1d; white-space: pre-wrap;"></div>
-                        </div>
-                        <div class="swot-box" style="background: #eff6ff; border-color: #bfdbfe;">
-                            <h4 style="color: #1e40af;">Opportunities</h4>
-                            <div id="swot-o" style="font-size: 0.85rem; color: #1e3a8a; white-space: pre-wrap;"></div>
-                        </div>
-                        <div class="swot-box" style="background: #fffbeb; border-color: #fde68a;">
-                            <h4 style="color: #92400e;">Threats</h4>
-                            <div id="swot-t" style="font-size: 0.85rem; color: #78350f; white-space: pre-wrap;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="account" class="page">
+        <h2>Account Settings</h2>
+        <div class="macro-card" style="max-width: 600px; margin: 0;">
+            <p><strong>Tier:</strong> PRO TIER</p>
+            <p><strong>Status:</strong> Active</p>
+            <button
+                style="background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
+                & REVOKE SESSION</button>
         </div>
-
-        <div id="account" class="page">
-            <h2>Account Settings</h2>
-            <div class="macro-card" style="max-width: 600px; margin: 0;">
-                <p><strong>Tier:</strong> PRO TIER</p>
-                <p><strong>Status:</strong> Active</p>
-                <button
-                    style="background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; border-radius: 2px; font-weight: bold; margin-top: 20px;">LOGOUT
-                    & REVOKE SESSION</button>
-            </div>
-        </div>
+    </div>
     </div>
 
     <div class="chat-bubble" onclick="toggleChat()"><span>NING</span></div>
@@ -1163,6 +1223,312 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
+
+
+        // ============================================================
+        // UNFAIR ADVANTAGE SUB-TABS
+        // ============================================================
+        const SMART_MONEY_BASE_ID = 'app1hHgLzAlJgLB8H';
+        const SMART_MONEY_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
+        const SMART_MONEY_WEBHOOK = 'https://hook.us2.make.com/etaefd2od2n1min3cstw0b5pmket9ou2';
+
+        function switchUATab(tab) {
+            document.querySelectorAll('.ua-tab').forEach(function (el) {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.ua-subpage').forEach(function (el) {
+                el.classList.remove('active');
+            });
+            document.getElementById('ua-tab-' + tab).classList.add('active');
+            document.getElementById('ua-' + tab).classList.add('active');
+        }
+
+        // Setup autocomplete for insider + institutional (reuses same Finnhub logic as AVM)
+        function setupSmartMoneyAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const hiddenTick = document.getElementById(hiddenTickerId);
+            const hiddenName = document.getElementById(hiddenNameId);
+            if (!input) return;
+            let debounce;
+
+            input.addEventListener('input', function () {
+                clearTimeout(debounce);
+                const q = this.value.trim();
+                if (q.length < 2) { list.style.display = 'none'; return; }
+
+                debounce = setTimeout(async function () {
+                    try {
+                        list.innerHTML = '<li style="padding:10px 14px;color:#888;font-style:italic;font-size:0.85rem;">Searching...</li>';
+                        list.style.display = 'block';
+
+                        const res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0');
+                        const data = await res.json();
+                        const results = (data.result || []).filter(function (r) {
+                            return r.type === 'Common Stock' || r.type === 'EQS' || r.type === 'DR' || r.type === '';
+                        }).slice(0, 10);
+
+                        if (!results.length) {
+                            list.innerHTML = '<li style="padding:10px 14px;color:#888;font-size:0.85rem;">No results.</li>';
+                            return;
+                        }
+
+                        list.innerHTML = '';
+                        results.forEach(function (item) {
+                            // reuse existing toEODHD + getFlag from AVM section
+                            const SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.HK': '.HK', '.SS': '.SHG', '.SZ': '.SHE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.BK': '.BK', '.JK': '.JK', '.VN': '.VN', '.TW': '.TW', '.L': '.LSE', '.DE': '.XETRA', '.F': '.F', '.PA': '.PA', '.AS': '.AS', '.MI': '.MI', '.MC': '.MC', '.SW': '.SW', '.OL': '.OL', '.ST': '.ST', '.CO': '.CO', '.HE': '.HE', '.TO': '.TO', '.V': '.V', '.MX': '.MX', '.SA': '.SA' };
+                            const sym = item.symbol || '';
+                            const dot = sym.lastIndexOf('.');
+                            const eodhd = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
+
+                            const li = document.createElement('li');
+                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
+                            li.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + eodhd + '</span></div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
+                            li.onmouseover = function () { this.style.background = '#fdf8ee'; };
+                            li.onmouseout = function () { this.style.background = '#fff'; };
+                            li.onclick = function () {
+                                input.value = (item.description || eodhd) + ' (' + eodhd + ')';
+                                hiddenTick.value = eodhd;
+                                hiddenName.value = item.description || eodhd;
+                                list.style.display = 'none';
+                            };
+                            list.appendChild(li);
+                        });
+                        list.style.display = 'block';
+                    } catch (e) {
+                        list.innerHTML = '<li style="padding:10px 14px;color:#dc2626;font-size:0.85rem;">Search error.</li>';
+                    }
+                }, 400);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target !== input) list.style.display = 'none';
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    list.style.display = 'none';
+                    document.getElementById(inputId.replace('search-input', 'btn')).click();
+                }
+            });
+        }
+
+        // Load Smart Money data — AVM pattern: check Airtable first, fire webhook if not found
+        async function loadSmartMoney(type) {
+            const tickerRaw = document.getElementById(type + '-selected-ticker').value;
+            const nameRaw = document.getElementById(type + '-selected-name').value;
+            const inputVal = document.getElementById(type + '-search-input').value.trim();
+            const ticker = (tickerRaw || inputVal.split('(').pop().replace(')', '').trim()).toUpperCase();
+            const company = nameRaw || ticker;
+            if (!ticker) return;
+
+            const loadingEl = document.getElementById(type + '-loading');
+            const resultsEl = document.getElementById(type + '-results');
+            const headerEl = document.getElementById(type + '-company-header');
+            const contentEl = document.getElementById(type + '-content');
+
+            resultsEl.style.display = 'none';
+            loadingEl.style.display = 'block';
+            loadingEl.innerHTML = 'Scanning intelligence database for ' + ticker + '...';
+            headerEl.innerText = company + ' | ' + ticker;
+
+            try {
+                // Step 1: Check Airtable first
+                const formula = encodeURIComponent("{Ticker}='" + ticker + "'");
+                const url = 'https://api.airtable.com/v0/' + SMART_MONEY_BASE_ID + '/Smart_Money_Data?filterByFormula=' + formula + '&maxRecords=1&sort%5B0%5D%5Bfield%5D=Last_Updated&sort%5B0%5D%5Bdirection%5D=desc';
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SMART_MONEY_PAT } });
+                const data = await res.json();
+                const record = data.records && data.records.length > 0 ? data.records[0] : null;
+
+                if (record && record.fields.Insiders) {
+                    // Cache hit — render immediately
+                    loadingEl.style.display = 'none';
+                    resultsEl.style.display = 'block';
+                    if (type === 'insider') renderInsiders(record.fields.Insiders, contentEl);
+                    if (type === 'institutional') renderInstitutions(record.fields.Institutions, contentEl);
+                    return;
+                }
+
+                // Step 2: No record — fire Make webhook
+                loadingEl.innerHTML = 'No data found for ' + ticker + '.<br><br><button id="dispatch-sm-btn" onclick="dispatchSmartMoney('' + ticker + '', '' + company.replace(/' / g, "\'") + '', '' + type + '') " style="background: #cba258; color:#000; border: none; padding: 10px 20px; font - weight: 900; cursor: pointer; margin - top: 15px; border - radius: 3px; text - transform: uppercase; letter - spacing: 1px; ">⚡ FETCH LIVE DATA</button>';
+
+            } catch (e) {
+                loadingEl.innerHTML = '<span style="color:#dc2626;">Error connecting to database.</span>';
+            }
+        }
+
+        async function dispatchSmartMoney(ticker, company, type) {
+            const btn = document.getElementById('dispatch-sm-btn');
+            const loadingEl = document.getElementById(type + '-loading');
+            const resultsEl = document.getElementById(type + '-results');
+            const contentEl = document.getElementById(type + '-content');
+
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.innerText = 'FETCHING...'; }
+            showLockdown('Fetching Smart Money Data');
+            loadingEl.innerHTML = 'Dispatching intelligence sweep for ' + ticker + '...<br>This takes about 15 seconds.';
+
+            // Safety unlock after 60s
+            setTimeout(function () { hideLockdown(); }, 60000);
+
+            try {
+                await fetch(SMART_MONEY_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
+
+                // Poll Airtable until record appears
+                let attempts = 0;
+                const poll = setInterval(async function () {
+                    attempts++;
+                    try {
+                        const formula = encodeURIComponent("{Ticker}='" + ticker + "'");
+                        const url = 'https://api.airtable.com/v0/' + SMART_MONEY_BASE_ID + '/Smart_Money_Data?filterByFormula=' + formula + '&maxRecords=1&sort%5B0%5D%5Bfield%5D=Last_Updated&sort%5B0%5D%5Bdirection%5D=desc';
+                        const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SMART_MONEY_PAT } });
+                        const data = await res.json();
+                        const record = data.records && data.records.length > 0 ? data.records[0] : null;
+
+                        if ((record && record.fields.Insiders) || attempts > 12) {
+                            clearInterval(poll);
+                            hideLockdown();
+                            if (record && record.fields.Insiders) {
+                                loadingEl.style.display = 'none';
+                                resultsEl.style.display = 'block';
+                                if (type === 'insider') renderInsiders(record.fields.Insiders, contentEl);
+                                if (type === 'institutional') renderInstitutions(record.fields.Institutions, contentEl);
+                            } else {
+                                loadingEl.innerHTML = '<span style="color:#dc2626;">Data fetch timed out. Please try again.</span>';
+                            }
+                        }
+                    } catch (e) { console.warn('Poll error', e); }
+                }, 5000);
+
+            } catch (e) {
+                hideLockdown();
+                loadingEl.innerHTML = '<span style="color:#dc2626;">Failed to trigger data fetch. Please try again.</span>';
+            }
+        }
+
+        // ---- RENDER INSIDER TRANSACTIONS ----
+        function renderInsiders(dataStr, container) {
+            let txns;
+            try {
+                txns = JSON.parse(dataStr);
+                if (typeof txns === 'string') txns = JSON.parse(txns);
+            } catch (e) { txns = []; }
+
+            if (!Array.isArray(txns) || !txns.length) {
+                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:30px;color:#888;">No insider transaction data found.</div>';
+                return;
+            }
+
+            const sorted = txns.slice().sort(function (a, b) { return new Date(b.transactionDate || b.date) - new Date(a.transactionDate || a.date); });
+            const buys = sorted.filter(function (t) { return (t.transactionCode || '').toLowerCase() === 'p' || parseFloat(t.shares || 0) > 0; });
+            const sells = sorted.filter(function (t) { return (t.transactionCode || '').toLowerCase() === 's'; });
+
+            let html = '<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">' +
+                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;border:1px solid #16a34a;">' +
+                '<div class="screener-header" style="color:#16a34a;font-size:0.85rem;">BUYS</div>' +
+                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + buys.length + '</div>' +
+                '</div>' +
+                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;border:1px solid #dc2626;">' +
+                '<div class="screener-header" style="color:#dc2626;font-size:0.85rem;">SELLS</div>' +
+                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sells.length + '</div>' +
+                '</div>' +
+                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;">' +
+                '<div class="screener-header" style="font-size:0.85rem;">TOTAL FILINGS</div>' +
+                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sorted.length + '</div>' +
+                '</div></div>';
+
+            html += '<div style="background:#000;border:1px solid var(--primary);overflow:auto;">' +
+                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.82rem;">' +
+                '<thead><tr style="border-bottom:1px solid #333;">' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">DATE</th>' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">INSIDER</th>' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">ROLE</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">TYPE</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">SHARES</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">VALUE</th>' +
+                '</tr></thead><tbody>';
+
+            sorted.slice(0, 50).forEach(function (t, i) {
+                const isBuy = (t.transactionCode || '').toLowerCase() === 'p' || parseFloat(t.shares || 0) > 0;
+                const tc = isBuy ? '#16a34a' : '#dc2626';
+                const tl = isBuy ? 'BUY' : 'SELL';
+                const bg = i % 2 === 0 ? '#0a0a0a' : '#000';
+                const val = t.value || (t.shares && t.transactionPrice ? (parseFloat(t.shares || 0) * parseFloat(t.transactionPrice || 0)).toFixed(0) : null);
+                html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
+                    '<td style="padding:10px 14px;color:#aaa;">' + (t.transactionDate || t.date || '—') + '</td>' +
+                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (t.ownerName || t.name || '—') + '</td>' +
+                    '<td style="padding:10px 14px;color:#888;">' + (t.ownerRelationship || t.title || '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;"><span style="background:' + tc + ';color:#fff;font-size:0.68rem;padding:2px 7px;border-radius:2px;font-weight:800;">' + tl + '</span></td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (t.shares ? Number(t.shares).toLocaleString() : '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + (val ? '$' + Number(val).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—') + '</td>' +
+                    '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // ---- RENDER INSTITUTIONAL HOLDERS ----
+        function renderInstitutions(dataStr, container) {
+            let raw;
+            try {
+                raw = JSON.parse(dataStr);
+                if (typeof raw === 'string') raw = JSON.parse(raw);
+            } catch (e) { raw = {}; }
+
+            // EODHD returns { Institutions: { "0": {...}, "1": {...} } }
+            const instObj = raw.Institutions || raw;
+            const holders = Object.values(instObj).filter(function (h) { return h && h.name; });
+
+            if (!holders.length) {
+                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:30px;color:#888;">No institutional holder data found.</div>';
+                return;
+            }
+
+            const sorted = holders.slice().sort(function (a, b) { return (parseFloat(b.totalShares) || 0) - (parseFloat(a.totalShares) || 0); });
+            const totalSh = sorted.reduce(function (s, h) { return s + (parseFloat(h.totalShares) || 0); }, 0);
+
+            let html = '<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">' +
+                '<div class="screener-module" style="flex:1;min-width:140px;padding:20px;">' +
+                '<div class="screener-header" style="font-size:0.85rem;">INSTITUTIONS</div>' +
+                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sorted.length + '</div>' +
+                '</div>' +
+                '<div class="screener-module" style="flex:1;min-width:140px;padding:20px;border:1px solid var(--primary);">' +
+                '<div class="screener-header" style="font-size:0.85rem;">TOTAL SHARES HELD</div>' +
+                '<div style="font-size:1.5rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + (totalSh / 1e6).toFixed(1) + 'M</div>' +
+                '</div></div>';
+
+            html += '<div style="background:#000;border:1px solid var(--primary);overflow:auto;">' +
+                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.82rem;">' +
+                '<thead><tr style="border-bottom:1px solid #333;">' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">#</th>' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">INSTITUTION</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">SHARES</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">% HELD</th>' +
+                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">CHANGE</th>' +
+                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">AS OF</th>' +
+                '</tr></thead><tbody>';
+
+            sorted.slice(0, 50).forEach(function (h, i) {
+                const pct = totalSh > 0 ? ((parseFloat(h.totalShares) || 0) / totalSh * 100).toFixed(2) : '—';
+                const chg = h.change != null ? parseFloat(h.change) : null;
+                const cc = chg > 0 ? '#16a34a' : chg < 0 ? '#dc2626' : '#888';
+                const cl = chg != null ? (chg > 0 ? '+' : '') + Number(chg).toLocaleString() : '—';
+                const bg = i % 2 === 0 ? '#0a0a0a' : '#000';
+                html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
+                    '<td style="padding:10px 14px;color:#555;">' + (i + 1) + '</td>' +
+                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (h.name || '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (h.totalShares ? Number(h.totalShares).toLocaleString() : '—') + '</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + pct + '%</td>' +
+                    '<td style="padding:10px 14px;text-align:right;color:' + cc + ';font-weight:800;">' + cl + '</td>' +
+                    '<td style="padding:10px 14px;color:#888;">' + (h.date || h.reportDate || '—') + '</td>' +
+                    '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // ============================================================
 
         document.addEventListener('DOMContentLoaded', () => {
             const chatInput = document.getElementById('chat-input');
@@ -1980,6 +2346,8 @@
             nav(savedTab);
 
             setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
+            setupSmartMoneyAutocomplete('insider-search-input', 'insider-suggestions', 'insider-selected-ticker', 'insider-selected-name');
+            setupSmartMoneyAutocomplete('institutional-search-input', 'institutional-suggestions', 'institutional-selected-ticker', 'institutional-selected-name');
 
             fetchMacroData();
             fetchQuantData('ph');
