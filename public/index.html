@@ -1680,8 +1680,6 @@
                     '<th style="padding:11px 16px; text-align:left; color:var(--primary);">TIMING</th>' +
                     '<th style="padding:11px 16px; text-align:right; color:var(--primary);">EPS EST.</th>' +
                     '<th style="padding:11px 16px; text-align:right; color:var(--primary);">EPS ACTUAL</th>' +
-                    '<th style="padding:11px 16px; text-align:right; color:var(--primary);">REV EST.</th>' +
-                    '<th style="padding:11px 16px; text-align:right; color:var(--primary);">REV ACTUAL</th>' +
                     '</tr></thead><tbody>';
             }
             function trow(e, i) {
@@ -1697,8 +1695,6 @@
                     '<td style="padding:10px 16px; color:#888;">' + (e.before_after_market || '—') + '</td>' +
                     '<td style="padding:10px 16px; text-align:right; color:#555;">' + (e.estimate != null ? Number(e.estimate).toFixed(2) : '—') + '</td>' +
                     '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + (e.actual != null && e.actual !== 0 ? Number(e.actual).toFixed(2) : '—') + badge + pct + '</td>' +
-                    '<td style="padding:10px 16px; text-align:right; color:#555;">—</td>' +
-                    '<td style="padding:10px 16px; text-align:right; font-weight:900;">—</td>' +
                     '</tr>';
             }
             var html = '';
