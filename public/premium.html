@@ -2337,7 +2337,7 @@
                         id: String(node.id),
                         name: node.label ? String(node.label) : String(node.id),
                         category: catIndex,
-                        symbolSize: catIndex <= 1 ? 75 : 45,
+                        symbolSize: catIndex <= 1 ? 95 : 45,
                         x: center[0] + (Math.random() * 80),
                         y: center[1] + (Math.random() * 80),
                         label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
@@ -2355,7 +2355,7 @@
                     }));
 
                 const option = {
-                    backgroundColor: '#1a1a1a',
+                    backgroundColor: '#111',
                     tooltip: {
                         trigger: 'item',
                         formatter: function (params) {
@@ -2381,12 +2381,12 @@
                         categories: eCategories,
                         roam: true,
                         force: {
-                            repulsion: 1500,
+                            repulsion: 2500,
                             edgeLength: 200,
                             gravity: 0.15,
                             layoutAnimation: true
                         },
-                        lineStyle: { color: 'source', opacity: 0.6 }
+                        lineStyle: { color: 'source', opacity: 0.6, curveness: 0.2 }
                     }]
                 };
 
