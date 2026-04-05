@@ -2225,7 +2225,9 @@
         const ECO_WEBHOOK = 'https://hook.us2.make.com/wukhpww2ay34q52gsr3l4ixdpor1q0yy';
 
         async function loadEcosystem() {
-            const tickerInput = document.getElementById('ecosystem-ticker').value.toUpperCase().trim();
+            const ecoHidden = document.getElementById('ecosystem-selected-ticker');
+            const ecoRaw = (ecoHidden && ecoHidden.value) ? ecoHidden.value : document.getElementById('ecosystem-ticker').value;
+            const tickerInput = ecoRaw.toUpperCase().trim();
             if (!tickerInput) return;
 
             const chartContainer = document.getElementById('ecosystem-chart');
@@ -2332,33 +2334,15 @@
                     if (catIndex === -1) catIndex = 0;
 
                     const center = centers[categoryList[catIndex]] || [0, 0];
-                    const isTarget = catIndex <= 1;
-
-                    // Size hierarchy: Target=100, Competitor=58, Supplier=52, Client=52, Macro=48
-                    const sizeMap = [100, 100, 58, 52, 52, 48];
-                    const sz = sizeMap[catIndex] || 48;
 
                     return {
                         id: String(node.id),
                         name: node.label ? String(node.label) : String(node.id),
                         category: catIndex,
-                        symbolSize: sz,
-                        x: center[0] + (Math.random() * 120) - 60,
-                        y: center[1] + (Math.random() * 120) - 60,
-                        label: {
-                            show: true,
-                            position: isTarget ? 'inside' : 'outside',
-                            color: isTarget ? '#fff' : '#e0e0e0',
-                            fontWeight: isTarget ? '900' : '600',
-                            fontSize: isTarget ? 13 : 10,
-                            fontFamily: isTarget ? 'Merriweather' : 'Inter'
-                        },
-                        itemStyle: isTarget ? {
-                            borderColor: '#cba258',
-                            borderWidth: 3,
-                            shadowBlur: 20,
-                            shadowColor: 'rgba(203,162,88,0.6)'
-                        } : {}
+                        symbolSize: catIndex <= 1 ? 75 : 45,
+                        x: center[0] + (Math.random() * 80),
+                        y: center[1] + (Math.random() * 80),
+                        label: { show: true, position: 'inside', color: '#fff', fontWeight: 'bold', fontSize: 11 }
                     };
                 });
 
@@ -2373,15 +2357,14 @@
                     }));
 
                 const option = {
-                    backgroundColor: '#0d0d0d',
+                    backgroundColor: '#1a1a1a',
                     tooltip: {
                         trigger: 'item',
                         formatter: function (params) {
                             if (params.dataType === 'edge') {
-                                return '<div style="max-width:250px;white-space:normal;"><strong>' + params.data.source + ' → ' + params.data.target + '</strong><br/>' + (params.data.tooltip ? params.data.tooltip.formatter : '') + '</div>';
+                                return `<div style="max-width:250px; white-space:normal;"><strong>${params.data.source} ➔ ${params.data.target}</strong><br/>${params.data.tooltip.formatter}</div>`;
                             }
-                            var cat = categoryList[params.data.category] || '';
-                            return '<strong>' + params.data.name + '</strong><br/>' + cat;
+                            return `<strong>${params.data.name}</strong><br/>Sector: ${categoryList[params.data.category]}`;
                         }
                     },
                     legend: [{
@@ -2391,7 +2374,7 @@
                         right: 20,
                         top: 20
                     }],
-                    color: ['#cba258', '#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6'],
+                    color: ['#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6', '#cba258'],
                     series: [{
                         type: 'graph',
                         layout: 'force',
@@ -2400,21 +2383,12 @@
                         categories: eCategories,
                         roam: true,
                         force: {
-                            repulsion: 2200,
-                            edgeLength: [180, 280],
-                            gravity: 0.12,
+                            repulsion: 1500,
+                            edgeLength: 200,
+                            gravity: 0.15,
                             layoutAnimation: true
                         },
-                        lineStyle: {
-                            color: 'source',
-                            opacity: 0.5,
-                            width: 1.5,
-                            curveness: 0.25
-                        },
-                        emphasis: {
-                            focus: 'adjacency',
-                            lineStyle: { width: 3, opacity: 1 }
-                        }
+                        lineStyle: { color: 'source', opacity: 0.6 }
                     }]
                 };
 
