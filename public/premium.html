@@ -2318,7 +2318,27 @@
                 const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro', 'Focal'];
                 const eCategories = categoryList.map(name => ({ name: name }));
 
-                // RING LAYOUT — group nodes by category, place on concentric rings
+                // CLUSTER LAYOUT — each category gets a fixed zone
+                // Canvas center = (0,0). Zones spread outward in 4 quadrants + top/bottom
+                //   Competitor  → top-left    (-420, -260)
+                //   Supplier    → bottom-left (-420,  260)
+                //   Client      → top-right   ( 420, -260)
+                //   Macro       → bottom-right( 420,  260)
+                //   Target      → center      (   0,    0)
+
+                var zoneCenter = {
+                    'target': [0, 0],
+                    'focal': [0, 0],
+                    'competitor': [-420, -240],
+                    'supplier': [-420, 240],
+                    'client': [420, -240],
+                    'macro': [420, 240]
+                };
+
+                var sizeMap = { 'target': 85, 'focal': 85, 'competitor': 50, 'supplier': 46, 'client': 46, 'macro': 42 };
+                var colorMap = { 'target': '#cba258', 'focal': '#cba258', 'competitor': '#dc2626', 'supplier': '#3b82f6', 'client': '#16a34a', 'macro': '#8b5cf6' };
+
+                // Group nodes by category
                 var catGroups = {};
                 nodesArray.forEach(function (node) {
                     var key = String(node.category).toLowerCase();
@@ -2326,17 +2346,16 @@
                     catGroups[key].push(node);
                 });
 
-                var ringConfig = {
-                    'target': { r: 0, arc: 0, start: 0 },
-                    'focal': { r: 0, arc: 0, start: 0 },
-                    'competitor': { r: 200, arc: 2 * Math.PI, start: -Math.PI / 2 },
-                    'supplier': { r: 370, arc: Math.PI, start: Math.PI / 2 },
-                    'client': { r: 370, arc: Math.PI, start: -Math.PI / 2 },
-                    'macro': { r: 540, arc: 2 * Math.PI, start: -Math.PI / 2 }
-                };
-
-                var sizeMap = { 'target': 90, 'focal': 90, 'competitor': 52, 'supplier': 48, 'client': 48, 'macro': 44 };
-                var colorMap = { 'target': '#cba258', 'focal': '#cba258', 'competitor': '#dc2626', 'supplier': '#3b82f6', 'client': '#16a34a', 'macro': '#8b5cf6' };
+                // For each group, arrange nodes in a tight grid around zone center
+                function getGridPos(index, total, cx, cy) {
+                    var cols = Math.ceil(Math.sqrt(total));
+                    var col = index % cols;
+                    var row = Math.floor(index / cols);
+                    var spacing = 95;
+                    var offsetX = (col - (cols - 1) / 2) * spacing;
+                    var offsetY = (row - (Math.ceil(total / cols) - 1) / 2) * spacing;
+                    return [Math.round(cx + offsetX), Math.round(cy + offsetY)];
+                }
 
                 var eNodes = [];
                 nodesArray.forEach(function (node) {
@@ -2344,53 +2363,58 @@
                     var catIndex = categoryList.findIndex(function (cc) { return cc.toLowerCase() === catKey; });
                     if (catIndex === -1) catIndex = 0;
 
-                    var cfg = ringConfig[catKey] || { r: 370, arc: 2 * Math.PI, start: -Math.PI / 2 };
+                    var zone = zoneCenter[catKey] || [0, 0];
                     var group = catGroups[catKey] || [node];
                     var posIndex = group.indexOf(node);
-                    var total = group.length;
+                    var isCenter = (catKey === 'target' || catKey === 'focal');
 
-                    var x = 0, y = 0;
-                    if (cfg.r > 0) {
-                        var angle;
-                        if (cfg.arc >= 2 * Math.PI) {
-                            angle = cfg.start + (2 * Math.PI * posIndex / total);
-                        } else {
-                            angle = cfg.start + (cfg.arc * posIndex / Math.max(total - 1, 1));
-                        }
-                        x = Math.round(cfg.r * Math.cos(angle));
-                        y = Math.round(cfg.r * Math.sin(angle));
-                    }
+                    var pos = isCenter ? [0, 0] : getGridPos(posIndex, group.length, zone[0], zone[1]);
 
-                    var isCenter = cfg.r === 0;
                     eNodes.push({
                         id: String(node.id),
                         name: node.label ? String(node.label) : String(node.id),
                         category: catIndex,
                         symbolSize: sizeMap[catKey] || 46,
-                        x: x, y: y,
+                        x: pos[0], y: pos[1],
                         fixed: true,
-                        itemStyle: { color: colorMap[catKey] || '#888', borderColor: isCenter ? '#fff' : 'transparent', borderWidth: isCenter ? 3 : 0 },
+                        itemStyle: {
+                            color: colorMap[catKey] || '#888',
+                            borderColor: isCenter ? '#fff' : 'transparent',
+                            borderWidth: isCenter ? 3 : 0
+                        },
                         label: {
                             show: true,
-                            position: isCenter ? 'inside' : 'outside',
-                            color: isCenter ? '#000' : '#ddd',
-                            fontWeight: isCenter ? '900' : '600',
-                            fontSize: isCenter ? 12 : 10
+                            position: isCenter ? 'inside' : 'bottom',
+                            color: '#fff',
+                            fontWeight: isCenter ? '900' : '500',
+                            fontSize: isCenter ? 12 : 10,
+                            overflow: 'truncate',
+                            width: 90
                         }
                     });
                 });
 
                 var validNodeIds = new Set(eNodes.map(function (n) { return n.id; }));
                 var eLinks = linksArray
-                    .filter(function (link) { return validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target)); })
+                    .filter(function (link) {
+                        return validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target));
+                    })
                     .map(function (link) {
                         return {
                             source: String(link.source),
                             target: String(link.target),
                             tooltip: { formatter: link.description || '' },
-                            lineStyle: { width: 1.5, curveness: 0.3, opacity: 0.5 }
+                            lineStyle: { width: 1.2, curveness: 0.2, opacity: 0.4 }
                         };
                     });
+
+                // Zone label annotations
+                var zoneLabels = [
+                    { text: 'COMPETITORS', x: -420, y: -390, color: '#dc2626' },
+                    { text: 'SUPPLIERS', x: -420, y: 115, color: '#3b82f6' },
+                    { text: 'CLIENTS', x: 420, y: -390, color: '#16a34a' },
+                    { text: 'MACRO', x: 420, y: 115, color: '#8b5cf6' }
+                ];
 
                 var option = {
                     backgroundColor: '#111',
@@ -2398,17 +2422,36 @@
                         trigger: 'item',
                         formatter: function (params) {
                             if (params.dataType === 'edge') {
-                                return '<div style="max-width:240px;white-space:normal;"><strong>' + params.data.source + ' to ' + params.data.target + '</strong><br/>' + (params.data.tooltip ? params.data.tooltip.formatter : '') + '</div>';
+                                return '<div style="max-width:240px;white-space:normal;">' +
+                                    '<strong>' + params.data.source + ' → ' + params.data.target + '</strong><br/>' +
+                                    (params.data.tooltip ? params.data.tooltip.formatter : '') + '</div>';
                             }
                             return '<strong>' + params.data.name + '</strong>';
                         }
                     },
+                    graphic: zoneLabels.map(function (z) {
+                        return {
+                            type: 'text',
+                            z: 0,
+                            left: 'center',
+                            top: 'center',
+                            style: {
+                                text: z.text,
+                                fill: z.color,
+                                fontSize: 11,
+                                fontWeight: '800',
+                                fontFamily: 'Inter, sans-serif',
+                                opacity: 0.5
+                            },
+                            position: [z.x, z.y]
+                        };
+                    }),
                     legend: [{
-                        data: categoryList.slice(0, 5),
-                        textStyle: { color: '#ccc', fontWeight: 'bold' },
+                        data: ['Competitor', 'Supplier', 'Client', 'Macro'],
+                        textStyle: { color: '#999', fontWeight: '700', fontSize: 11 },
                         orient: 'vertical',
-                        right: 20,
-                        top: 20
+                        right: 15,
+                        top: 15
                     }],
                     color: ['#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6', '#cba258'],
                     series: [{
@@ -2418,7 +2461,11 @@
                         links: eLinks,
                         categories: eCategories,
                         roam: true,
-                        lineStyle: { color: 'source', opacity: 0.5, curveness: 0.3 }
+                        lineStyle: { color: 'source', opacity: 0.4, curveness: 0.2 },
+                        emphasis: {
+                            focus: 'adjacency',
+                            lineStyle: { width: 2.5, opacity: 1 }
+                        }
                     }]
                 };
 
