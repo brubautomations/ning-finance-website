@@ -889,9 +889,51 @@
             </div>
 
             <div id="market" class="page">
-                <div class="card">
-                    <h3>Connecting to Live Feed...</h3>
-                    <p>Establishing secure connection to Database.</p>
+                <div
+                    style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:30px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
+                    <div id="mkt-tab-breadth" onclick="switchMarketTab('breadth')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        MARKET BREADTH</div>
+                    <div id="mkt-tab-news" onclick="switchMarketTab('news')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        COMPANY NEWS</div>
+                    <div id="mkt-tab-earnings" onclick="switchMarketTab('earnings')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        EARNINGS CALENDAR</div>
+                </div>
+                <div id="mkt-breadth" class="mkt-subpage">
+                    <div id="market-breadth-inner"></div>
+                </div>
+                <div id="mkt-search-bar" style="display:none;margin-bottom:28px;">
+                    <div
+                        style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+                        SEARCH ANY COMPANY OR TICKER GLOBALLY</div>
+                    <div style="position:relative;max-width:480px;">
+                        <input type="text" id="mkt-search-input" autocomplete="off"
+                            placeholder="Type a company name... e.g. Jollibee, Apple, Hybe, Palantir"
+                            style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'"
+                            onblur="this.style.borderColor='var(--border)'">
+                        <ul id="mkt-suggestions"
+                            style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                        </ul>
+                    </div>
+                    <div id="mkt-selected-label"
+                        style="display:none;margin-top:10px;font-size:0.8rem;font-weight:700;color:#000;"></div>
+                </div>
+                <div id="mkt-news" class="mkt-subpage" style="display:none;">
+                    <div id="mkt-news-container">
+                        <div class="card"
+                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
+                            Search for a company above to load their latest news.</div>
+                    </div>
+                </div>
+                <div id="mkt-earnings" class="mkt-subpage" style="display:none;">
+                    <div id="mkt-earnings-container">
+                        <div class="card"
+                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
+                            Search for a company above to load their earnings calendar.</div>
+                    </div>
                 </div>
             </div>
 
@@ -1500,27 +1542,18 @@
             return '🌍 Global';
         }
 
-        // Main fetcher — checks Airtable cache first, fires Make only on miss
+        // Main fetcher —// Main fetcher — checks Airtable cache first, fires Make only on miss
         const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
 
         async function fetchCompanyData(ticker) {
             const nc = document.getElementById('mkt-news-container');
             const ec = document.getElementById('mkt-earnings-container');
-            const msgs = [
-                'SCANNING INSTITUTIONAL DATABASE...',
-                'RETRIEVING MARKET INTELLIGENCE...',
-                'FETCHING EARNINGS HISTORY...',
-                'COMPILING NEWS ARCHIVE...',
-                'LOADING COMPANY DATA...'
-            ];
+            const msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
             let msgIdx = 0;
-
             const setLoading = (text) => {
                 const html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
-                nc.innerHTML = html;
-                ec.innerHTML = html;
+                nc.innerHTML = html; ec.innerHTML = html;
             };
-
             setLoading(msgs[0]);
 
             // STEP 1: Check Airtable cache
@@ -1529,35 +1562,29 @@
                 const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
                 const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
                 const data = await res.json();
-
                 if (data.records && data.records.length > 0) {
                     const fields = data.records[0].fields;
                     const lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
                     const ageHours = (new Date() - lastUpdated) / 3600000;
-
                     if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
                         const badge = document.createElement('div');
                         badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
-                        badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="refresh-link-${ticker.replace(/\./g, '_')}">Refresh</a>`;
+                        const safeId = ticker.replace(/\./g, '_');
+                        badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="rl-${safeId}">Refresh</a>`;
                         nc.insertBefore(badge, nc.firstChild);
-                        document.getElementById(`refresh-link-${ticker.replace(/\./g, '_')}`)
-                            ?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
+                        document.getElementById(`rl-${safeId}`)?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
                         return;
                     }
                 }
-            } catch (e) {
-                console.warn('Cache check failed, proceeding to Make.com', e);
-            }
+            } catch (e) { console.warn('Cache check failed', e); }
 
-            // STEP 2: Cache miss — fire Make.com
+            // STEP 2: Fire Make.com
             setLoading(`DISPATCHING INTELLIGENCE REQUEST FOR ${ticker}...`);
-            try {
-                await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' });
-            } catch (e) { /* no-cors always throws */ }
+            try { await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' }); } catch (e) { }
 
-            // STEP 3: Poll Airtable until data appears
+            // STEP 3: Poll until data arrives
             let attempts = 0;
             const pollInterval = setInterval(async () => {
                 attempts++;
@@ -1581,11 +1608,11 @@
         }
 
         window.forceRefreshCompanyData = async function (ticker) {
-            try {
-                await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' });
-            } catch (e) { }
+            try { await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' }); } catch (e) { }
             fetchCompanyData(ticker);
         };
+
+
 
         // ---- RENDER NEWS ----
         function renderNews(newsStr, container) {
