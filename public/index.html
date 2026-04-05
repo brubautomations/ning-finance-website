@@ -1686,19 +1686,19 @@
             }
             function trow(e, i) {
                 var bg = i % 2 === 0 ? '#fff' : '#f9f9f9';
-                var beat = (e.actual_eps != null && e.estimate_eps != null) ? (parseFloat(e.actual_eps) >= parseFloat(e.estimate_eps)) : null;
+                var beat = (e.actual != null && e.estimate != null && e.actual !== 0) ? (parseFloat(e.actual) >= parseFloat(e.estimate)) : null;
                 var badge = beat === true
                     ? '<span style="background:#16a34a;color:#fff;font-size:0.68rem;padding:2px 6px;border-radius:2px;font-weight:800;margin-left:4px;">BEAT</span>'
                     : beat === false
                         ? '<span style="background:#dc2626;color:#fff;font-size:0.68rem;padding:2px 6px;border-radius:2px;font-weight:800;margin-left:4px;">MISS</span>' : '';
-                function fmtR(v) { return v ? '$' + Number(v / 1e9).toFixed(2) + 'B' : '—'; }
+                var pct = (e.percent != null && e.actual !== 0) ? '<span style="font-size:0.72rem;color:#888;margin-left:4px;">(' + (e.percent > 0 ? '+' : '') + Number(e.percent).toFixed(1) + '%)</span>' : '';
                 return '<tr style="background:' + bg + '; border-bottom:1px solid #f0f0f0;">' +
-                    '<td style="padding:10px 16px;">' + (e.report_date || e.date || '—') + '</td>' +
+                    '<td style="padding:10px 16px;">' + (e.report_date || '—') + '</td>' +
                     '<td style="padding:10px 16px; color:#888;">' + (e.before_after_market || '—') + '</td>' +
-                    '<td style="padding:10px 16px; text-align:right; color:#555;">' + (e.estimate_eps != null ? Number(e.estimate_eps).toFixed(2) : '—') + '</td>' +
-                    '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + (e.actual_eps != null ? Number(e.actual_eps).toFixed(2) : '—') + badge + '</td>' +
-                    '<td style="padding:10px 16px; text-align:right; color:#555;">' + fmtR(e.estimate_revenue) + '</td>' +
-                    '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + fmtR(e.actual_revenue) + '</td>' +
+                    '<td style="padding:10px 16px; text-align:right; color:#555;">' + (e.estimate != null ? Number(e.estimate).toFixed(2) : '—') + '</td>' +
+                    '<td style="padding:10px 16px; text-align:right; font-weight:900;">' + (e.actual != null && e.actual !== 0 ? Number(e.actual).toFixed(2) : '—') + badge + pct + '</td>' +
+                    '<td style="padding:10px 16px; text-align:right; color:#555;">—</td>' +
+                    '<td style="padding:10px 16px; text-align:right; font-weight:900;">—</td>' +
                     '</tr>';
             }
             var html = '';
