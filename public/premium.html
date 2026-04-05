@@ -1032,51 +1032,73 @@
                     COMPANY NAME | TICKER
                 </div>
 
-                <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <div class="macro-card"
-                        style="flex: 1; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
-                        <div style="font-size: 0.8rem; color: var(--primary); font-weight: 800; letter-spacing: 1px;">
-                            INTRINSIC FAIR VALUE</div>
-                        <div id="avm-fair-value"
-                            style="font-size: 3rem; font-family: 'Merriweather', serif; font-weight: 900; margin: 10px 0;">
-                            $0.00</div>
-                        <div id="avm-verdict"
-                            style="font-size: 0.85rem; font-weight: 900; padding: 6px 12px; border-radius: 3px; display: inline-block; letter-spacing: 1px;">
-                            VERDICT</div>
+                <!-- AVM SUB-TABS -->
+                <div
+                    style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;flex-shrink:0;">
+                    <div class="ua-tab active" id="avm-tab-valuation" onclick="switchAVMTab('valuation')">VALUATION
                     </div>
-                    <div class="macro-card"
-                        style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
+                    <div class="ua-tab" id="avm-tab-financials" onclick="switchAVMTab('financials')">FULL FINANCIALS
+                    </div>
+                    <div class="ua-tab" id="avm-tab-street" onclick="switchAVMTab('street')">STREET VS NING</div>
+                </div>
+
+                <!-- VALUATION TAB -->
+                <div id="avm-sub-valuation" class="ua-subpage active">
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <div class="macro-card"
+                            style="flex: 1; margin: 0; background: #000; color: #fff; border: 1px solid var(--primary);">
+                            <div
+                                style="font-size: 0.8rem; color: var(--primary); font-weight: 800; letter-spacing: 1px;">
+                                INTRINSIC FAIR VALUE</div>
+                            <div id="avm-fair-value"
+                                style="font-size: 3rem; font-family: 'Merriweather', serif; font-weight: 900; margin: 10px 0;">
+                                $0.00</div>
+                            <div id="avm-verdict"
+                                style="font-size: 0.85rem; font-weight: 900; padding: 6px 12px; border-radius: 3px; display: inline-block; letter-spacing: 1px;">
+                                VERDICT</div>
+                        </div>
+                        <div class="macro-card"
+                            style="flex: 1; margin: 0; display: flex; flex-direction: column; justify-content: center;">
+                            <div
+                                style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
+                                FUNDAMENTAL METRICS</div>
+                            <div id="avm-fundamentals"
+                                style="font-size: 1.1rem; color: #000; font-family: 'Courier New', monospace; font-weight: 800; line-height: 1.6;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="macro-card" style="margin-bottom: 20px;">
+                        <div class="intel-header">COMPUTATION LOGIC</div>
+                        <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
+                        <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
+                        <div id="avm-conclusion" class="intel-body"
+                            style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
                         <div
-                            style="font-size: 0.8rem; color: #666; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;">
-                            FUNDAMENTAL METRICS</div>
-                        <div id="avm-fundamentals"
-                            style="font-size: 1.1rem; color: #000; font-family: 'Courier New', monospace; font-weight: 800; line-height: 1.6;">
+                            style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
+                            <p
+                                style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
+                                ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
+                            <p
+                                style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
+                                Ning AI is an automated quantitative model. The valuations, logic, and conclusions
+                                provided are for informational and educational purposes only, and DO NOT constitute
+                                financial advice. If you blindly follow an AI, buy a stock, and get burned, that is
+                                entirely your problem. We provide the math, you assume the risk. Do your own due
+                                diligence.</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="macro-card" style="margin-bottom: 80px;">
-                    <div class="intel-header">COMPUTATION LOGIC</div>
-                    <div id="avm-logic" class="intel-body" style="white-space: pre-wrap;"></div>
-
-                    <div class="intel-header" style="margin-top: 30px;">ANALYST CONCLUSION</div>
-                    <div id="avm-conclusion" class="intel-body"
-                        style="font-weight: 600; font-size: 1.05rem; color: #000; white-space: pre-wrap;"></div>
-
-                    <div
-                        style="margin-top: 50px; padding: 25px; border-top: 1px dashed var(--primary); text-align: center; background: #000; border-radius: 4px;">
-                        <p
-                            style="color: var(--primary); font-size: 0.85rem; font-weight: 800; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">
-                            ⚠️ LEGAL DISCLAIMER & CAVEAT</p>
-                        <p
-                            style="color: #999; font-size: 0.8rem; line-height: 1.6; margin: 0; font-family: 'Courier New', monospace;">
-                            Ning AI is an automated quantitative model. The valuations, logic, and conclusions provided
-                            are for informational and educational purposes only, and DO NOT constitute financial advice.
-                            If you blindly follow an AI, buy a stock, and get burned, that is entirely your problem. We
-                            provide the math, you assume the risk. Do your own due diligence.
-                        </p>
-                    </div>
+                <!-- FULL FINANCIALS TAB -->
+                <div id="avm-sub-financials" class="ua-subpage">
+                    <div id="avm-financials-content"></div>
                 </div>
+
+                <!-- STREET VS NING TAB -->
+                <div id="avm-sub-street" class="ua-subpage">
+                    <div id="avm-street-content"></div>
+                </div>
+
             </div>
         </div>
 
@@ -2072,7 +2094,7 @@
 
                 const fields = avmRecord.fields;
 
-                // Populate UI
+                // Populate VALUATION tab
                 document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
                 document.getElementById('avm-fundamentals').innerText = fields.AVM_Fundamental_Data || 'N/A';
                 document.getElementById('avm-logic').innerText = fields.AVM_Logic || 'N/A';
@@ -2082,16 +2104,24 @@
                 const verdictBox = document.getElementById('avm-verdict');
                 const verdictText = fields.AVM_Verdict || 'UNKNOWN';
                 verdictBox.innerText = verdictText;
-
                 if (verdictText.includes('UNDERVALUED')) {
-                    verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; // Green
+                    verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff';
                 } else if (verdictText.includes('OVERVALUED')) {
-                    verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; // Red
+                    verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff';
                 } else if (verdictText.includes('SPECULATIVE')) {
-                    verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; // Orange
+                    verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff';
                 } else {
-                    verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; // Dark Grey
+                    verdictBox.style.background = '#333'; verdictBox.style.color = '#fff';
                 }
+
+                // Populate FULL FINANCIALS tab
+                renderAVMFinancials(fields.AVM_Financials_Summary || '');
+
+                // Populate STREET VS NING tab
+                renderAVMStreet(fields.AVM_Street_vs_Ning || '', fields.AVM_Fair_Value || '', fields.AVM_Verdict || '');
+
+                // Reset to valuation tab
+                switchAVMTab('valuation');
 
                 loadingMsg.style.display = 'none';
                 resultsDiv.style.display = 'block';
@@ -2134,18 +2164,45 @@
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
                     attempts++;
-                    const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
-                    const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}`;
-                    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
-                    const checkData = await res.json();
+                    try {
+                        const formula = encodeURIComponent(`({Name}='${tickerInput}')`);
+                        // Sort by created time desc to always get the freshest record
+                        const url = `https://api.airtable.com/v0/${ECO_BASE_ID}/AVM?filterByFormula=${formula}&sort%5B0%5D%5Bfield%5D=Name&sort%5B0%5D%5Bdirection%5D=desc`;
+                        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${ECO_PAT}` } });
+                        const checkData = await res.json();
+                        const avmRecord = checkData.records?.find(r => r.fields.AVM_Fair_Value);
 
-                    const avmRecord = checkData.records?.find(r => r.fields.AVM_Fair_Value);
-
-                    if (avmRecord || attempts > 12) { // Allow up to 60 seconds polling
-                        clearInterval(pollInterval);
-                        hideLockdown(); // UNLOCK ON SUCCESS
-                        loadAVM(); // Reload the UI with the fresh data
-                    }
+                        if (avmRecord) {
+                            clearInterval(pollInterval);
+                            hideLockdown();
+                            // Populate directly from the record we just found — no second Airtable call
+                            const fields = avmRecord.fields;
+                            document.getElementById('avm-company-header').innerText = companyName + ' | ' + tickerInput;
+                            document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
+                            document.getElementById('avm-fundamentals').innerText = fields.AVM_Fundamental_Data || 'N/A';
+                            document.getElementById('avm-logic').innerText = fields.AVM_Logic || 'N/A';
+                            document.getElementById('avm-conclusion').innerText = fields.AVM_Conclusion || 'N/A';
+                            const verdictBox = document.getElementById('avm-verdict');
+                            const verdictText = fields.AVM_Verdict || 'UNKNOWN';
+                            verdictBox.innerText = verdictText;
+                            if (verdictText.includes('UNDERVALUED')) { verdictBox.style.background = '#16a34a'; verdictBox.style.color = '#fff'; }
+                            else if (verdictText.includes('OVERVALUED')) { verdictBox.style.background = '#dc2626'; verdictBox.style.color = '#fff'; }
+                            else if (verdictText.includes('SPECULATIVE')) { verdictBox.style.background = '#d97706'; verdictBox.style.color = '#fff'; }
+                            else { verdictBox.style.background = '#333'; verdictBox.style.color = '#fff'; }
+                            renderAVMFinancials(fields.AVM_Financials_Summary || '');
+                            renderAVMStreet(fields.AVM_Street_vs_Ning || '', fields.AVM_Fair_Value || '', fields.AVM_Verdict || '');
+                            switchAVMTab('valuation');
+                            document.getElementById('avm-loading').style.display = 'none';
+                            document.getElementById('avm-results').style.display = 'block';
+                        } else if (attempts > 12) {
+                            clearInterval(pollInterval);
+                            hideLockdown();
+                            document.getElementById('avm-loading').innerHTML = '<span style="color:#dc2626;">Data fetch timed out. Please try again.</span>';
+                        } else {
+                            // Still waiting — update message with countdown
+                            document.getElementById('avm-loading').innerHTML = 'Computing valuation for ' + tickerInput + '...<br><span style="font-size:0.85rem;color:#888;">Estimated time remaining: ' + Math.max(0, (13 - attempts) * 5) + 's</span>';
+                        }
+                    } catch (e) { console.warn('Poll error', e); }
                 }, 5000);
 
             } catch (err) {
@@ -2389,6 +2446,208 @@
         }
 
         window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
+
+        // ============================================================
+        // AVM SUB-TABS
+        // ============================================================
+        function switchAVMTab(tab) {
+            document.querySelectorAll('#avm-results .ua-tab').forEach(function (el) { el.classList.remove('active'); });
+            document.querySelectorAll('#avm-results .ua-subpage').forEach(function (el) { el.classList.remove('active'); });
+            var tabEl = document.getElementById('avm-tab-' + tab);
+            var subEl = document.getElementById('avm-sub-' + tab);
+            if (tabEl) tabEl.classList.add('active');
+            if (subEl) subEl.classList.add('active');
+        }
+
+        function renderAVMFinancials(dataStr) {
+            var container = document.getElementById('avm-financials-content');
+            if (!dataStr || dataStr.trim() === '') {
+                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:40px;color:#888;">No financial data available for this stock.</div>';
+                return;
+            }
+
+            // Parse the pipe-separated format from Gemini
+            // Format: "INCOME STATEMENT\n2024: Revenue=x | GrossProfit=x..."
+            var sections = dataStr.split('\n\n');
+            var html = '';
+
+            sections.forEach(function (section) {
+                var lines = section.split('\n').filter(function (l) { return l.trim(); });
+                if (!lines.length) return;
+
+                var title = lines[0].trim();
+                var rows = lines.slice(1);
+
+                html += '<div class="macro-card" style="margin-bottom:20px;">';
+                html += '<div class="intel-header">' + title + '</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.85rem;">';
+
+                // Build header from first row keys
+                if (rows.length > 0) {
+                    var firstRow = rows[0];
+                    var yearMatch = firstRow.match(/^(\S+):/);
+                    var year = yearMatch ? yearMatch[1] : '';
+                    var kvPart = firstRow.replace(/^\S+:\s*/, '');
+                    var keys = kvPart.split('|').map(function (kv) { return kv.trim().split('=')[0].trim(); });
+
+                    html += '<thead><tr style="background:#000;border-bottom:1px solid #333;">';
+                    html += '<th style="padding:10px 14px;text-align:left;color:var(--primary);">YEAR</th>';
+                    keys.forEach(function (k) {
+                        html += '<th style="padding:10px 14px;text-align:right;color:var(--primary);">' + k.toUpperCase() + '</th>';
+                    });
+                    html += '</tr></thead><tbody>';
+
+                    rows.forEach(function (row, i) {
+                        var ym = row.match(/^(\S+):/);
+                        var yr = ym ? ym[1] : '—';
+                        var kv = row.replace(/^\S+:\s*/, '');
+                        var vals = kv.split('|').map(function (pair) { return (pair.trim().split('=')[1] || '—').trim(); });
+                        var bg = i % 2 === 0 ? '#f8f9fa' : '#fff';
+                        html += '<tr style="background:' + bg + ';border-bottom:1px solid #eee;">';
+                        html += '<td style="padding:10px 14px;font-weight:900;color:#000;">' + yr + '</td>';
+                        vals.forEach(function (v) {
+                            var color = v && v.startsWith('-') ? '#dc2626' : '#000';
+                            html += '<td style="padding:10px 14px;text-align:right;color:' + color + ';font-weight:700;">' + (v || '—') + '</td>';
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody>';
+                }
+
+                html += '</table></div></div>';
+            });
+
+            container.innerHTML = html || '<div class="macro-card" style="text-align:center;padding:40px;color:#888;">Financial data format could not be parsed.</div>';
+        }
+
+        function renderAVMStreet(dataStr, ningFairValue, ningVerdict) {
+            var container = document.getElementById('avm-street-content');
+            if (!dataStr || dataStr.trim() === '') {
+                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:40px;color:#888;">No analyst data available for this stock.</div>';
+                return;
+            }
+
+            // Parse pipe-separated key=value pairs
+            var pairs = {};
+            dataStr.split('|').forEach(function (pair) {
+                var parts = pair.trim().split('=');
+                if (parts.length >= 2) {
+                    var key = parts[0].trim();
+                    var val = parts.slice(1).join('=').trim();
+                    pairs[key] = val;
+                }
+            });
+
+            var wallSt = pairs['WallSt Target'] || 'N/A';
+            var consensus = pairs['Consensus'] || 'N/A';
+            var ningFV = ningFairValue || pairs['Ning Fair Value'] || 'N/A';
+            var ningVsStreet = pairs['Ning vs Street'] || 'N/A';
+            var strongBuy = pairs['StrongBuy'] || '0';
+            var buy = pairs['Buy'] || '0';
+            var hold = pairs['Hold'] || '0';
+            var sell = pairs['Sell'] || '0';
+            var strongSell = pairs['StrongSell'] || '0';
+
+            var noAnalyst = wallSt === 'N/A' || consensus.toLowerCase().includes('no analyst');
+
+            // Verdict color for Ning
+            var ningColor = '#333';
+            if (ningVerdict.includes('UNDERVALUED')) ningColor = '#16a34a';
+            else if (ningVerdict.includes('OVERVALUED')) ningColor = '#dc2626';
+            else if (ningVerdict.includes('SPECULATIVE')) ningColor = '#d97706';
+
+            // Consensus color
+            var consColor = '#333';
+            if (consensus.includes('BUY')) consColor = '#16a34a';
+            else if (consensus.includes('SELL')) consColor = '#dc2626';
+            else if (consensus.includes('HOLD')) consColor = '#d97706';
+
+            var html = '';
+
+            // Head to head comparison cards
+            html += '<div style="display:flex;gap:20px;margin-bottom:25px;flex-wrap:wrap;">';
+
+            // Ning card
+            html += '<div class="macro-card" style="flex:1;min-width:200px;margin:0;background:#000;color:#fff;border:1px solid var(--primary);">';
+            html += '<div style="font-size:0.75rem;color:var(--primary);font-weight:800;letter-spacing:1px;margin-bottom:8px;">NING'S FAIR VALUE</div > ';
+            html += '<div style="font-size:2.2rem;font-family:Merriweather,serif;font-weight:900;margin-bottom:10px;">' + ningFV + '</div>';
+            html += '<div style="background:' + ningColor + ';color:#fff;font-size:0.75rem;padding:4px 10px;border-radius:3px;display:inline-block;font-weight:800;">' + (ningVerdict.split('(')[0].trim() || 'N/A') + '</div>';
+            html += '</div>';
+
+            // Street card
+            html += '<div class="macro-card" style="flex:1;min-width:200px;margin:0;">';
+            html += '<div style="font-size:0.75rem;color:#666;font-weight:800;letter-spacing:1px;margin-bottom:8px;">WALL STREET TARGET</div>';
+            if (noAnalyst) {
+                html += '<div style="font-size:1.3rem;font-weight:900;color:#888;margin-bottom:10px;">No Coverage</div>';
+                html += '<div style="background:#555;color:#fff;font-size:0.75rem;padding:4px 10px;border-radius:3px;display:inline-block;font-weight:800;">PSE / EMERGING MARKET</div>';
+            } else {
+                html += '<div style="font-size:2.2rem;font-family:Merriweather,serif;font-weight:900;margin-bottom:10px;">' + wallSt + '</div>';
+                html += '<div style="background:' + consColor + ';color:#fff;font-size:0.75rem;padding:4px 10px;border-radius:3px;display:inline-block;font-weight:800;">' + consensus + '</div>';
+            }
+            html += '</div>';
+
+            // Ning vs Street card
+            html += '<div class="macro-card" style="flex:1;min-width:200px;margin:0;">';
+            html += '<div style="font-size:0.75rem;color:#666;font-weight:800;letter-spacing:1px;margin-bottom:8px;">NING VS STREET</div>';
+            html += '<div style="font-size:1.3rem;font-weight:900;color:#000;line-height:1.4;">' + ningVsStreet + '</div>';
+            html += '</div>';
+
+            html += '</div>';
+
+            // Analyst ratings breakdown (only if data exists)
+            if (!noAnalyst) {
+                var total = (parseInt(strongBuy) || 0) + (parseInt(buy) || 0) + (parseInt(hold) || 0) + (parseInt(sell) || 0) + (parseInt(strongSell) || 0);
+                if (total > 0) {
+                    html += '<div class="macro-card" style="margin-bottom:20px;">';
+                    html += '<div class="intel-header">ANALYST RATINGS BREAKDOWN</div>';
+                    html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">';
+
+                    var ratings = [
+                        { label: 'STRONG BUY', val: strongBuy, color: '#15803d' },
+                        { label: 'BUY', val: buy, color: '#16a34a' },
+                        { label: 'HOLD', val: hold, color: '#d97706' },
+                        { label: 'SELL', val: sell, color: '#dc2626' },
+                        { label: 'STRONG SELL', val: strongSell, color: '#991b1b' }
+                    ];
+
+                    ratings.forEach(function (r) {
+                        var pct = total > 0 ? Math.round((parseInt(r.val) || 0) / total * 100) : 0;
+                        html += '<div style="flex:1;min-width:80px;background:#000;border:1px solid ' + r.color + ';border-radius:4px;padding:15px;text-align:center;">';
+                        html += '<div style="font-size:1.8rem;font-weight:900;color:#fff;font-family:Merriweather,serif;">' + (r.val || '0') + '</div>';
+                        html += '<div style="font-size:0.65rem;color:' + r.color + ';font-weight:800;letter-spacing:1px;margin-top:4px;">' + r.label + '</div>';
+                        html += '<div style="font-size:0.75rem;color:#888;margin-top:2px;">' + pct + '%</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+
+                    // Consensus bar
+                    var bullPct = total > 0 ? Math.round(((parseInt(strongBuy) || 0) + (parseInt(buy) || 0)) / total * 100) : 0;
+                    var bearPct = total > 0 ? Math.round(((parseInt(sell) || 0) + (parseInt(strongSell) || 0)) / total * 100) : 0;
+                    var holdPct = 100 - bullPct - bearPct;
+
+                    html += '<div style="margin-top:10px;">';
+                    html += '<div style="font-size:0.75rem;color:#666;font-weight:800;margin-bottom:8px;">CONSENSUS DISTRIBUTION</div>';
+                    html += '<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;">';
+                    if (bullPct > 0) html += '<div style="width:' + bullPct + '%;background:#16a34a;"></div>';
+                    if (holdPct > 0) html += '<div style="width:' + holdPct + '%;background:#d97706;"></div>';
+                    if (bearPct > 0) html += '<div style="width:' + bearPct + '%;background:#dc2626;"></div>';
+                    html += '</div>';
+                    html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-top:4px;color:#888;">';
+                    html += '<span style="color:#16a34a;font-weight:800;">BULL ' + bullPct + '%</span>';
+                    html += '<span style="color:#d97706;font-weight:800;">HOLD ' + holdPct + '%</span>';
+                    html += '<span style="color:#dc2626;font-weight:800;">BEAR ' + bearPct + '%</span>';
+                    html += '</div></div>';
+                    html += '</div>';
+                }
+            } else {
+                html += '<div class="macro-card" style="padding:30px;text-align:center;">';
+                html += '<div style="color:#888;font-size:0.95rem;line-height:1.6;">This stock has no Wall Street analyst coverage.<br>Ning's valuation stands as the sole quantitative reference.< br > <br>';
+                    html += '<span style="color:#cba258;font-weight:800;font-size:0.85rem;">This is common for PSE and smaller Asian market listings.</span></div>';
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedTab = localStorage.getItem('activeNingTab') || 'macro';
