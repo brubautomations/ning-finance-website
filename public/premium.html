@@ -2108,7 +2108,6 @@
                             ⚡ COMPUTE LIVE VALUATION
                         </button>`;
                     // Re-enable COMPUTE so user can search different stock
-                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; } document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
                     return;
                 }
 
@@ -2353,7 +2352,7 @@
                         source: String(link.source),
                         target: String(link.target),
                         tooltip: { formatter: link.description || "" },
-                        lineStyle: { width: 1.5 }
+                        lineStyle: { width: 2, curveness: 0.1 }
                     }));
 
                 const option = {
