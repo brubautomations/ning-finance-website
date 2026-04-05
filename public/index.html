@@ -1502,112 +1502,87 @@
 
         // Main fetcher — checks Airtable cache first, fires Make only on miss
         const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
-        const CACHE_HOURS = 24; // treat cached data as fresh for 24 hours
 
         async function fetchCompanyData(ticker) {
-            var nc = document.getElementById('mkt-news-container');
-            var ec = document.getElementById('mkt-earnings-container');
-
-            var msgs = [
+            const nc = document.getElementById('mkt-news-container');
+            const ec = document.getElementById('mkt-earnings-container');
+            const msgs = [
                 'SCANNING INSTITUTIONAL DATABASE...',
                 'RETRIEVING MARKET INTELLIGENCE...',
                 'FETCHING EARNINGS HISTORY...',
                 'COMPILING NEWS ARCHIVE...',
                 'LOADING COMPANY DATA...'
             ];
-            var msgIdx = 0;
+            let msgIdx = 0;
 
-            function setLoading(text) {
-                var html = '<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">' + text + '</div>';
+            const setLoading = (text) => {
+                const html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
                 nc.innerHTML = html;
                 ec.innerHTML = html;
-            }
-
-            function setError(msg) {
-                var html = '<div class="card" style="border-top-color:#dc2626;padding:25px;"><strong style="color:#dc2626;">Error</strong><br><span style="color:#555;font-size:0.85rem;">' + msg + '</span></div>';
-                nc.innerHTML = html;
-                ec.innerHTML = html;
-            }
+            };
 
             setLoading(msgs[0]);
 
             // STEP 1: Check Airtable cache
             try {
-                var formula = encodeURIComponent("{Ticker}='" + ticker + "'");
-                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + COMPANY_DATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
-                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
-                var data = await res.json();
+                const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                const data = await res.json();
 
                 if (data.records && data.records.length > 0) {
-                    var record = data.records[0];
-                    var fields = record.fields;
+                    const fields = data.records[0].fields;
+                    const lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
+                    const ageHours = (new Date() - lastUpdated) / 3600000;
 
-                    // Check freshness — only use cache if within CACHE_HOURS
-                    var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(record.createdTime);
-                    var ageHours = (new Date() - lastUpdated) / 3600000;
-
-                    if (ageHours < CACHE_HOURS && (fields.News || fields.Earnings)) {
-                        // CACHE HIT — render immediately
+                    if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
-                        // Show cache badge
-                        var badge = document.createElement('div');
+                        const badge = document.createElement('div');
                         badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
-                        badge.innerHTML = '⚡ Cached data · Last updated ' + Math.round(ageHours) + 'h ago · <a href="#" onclick="forceRefreshCompanyData('' + ticker + ''); return false;" style="color:var(--primary);font-weight:800;">Refresh</a>';
+                        badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="refresh-link-${ticker.replace(/\./g, '_')}">Refresh</a>`;
                         nc.insertBefore(badge, nc.firstChild);
+                        document.getElementById(`refresh-link-${ticker.replace(/\./g, '_')}`)
+                            ?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
                         return;
                     }
                 }
             } catch (e) {
-                console.warn('Airtable cache check failed, proceeding to Make.com', e);
+                console.warn('Cache check failed, proceeding to Make.com', e);
             }
 
-            // STEP 2: Cache miss — fire Make.com webhook
-            setLoading('DISPATCHING INTELLIGENCE REQUEST FOR ' + ticker + '...');
+            // STEP 2: Cache miss — fire Make.com
+            setLoading(`DISPATCHING INTELLIGENCE REQUEST FOR ${ticker}...`);
             try {
-                await fetch(MAKE_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
-            } catch (e) {
-                // no-cors always throws, ignore
-            }
+                await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' });
+            } catch (e) { /* no-cors always throws */ }
 
-            // STEP 3: Poll Airtable until record appears
-            var attempts = 0;
-            var pollInterval = setInterval(async function () {
+            // STEP 3: Poll Airtable until data appears
+            let attempts = 0;
+            const pollInterval = setInterval(async () => {
                 attempts++;
                 msgIdx = (msgIdx + 1) % msgs.length;
-                setLoading(msgs[msgIdx] + '<br><span style="color:#888;font-size:0.75rem;font-weight:400;">' + (attempts * 4) + 's elapsed</span>');
-
+                setLoading(`${msgs[msgIdx]}<br><span style="color:#888;font-size:0.75rem;font-weight:400;">${attempts * 4}s elapsed</span>`);
                 try {
-                    var formula = encodeURIComponent("{Ticker}='" + ticker + "'");
-                    var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + COMPANY_DATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
-                    var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
-                    var data = await res.json();
-
+                    const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    const data = await res.json();
                     if (data.records && data.records.length > 0) {
-                        var fields = data.records[0].fields;
+                        const fields = data.records[0].fields;
                         if (fields.News || fields.Earnings) {
                             clearInterval(pollInterval);
                             renderNews(fields.News || '[]', nc);
                             renderEarnings(fields.Earnings || '{}', ec);
                         }
                     }
-                } catch (e) {
-                    console.warn('Poll error', e);
-                }
+                } catch (e) { console.warn('Poll error', e); }
             }, 4000);
         }
 
-        // Force refresh — deletes cache and re-fetches
         window.forceRefreshCompanyData = async function (ticker) {
-            // Just re-run fetchCompanyData — Make will overwrite the record
-            // First clear the display
-            var nc = document.getElementById('mkt-news-container');
-            var ec = document.getElementById('mkt-earnings-container');
-            nc.innerHTML = '';
-            ec.innerHTML = '';
-            // Temporarily set CACHE_HOURS to 0 by calling directly with bypass
             try {
-                await fetch(MAKE_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
+                await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' });
             } catch (e) { }
             fetchCompanyData(ticker);
         };
