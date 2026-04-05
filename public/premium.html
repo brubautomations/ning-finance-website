@@ -2395,7 +2395,7 @@
 
             } catch (err) {
                 console.error("Fetch Error:", err);
-                loadingMsg.innerHTML = `<span style="color:#dc2626;">Critical Map Render Error.</span>`;
+                loadingMsg.innerHTML = `<span style="color:#dc2626;">Error: ${err.message}</span>`;
             }
         }
 
