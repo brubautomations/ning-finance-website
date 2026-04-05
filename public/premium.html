@@ -2155,7 +2155,7 @@
                     dispatchBtn.style.opacity = '1';
                     dispatchBtn.innerText = '⚡ COMPUTE LIVE VALUATION';
                 }
-            }, 65000);
+            }, 180000);
 
             try {
                 // Ping Make.com to run the AI
@@ -2175,12 +2175,18 @@
                     if (avmRecord) {
                         clearInterval(pollInterval);
                         loadAVM();
-                    } else if (attempts > 12) {
-                        clearInterval(pollInterval);
-                        loadingMsg.innerHTML = '<span style="color:#dc2626;">Timed out. Please try again.</span>';
-                        if (dispatchBtn) { dispatchBtn.disabled = false; dispatchBtn.style.opacity = '1'; dispatchBtn.innerText = '⚡ COMPUTE LIVE VALUATION'; }
                     } else {
-                        loadingMsg.innerHTML = '⚙️ Computing... <span style="color:#888;font-size:0.85rem;">~' + Math.max(5, (13 - attempts) * 5) + 's remaining</span>';
+                        var msgs = [
+                            '📊 Ning is reading the financials...',
+                            '🧮 Running the DCF model...',
+                            '⚖️ Weighing the risk factors...',
+                            '🔍 Cross-checking the data...',
+                            '📝 Writing the report...',
+                            '🎯 Computing fair value...',
+                            '🧠 Ning is thinking hard...',
+                            '📈 Almost there...'
+                        ];
+                        loadingMsg.innerHTML = msgs[attempts % msgs.length] + '<br><span style="color:#888;font-size:0.8rem;">Elapsed: ' + (attempts * 5) + 's — Do not refresh</span>';
                     }
                 }, 5000);
 
