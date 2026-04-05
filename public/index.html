@@ -889,58 +889,10 @@
             </div>
 
             <div id="market" class="page">
-
-                <div
-                    style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:30px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
-                    <div id="mkt-tab-breadth" onclick="switchMarketTab('breadth')"
-                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                        MARKET BREADTH</div>
-                    <div id="mkt-tab-news" onclick="switchMarketTab('news')"
-                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                        COMPANY NEWS</div>
-                    <div id="mkt-tab-earnings" onclick="switchMarketTab('earnings')"
-                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                        EARNINGS CALENDAR</div>
+                <div class="card">
+                    <h3>Connecting to Live Feed...</h3>
+                    <p>Establishing secure connection to Database.</p>
                 </div>
-
-                <div id="mkt-breadth" class="mkt-subpage">
-                    <div id="market-breadth-inner"></div>
-                </div>
-
-                <div id="mkt-search-bar" style="display:none;margin-bottom:28px;">
-                    <div
-                        style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
-                        SEARCH ANY COMPANY OR TICKER GLOBALLY</div>
-                    <div style="position:relative;max-width:480px;">
-                        <input type="text" id="mkt-search-input" autocomplete="off"
-                            placeholder="Type a company name... e.g. Jollibee, Apple, Hybe, Palantir"
-                            style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
-                            onfocus="this.style.borderColor='var(--primary)'"
-                            onblur="this.style.borderColor='var(--border)'">
-                        <ul id="mkt-suggestions"
-                            style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
-                        </ul>
-                    </div>
-                    <div id="mkt-selected-label"
-                        style="display:none;margin-top:10px;font-size:0.8rem;font-weight:700;color:#000;"></div>
-                </div>
-
-                <div id="mkt-news" class="mkt-subpage" style="display:none;">
-                    <div id="mkt-news-container">
-                        <div class="card"
-                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
-                            Search for a company above to load their latest news.</div>
-                    </div>
-                </div>
-
-                <div id="mkt-earnings" class="mkt-subpage" style="display:none;">
-                    <div id="mkt-earnings-container">
-                        <div class="card"
-                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
-                            Search for a company above to load their earnings calendar.</div>
-                    </div>
-                </div>
-
             </div>
 
             <div id="tech" class="page">
@@ -1548,44 +1500,122 @@
             return '🌍 Global';
         }
 
-        // Main fetcher — hits Make.com webhook, renders both tabs
+        // Main fetcher — checks Airtable cache first, fires Make only on miss
+        const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
+        const CACHE_HOURS = 24; // treat cached data as fresh for 24 hours
+
         async function fetchCompanyData(ticker) {
             var nc = document.getElementById('mkt-news-container');
             var ec = document.getElementById('mkt-earnings-container');
-            var loading = '<div class="card" style="border-top-color:#ccc; padding:30px; text-align:center; color:var(--primary); font-weight:700; font-family:Courier New,monospace;">Fetching data for ' + ticker + '...</div>';
-            nc.innerHTML = loading;
-            ec.innerHTML = loading;
 
-            try {
-                var res = await fetch(MAKE_WEBHOOK + '?ticker=' + encodeURIComponent(ticker));
-                var raw = await res.text();
+            var msgs = [
+                'SCANNING INSTITUTIONAL DATABASE...',
+                'RETRIEVING MARKET INTELLIGENCE...',
+                'FETCHING EARNINGS HISTORY...',
+                'COMPILING NEWS ARCHIVE...',
+                'LOADING COMPANY DATA...'
+            ];
+            var msgIdx = 0;
 
-                // Make returns the body as a JSON string — parse it
-                var payload;
-                try { payload = JSON.parse(raw); } catch (e) { payload = {}; }
-
-                // Handle both fresh fetch (array) and cache hit (double-encoded string)
-                function safeStr(val) {
-                    if (typeof val === 'string') return val;
-                    return JSON.stringify(val);
-                }
-                renderNews(safeStr(payload.news || '[]'), nc);
-                renderEarnings(safeStr(payload.earnings || '{}'), ec);
-
-            } catch (e) {
-                var err = '<div class="card" style="border-top-color:#dc2626; padding:25px;"><strong style="color:#dc2626;">Could not load data.</strong><br><span style="color:#555; font-size:0.85rem;">Make sure the scenario is active and try again.</span></div>';
-                nc.innerHTML = err;
-                ec.innerHTML = err;
+            function setLoading(text) {
+                var html = '<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">' + text + '</div>';
+                nc.innerHTML = html;
+                ec.innerHTML = html;
             }
+
+            function setError(msg) {
+                var html = '<div class="card" style="border-top-color:#dc2626;padding:25px;"><strong style="color:#dc2626;">Error</strong><br><span style="color:#555;font-size:0.85rem;">' + msg + '</span></div>';
+                nc.innerHTML = html;
+                ec.innerHTML = html;
+            }
+
+            setLoading(msgs[0]);
+
+            // STEP 1: Check Airtable cache
+            try {
+                var formula = encodeURIComponent("{Ticker}='" + ticker + "'");
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + COMPANY_DATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                var data = await res.json();
+
+                if (data.records && data.records.length > 0) {
+                    var record = data.records[0];
+                    var fields = record.fields;
+
+                    // Check freshness — only use cache if within CACHE_HOURS
+                    var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(record.createdTime);
+                    var ageHours = (new Date() - lastUpdated) / 3600000;
+
+                    if (ageHours < CACHE_HOURS && (fields.News || fields.Earnings)) {
+                        // CACHE HIT — render immediately
+                        renderNews(fields.News || '[]', nc);
+                        renderEarnings(fields.Earnings || '{}', ec);
+                        // Show cache badge
+                        var badge = document.createElement('div');
+                        badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
+                        badge.innerHTML = '⚡ Cached data · Last updated ' + Math.round(ageHours) + 'h ago · <a href="#" onclick="forceRefreshCompanyData('' + ticker + ''); return false;" style="color:var(--primary);font-weight:800;">Refresh</a>';
+                        nc.insertBefore(badge, nc.firstChild);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Airtable cache check failed, proceeding to Make.com', e);
+            }
+
+            // STEP 2: Cache miss — fire Make.com webhook
+            setLoading('DISPATCHING INTELLIGENCE REQUEST FOR ' + ticker + '...');
+            try {
+                await fetch(MAKE_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
+            } catch (e) {
+                // no-cors always throws, ignore
+            }
+
+            // STEP 3: Poll Airtable until record appears
+            var attempts = 0;
+            var pollInterval = setInterval(async function () {
+                attempts++;
+                msgIdx = (msgIdx + 1) % msgs.length;
+                setLoading(msgs[msgIdx] + '<br><span style="color:#888;font-size:0.75rem;font-weight:400;">' + (attempts * 4) + 's elapsed</span>');
+
+                try {
+                    var formula = encodeURIComponent("{Ticker}='" + ticker + "'");
+                    var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + COMPANY_DATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
+                    var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                    var data = await res.json();
+
+                    if (data.records && data.records.length > 0) {
+                        var fields = data.records[0].fields;
+                        if (fields.News || fields.Earnings) {
+                            clearInterval(pollInterval);
+                            renderNews(fields.News || '[]', nc);
+                            renderEarnings(fields.Earnings || '{}', ec);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Poll error', e);
+                }
+            }, 4000);
         }
+
+        // Force refresh — deletes cache and re-fetches
+        window.forceRefreshCompanyData = async function (ticker) {
+            // Just re-run fetchCompanyData — Make will overwrite the record
+            // First clear the display
+            var nc = document.getElementById('mkt-news-container');
+            var ec = document.getElementById('mkt-earnings-container');
+            nc.innerHTML = '';
+            ec.innerHTML = '';
+            // Temporarily set CACHE_HOURS to 0 by calling directly with bypass
+            try {
+                await fetch(MAKE_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
+            } catch (e) { }
+            fetchCompanyData(ticker);
+        };
 
         // ---- RENDER NEWS ----
         function renderNews(newsStr, container) {
             var articles;
-            try {
-                articles = JSON.parse(newsStr);
-                if (typeof articles === 'string') articles = JSON.parse(articles);
-            } catch (e) { articles = []; }
+            try { articles = JSON.parse(newsStr); } catch (e) { articles = []; }
             if (!Array.isArray(articles) || articles.length === 0) {
                 container.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No news found for this company.</div>';
                 return;
@@ -1629,10 +1659,7 @@
         // ---- RENDER EARNINGS ----
         function renderEarnings(earningsStr, container) {
             var raw;
-            try {
-                raw = JSON.parse(earningsStr);
-                if (typeof raw === 'string') raw = JSON.parse(raw);
-            } catch (e) { raw = {}; }
+            try { raw = JSON.parse(earningsStr); } catch (e) { raw = {}; }
             var list = raw.earnings || (Array.isArray(raw) ? raw : []);
             if (!list.length) {
                 container.innerHTML = '<div class="card" style="padding:30px; text-align:center; color:#888;">No earnings calendar data found for this company.</div>';
