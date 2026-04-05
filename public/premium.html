@@ -139,12 +139,10 @@
         .page {
             display: none;
             animation: fadeIn 0.4s ease;
-            height: 100%;
         }
 
         .page.active {
-            display: flex;
-            flex-direction: column;
+            display: block;
         }
 
         @keyframes fadeIn {
@@ -190,7 +188,7 @@
             text-transform: uppercase;
             transition: 0.2s;
             margin-bottom: 20px;
-            align-self: flex-start;
+            display: inline-block;
             border-radius: 2px;
         }
 
