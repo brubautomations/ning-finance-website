@@ -2075,6 +2075,8 @@
 
             const avmBtn = document.getElementById('avm-btn');
             if (avmBtn) { avmBtn.disabled = true; avmBtn.style.opacity = '0.5'; }
+            // Lock nav tabs to prevent user leaving mid-computation
+            document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = 'none'; t.style.opacity = '0.4'; });
 
             const resultsDiv = document.getElementById('avm-results');
             const loadingMsg = document.getElementById('avm-loading');
@@ -2102,7 +2104,7 @@
                             ⚡ COMPUTE LIVE VALUATION
                         </button>`;
                     // Re-enable COMPUTE so user can search different stock
-                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
+                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; } document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
                     return;
                 }
 
@@ -2138,11 +2140,11 @@
 
                 loadingMsg.style.display = 'none';
                 resultsDiv.style.display = 'block';
-                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
+                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; } document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
 
             } catch (err) {
                 loadingMsg.innerHTML = `<span style="color:#dc2626;">System Error: Could not connect to database.</span>`;
-                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
+                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; } document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
             }
         }
 
@@ -2152,11 +2154,14 @@
             if (dispatchBtn) {
                 dispatchBtn.disabled = true;
                 dispatchBtn.style.opacity = '0.5';
-                dispatchBtn.innerText = 'PROMPT SENT... EVALUATING';
+                dispatchBtn.innerText = 'DISPATCHED — COMPUTING...';
             }
+            const avmBtnGen = document.getElementById('avm-btn');
+            if (avmBtnGen) { avmBtnGen.disabled = true; avmBtnGen.style.opacity = '0.5'; }
+            document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = 'none'; t.style.opacity = '0.4'; });
 
             const loadingMsg = document.getElementById('avm-loading');
-            loadingMsg.innerHTML = `⚙️ Ning AI is computing ${companyName}...<br><span style="font-size:0.85rem;color:#888;">This takes about 60 seconds. Do not refresh.</span>`;
+            loadingMsg.innerHTML = '<div style="font-family:Merriweather,serif;font-size:1.1rem;font-weight:900;color:var(--primary);margin-bottom:8px;letter-spacing:1px;">EXECUTING QUANTITATIVE MODELS</div><div style="font-size:0.82rem;color:#888;font-family:Courier New,monospace;">Analyzing ' + companyName + ' — Do not navigate away or refresh</div>';
 
             setTimeout(() => {
                 if (dispatchBtn) {
@@ -2164,6 +2169,9 @@
                     dispatchBtn.style.opacity = '1';
                     dispatchBtn.innerText = '⚡ COMPUTE LIVE VALUATION';
                 }
+                const avmBtnSafe = document.getElementById('avm-btn');
+                if (avmBtnSafe) { avmBtnSafe.disabled = false; avmBtnSafe.style.opacity = '1'; }
+                document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
             }, 180000);
 
             try {
@@ -2186,16 +2194,16 @@
                         loadAVM();
                     } else {
                         var msgs = [
-                            '📊 Ning is reading the financials...',
-                            '🧮 Running the DCF model...',
-                            '⚖️ Weighing the risk factors...',
-                            '🔍 Cross-checking the data...',
-                            '📝 Writing the report...',
-                            '🎯 Computing fair value...',
-                            '🧠 Ning is thinking hard...',
-                            '📈 Almost there...'
+                            'RUNNING DISCOUNTED CASH FLOW MODEL',
+                            'COMPUTING WACC AND GROWTH PROJECTIONS',
+                            'ANALYZING BALANCE SHEET STRUCTURE',
+                            'CROSS-REFERENCING ANALYST DATA',
+                            'STRESS TESTING ASSUMPTIONS',
+                            'WRITING INSTITUTIONAL REPORT',
+                            'FINALIZING FAIR VALUE ESTIMATE',
+                            'RUNNING SANITY CHECKS'
                         ];
-                        loadingMsg.innerHTML = msgs[attempts % msgs.length] + '<br><span style="color:#888;font-size:0.8rem;">Elapsed: ' + (attempts * 5) + 's — Do not refresh</span>';
+                        loadingMsg.innerHTML = '<div style="font-family:Merriweather,serif;font-size:1.1rem;font-weight:900;color:var(--primary);margin-bottom:8px;letter-spacing:1px;">' + msgs[attempts % msgs.length] + '</div><div style="font-size:0.82rem;color:#888;font-family:Courier New,monospace;">' + (attempts * 5) + 's elapsed — Do not navigate away</div>';
                     }
                 }, 5000);
 
@@ -2249,7 +2257,7 @@
                         <button id="dispatch-btn" onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
                             ⚡ DISPATCH NING TO ANALYZE
                         </button>`;
-                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
+                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; } document.querySelectorAll('.tab').forEach(function (t) { t.style.pointerEvents = ''; t.style.opacity = ''; });
                     return;
                 }
 
