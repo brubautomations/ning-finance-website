@@ -2073,6 +2073,9 @@
 
             if (!tickerInput) return;
 
+            const avmBtn = document.getElementById('avm-btn');
+            if (avmBtn) { avmBtn.disabled = true; avmBtn.style.opacity = '0.5'; }
+
             const resultsDiv = document.getElementById('avm-results');
             const loadingMsg = document.getElementById('avm-loading');
 
@@ -2098,10 +2101,14 @@
                         <button id="dispatch-avm-btn" onclick="generateAVM('${tickerInput}', '${companyName.replace(/'/g, "\\'")}')" style="background:#cba258; color:#000; border:none; padding:10px 20px; font-weight:900; cursor:pointer; margin-top:15px; border-radius:3px; text-transform:uppercase; letter-spacing:1px;">
                             ⚡ COMPUTE LIVE VALUATION
                         </button>`;
+                    // Re-enable COMPUTE so user can search different stock
+                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
                     return;
                 }
 
-                const fields = avmRecord.fields;
+                const rawFields = avmRecord.fields;
+                const fields = {};
+                Object.keys(rawFields).forEach(function (k) { fields[k.trim()] = rawFields[k]; });
 
                 // Populate UI
                 document.getElementById('avm-fair-value').innerText = fields.AVM_Fair_Value || 'N/A';
@@ -2131,9 +2138,11 @@
 
                 loadingMsg.style.display = 'none';
                 resultsDiv.style.display = 'block';
+                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
 
             } catch (err) {
                 loadingMsg.innerHTML = `<span style="color:#dc2626;">System Error: Could not connect to database.</span>`;
+                if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
             }
         }
 
@@ -2240,6 +2249,7 @@
                         <button id="dispatch-btn" onclick="generateEcosystem('${tickerInput}')" style="background:#333; color:#fff; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; margin-top:15px; border-radius:3px;">
                             ⚡ DISPATCH NING TO ANALYZE
                         </button>`;
+                    if (avmBtn) { avmBtn.disabled = false; avmBtn.style.opacity = '1'; }
                     return;
                 }
 
