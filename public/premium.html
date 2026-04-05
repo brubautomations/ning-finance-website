@@ -2237,10 +2237,11 @@
             loadingMsg.innerText = 'Fetching Intelligence...';
             intelSection.style.display = 'none';
 
-            if (!ecosystemChart) {
-                ecosystemChart = echarts.init(chartContainer);
+            // Dispose and reinit to ensure layout changes take effect cleanly
+            if (ecosystemChart) {
+                ecosystemChart.dispose();
             }
-            ecosystemChart.clear();
+            ecosystemChart = echarts.init(chartContainer);
 
             try {
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
