@@ -14,7 +14,8 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@300;700;900&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.min.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -2237,11 +2238,10 @@
             loadingMsg.innerText = 'Fetching Intelligence...';
             intelSection.style.display = 'none';
 
-            // Dispose and reinit to ensure layout changes take effect cleanly
-            if (ecosystemChart) {
-                ecosystemChart.dispose();
+            if (ecosystemChart && ecosystemChart.destroy) {
+                ecosystemChart.destroy();
+                ecosystemChart = null;
             }
-            ecosystemChart = echarts.init(chartContainer);
 
             try {
                 const formula = encodeURIComponent(`({Ticker}='${tickerInput}')`);
@@ -2316,161 +2316,149 @@
 
                 loadingMsg.style.display = 'none';
 
-                const categoryList = ['Target', 'Competitor', 'Supplier', 'Client', 'Macro', 'Focal'];
-                const eCategories = categoryList.map(name => ({ name: name }));
-
-                // CLUSTER LAYOUT — each category gets a fixed zone
-                // Canvas center = (0,0). Zones spread outward in 4 quadrants + top/bottom
-                //   Competitor  → top-left    (-420, -260)
-                //   Supplier    → bottom-left (-420,  260)
-                //   Client      → top-right   ( 420, -260)
-                //   Macro       → bottom-right( 420,  260)
-                //   Target      → center      (   0,    0)
-
-                var zoneCenter = {
-                    'target': [0, 0],
-                    'focal': [0, 0],
-                    'competitor': [-420, -240],
-                    'supplier': [-420, 240],
-                    'client': [420, -240],
-                    'macro': [420, 240]
+                var catColors = {
+                    'target': '#cba258', 'focal': '#cba258',
+                    'competitor': '#dc2626', 'supplier': '#3b82f6',
+                    'client': '#16a34a', 'macro': '#8b5cf6'
                 };
 
-                var sizeMap = { 'target': 85, 'focal': 85, 'competitor': 50, 'supplier': 46, 'client': 46, 'macro': 42 };
-                var colorMap = { 'target': '#cba258', 'focal': '#cba258', 'competitor': '#dc2626', 'supplier': '#3b82f6', 'client': '#16a34a', 'macro': '#8b5cf6' };
-
-                // Group nodes by category
-                var catGroups = {};
+                var cyElements = [];
                 nodesArray.forEach(function (node) {
-                    var key = String(node.category).toLowerCase();
-                    if (!catGroups[key]) catGroups[key] = [];
-                    catGroups[key].push(node);
-                });
-
-                // For each group, arrange nodes in a tight grid around zone center
-                function getGridPos(index, total, cx, cy) {
-                    var cols = Math.ceil(Math.sqrt(total));
-                    var col = index % cols;
-                    var row = Math.floor(index / cols);
-                    var spacing = 95;
-                    var offsetX = (col - (cols - 1) / 2) * spacing;
-                    var offsetY = (row - (Math.ceil(total / cols) - 1) / 2) * spacing;
-                    return [Math.round(cx + offsetX), Math.round(cy + offsetY)];
-                }
-
-                var eNodes = [];
-                nodesArray.forEach(function (node) {
-                    var catKey = String(node.category).toLowerCase();
-                    var catIndex = categoryList.findIndex(function (cc) { return cc.toLowerCase() === catKey; });
-                    if (catIndex === -1) catIndex = 0;
-
-                    var zone = zoneCenter[catKey] || [0, 0];
-                    var group = catGroups[catKey] || [node];
-                    var posIndex = group.indexOf(node);
-                    var isCenter = (catKey === 'target' || catKey === 'focal');
-
-                    var pos = isCenter ? [0, 0] : getGridPos(posIndex, group.length, zone[0], zone[1]);
-
-                    eNodes.push({
-                        id: String(node.id),
-                        name: node.label ? String(node.label) : String(node.id),
-                        category: catIndex,
-                        symbolSize: sizeMap[catKey] || 46,
-                        x: pos[0], y: pos[1],
-                        fixed: true,
-                        itemStyle: {
-                            color: colorMap[catKey] || '#888',
-                            borderColor: isCenter ? '#fff' : 'transparent',
-                            borderWidth: isCenter ? 3 : 0
-                        },
-                        label: {
-                            show: true,
-                            position: isCenter ? 'inside' : 'bottom',
-                            color: '#fff',
-                            fontWeight: isCenter ? '900' : '500',
-                            fontSize: isCenter ? 12 : 10,
-                            overflow: 'truncate',
-                            width: 90
+                    var cat = String(node.category).toLowerCase();
+                    cyElements.push({
+                        data: {
+                            id: String(node.id),
+                            label: node.label ? String(node.label) : String(node.id),
+                            category: cat,
+                            color: catColors[cat] || '#888',
+                            size: ({ target: 85, focal: 85, competitor: 48, supplier: 44, client: 44, macro: 40 })[cat] || 44
                         }
                     });
                 });
 
-                var validNodeIds = new Set(eNodes.map(function (n) { return n.id; }));
-                var eLinks = linksArray
-                    .filter(function (link) {
-                        return validNodeIds.has(String(link.source)) && validNodeIds.has(String(link.target));
-                    })
-                    .map(function (link) {
-                        return {
-                            source: String(link.source),
-                            target: String(link.target),
-                            tooltip: { formatter: link.description || '' },
-                            lineStyle: { width: 1.2, curveness: 0.2, opacity: 0.4 }
-                        };
-                    });
-
-                // Zone label annotations
-                var zoneLabels = [
-                    { text: 'COMPETITORS', x: -420, y: -390, color: '#dc2626' },
-                    { text: 'SUPPLIERS', x: -420, y: 115, color: '#3b82f6' },
-                    { text: 'CLIENTS', x: 420, y: -390, color: '#16a34a' },
-                    { text: 'MACRO', x: 420, y: 115, color: '#8b5cf6' }
-                ];
-
-                var option = {
-                    backgroundColor: '#111',
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: function (params) {
-                            if (params.dataType === 'edge') {
-                                return '<div style="max-width:240px;white-space:normal;">' +
-                                    '<strong>' + params.data.source + ' → ' + params.data.target + '</strong><br/>' +
-                                    (params.data.tooltip ? params.data.tooltip.formatter : '') + '</div>';
+                var nodeIds = new Set(nodesArray.map(function (n) { return String(n.id); }));
+                linksArray.forEach(function (link) {
+                    if (nodeIds.has(String(link.source)) && nodeIds.has(String(link.target))) {
+                        var srcNode = nodesArray.find(function (n) { return String(n.id) === String(link.source); });
+                        var srcCat = srcNode ? String(srcNode.category).toLowerCase() : '';
+                        cyElements.push({
+                            data: {
+                                id: 'e_' + link.source + '_' + link.target,
+                                source: String(link.source),
+                                target: String(link.target),
+                                description: link.description || '',
+                                edgeColor: catColors[srcCat] || '#555'
                             }
-                            return '<strong>' + params.data.name + '</strong>';
-                        }
-                    },
-                    graphic: zoneLabels.map(function (z) {
-                        return {
-                            type: 'text',
-                            z: 0,
-                            left: 'center',
-                            top: 'center',
-                            style: {
-                                text: z.text,
-                                fill: z.color,
-                                fontSize: 11,
-                                fontWeight: '800',
-                                fontFamily: 'Inter, sans-serif',
-                                opacity: 0.5
-                            },
-                            position: [z.x, z.y]
-                        };
-                    }),
-                    legend: [{
-                        data: ['Competitor', 'Supplier', 'Client', 'Macro'],
-                        textStyle: { color: '#999', fontWeight: '700', fontSize: 11 },
-                        orient: 'vertical',
-                        right: 15,
-                        top: 15
-                    }],
-                    color: ['#cba258', '#dc2626', '#3b82f6', '#16a34a', '#8b5cf6', '#cba258'],
-                    series: [{
-                        type: 'graph',
-                        layout: 'none',
-                        data: eNodes,
-                        links: eLinks,
-                        categories: eCategories,
-                        roam: true,
-                        lineStyle: { color: 'source', opacity: 0.4, curveness: 0.2 },
-                        emphasis: {
-                            focus: 'adjacency',
-                            lineStyle: { width: 2.5, opacity: 1 }
-                        }
-                    }]
-                };
+                        });
+                    }
+                });
 
-                ecosystemChart.setOption(option);
+                if (ecosystemChart && ecosystemChart.destroy) ecosystemChart.destroy();
+
+                ecosystemChart = cytoscape({
+                    container: chartContainer,
+                    elements: cyElements,
+                    style: [
+                        {
+                            selector: 'node', style: {
+                                'width': 'data(size)', 'height': 'data(size)',
+                                'background-color': 'data(color)',
+                                'label': 'data(label)',
+                                'color': '#fff', 'font-size': '10px',
+                                'font-family': 'Inter, sans-serif', 'font-weight': '600',
+                                'text-valign': 'bottom', 'text-halign': 'center',
+                                'text-margin-y': '5px', 'text-wrap': 'wrap',
+                                'text-max-width': '100px',
+                                'text-outline-width': '2px', 'text-outline-color': '#111',
+                                'border-width': 0,
+                                'transition-property': 'opacity', 'transition-duration': '0.15s'
+                            }
+                        },
+                        {
+                            selector: 'node[category = "target"], node[category = "focal"]', style: {
+                                'width': 85, 'height': 85,
+                                'background-color': '#cba258',
+                                'border-width': 3, 'border-color': '#fff',
+                                'font-size': '12px', 'font-weight': '900',
+                                'text-valign': 'center', 'text-halign': 'center',
+                                'text-margin-y': '0px', 'color': '#000',
+                                'text-outline-color': '#cba258',
+                                'shadow-blur': 25, 'shadow-color': '#cba258',
+                                'shadow-opacity': 0.7, 'shadow-offset-x': 0, 'shadow-offset-y': 0
+                            }
+                        },
+                        {
+                            selector: 'edge', style: {
+                                'width': 1.5, 'line-color': 'data(edgeColor)',
+                                'target-arrow-color': 'data(edgeColor)',
+                                'target-arrow-shape': 'triangle', 'arrow-scale': 0.7,
+                                'curve-style': 'bezier', 'opacity': 0.45,
+                                'transition-property': 'opacity, width', 'transition-duration': '0.15s'
+                            }
+                        },
+                        { selector: '.faded', style: { 'opacity': 0.06 } },
+                        { selector: 'node.highlighted', style: { 'border-width': 3, 'border-color': '#fff', 'opacity': 1 } },
+                        { selector: 'edge.highlighted', style: { 'opacity': 1, 'width': 2.5 } }
+                    ],
+                    layout: {
+                        name: 'cose-bilkent',
+                        animate: true, animationDuration: 1200,
+                        nodeRepulsion: 9000, idealEdgeLength: 160,
+                        edgeElasticity: 0.1, nestingFactor: 0.1,
+                        gravity: 0.4, numIter: 2500,
+                        tile: true,
+                        tilingPaddingVertical: 40, tilingPaddingHorizontal: 40,
+                        gravityRangeCompound: 1.5, gravityCompound: 1.0, gravityRange: 3.8
+                    },
+                    wheelSensitivity: 0.3, minZoom: 0.2, maxZoom: 3,
+                    backgroundColor: '#111'
+                });
+
+                // Style the container background
+                chartContainer.style.background = '#111';
+
+                // Hover: fade others, highlight connected
+                ecosystemChart.on('mouseover', 'node', function (e) {
+                    var n = e.target;
+                    ecosystemChart.elements().addClass('faded');
+                    n.removeClass('faded').addClass('highlighted');
+                    n.connectedEdges().removeClass('faded').addClass('highlighted');
+                    n.connectedEdges().connectedNodes().removeClass('faded');
+                });
+                ecosystemChart.on('mouseout', 'node', function () {
+                    ecosystemChart.elements().removeClass('faded highlighted');
+                });
+
+                // Tap tooltip
+                var ecoTip = document.getElementById('eco-tip');
+                if (!ecoTip) {
+                    ecoTip = document.createElement('div');
+                    ecoTip.id = 'eco-tip';
+                    ecoTip.style.cssText = 'position:fixed;background:#000;color:#fff;border:1px solid #cba258;padding:10px 14px;border-radius:4px;font-size:12px;pointer-events:none;display:none;z-index:9999;max-width:220px;line-height:1.5;font-family:Inter,sans-serif;';
+                    document.body.appendChild(ecoTip);
+                }
+                ecosystemChart.on('tap', 'node', function (e) {
+                    var n = e.target;
+                    var cat = n.data('category');
+                    ecoTip.innerHTML = '<div style="font-weight:900;font-size:13px;margin-bottom:3px;">' + n.data('label') + '</div><span style="background:' + (catColors[cat] || '#333') + ';color:#fff;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:800;text-transform:uppercase;">' + cat + '</span>';
+                    ecoTip.style.display = 'block';
+                    ecoTip.style.left = (e.originalEvent.clientX + 14) + 'px';
+                    ecoTip.style.top = (e.originalEvent.clientY - 10) + 'px';
+                });
+                ecosystemChart.on('tap', 'edge', function (e) {
+                    var desc = e.target.data('description');
+                    if (!desc) return;
+                    ecoTip.innerHTML = '<span style="color:#888;font-size:10px;">' + e.target.data('source') + ' → ' + e.target.data('target') + '</span><div style="margin-top:4px;">' + desc + '</div>';
+                    ecoTip.style.display = 'block';
+                    ecoTip.style.left = (e.originalEvent.clientX + 14) + 'px';
+                    ecoTip.style.top = (e.originalEvent.clientY - 10) + 'px';
+                });
+                ecosystemChart.on('tap', function (e) {
+                    if (e.target === ecosystemChart) {
+                        ecoTip.style.display = 'none';
+                        ecosystemChart.elements().removeClass('faded highlighted');
+                    }
+                });
 
             } catch (err) {
                 console.error("Fetch Error:", err);
@@ -2705,7 +2693,7 @@
             input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { list.style.display = 'none'; loadEcosystem(); } });
         }
 
-        window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
+        window.addEventListener('resize', () => { if (ecosystemChart && ecosystemChart.resize) ecosystemChart.resize(); });
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedTab = localStorage.getItem('activeNingTab') || 'macro';
