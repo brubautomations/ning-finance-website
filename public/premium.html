@@ -1117,8 +1117,12 @@
             <div class="filter-row" style="margin-bottom: 10px;">
                 <label style="font-weight: 800; color: #333; font-size: 0.9rem;">SEARCH TICKER:</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="ecosystem-ticker" class="market-dropdown" placeholder="e.g., ALI,PALANTIR"
-                        style="background:#fff; color:#000; width: 150px; text-transform: uppercase;">
+                    <div class="autocomplete-wrapper" style="width:300px;">
+                        <input type="text" id="ecosystem-ticker" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="ecosystem-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="ecosystem-selected-ticker">
                     <button class="btn-download" onclick="loadEcosystem()" style="margin: 0;">LOAD MAP</button>
                 </div>
             </div>
@@ -2365,7 +2369,7 @@
                         source: String(link.source),
                         target: String(link.target),
                         tooltip: { formatter: link.description || "" },
-                        lineStyle: { width: 2, curveness: 0.1 }
+                        lineStyle: { width: 1.5 }
                     }));
 
                 const option = {
@@ -2418,14 +2422,12 @@
                             color: 'source',
                             opacity: 0.5,
                             width: 1.5,
-                            curveness: 0.2
+                            curveness: 0.25
                         },
                         emphasis: {
                             focus: 'adjacency',
                             lineStyle: { width: 3, opacity: 1 }
-                        },
-                        edgeSymbol: ['none', 'arrow'],
-                        edgeSymbolSize: [0, 8]
+                        }
                     }]
                 };
 
@@ -2616,6 +2618,54 @@
             container.innerHTML = html;
         }
 
+        function setupEcosystemAutocomplete() {
+            var input = document.getElementById('ecosystem-ticker');
+            var list = document.getElementById('ecosystem-suggestions');
+            var hidden = document.getElementById('ecosystem-selected-ticker');
+            if (!input) return;
+            var debounce;
+            input.addEventListener('input', function () {
+                clearTimeout(debounce);
+                var q = this.value.trim();
+                if (q.length < 2) { list.style.display = 'none'; return; }
+                debounce = setTimeout(async function () {
+                    try {
+                        list.innerHTML = '<li style="padding:10px 14px;color:#888;font-style:italic;font-size:0.85rem;">Searching...</li>';
+                        list.style.display = 'block';
+                        var res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0');
+                        var data = await res.json();
+                        var results = (data.result || []).filter(function (r) {
+                            return r.type === 'Common Stock' || r.type === 'EQS' || r.type === '';
+                        }).slice(0, 10);
+                        if (!results.length) { list.innerHTML = '<li style="padding:10px 14px;color:#888;font-size:0.85rem;">No results.</li>'; return; }
+                        list.innerHTML = '';
+                        var SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.HK': '.HK', '.SS': '.SHG', '.SZ': '.SHE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.BK': '.BK', '.JK': '.JK', '.VN': '.VN', '.TW': '.TW', '.L': '.LSE', '.DE': '.XETRA', '.F': '.F', '.PA': '.PA', '.AS': '.AS', '.MI': '.MI', '.MC': '.MC', '.SW': '.SW', '.OL': '.OL', '.ST': '.ST', '.CO': '.CO', '.HE': '.HE', '.TO': '.TO', '.V': '.V', '.MX': '.MX', '.SA': '.SA' };
+                        results.forEach(function (item) {
+                            var sym = item.symbol || '';
+                            var dot = sym.lastIndexOf('.');
+                            var ticker = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
+                            var li = document.createElement('li');
+                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
+                            li.innerHTML = '<div style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + ticker + '</div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
+                            li.onmouseover = function () { this.style.background = '#fdf8ee'; };
+                            li.onmouseout = function () { this.style.background = '#fff'; };
+                            li.onclick = function () {
+                                input.value = ticker;
+                                if (hidden) hidden.value = ticker;
+                                list.style.display = 'none';
+                            };
+                            list.appendChild(li);
+                        });
+                        list.style.display = 'block';
+                    } catch (e) {
+                        list.innerHTML = '<li style="padding:10px 14px;color:#dc2626;font-size:0.85rem;">Search error.</li>';
+                    }
+                }, 400);
+            });
+            document.addEventListener('click', function (e) { if (e.target !== input) list.style.display = 'none'; });
+            input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { list.style.display = 'none'; loadEcosystem(); } });
+        }
+
         window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2625,6 +2675,7 @@
             setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
             setupSmartMoneyAutocomplete('insider-search-input', 'insider-suggestions', 'insider-selected-ticker', 'insider-selected-name');
             setupSmartMoneyAutocomplete('institutional-search-input', 'institutional-suggestions', 'institutional-selected-ticker', 'institutional-selected-name');
+            setupEcosystemAutocomplete();
 
             fetchMacroData();
             fetchQuantData('ph');
