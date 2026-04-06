@@ -1968,59 +1968,84 @@
             var d;
             try { d = typeof rawStr === 'string' ? JSON.parse(rawStr) : rawStr; } catch (e) { d = {}; }
 
+            // ── Correct EODHD field paths from real API response
             var gen = d.General || {};
             var tech = d.Technicals || {};
-            var perf = d.ETF_Data || d.MutualFund_Data || {};
-            var hold = perf.Holdings || perf.Top_10_Holdings || {};
-            var sect = perf.Sector_Weights || perf.Sector_Weightings || {};
-            var stats = perf.Statistics || {};
+            var etf = d.ETF_Data || {};                          // ETF specific block
+            var mf = d.MutualFund_Data || {};                    // MF specific block
+            var fundData = Object.keys(etf).length ? etf : mf;        // whichever has data
+            var perf = fundData.Performance || {};                 // Returns live here
+            var sect = fundData.Sector_Weights || {};              // Sector_Weights object
+            var top10 = fundData.Top_10_Holdings || {};             // Top 10 as object
+            var allHold = fundData.Holdings || {};                    // Full holdings as object
 
             var logoHtml = '<img src="' + getNingLogoUrl(ticker) + '" onerror="this.style.display=\'none\'" style="width:36px;height:36px;object-fit:contain;margin-right:12px;vertical-align:middle;border-radius:4px;">';
-
             var html = '';
 
-            // ── Header
+            // ── Header ───────────────────────────────────────────────
+            var fundFamily = fundData.Company_Name || gen.Fund_Family || '';
+            var inceptionDt = fundData.Inception_Date || '';
+            var totalAssets = fundData.TotalAssets ? '$' + (parseFloat(fundData.TotalAssets) / 1e9).toFixed(1) + 'B' : null;
+            var morningstar = (d.MorningStar && d.MorningStar.Ratio) ? '★'.repeat(parseInt(d.MorningStar.Ratio)) : null;
+
             html += '<div style="display:flex;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--primary);">' +
                 logoHtml +
-                '<div><div style="font-size:1.2rem;font-weight:900;font-family:Courier New,monospace;">' + (gen.Name || ticker) + '</div>' +
-                '<div style="font-size:0.8rem;color:#888;margin-top:2px;">' + (gen.Fund_Family || gen.FundFamily || '') + (gen.Inception_Date ? ' · Inception: ' + gen.Inception_Date : '') + '</div></div></div>';
+                '<div>' +
+                '<div style="font-size:1.2rem;font-weight:900;font-family:Courier New,monospace;">' + (gen.Name || ticker) + '</div>' +
+                '<div style="font-size:0.8rem;color:#888;margin-top:3px;">' +
+                (fundFamily ? fundFamily + ' &nbsp;·&nbsp; ' : '') +
+                (inceptionDt ? 'Inception: ' + inceptionDt : '') +
+                (totalAssets ? ' &nbsp;·&nbsp; AUM: ' + totalAssets : '') +
+                (morningstar ? ' &nbsp;·&nbsp; <span style="color:#f59e0b;">' + morningstar + '</span>' : '') +
+                '</div>' +
+                '</div></div>';
 
-            // ── Key stats row
-            var expense = stats.Expense_Ratio || perf.Expense_Ratio || null;
-            var nav = tech.Beta || null;
-            var ytd = stats.Returns_YTD || perf.Returns_YTD || null;
-            var r1y = stats.Returns_1Y || perf.Returns_1Y || null;
-            var r3y = stats.Returns_3Y || perf.Returns_3Y || null;
-            var r5y = stats.Returns_5Y || perf.Returns_5Y || null;
+            // ── Key Stats Grid ───────────────────────────────────────
+            // NetExpenseRatio comes as 0.00095 — multiply by 100 for %
+            var expRaw = fundData.NetExpenseRatio || fundData.Ongoing_Charge || null;
+            var expense = expRaw ? (parseFloat(expRaw) * 100).toFixed(3) + '%' : '—';
+
+            // Returns already in % form e.g. "-3.56", "23.60"
+            var ytd = perf.Returns_YTD != null ? perf.Returns_YTD : null;
+            var r1y = perf.Returns_1Y != null ? perf.Returns_1Y : null;
+            var r3y = perf.Returns_3Y != null ? perf.Returns_3Y : null;
+            var r5y = perf.Returns_5Y != null ? perf.Returns_5Y : null;
+            var r10 = perf.Returns_10Y != null ? perf.Returns_10Y : null;
+
+            function fmtReturn(v) {
+                if (v == null) return '—';
+                var n = parseFloat(v);
+                return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+            }
+            function returnColor(v) {
+                if (v == null) return '#000';
+                return parseFloat(v) >= 0 ? '#16a34a' : '#dc2626';
+            }
+
+            var statItems = [
+                { label: 'EXPENSE RATIO', value: expense, color: '#000' },
+                { label: 'YTD RETURN', value: fmtReturn(ytd), color: returnColor(ytd) },
+                { label: '1Y RETURN', value: fmtReturn(r1y), color: returnColor(r1y) },
+                { label: '3Y RETURN', value: fmtReturn(r3y), color: returnColor(r3y) },
+                { label: '5Y RETURN', value: fmtReturn(r5y), color: returnColor(r5y) },
+                { label: '10Y RETURN', value: fmtReturn(r10), color: returnColor(r10) },
+                { label: 'CURRENCY', value: gen.CurrencyCode || '—', color: '#000' },
+                { label: 'CATEGORY', value: gen.Category || '—', color: '#000' },
+            ];
 
             html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px;">';
-            var statItems = [
-                { label: 'EXPENSE RATIO', value: expense ? (parseFloat(expense) * 100).toFixed(2) + '%' : '—' },
-                { label: 'YTD RETURN', value: ytd ? fmtPct(ytd) : '—' },
-                { label: '1Y RETURN', value: r1y ? fmtPct(r1y) : '—' },
-                { label: '3Y RETURN', value: r3y ? fmtPct(r3y) : '—' },
-                { label: '5Y RETURN', value: r5y ? fmtPct(r5y) : '—' },
-                { label: 'CURRENCY', value: gen.CurrencyCode || '—' },
-            ];
             statItems.forEach(function (s) {
-                var color = '#000';
-                if (s.value !== '—' && s.label.includes('RETURN')) {
-                    color = s.value.startsWith('-') ? '#dc2626' : '#16a34a';
-                }
                 html += '<div style="background:#f9f9f9;padding:14px 16px;border-left:3px solid var(--primary);">' +
                     '<div style="font-size:0.68rem;color:#888;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">' + s.label + '</div>' +
-                    '<div style="font-size:1.1rem;font-weight:900;font-family:Courier New,monospace;color:' + color + ';">' + s.value + '</div></div>';
+                    '<div style="font-size:1.05rem;font-weight:900;font-family:Courier New,monospace;color:' + s.color + ';">' + s.value + '</div></div>';
             });
             html += '</div>';
 
-            // ── Top Holdings
-            var holdArr = [];
-            if (Array.isArray(hold)) {
-                holdArr = hold;
-            } else if (typeof hold === 'object') {
-                holdArr = Object.values(hold);
-            }
-            holdArr = holdArr.filter(function (h) { return h && (h.Name || h.name); }).slice(0, 10);
+            // ── Top Holdings ─────────────────────────────────────────
+            // EODHD returns Top_10_Holdings as object keyed by ticker
+            // Each value has: Name, Sector, Assets_%
+            var holdSrc = Object.keys(top10).length ? top10 : allHold;
+            var holdArr = Object.values(holdSrc).filter(function (h) { return h && h.Name; }).slice(0, 10);
 
             if (holdArr.length) {
                 html += '<div style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#000;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--primary);">TOP HOLDINGS (' + holdArr.length + ')</div>';
@@ -2028,45 +2053,48 @@
                     '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.85rem;">' +
                     '<thead><tr style="background:#000;">' +
                     '<th style="padding:10px 16px;text-align:left;color:var(--primary);">HOLDING</th>' +
+                    '<th style="padding:10px 16px;text-align:left;color:var(--primary);">SECTOR</th>' +
                     '<th style="padding:10px 16px;text-align:right;color:var(--primary);">WEIGHT</th>' +
                     '</tr></thead><tbody>';
                 holdArr.forEach(function (h, i) {
                     var bg = i % 2 === 0 ? '#fff' : '#f9f9f9';
-                    var name = h.Name || h.name || h.Code || '—';
-                    var wt = h.Weight_Percentage || h.weight || h.Assets_Percentage || null;
+                    // Assets_% is the correct field name from EODHD
+                    var wt = h['Assets_%'] != null ? parseFloat(h['Assets_%']).toFixed(2) + '%' : '—';
                     html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
-                        '<td style="padding:9px 16px;">' + name + '</td>' +
-                        '<td style="padding:9px 16px;text-align:right;font-weight:800;">' + (wt ? parseFloat(wt).toFixed(2) + '%' : '—') + '</td></tr>';
+                        '<td style="padding:9px 16px;font-weight:700;">' + h.Name + '</td>' +
+                        '<td style="padding:9px 16px;color:#666;">' + (h.Sector || '—') + '</td>' +
+                        '<td style="padding:9px 16px;text-align:right;font-weight:900;">' + wt + '</td></tr>';
                 });
                 html += '</tbody></table></div>';
             }
 
-            // ── Sector Weights
-            var sectArr = [];
-            if (Array.isArray(sect)) {
-                sectArr = sect;
-            } else if (typeof sect === 'object') {
-                sectArr = Object.entries(sect).map(function (kv) { return { name: kv[0], weight: kv[1] }; });
-            }
-            sectArr = sectArr.filter(function (s) { return s && (s.name || s.Sector); });
+            // ── Sector Weights ───────────────────────────────────────
+            // EODHD Sector_Weights is object: { "Technology": { "Equity_%": "33.9", "Relative_to_Category": "31.5" } }
+            var sectEntries = Object.entries(sect).filter(function (kv) { return kv[1] && kv[1]['Equity_%']; });
 
-            if (sectArr.length) {
-                html += '<div style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#000;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--primary);">SECTOR BREAKDOWN</div>';
+            if (sectEntries.length) {
+                // sort descending by Equity_%
+                sectEntries.sort(function (a, b) { return parseFloat(b[1]['Equity_%']) - parseFloat(a[1]['Equity_%']); });
+                html += '<div style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#000;letter-spacing:0.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--primary);">SECTOR BREAKDOWN</div>';
                 html += '<div style="margin-bottom:24px;">';
-                sectArr.forEach(function (s) {
-                    var label = s.Sector || s.name || '—';
-                    var val = parseFloat(s.Equity_Share || s.weight || s.value || 0);
-                    var bar = Math.min(val, 100);
-                    html += '<div style="margin-bottom:10px;">' +
-                        '<div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:700;margin-bottom:4px;">' +
-                        '<span>' + label + '</span><span style="font-family:Courier New,monospace;">' + val.toFixed(1) + '%</span></div>' +
+                sectEntries.forEach(function (kv) {
+                    var label = kv[0];
+                    var val = parseFloat(kv[1]['Equity_%']);
+                    var rel = kv[1]['Relative_to_Category'] ? parseFloat(kv[1]['Relative_to_Category']) : null;
+                    var bar = Math.min(val, 50) * 2; // scale to 100% bar since max sector is ~35%
+                    html += '<div style="margin-bottom:12px;">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;font-weight:700;margin-bottom:5px;">' +
+                        '<span>' + label + '</span>' +
+                        '<span style="font-family:Courier New,monospace;">' + val.toFixed(1) + '%' +
+                        (rel ? ' <span style="color:#888;font-size:0.72rem;font-weight:400;">vs cat: ' + rel.toFixed(1) + '%</span>' : '') +
+                        '</span></div>' +
                         '<div style="background:#f0f0f0;height:6px;border-radius:2px;">' +
-                        '<div style="background:var(--primary);height:6px;border-radius:2px;width:' + bar + '%;transition:width 0.5s;"></div></div></div>';
+                        '<div style="background:var(--primary);height:6px;border-radius:2px;width:' + bar + '%;transition:width 0.6s;"></div></div></div>';
                 });
                 html += '</div>';
             }
 
-            if (!holdArr.length && !sectArr.length) {
+            if (!holdArr.length && !sectEntries.length) {
                 html += '<div class="card" style="padding:20px;color:#888;text-align:center;">Detailed holdings data not available for this fund.</div>';
             }
 
