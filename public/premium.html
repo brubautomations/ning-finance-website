@@ -1302,6 +1302,13 @@
         const SMART_MONEY_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
         const SMART_MONEY_WEBHOOK = 'https://hook.us2.make.com/etaefd2od2n1min3cstw0b5pmket9ou2';
 
+        function getNingLogoUrl(eodhd_ticker) {
+            const parts = (eodhd_ticker || '').split('.');
+            const code = parts[0];
+            const exchange = parts[1] || 'US';
+            return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
+        }
+
         function switchUATab(tab) {
             document.querySelectorAll('.ua-tab').forEach(function (el) {
                 el.classList.remove('active');
@@ -1701,6 +1708,12 @@
                     return ` <span class="sep">|</span> <span style="color: ${color}; font-weight: 800;">${change}%</span>`;
                 });
 
+                // Inject logo before each ticker in <strong> tags
+                dataList = dataList.replace(/<strong>([A-Z0-9.]+)<\/strong>/g, (match, ticker) => {
+                    const logoUrl = getNingLogoUrl(ticker);
+                    return `<img src="${logoUrl}" onerror="this.style.display='none'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;"><strong>${ticker}</strong>`;
+                });
+
                 container.innerHTML = `
                     <div class="screener-module">
                         <div class="screener-header">${icon} ${title}</div>
@@ -2086,7 +2099,8 @@
             const loadingMsg = document.getElementById('avm-loading');
 
             // Set Dynamic Header immediately
-            document.getElementById('avm-company-header').innerText = `${companyName} | ${tickerInput}`;
+            const avmLogoHtml = '<img src="' + getNingLogoUrl(tickerInput) + '" onerror="this.style.display=\'none\'" style="width:32px;height:32px;object-fit:contain;margin-right:12px;vertical-align:middle;border-radius:4px;">';
+            document.getElementById('avm-company-header').innerHTML = avmLogoHtml + `${companyName} | ${tickerInput}`;
 
             resultsDiv.style.display = 'none';
             loadingMsg.style.display = 'block';
@@ -2270,7 +2284,8 @@
 
                 // --- 1. POPULATE THE WRITE-UP FIRST (SO IT ALWAYS SHOWS) ---
                 intelSection.style.display = 'block';
-                document.getElementById('intel-ticker').innerText = `${tickerInput} | CORPORATE AND INDUSTRY ANALYSIS`;
+                const ecoLogoHtml = '<img src="' + getNingLogoUrl(tickerInput) + '" onerror="this.style.display=\'none\'" style="width:32px;height:32px;object-fit:contain;margin-right:12px;vertical-align:middle;border-radius:4px;">';
+                document.getElementById('intel-ticker').innerHTML = ecoLogoHtml + `${tickerInput} | CORPORATE AND INDUSTRY ANALYSIS`;
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
                 document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
 

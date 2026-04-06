@@ -1420,6 +1420,13 @@
 
         let mktCurrentTicker = null;
         let mktCurrentCompany = null;
+
+        function getNingLogoUrl(eodhd_ticker) {
+            const parts = (eodhd_ticker || '').split('.');
+            const code = parts[0];
+            const exchange = parts[1] || 'US';
+            return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
+        }
         let mktDebounce = null;
 
         window.switchMarketTab = function (tab) {
@@ -1480,7 +1487,8 @@
                                 mktCurrentCompany = item.description || eodhd;
                                 var label = document.getElementById('mkt-selected-label');
                                 label.style.display = 'block';
-                                label.innerHTML = 'Showing data for: <strong>' + mktCurrentCompany + '</strong> <span style="color:var(--primary); font-family:Courier New,monospace;">' + eodhd + '</span>';
+                                var logoHtml = '<img src="' + getNingLogoUrl(eodhd) + '" onerror="this.style.display=\'none\'" style="width:24px;height:24px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
+                                label.innerHTML = logoHtml + 'Showing data for: <strong>' + mktCurrentCompany + '</strong> <span style="color:var(--primary); font-family:Courier New,monospace;">' + eodhd + '</span>';
                                 fetchCompanyData(eodhd);
                             };
                             list.appendChild(li);
