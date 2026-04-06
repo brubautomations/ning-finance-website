@@ -903,6 +903,9 @@
                     <div id="mkt-tab-funds" onclick="switchMarketTab('funds')"
                         style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
                         ETF & FUNDS</div>
+                    <div id="mkt-tab-ecocal" onclick="switchMarketTab('ecocal')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        ECONOMIC CALENDAR</div>
                 </div>
                 <div id="mkt-breadth" class="mkt-subpage">
                     <div id="market-breadth-inner"></div>
@@ -964,6 +967,16 @@
                             Search for an ETF or fund above to load its data.</div>
                     </div>
                 </div>
+
+                <!-- ── ECONOMIC CALENDAR TAB ─────────────────────────── -->
+                <div id="mkt-ecocal" class="mkt-subpage" style="display:none;">
+                    <div id="ecocal-container">
+                        <div class="card"
+                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
+                            Loading economic calendar...</div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="tech" class="page">
@@ -1459,7 +1472,7 @@
         let mktDebounce = null;
 
         window.switchMarketTab = function (tab) {
-            ['breadth', 'news', 'earnings', 'funds'].forEach(function (t) {
+            ['breadth', 'news', 'earnings', 'funds', 'ecocal'].forEach(function (t) {
                 var el = document.getElementById('mkt-tab-' + t);
                 if (!el) return;
                 el.style.borderBottomColor = (t === tab) ? 'var(--primary)' : 'transparent';
@@ -1474,6 +1487,10 @@
             if (tab === 'funds') {
                 populateMFDropdown();
                 setupETFSearch();
+            }
+            // load economic calendar on first open
+            if (tab === 'ecocal') {
+                loadEconomicCalendar();
             }
         };
 
@@ -2048,6 +2065,190 @@
         }
 
         // ── AUTO-INIT handled by switchMarketTab on first open ──────
+
+        // ============================================================
+        // ECONOMIC CALENDAR
+        // ============================================================
+        const ECOCAL_TABLE = 'tblAGh8G0BHb389HR';
+
+        // Country code → emoji flag
+        function countryFlag(code) {
+            if (!code || code.length !== 2) return '🌐';
+            return code.toUpperCase().replace(/./g, function (c) {
+                return String.fromCodePoint(c.charCodeAt(0) + 127397);
+            });
+        }
+
+        // Country code → full name
+        const COUNTRY_NAMES = {
+            US: 'United States', GB: 'United Kingdom', EU: 'Eurozone', JP: 'Japan',
+            CN: 'China', DE: 'Germany', FR: 'France', IT: 'Italy', CA: 'Canada',
+            AU: 'Australia', NZ: 'New Zealand', CH: 'Switzerland', KR: 'South Korea',
+            IN: 'India', BR: 'Brazil', MX: 'Mexico', SG: 'Singapore', HK: 'Hong Kong',
+            PH: 'Philippines', MY: 'Malaysia', ID: 'Indonesia', TH: 'Thailand',
+            TW: 'Taiwan', TR: 'Turkey', ZA: 'South Africa', AR: 'Argentina',
+            CO: 'Colombia', PL: 'Poland', SE: 'Sweden', NO: 'Norway', DK: 'Denmark',
+            FI: 'Finland', PT: 'Portugal', ES: 'Spain', NL: 'Netherlands',
+            BE: 'Belgium', AT: 'Austria', GR: 'Greece', IE: 'Ireland', LU: 'Luxembourg',
+            EE: 'Estonia', RU: 'Russia', GE: 'Georgia', SA: 'Saudi Arabia',
+            AE: 'UAE', EG: 'Egypt',
+        };
+
+        // Impact detection by keyword — EODHD doesn't provide impact field
+        function getImpact(type) {
+            var HIGH = /Interest Rate|Fed |Federal Reserve|CPI|Inflation Rate|GDP|Nonfarm|Unemployment Rate|Central Bank|BSP|ECB|BOJ|BOE|RBA|RBNZ|SNB|BoC|PBoC|NFP|PMI Composite|ISM Manufacturing|Retail Sales.*US|Consumer Price/i;
+            var MED = /PMI|Balance of Trade|Current Account|Industrial Production|Housing|Consumer Confidence|Retail Sales|Producer Price|PPI|Factory Orders|Durable Goods/i;
+            if (HIGH.test(type)) return 'high';
+            if (MED.test(type)) return 'medium';
+            return 'low';
+        }
+
+        var ecocalLoaded = false;
+
+        async function loadEconomicCalendar() {
+            var container = document.getElementById('ecocal-container');
+            if (!container) return;
+
+            // Show loading only on first open
+            if (!ecocalLoaded) {
+                container.innerHTML = '<div class="card" style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">LOADING ECONOMIC CALENDAR...</div>';
+            }
+
+            try {
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + ECOCAL_TABLE +
+                    '?filterByFormula={Record_ID}%3D%22MAIN%22&maxRecords=1';
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                var data = await res.json();
+
+                if (!data.records || !data.records.length || !data.records[0].fields.Events_Data) {
+                    container.innerHTML = '<div class="card" style="padding:30px;text-align:center;color:#888;">Economic calendar data not available. Please check back later.</div>';
+                    return;
+                }
+
+                var raw = data.records[0].fields.Events_Data;
+                var events = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                var updated = data.records[0].fields.Last_Updated
+                    ? new Date(data.records[0].fields.Last_Updated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : '';
+
+                ecocalLoaded = true;
+                renderEconomicCalendar(events, updated, container);
+
+            } catch (e) {
+                console.warn('Ecocal load error', e);
+                container.innerHTML = '<div class="card" style="padding:30px;text-align:center;color:#dc2626;">Failed to load calendar. Please try again.</div>';
+            }
+        }
+
+        function renderEconomicCalendar(events, updated, container) {
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+            var html = '';
+
+            // ── LAST UPDATED badge
+            if (updated) {
+                html += '<div style="font-size:0.72rem;color:#aaa;font-style:italic;margin-bottom:16px;">Last updated: ' + updated + ' · Refreshes daily at 5AM PHT</div>';
+            }
+
+            // ── THIS WEEK'S MARKET MOVERS banner (high impact only)
+            var highEvents = events.filter(function (e) { return getImpact(e.type) === 'high'; })
+                .sort(function (a, b) { return new Date(a.date) - new Date(b.date); })
+                .slice(0, 8);
+
+            if (highEvents.length) {
+                html += '<div style="background:#000;padding:16px 20px;margin-bottom:24px;">' +
+                    '<div style="font-size:0.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:12px;">⚡ MARKET MOVING EVENTS — NEXT 14 DAYS</div>';
+                highEvents.forEach(function (e) {
+                    var dt = new Date(e.date);
+                    var dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    var timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) + ' PHT';
+                    var flag = countryFlag(e.country);
+                    var est = e.estimate != null ? ' · Est: <strong>' + e.estimate + '</strong>' : '';
+                    var prev = e.previous != null ? ' · Prev: ' + e.previous : '';
+                    html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #333;">' +
+                        '<span style="font-size:1.1rem;flex-shrink:0;">' + flag + '</span>' +
+                        '<div style="flex:1;min-width:0;">' +
+                        '<div style="font-size:0.85rem;font-weight:800;color:#fff;line-height:1.3;">' + e.type + (e.comparison ? ' <span style="color:#888;font-weight:400;font-size:0.75rem;">(' + e.comparison + ')</span>' : '') + '</div>' +
+                        '<div style="font-size:0.75rem;color:#888;margin-top:2px;">' + dateStr + ' · ' + timeStr + est + prev + '</div>' +
+                        '</div></div>';
+                });
+                html += '</div>';
+            }
+
+            // ── Group events by day
+            var byDay = {};
+            events.forEach(function (e) {
+                var d = e.date.split(' ')[0]; // YYYY-MM-DD
+                if (!byDay[d]) byDay[d] = [];
+                byDay[d].push(e);
+            });
+
+            var days = Object.keys(byDay).sort();
+
+            days.forEach(function (dayKey) {
+                var dayDate = new Date(dayKey + 'T00:00:00');
+                var isToday = dayDate.toDateString() === today.toDateString();
+                var isPast = dayDate < today;
+                var dayLabel = isToday
+                    ? 'TODAY — ' + dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
+                    : dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+
+                // Day header — gold for today, grey for past, black for future
+                var headerBg = isToday ? 'var(--primary)' : (isPast ? '#f5f5f5' : '#000');
+                var headerColor = isToday ? '#000' : (isPast ? '#aaa' : '#fff');
+                var borderColor = isToday ? 'var(--primary)' : (isPast ? '#e0e0e0' : '#000');
+
+                html += '<div style="margin-bottom:20px;border:2px solid ' + borderColor + ';">' +
+                    '<div style="background:' + headerBg + ';padding:10px 16px;font-size:0.78rem;font-weight:900;letter-spacing:0.5px;color:' + headerColor + ';">' +
+                    (isToday ? '📅 ' : '') + dayLabel + '</div>' +
+                    '<div>';
+
+                // Sort by time within day
+                var dayEvents = byDay[dayKey].sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+
+                dayEvents.forEach(function (e, i) {
+                    var impact = getImpact(e.type);
+                    var dot = impact === 'high' ? '🔴' : (impact === 'medium' ? '🟡' : '⚪');
+                    var flag = countryFlag(e.country);
+                    var cname = COUNTRY_NAMES[e.country] || e.country;
+                    var dt = new Date(e.date);
+                    var timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) + ' PHT';
+                    var bg = i % 2 === 0 ? '#fff' : '#fafafa';
+
+                    // Values
+                    var actualStr = e.actual != null ? '<span style="font-weight:900;color:' + (e.actual >= (e.estimate || e.previous || 0) ? '#16a34a' : '#dc2626') + ';">' + e.actual + '</span>' : '<span style="color:#aaa;">TBA</span>';
+                    var estStr = e.estimate != null ? e.estimate : '—';
+                    var prevStr = e.previous != null ? e.previous : '—';
+
+                    html += '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:10px 16px;background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
+                        // Left: dot + flag + time
+                        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
+                        '<span style="font-size:0.7rem;">' + dot + '</span>' +
+                        '<span style="font-size:1rem;">' + flag + '</span>' +
+                        '<div style="font-size:0.7rem;color:#888;font-family:Courier New,monospace;white-space:nowrap;">' + timeStr + '</div>' +
+                        '</div>' +
+                        // Middle: event name + country
+                        '<div style="min-width:0;">' +
+                        '<div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;line-height:1.3;">' + e.type + (e.comparison ? ' <span style="color:#888;font-weight:400;font-size:0.72rem;">(' + e.comparison + ')</span>' : '') + (e.period ? ' <span style="color:#aaa;font-size:0.7rem;">' + e.period + '</span>' : '') + '</div>' +
+                        '<div style="font-size:0.72rem;color:#aaa;">' + cname + '</div>' +
+                        '</div>' +
+                        // Right: actual / est / prev
+                        '<div style="text-align:right;font-family:Courier New,monospace;font-size:0.78rem;flex-shrink:0;">' +
+                        '<div>' + actualStr + '</div>' +
+                        '<div style="color:#888;font-size:0.68rem;">Est: ' + estStr + ' · Prev: ' + prevStr + '</div>' +
+                        '</div>' +
+                        '</div>';
+                });
+
+                html += '</div></div>';
+            });
+
+            if (!days.length) {
+                html += '<div class="card" style="padding:30px;text-align:center;color:#888;">No events found for the next 14 days.</div>';
+            }
+
+            container.innerHTML = html;
+        }
 
         // ── LIVE FX TICKER ---
         // Uses open.er-api.com — free, no API key needed, updates every few hours
