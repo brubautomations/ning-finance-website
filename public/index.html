@@ -1817,7 +1817,7 @@
         // Finnhub allows direct browser calls. Full fundamentals data
         // still goes through Make.com → EODHD → Airtable as before.
         // Name shown BIG so user doesn't need to know tickers.
-        const FINNHUB_KEY = 'd77sidhr01qsamsi1magd77sidhr01qsamsi1mb0';
+        // Note: FINNHUB_KEY already declared above — reusing it here.
 
         // Finnhub type codes:
         //   ETF  → type 'ETP'
@@ -1902,7 +1902,7 @@
                     }
                 }, 400);
             });
-            document.addEventListener('click', function (e) { if (e.target !== input) list.style.display = 'none'; });
+            // NO click listener here — added once in setupETFSearch below
         }
 
         function selectFund(input, list, label, built, fundType) {
@@ -1923,6 +1923,16 @@
             fundSearchInit = true;
             setupFundSearch('etf-search-input', 'etf-suggestions', 'etf-selected-label', 'ETF');
             setupFundSearch('mf-search-input', 'mf-suggestions', 'mf-selected-label', 'FUND');
+            // Single click-outside handler registered exactly once
+            document.addEventListener('click', function (e) {
+                ['etf-suggestions', 'mf-suggestions'].forEach(function (id) {
+                    var list = document.getElementById(id);
+                    var inp = document.getElementById(id.replace('suggestions', 'search-input'));
+                    if (list && inp && e.target !== inp && !list.contains(e.target)) {
+                        list.style.display = 'none';
+                    }
+                });
+            });
         };
 
         // no-op — no more hardcoded dropdown
