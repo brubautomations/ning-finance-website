@@ -941,67 +941,28 @@
 
                 <!-- ── ETF & FUNDS TAB ──────────────────────────────── -->
                 <div id="mkt-funds" class="mkt-subpage" style="display:none;">
-
-                    <!-- Fund type sub-tabs -->
-                    <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;">
-                        <div id="fund-tab-etf" onclick="switchFundTab('etf')"
-                            style="padding:10px 20px;cursor:pointer;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                            ETF</div>
-                        <div id="fund-tab-mf" onclick="switchFundTab('mf')"
-                            style="padding:10px 20px;cursor:pointer;font-size:0.78rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                            MUTUAL FUNDS</div>
+                    <div
+                        style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+                        SEARCH ANY ETF OR FUND GLOBALLY</div>
+                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Type a fund name, issuer, or ticker —
+                        e.g. Vanguard, BlackRock, Fidelity, SPY, QQQ, ARKK...</div>
+                    <div style="position:relative;max-width:480px;margin-bottom:16px;">
+                        <input type="text" id="fund-search-input" autocomplete="off"
+                            placeholder="Search ETFs and mutual funds..."
+                            style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
+                            onfocus="this.style.borderColor='var(--primary)'"
+                            onblur="this.style.borderColor='var(--border)'">
+                        <ul id="fund-suggestions"
+                            style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                        </ul>
                     </div>
-
-                    <!-- ETF sub-tab -->
-                    <div id="fund-sub-etf" style="display:block;">
-                        <div
-                            style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
-                            SEARCH ANY ETF GLOBALLY</div>
-                        <div style="position:relative;max-width:480px;margin-bottom:16px;">
-                            <input type="text" id="etf-search-input" autocomplete="off"
-                                placeholder="Type a name or ticker e.g. Vanguard, BlackRock, SPY, QQQ..."
-                                style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
-                                onfocus="this.style.borderColor='var(--primary)'"
-                                onblur="this.style.borderColor='var(--border)'">
-                            <ul id="etf-suggestions"
-                                style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
-                            </ul>
-                        </div>
-                        <input type="hidden" id="etf-selected-ticker">
-                        <div id="etf-selected-label"
-                            style="display:none;margin-bottom:16px;font-size:0.8rem;font-weight:700;color:#000;"></div>
-                        <div id="etf-container">
-                            <div class="card"
-                                style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
-                                Search for an ETF above to load its data.</div>
-                        </div>
+                    <div id="fund-selected-label"
+                        style="display:none;margin-bottom:16px;font-size:0.8rem;font-weight:700;color:#000;"></div>
+                    <div id="fund-container">
+                        <div class="card"
+                            style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
+                            Search for an ETF or fund above to load its data.</div>
                     </div>
-
-                    <!-- MUTUAL FUNDS sub-tab -->
-                    <div id="fund-sub-mf" style="display:none;">
-                        <div
-                            style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
-                            SEARCH ANY MUTUAL FUND GLOBALLY</div>
-                        <div style="position:relative;max-width:480px;margin-bottom:16px;">
-                            <input type="text" id="mf-search-input" autocomplete="off"
-                                placeholder="Type a name or ticker e.g. Fidelity, Vanguard, VFINX..."
-                                style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
-                                onfocus="this.style.borderColor='var(--primary)'"
-                                onblur="this.style.borderColor='var(--border)'">
-                            <ul id="mf-suggestions"
-                                style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
-                            </ul>
-                        </div>
-                        <input type="hidden" id="mf-selected-ticker">
-                        <div id="mf-selected-label"
-                            style="display:none;margin-bottom:16px;font-size:0.8rem;font-weight:700;color:#000;"></div>
-                        <div id="mf-container">
-                            <div class="card"
-                                style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
-                                Search for a mutual fund above to load its data.</div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
@@ -1803,54 +1764,41 @@
         const FUND_WEBHOOK = 'https://hook.us2.make.com/cobxrbqh358clrx6ptvm4286doyn412s'; // reuse same webhook, send type param
         const FUND_TABLE = 'Fund_Data'; // new Airtable table
 
-        window.switchFundTab = function (tab) {
-            ['etf', 'mf'].forEach(function (t) {
-                var btn = document.getElementById('fund-tab-' + t);
-                var sub = document.getElementById('fund-sub-' + t);
-                if (btn) { btn.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent'; btn.style.color = t === tab ? '#000' : '#888'; }
-                if (sub) sub.style.display = t === tab ? 'block' : 'none';
-            });
-        };
+        // ── FUND SEARCH — single merged search for ETF + Mutual Funds
+        // Finnhub for autocomplete (CORS-friendly, name-first display)
+        // Full fundamentals still go through Make.com → EODHD → Airtable
+        // Type auto-detected from Finnhub result: ETP=ETF, FUND=MF, else ETF
 
-        // ── MUTUAL FUND DROPDOWN DATA ────────────────────────────────
-        // ── FUND SEARCH — Finnhub for autocomplete (CORS-friendly)
-        // Finnhub allows direct browser calls. Full fundamentals data
-        // still goes through Make.com → EODHD → Airtable as before.
-        // Name shown BIG so user doesn't need to know tickers.
-        // Note: FINNHUB_KEY already declared above — reusing it here.
-
-        // Finnhub type codes:
-        //   ETF  → type 'ETP'
-        //   MF   → type 'FUND' or description contains 'Fund'
-        // We show name prominently and ticker small so users can search
-        // "blackrock gold" or "vanguard bond" without knowing tickers.
-
-        function buildFundItem(item, fundType) {
-            // Finnhub returns: symbol, description, type, displaySymbol
-            // Convert Finnhub symbol to EODHD format e.g. SPY → SPY.US
+        function buildFundItem(item) {
             var sym = item.symbol || '';
             var dot = sym.lastIndexOf('.');
             var eodhd = dot > 0 ? sym : sym + '.US';
             var name = item.description || sym;
-            var logo = getNingLogoUrl(eodhd);
+            // Badge showing ETF or FUND
+            var badge = item.type === 'FUND'
+                ? '<span style="font-size:0.65rem;background:#e0f2fe;color:#0369a1;padding:1px 6px;border-radius:2px;font-weight:800;margin-left:6px;">FUND</span>'
+                : '<span style="font-size:0.65rem;background:#fef9c3;color:#854d0e;padding:1px 6px;border-radius:2px;font-weight:800;margin-left:6px;">ETF</span>';
             var li = document.createElement('li');
             li.style.cssText = 'padding:11px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;';
-            // Name BIG, ticker small underneath
             li.innerHTML =
-                '<img src="' + logo + '" onerror="this.style.display=\'none\'" style="width:26px;height:26px;object-fit:contain;border-radius:3px;flex-shrink:0;">' +
+                '<img src="' + getNingLogoUrl(eodhd) + '" onerror="this.style.display=\'none\'" style="width:26px;height:26px;object-fit:contain;border-radius:3px;flex-shrink:0;">' +
                 '<div style="min-width:0;flex:1;">' +
-                '<div style="font-size:0.9rem;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+                '<div style="font-size:0.9rem;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + badge + '</div>' +
                 '<div style="font-size:0.75rem;font-family:Courier New,monospace;color:var(--primary);font-weight:900;margin-top:1px;">' + eodhd + '</div>' +
                 '</div>';
             li.onmouseover = function () { this.style.background = '#fffbf0'; };
             li.onmouseout = function () { this.style.background = '#fff'; };
-            return { li, eodhd, name };
+            return { li, eodhd, name, type: item.type };
         }
 
-        function setupFundSearch(inputId, listId, labelId, fundType) {
-            var input = document.getElementById(inputId);
-            var list = document.getElementById(listId);
-            var label = document.getElementById(labelId);
+        var fundSearchInit = false;
+        window.setupETFSearch = function () {
+            if (fundSearchInit) return;
+            fundSearchInit = true;
+
+            var input = document.getElementById('fund-search-input');
+            var list = document.getElementById('fund-suggestions');
+            var label = document.getElementById('fund-selected-label');
             var debounce = null;
             if (!input) return;
 
@@ -1865,35 +1813,29 @@
                         var res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=' + FINNHUB_KEY);
                         var data = await res.json();
                         var all = data.result || [];
-
-                        // Filter by fund type
+                        // Keep ETFs and Mutual Funds only, exclude stocks
                         var filtered = all.filter(function (r) {
-                            if (fundType === 'ETF') {
-                                return r.type === 'ETP' ||
-                                    /\bETF\b|\bETP\b|\bTRUST\b|\bINDEX\b/i.test(r.description);
-                            } else {
-                                // Mutual funds
-                                return r.type === 'FUND' ||
-                                    /\bFUND\b|\bMUTUAL\b|\bGROWTH FUND\b|\bINCOME FUND\b/i.test(r.description);
-                            }
+                            return r.type === 'ETP' || r.type === 'FUND' ||
+                                /\bETF\b|\bETP\b|\bFUND\b|\bTRUST\b/i.test(r.description);
                         }).slice(0, 12);
-
-                        if (!filtered.length) {
-                            // If strict filter finds nothing, show top unfiltered with a note
-                            list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.82rem;font-style:italic;">No exact matches — showing closest results:</li>';
-                            all.slice(0, 8).forEach(function (item) {
-                                var built = buildFundItem(item, fundType);
-                                built.li.onclick = function () { selectFund(input, list, label, built, fundType); };
-                                list.appendChild(built.li);
-                            });
-                            list.style.display = 'block';
+                        // If nothing found with filter, show top results anyway
+                        var results = filtered.length ? filtered : all.slice(0, 8);
+                        if (!results.length) {
+                            list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;">No results found.</li>';
                             return;
                         }
-
                         list.innerHTML = '';
-                        filtered.forEach(function (item) {
-                            var built = buildFundItem(item, fundType);
-                            built.li.onclick = function () { selectFund(input, list, label, built, fundType); };
+                        results.forEach(function (item) {
+                            var built = buildFundItem(item);
+                            built.li.onclick = function () {
+                                input.value = built.name;
+                                list.style.display = 'none';
+                                var fundType = built.type === 'FUND' ? 'MUTUAL_FUND' : 'ETF';
+                                var logoHtml = '<img src="' + getNingLogoUrl(built.eodhd) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
+                                label.style.display = 'block';
+                                label.innerHTML = logoHtml + '<strong>' + built.name + '</strong> <span style="color:var(--primary);font-family:Courier New,monospace;font-size:0.82rem;">' + built.eodhd + '</span>';
+                                loadFundData(built.eodhd, fundType);
+                            };
                             list.appendChild(built.li);
                         });
                         list.style.display = 'block';
@@ -1902,46 +1844,21 @@
                     }
                 }, 400);
             });
-            // NO click listener here — added once in setupETFSearch below
-        }
 
-        function selectFund(input, list, label, built, fundType) {
-            input.value = built.name;
-            list.style.display = 'none';
-            var logoHtml = '<img src="' + getNingLogoUrl(built.eodhd) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
-            label.style.display = 'block';
-            label.innerHTML = logoHtml +
-                '<strong>' + built.name + '</strong>' +
-                ' <span style="color:var(--primary);font-family:Courier New,monospace;font-size:0.82rem;">' + built.eodhd + '</span>';
-            loadFundData(built.eodhd, fundType);
-        }
-
-        // ── INIT BOTH SEARCHES when funds tab opens ──────────────────
-        var fundSearchInit = false;
-        window.setupETFSearch = function () {
-            if (fundSearchInit) return;
-            fundSearchInit = true;
-            setupFundSearch('etf-search-input', 'etf-suggestions', 'etf-selected-label', 'ETF');
-            setupFundSearch('mf-search-input', 'mf-suggestions', 'mf-selected-label', 'FUND');
-            // Single click-outside handler registered exactly once
+            // Single click-outside handler — registered exactly once
             document.addEventListener('click', function (e) {
-                ['etf-suggestions', 'mf-suggestions'].forEach(function (id) {
-                    var list = document.getElementById(id);
-                    var inp = document.getElementById(id.replace('suggestions', 'search-input'));
-                    if (list && inp && e.target !== inp && !list.contains(e.target)) {
-                        list.style.display = 'none';
-                    }
-                });
+                if (e.target !== input && !list.contains(e.target)) {
+                    list.style.display = 'none';
+                }
             });
         };
 
-        // no-op — no more hardcoded dropdown
-        window.populateMFDropdown = function () { };
+        window.switchFundTab = function () { }; // no-op, tabs removed
+        window.populateMFDropdown = function () { }; // no-op, dropdown removed
 
         // ── LOAD FUND DATA — Airtable cache → Make webhook ──────────
         window.loadFundData = async function (ticker, type) {
-            var containerId = type === 'ETF' ? 'etf-container' : 'mf-container';
-            var container = document.getElementById(containerId);
+            var container = document.getElementById('fund-container');
             container.innerHTML = '<div class="card" style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">FETCHING FUND DATA FOR ' + ticker + '...</div>';
 
             // Step 1 — check Airtable cache
