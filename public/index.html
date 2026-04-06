@@ -959,12 +959,12 @@
                             SEARCH ANY ETF GLOBALLY</div>
                         <div style="position:relative;max-width:480px;margin-bottom:16px;">
                             <input type="text" id="etf-search-input" autocomplete="off"
-                                placeholder="e.g. SPY, QQQ, FMETF, VOO, ARKK"
+                                placeholder="Type a name or ticker e.g. Vanguard, BlackRock, SPY, QQQ..."
                                 style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
                                 onfocus="this.style.borderColor='var(--primary)'"
                                 onblur="this.style.borderColor='var(--border)'">
                             <ul id="etf-suggestions"
-                                style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                                style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
                             </ul>
                         </div>
                         <input type="hidden" id="etf-selected-ticker">
@@ -981,27 +981,24 @@
                     <div id="fund-sub-mf" style="display:none;">
                         <div
                             style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
-                            SELECT A FUND</div>
-                        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-                            <select id="mf-region-select"
-                                style="padding:10px 16px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;"
-                                onchange="populateMFDropdown()">
-                                <option value="PH">🇵🇭 Philippines</option>
-                                <option value="US">🇺🇸 United States</option>
-                                <option value="GLOBAL">🌏 Global</option>
-                            </select>
-                            <select id="mf-fund-select"
-                                style="padding:10px 16px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;min-width:280px;">
-                            </select>
-                            <button
-                                onclick="loadFundData(document.getElementById('mf-fund-select').value, 'MUTUAL_FUND')"
-                                style="padding:10px 20px;background:#000;color:#fff;border:none;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:800;text-transform:uppercase;cursor:pointer;letter-spacing:0.5px;">
-                                LOAD FUND</button>
+                            SEARCH ANY MUTUAL FUND GLOBALLY</div>
+                        <div style="position:relative;max-width:480px;margin-bottom:16px;">
+                            <input type="text" id="mf-search-input" autocomplete="off"
+                                placeholder="Type a name or ticker e.g. Fidelity, Vanguard, VFINX..."
+                                style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='var(--primary)'"
+                                onblur="this.style.borderColor='var(--border)'">
+                            <ul id="mf-suggestions"
+                                style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:320px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                            </ul>
                         </div>
+                        <input type="hidden" id="mf-selected-ticker">
+                        <div id="mf-selected-label"
+                            style="display:none;margin-bottom:16px;font-size:0.8rem;font-weight:700;color:#000;"></div>
                         <div id="mf-container">
                             <div class="card"
                                 style="border-top-color:#ccc;text-align:center;padding:40px;color:#888;font-style:italic;">
-                                Select a fund above to load its data.</div>
+                                Search for a mutual fund above to load its data.</div>
                         </div>
                     </div>
 
@@ -1816,103 +1813,86 @@
         };
 
         // ── MUTUAL FUND DROPDOWN DATA ────────────────────────────────
-        const MF_FUNDS = {
-            PH: [
-                { label: 'FMETF — First Metro PH Equity ETF', ticker: 'FMETF.PSE' },
-                { label: 'ATRAM PH Equity Opportunity Fund', ticker: 'ATRAMPEQF.PSE' },
-                { label: 'Sunlife Prosperity PH Equity Fund', ticker: 'SLPEQF.PSE' },
-                { label: 'BPI Philippine Equity Index Fund', ticker: 'BPIPHLEQF.PSE' },
-                { label: 'BDO Equity Fund', ticker: 'BDOEQF.PSE' },
-                { label: 'Metrobank Philippine Equity Fund', ticker: 'MBPEQF.PSE' },
-                { label: 'Philam Fund (AIA)', ticker: 'PHILAM.PSE' },
-                { label: 'Manulife PH Equity Fund', ticker: 'MANEQF.PSE' },
-            ],
-            US: [
-                { label: 'VFINX — Vanguard 500 Index Fund', ticker: 'VFINX.US' },
-                { label: 'FXAIX — Fidelity 500 Index Fund', ticker: 'FXAIX.US' },
-                { label: 'VTSAX — Vanguard Total Stock Market', ticker: 'VTSAX.US' },
-                { label: 'VBTLX — Vanguard Total Bond Market', ticker: 'VBTLX.US' },
-                { label: 'AGTHX — American Funds Growth Fund of Am.', ticker: 'AGTHX.US' },
-                { label: 'PRGFX — T. Rowe Price Growth Stock Fund', ticker: 'PRGFX.US' },
-                { label: 'FCNTX — Fidelity Contrafund', ticker: 'FCNTX.US' },
-                { label: 'VWELX — Vanguard Wellington Fund', ticker: 'VWELX.US' },
-            ],
-            GLOBAL: [
-                { label: 'VGTSX — Vanguard Total Intl Stock Index', ticker: 'VGTSX.US' },
-                { label: 'TBGVX — Tweedy Browne Global Value', ticker: 'TBGVX.US' },
-                { label: 'MWEFX — Matthews Asia Equity Fund', ticker: 'MWEFX.US' },
-                { label: 'NEWFX — American Funds EuroPacific Growth', ticker: 'NEWFX.US' },
-                { label: 'DODFX — Dodge & Cox International Stock', ticker: 'DODFX.US' },
-                { label: 'OIBAX — Invesco International Growth', ticker: 'OIBAX.US' },
-            ],
-        };
+        // ── EODHD FUND SEARCH — shared helper for ETF + MF ──────────
+        // Uses EODHD search API directly from browser (same as how
+        // we call Finnhub for company search — lightweight lookup only)
+        // Full fundamentals still go through Make.com + Airtable cache
+        const EODHD_TOKEN = '6904bd249d0335.81953936';
 
-        window.populateMFDropdown = function () {
-            var region = document.getElementById('mf-region-select').value;
-            var sel = document.getElementById('mf-fund-select');
-            sel.innerHTML = '';
-            (MF_FUNDS[region] || []).forEach(function (f) {
-                var o = document.createElement('option');
-                o.value = f.ticker;
-                o.textContent = f.label;
-                sel.appendChild(o);
-            });
-        };
+        function buildFundSearchItem(item, fundType) {
+            // EODHD search returns: Code, Exchange, Name, Type, ISIN
+            var ticker = item.Code + '.' + item.Exchange;
+            var name = item.Name || item.Code;
+            var logoUrl = getNingLogoUrl(ticker);
+            var li = document.createElement('li');
+            li.style.cssText = 'padding:10px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;';
+            li.innerHTML =
+                '<img src="' + logoUrl + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;border-radius:3px;flex-shrink:0;">' +
+                '<div style="min-width:0;">' +
+                '<div style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.88rem;">' + ticker + '</div>' +
+                '<div style="font-size:0.8rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+                '</div>';
+            li.onmouseover = function () { this.style.background = '#fffbf0'; };
+            li.onmouseout = function () { this.style.background = '#fff'; };
+            return { li, ticker, name };
+        }
 
-        // ── ETF SEARCH (Finnhub autocomplete, type=ETF filter) ──────
-        var etfSearchInit = false;
-        window.setupETFSearch = function () {
-            if (etfSearchInit) return;
-            etfSearchInit = true;
-            var input = document.getElementById('etf-search-input');
-            var list = document.getElementById('etf-suggestions');
-            var hidden = document.getElementById('etf-selected-ticker');
-            var label = document.getElementById('etf-selected-label');
+        function setupFundSearch(inputId, listId, labelId, fundType, containerId) {
+            var input = document.getElementById(inputId);
+            var list = document.getElementById(listId);
+            var label = document.getElementById(labelId);
             var debounce = null;
-            var FINNHUB_TOKEN = 'd77sidhr01qsamsi1magd77sidhr01qsamsi1mb0';
+            if (!input) return;
 
             input.addEventListener('input', function () {
                 clearTimeout(debounce);
                 var q = input.value.trim();
                 if (q.length < 2) { list.style.display = 'none'; return; }
+                list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;">Searching...</li>';
+                list.style.display = 'block';
                 debounce = setTimeout(async function () {
                     try {
-                        var res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=' + FINNHUB_TOKEN);
+                        // EODHD search with type filter
+                        var typeParam = fundType === 'ETF' ? 'ETF' : 'FUND';
+                        var res = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_TOKEN + '&type=' + typeParam + '&limit=12&fmt=json');
                         var data = await res.json();
-                        // filter to ETFs only
-                        var results = (data.result || []).filter(function (r) {
-                            return r.type === 'ETP' || r.type === 'ETF' || (r.symbol && /ETF|ETP/i.test(r.description));
-                        }).slice(0, 8);
-                        if (!results.length) { list.style.display = 'none'; return; }
+                        if (!data || !data.length) {
+                            list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;">No results found.</li>';
+                            return;
+                        }
                         list.innerHTML = '';
-                        results.forEach(function (item) {
-                            var dot = item.symbol.lastIndexOf('.');
-                            var eodhd = dot > 0 ? item.symbol.substring(0, dot) + (({ '.': '.US' })[item.symbol.substring(dot)] || item.symbol.substring(dot)) : item.symbol + '.US';
-                            var li = document.createElement('li');
-                            li.style.cssText = 'padding:10px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;';
-                            li.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;">' +
-                                '<img src="' + getNingLogoUrl(eodhd) + '" onerror="this.style.display=\'none\'" style="width:20px;height:20px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:2px;">' +
-                                '<span style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + eodhd + '</span></div>' +
-                                '<div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
-                            li.onmouseover = function () { this.style.background = '#fffbf0'; };
-                            li.onmouseout = function () { this.style.background = '#fff'; };
-                            li.onclick = function () {
-                                input.value = (item.description || eodhd) + ' (' + eodhd + ')';
-                                hidden.value = eodhd;
+                        data.forEach(function (item) {
+                            var built = buildFundSearchItem(item, fundType);
+                            built.li.onclick = function () {
+                                input.value = built.name + ' (' + built.ticker + ')';
                                 list.style.display = 'none';
-                                var logoHtml = '<img src="' + getNingLogoUrl(eodhd) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
+                                var logoHtml = '<img src="' + getNingLogoUrl(built.ticker) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
                                 label.style.display = 'block';
-                                label.innerHTML = logoHtml + 'Showing data for: <strong>' + (item.description || eodhd) + '</strong> <span style="color:var(--primary);font-family:Courier New,monospace;">' + eodhd + '</span>';
-                                loadFundData(eodhd, 'ETF');
+                                label.innerHTML = logoHtml + 'Showing data for: <strong>' + built.name + '</strong> <span style="color:var(--primary);font-family:Courier New,monospace;">' + built.ticker + '</span>';
+                                loadFundData(built.ticker, fundType);
                             };
-                            list.appendChild(li);
+                            list.appendChild(built.li);
                         });
                         list.style.display = 'block';
-                    } catch (e) { list.style.display = 'none'; }
+                    } catch (e) {
+                        list.innerHTML = '<li style="padding:10px 16px;color:#dc2626;font-size:0.85rem;">Search error. Try again.</li>';
+                    }
                 }, 400);
             });
             document.addEventListener('click', function (e) { if (e.target !== input) list.style.display = 'none'; });
+        }
+
+        // ── INIT BOTH SEARCHES when funds tab opens ──────────────────
+        var fundSearchInit = false;
+        window.setupETFSearch = function () {
+            if (fundSearchInit) return;
+            fundSearchInit = true;
+            setupFundSearch('etf-search-input', 'etf-suggestions', 'etf-selected-label', 'ETF', 'etf-container');
+            setupFundSearch('mf-search-input', 'mf-suggestions', 'mf-selected-label', 'FUND', 'mf-container');
         };
+
+        // Keep populateMFDropdown as a no-op so existing calls don't break
+        window.populateMFDropdown = function () { };
 
         // ── LOAD FUND DATA — Airtable cache → Make webhook ──────────
         window.loadFundData = async function (ticker, type) {
@@ -2106,8 +2086,7 @@
             return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
         }
 
-        // ── AUTO-INIT MF DROPDOWN ────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', function () { populateMFDropdown(); });
+        // ── AUTO-INIT handled by switchMarketTab on first open ──────
 
         // ── LIVE FX TICKER ---
         // Uses open.er-api.com — free, no API key needed, updates every few hours
