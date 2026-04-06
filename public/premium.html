@@ -762,6 +762,7 @@
 
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
+        <div class="tab" onclick="nav('ecodata')" id="tab-ecodata">ECONOMIC DATA BY COUNTRY</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
         <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
@@ -830,6 +831,81 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ── ECONOMIC DATA BY COUNTRY ─────────────────────────── -->
+        <div id="ecodata" class="page">
+            <h2>Economic Data by Country</h2>
+            <div style="max-width:900px;">
+
+                <!-- Controls row -->
+                <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:24px;">
+                    <div>
+                        <label
+                            style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">COUNTRY</label>
+                        <select id="ecodata-country"
+                            style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;background:#fff;cursor:pointer;outline:none;min-width:200px;">
+                            <option value="USA">🇺🇸 United States</option>
+                            <option value="PHL">🇵🇭 Philippines</option>
+                            <option value="JPN">🇯🇵 Japan</option>
+                            <option value="CHN">🇨🇳 China</option>
+                            <option value="DEU">🇩🇪 Germany</option>
+                            <option value="GBR">🇬🇧 United Kingdom</option>
+                            <option value="EMU">🇪🇺 Eurozone</option>
+                            <option value="SGP">🇸🇬 Singapore</option>
+                            <option value="AUS">🇦🇺 Australia</option>
+                            <option value="KOR">🇰🇷 South Korea</option>
+                            <option value="IND">🇮🇳 India</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">INDICATOR</label>
+                        <select id="ecodata-indicator"
+                            style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;background:#fff;cursor:pointer;outline:none;min-width:260px;">
+                            <option value="gdp_current_usd">GDP (Current USD)</option>
+                            <option value="inflation_consumer_prices_annual">Inflation Rate</option>
+                            <option value="real_interest_rate">Real Interest Rate</option>
+                            <option value="unemployment_total_percent">Unemployment Rate</option>
+                            <option value="total_debt_percent_gdp">Government Debt (% GDP)</option>
+                            <option value="current_account_balance_percent_gdp">Current Account (% GDP)</option>
+                            <option value="industrial_production">Industrial Production</option>
+                            <option value="retail_sales_qoq">Retail Sales</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">RANGE</label>
+                        <select id="ecodata-range"
+                            style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">
+                            <option value="10">Last 10 Years</option>
+                            <option value="20">Last 20 Years</option>
+                            <option value="30">Last 30 Years</option>
+                            <option value="0">All Time</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button onclick="loadEcoData()"
+                            style="padding:10px 22px;background:#000;color:#fff;border:none;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:800;text-transform:uppercase;cursor:pointer;letter-spacing:0.5px;">LOAD</button>
+                        <!-- Dark/Light toggle -->
+                        <button id="ecodata-theme-btn" onclick="toggleEcoTheme()"
+                            style="padding:10px 16px;background:#f5f5f5;color:#333;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:800;cursor:pointer;">DARK</button>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div id="ecodata-chart-wrap" style="display:none;margin-bottom:24px;">
+                    <div id="ecodata-chart" style="width:100%;height:380px;"></div>
+                </div>
+
+                <!-- Table + loading -->
+                <div id="ecodata-container">
+                    <div class="macro-card" style="text-align:center;padding:40px;color:#888;font-style:italic;">
+                        Select a country and indicator above, then click LOAD.
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1235,6 +1311,210 @@
             const statusIndicator = document.getElementById('header-status');
             statusIndicator.innerHTML = '<div class="status-dot" style="background-color: #dc2626; box-shadow: 0 0 10px #dc2626;"></div>ACCESS DENIED';
             statusIndicator.style.color = '#dc2626';
+        }
+
+        // ============================================================
+        // ECONOMIC DATA BY COUNTRY
+        // ============================================================
+        const ECODATA_WEBHOOK = 'https://hook.us2.make.com/apmw71d47b2m44ihjo1p8b27xur7zboc';
+        const ECODATA_TABLE = 'tblo78iKtSt99cmzM';
+        const ECODATA_BASE = 'app1hHgLzAlJgLB8H';
+        const ECODATA_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
+
+        var ecodataChart = null;
+        var ecodataDark = false;
+
+        const INDICATOR_LABELS = {
+            'gdp_current_usd': 'GDP (Current USD)',
+            'inflation_consumer_prices_annual': 'Inflation Rate (%)',
+            'real_interest_rate': 'Real Interest Rate (%)',
+            'unemployment_total_percent': 'Unemployment Rate (%)',
+            'total_debt_percent_gdp': 'Government Debt (% of GDP)',
+            'current_account_balance_percent_gdp': 'Current Account (% of GDP)',
+            'industrial_production': 'Industrial Production',
+            'retail_sales_qoq': 'Retail Sales (QoQ %)',
+        };
+
+        const COUNTRY_LABELS = {
+            'USA': 'United States', 'PHL': 'Philippines', 'JPN': 'Japan', 'CHN': 'China',
+            'DEU': 'Germany', 'GBR': 'United Kingdom', 'EMU': 'Eurozone',
+            'SGP': 'Singapore', 'AUS': 'Australia', 'KOR': 'South Korea', 'IND': 'India',
+        };
+
+        window.toggleEcoTheme = function () {
+            ecodataDark = !ecodataDark;
+            var btn = document.getElementById('ecodata-theme-btn');
+            btn.textContent = ecodataDark ? 'LIGHT' : 'DARK';
+            btn.style.background = ecodataDark ? '#000' : '#f5f5f5';
+            btn.style.color = ecodataDark ? '#fff' : '#333';
+            var wrap = document.getElementById('ecodata-chart-wrap');
+            if (wrap && wrap.style.display !== 'none' && window._ecodataLastData) {
+                var country = document.getElementById('ecodata-country').value;
+                var indicator = document.getElementById('ecodata-indicator').value;
+                var range = parseInt(document.getElementById('ecodata-range').value);
+                var container = document.getElementById('ecodata-container');
+                if (ecodataChart) { ecodataChart.dispose(); ecodataChart = null; }
+                renderEcoData(window._ecodataLastData, indicator, country, range, container);
+            }
+        };
+
+        window.loadEcoData = async function () {
+            var country = document.getElementById('ecodata-country').value;
+            var indicator = document.getElementById('ecodata-indicator').value;
+            var range = parseInt(document.getElementById('ecodata-range').value);
+            var container = document.getElementById('ecodata-container');
+            var key = country + '_' + indicator;
+
+            container.innerHTML = '<div class="macro-card" style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">FETCHING DATA FOR ' + COUNTRY_LABELS[country] + '...</div>';
+            document.getElementById('ecodata-chart-wrap').style.display = 'none';
+
+            // Step 1 — check Airtable cache (7 day TTL)
+            try {
+                var formula = encodeURIComponent("{Key}='" + key + "'");
+                var url = 'https://api.airtable.com/v0/' + ECODATA_BASE + '/' + ECODATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + ECODATA_PAT } });
+                var data = await res.json();
+                if (data.records && data.records.length > 0 && data.records[0].fields.Data) {
+                    var fields = data.records[0].fields;
+                    var updated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
+                    var ageHours = (new Date() - updated) / 3600000;
+                    if (ageHours < 168) { // 7 days
+                        renderEcoData(fields.Data, indicator, country, range, container);
+                        return;
+                    }
+                }
+            } catch (e) { console.warn('Ecodata cache check failed', e); }
+
+            // Step 2 — fire Make webhook
+            container.innerHTML = '<div class="macro-card" style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">DISPATCHING REQUEST...<br><span style="color:#888;font-size:0.75rem;font-weight:400;">This may take 15-20 seconds</span></div>';
+            try { await fetch(ECODATA_WEBHOOK + '?country=' + country + '&indicator=' + indicator, { mode: 'no-cors' }); } catch (e) { }
+
+            // Step 3 — poll Airtable
+            var attempts = 0;
+            var poll = setInterval(async function () {
+                attempts++;
+                if (attempts > 15) {
+                    clearInterval(poll);
+                    container.innerHTML = '<div class="macro-card" style="padding:30px;text-align:center;color:#dc2626;font-weight:700;">Data fetch timed out. Please try again.</div>';
+                    return;
+                }
+                try {
+                    var formula = encodeURIComponent("{Key}='" + key + "'");
+                    var url = 'https://api.airtable.com/v0/' + ECODATA_BASE + '/' + ECODATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
+                    var res = await fetch(url, { headers: { Authorization: 'Bearer ' + ECODATA_PAT } });
+                    var data = await res.json();
+                    if (data.records && data.records.length > 0 && data.records[0].fields.Data) {
+                        clearInterval(poll);
+                        renderEcoData(data.records[0].fields.Data, indicator, country, range, container);
+                    }
+                } catch (e) { }
+            }, 4000);
+        };
+
+        function renderEcoData(rawStr, indicator, country, range, container) {
+            var all;
+            try { all = typeof rawStr === 'string' ? JSON.parse(rawStr) : rawStr; } catch (e) { all = []; }
+            if (!Array.isArray(all) || !all.length) {
+                container.innerHTML = '<div class="macro-card" style="padding:30px;text-align:center;color:#888;">No data available for this indicator.</div>';
+                return;
+            }
+
+            // Sort ascending by date
+            all.sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+
+            // Apply range filter
+            var filtered = all;
+            if (range > 0) {
+                var cutoff = new Date();
+                cutoff.setFullYear(cutoff.getFullYear() - range);
+                filtered = all.filter(function (d) { return new Date(d.date) >= cutoff; });
+            }
+
+            var label = INDICATOR_LABELS[indicator] || indicator;
+            var countryName = COUNTRY_LABELS[country] || country;
+
+            // Store for theme toggle re-render
+            window._ecodataLastData = rawStr;
+            window._ecodataLastLabel = label;
+
+            // ── ECharts line chart
+            var wrap = document.getElementById('ecodata-chart-wrap');
+            wrap.style.display = 'block';
+            if (!ecodataChart) {
+                ecodataChart = echarts.init(document.getElementById('ecodata-chart'));
+            }
+            var isDark = ecodataDark;
+            var bgColor = isDark ? '#1a1a1a' : '#fff';
+            var txtColor = isDark ? '#ccc' : '#333';
+            var gridColor = isDark ? '#333' : '#f0f0f0';
+            var lineColor = '#cba258';
+
+            var years = filtered.map(function (d) { return d.date ? d.date.substring(0, 4) : ''; });
+            var values = filtered.map(function (d) { return d.value != null ? parseFloat(d.value) : null; });
+
+            ecodataChart.setOption({
+                backgroundColor: bgColor,
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        var p = params[0];
+                        return '<strong>' + p.name + '</strong><br>' + label + ': <strong>' + (p.value != null ? p.value.toLocaleString() : 'N/A') + '</strong>';
+                    }
+                },
+                grid: { left: 60, right: 30, top: 40, bottom: 40 },
+                xAxis: { type: 'category', data: years, axisLine: { lineStyle: { color: gridColor } }, axisLabel: { color: txtColor, fontSize: 11 }, splitLine: { show: false } },
+                yAxis: { type: 'value', axisLabel: { color: txtColor, fontSize: 11 }, splitLine: { lineStyle: { color: gridColor } } },
+                series: [{
+                    type: 'line', data: values, smooth: true,
+                    lineStyle: { color: lineColor, width: 2.5 },
+                    itemStyle: { color: lineColor },
+                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: isDark ? 'rgba(203,162,88,0.25)' : 'rgba(203,162,88,0.15)' }, { offset: 1, color: 'rgba(203,162,88,0)' }] } },
+                    symbol: 'circle', symbolSize: 4,
+                }],
+            });
+
+            // ── Table
+            var bg0 = isDark ? '#2a2a2a' : '#fff';
+            var bg1 = isDark ? '#222' : '#fafafa';
+            var hdBg = isDark ? '#111' : '#000';
+            var txt = isDark ? '#ddd' : '#1a1a1a';
+            var sub = isDark ? '#999' : '#888';
+
+            var html = '<div style="background:' + (isDark ? '#1a1a1a' : '#fff') + ';border:2px solid ' + (isDark ? '#333' : '#000') + ';overflow:auto;">' +
+                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
+                '<thead><tr style="background:' + hdBg + ';">' +
+                '<th style="padding:11px 18px;text-align:left;color:var(--primary);">YEAR</th>' +
+                '<th style="padding:11px 18px;text-align:right;color:var(--primary);">' + label.toUpperCase() + '</th>' +
+                '<th style="padding:11px 18px;text-align:right;color:var(--primary);">CHANGE</th>' +
+                '</tr></thead><tbody>';
+
+            // Show most recent first in table
+            var tableData = filtered.slice().reverse();
+            tableData.forEach(function (d, i) {
+                var bg = i % 2 === 0 ? bg0 : bg1;
+                var yr = d.date ? d.date.substring(0, 4) : '—';
+                var val = d.value != null ? parseFloat(d.value) : null;
+                var valStr = val != null ? val.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '—';
+                // Change vs previous year
+                var prevIdx = filtered.length - 1 - i - 1;
+                var chgStr = '—';
+                var chgColor = txt;
+                if (prevIdx >= 0 && val != null && filtered[prevIdx].value != null) {
+                    var prev = parseFloat(filtered[prevIdx].value);
+                    var chg = val - prev;
+                    chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2);
+                    chgColor = chg >= 0 ? '#16a34a' : '#dc2626';
+                }
+                html += '<tr style="background:' + bg + ';border-bottom:1px solid ' + (isDark ? '#333' : '#f0f0f0') + ';">' +
+                    '<td style="padding:10px 18px;color:' + txt + ';font-weight:700;">' + yr + '</td>' +
+                    '<td style="padding:10px 18px;text-align:right;color:' + txt + ';font-weight:900;">' + valStr + '</td>' +
+                    '<td style="padding:10px 18px;text-align:right;color:' + chgColor + ';font-weight:700;">' + chgStr + '</td>' +
+                    '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            html += '<div style="font-size:0.72rem;color:' + sub + ';margin-top:8px;font-style:italic;">Source: EODHD · ' + countryName + ' · ' + label + ' · ' + filtered.length + ' data points</div>';
+            container.innerHTML = html;
         }
 
         function nav(section) {
