@@ -1813,31 +1813,41 @@
         };
 
         // ── MUTUAL FUND DROPDOWN DATA ────────────────────────────────
-        // ── EODHD FUND SEARCH — shared helper for ETF + MF ──────────
-        // Uses EODHD search API directly from browser (same as how
-        // we call Finnhub for company search — lightweight lookup only)
-        // Full fundamentals still go through Make.com + Airtable cache
-        const EODHD_TOKEN = '6904bd249d0335.81953936';
+        // ── FUND SEARCH — Finnhub for autocomplete (CORS-friendly)
+        // Finnhub allows direct browser calls. Full fundamentals data
+        // still goes through Make.com → EODHD → Airtable as before.
+        // Name shown BIG so user doesn't need to know tickers.
+        const FINNHUB_KEY = 'd77sidhr01qsamsi1magd77sidhr01qsamsi1mb0';
 
-        function buildFundSearchItem(item, fundType) {
-            // EODHD search returns: Code, Exchange, Name, Type, ISIN
-            var ticker = item.Code + '.' + item.Exchange;
-            var name = item.Name || item.Code;
-            var logoUrl = getNingLogoUrl(ticker);
+        // Finnhub type codes:
+        //   ETF  → type 'ETP'
+        //   MF   → type 'FUND' or description contains 'Fund'
+        // We show name prominently and ticker small so users can search
+        // "blackrock gold" or "vanguard bond" without knowing tickers.
+
+        function buildFundItem(item, fundType) {
+            // Finnhub returns: symbol, description, type, displaySymbol
+            // Convert Finnhub symbol to EODHD format e.g. SPY → SPY.US
+            var sym = item.symbol || '';
+            var dot = sym.lastIndexOf('.');
+            var eodhd = dot > 0 ? sym : sym + '.US';
+            var name = item.description || sym;
+            var logo = getNingLogoUrl(eodhd);
             var li = document.createElement('li');
-            li.style.cssText = 'padding:10px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;';
+            li.style.cssText = 'padding:11px 16px;cursor:pointer;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;';
+            // Name BIG, ticker small underneath
             li.innerHTML =
-                '<img src="' + logoUrl + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;border-radius:3px;flex-shrink:0;">' +
-                '<div style="min-width:0;">' +
-                '<div style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.88rem;">' + ticker + '</div>' +
-                '<div style="font-size:0.8rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+                '<img src="' + logo + '" onerror="this.style.display=\'none\'" style="width:26px;height:26px;object-fit:contain;border-radius:3px;flex-shrink:0;">' +
+                '<div style="min-width:0;flex:1;">' +
+                '<div style="font-size:0.9rem;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
+                '<div style="font-size:0.75rem;font-family:Courier New,monospace;color:var(--primary);font-weight:900;margin-top:1px;">' + eodhd + '</div>' +
                 '</div>';
             li.onmouseover = function () { this.style.background = '#fffbf0'; };
             li.onmouseout = function () { this.style.background = '#fff'; };
-            return { li, ticker, name };
+            return { li, eodhd, name };
         }
 
-        function setupFundSearch(inputId, listId, labelId, fundType, containerId) {
+        function setupFundSearch(inputId, listId, labelId, fundType) {
             var input = document.getElementById(inputId);
             var list = document.getElementById(listId);
             var label = document.getElementById(labelId);
@@ -1848,29 +1858,42 @@
                 clearTimeout(debounce);
                 var q = input.value.trim();
                 if (q.length < 2) { list.style.display = 'none'; return; }
-                list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;">Searching...</li>';
+                list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;font-style:italic;">Searching...</li>';
                 list.style.display = 'block';
                 debounce = setTimeout(async function () {
                     try {
-                        // EODHD search with type filter
-                        var typeParam = fundType === 'ETF' ? 'ETF' : 'FUND';
-                        var res = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_TOKEN + '&type=' + typeParam + '&limit=12&fmt=json');
+                        var res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=' + FINNHUB_KEY);
                         var data = await res.json();
-                        if (!data || !data.length) {
-                            list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.85rem;">No results found.</li>';
+                        var all = data.result || [];
+
+                        // Filter by fund type
+                        var filtered = all.filter(function (r) {
+                            if (fundType === 'ETF') {
+                                return r.type === 'ETP' ||
+                                    /\bETF\b|\bETP\b|\bTRUST\b|\bINDEX\b/i.test(r.description);
+                            } else {
+                                // Mutual funds
+                                return r.type === 'FUND' ||
+                                    /\bFUND\b|\bMUTUAL\b|\bGROWTH FUND\b|\bINCOME FUND\b/i.test(r.description);
+                            }
+                        }).slice(0, 12);
+
+                        if (!filtered.length) {
+                            // If strict filter finds nothing, show top unfiltered with a note
+                            list.innerHTML = '<li style="padding:10px 16px;color:#888;font-size:0.82rem;font-style:italic;">No exact matches — showing closest results:</li>';
+                            all.slice(0, 8).forEach(function (item) {
+                                var built = buildFundItem(item, fundType);
+                                built.li.onclick = function () { selectFund(input, list, label, built, fundType); };
+                                list.appendChild(built.li);
+                            });
+                            list.style.display = 'block';
                             return;
                         }
+
                         list.innerHTML = '';
-                        data.forEach(function (item) {
-                            var built = buildFundSearchItem(item, fundType);
-                            built.li.onclick = function () {
-                                input.value = built.name + ' (' + built.ticker + ')';
-                                list.style.display = 'none';
-                                var logoHtml = '<img src="' + getNingLogoUrl(built.ticker) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
-                                label.style.display = 'block';
-                                label.innerHTML = logoHtml + 'Showing data for: <strong>' + built.name + '</strong> <span style="color:var(--primary);font-family:Courier New,monospace;">' + built.ticker + '</span>';
-                                loadFundData(built.ticker, fundType);
-                            };
+                        filtered.forEach(function (item) {
+                            var built = buildFundItem(item, fundType);
+                            built.li.onclick = function () { selectFund(input, list, label, built, fundType); };
                             list.appendChild(built.li);
                         });
                         list.style.display = 'block';
@@ -1882,16 +1905,27 @@
             document.addEventListener('click', function (e) { if (e.target !== input) list.style.display = 'none'; });
         }
 
+        function selectFund(input, list, label, built, fundType) {
+            input.value = built.name;
+            list.style.display = 'none';
+            var logoHtml = '<img src="' + getNingLogoUrl(built.eodhd) + '" onerror="this.style.display=\'none\'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;">';
+            label.style.display = 'block';
+            label.innerHTML = logoHtml +
+                '<strong>' + built.name + '</strong>' +
+                ' <span style="color:var(--primary);font-family:Courier New,monospace;font-size:0.82rem;">' + built.eodhd + '</span>';
+            loadFundData(built.eodhd, fundType);
+        }
+
         // ── INIT BOTH SEARCHES when funds tab opens ──────────────────
         var fundSearchInit = false;
         window.setupETFSearch = function () {
             if (fundSearchInit) return;
             fundSearchInit = true;
-            setupFundSearch('etf-search-input', 'etf-suggestions', 'etf-selected-label', 'ETF', 'etf-container');
-            setupFundSearch('mf-search-input', 'mf-suggestions', 'mf-selected-label', 'FUND', 'mf-container');
+            setupFundSearch('etf-search-input', 'etf-suggestions', 'etf-selected-label', 'ETF');
+            setupFundSearch('mf-search-input', 'mf-suggestions', 'mf-selected-label', 'FUND');
         };
 
-        // Keep populateMFDropdown as a no-op so existing calls don't break
+        // no-op — no more hardcoded dropdown
         window.populateMFDropdown = function () { };
 
         // ── LOAD FUND DATA — Airtable cache → Make webhook ──────────
