@@ -2147,38 +2147,38 @@
 
             // ── LAST UPDATED badge
             if (updated) {
-                html += '<div style="font-size:0.72rem;color:#aaa;font-style:italic;margin-bottom:16px;">Last updated: ' + updated + ' · Refreshes daily at 5AM PHT</div>';
+                html += '<div style="font-size:0.78rem;color:#aaa;font-style:italic;margin-bottom:16px;">Last updated: ' + updated + ' · Refreshes daily at 5AM PHT</div>';
             }
 
-            // ── THIS WEEK'S MARKET MOVERS banner (high impact only)
+            // ── MARKET MOVERS banner (high impact only)
             var highEvents = events.filter(function (e) { return getImpact(e.type) === 'high'; })
                 .sort(function (a, b) { return new Date(a.date) - new Date(b.date); })
                 .slice(0, 8);
 
             if (highEvents.length) {
-                html += '<div style="background:#000;padding:16px 20px;margin-bottom:24px;">' +
-                    '<div style="font-size:0.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:12px;">⚡ MARKET MOVING EVENTS — NEXT 14 DAYS</div>';
+                html += '<div style="background:#000;padding:18px 22px;margin-bottom:28px;">' +
+                    '<div style="font-size:0.78rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:14px;">MARKET MOVING EVENTS — NEXT 7 DAYS</div>';
                 highEvents.forEach(function (e) {
                     var dt = new Date(e.date);
                     var dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                     var timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) + ' PHT';
                     var flag = countryFlag(e.country);
-                    var est = e.estimate != null ? ' · Est: <strong>' + e.estimate + '</strong>' : '';
-                    var prev = e.previous != null ? ' · Prev: ' + e.previous : '';
-                    html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #333;">' +
-                        '<span style="font-size:1.1rem;flex-shrink:0;">' + flag + '</span>' +
+                    var est = e.estimate != null ? ' &nbsp;·&nbsp; Est: <strong style="color:#fff;">' + e.estimate + '</strong>' : '';
+                    var prev = e.previous != null ? ' &nbsp;·&nbsp; Prev: ' + e.previous : '';
+                    html += '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #2a2a2a;">' +
+                        '<span style="font-size:1.3rem;flex-shrink:0;line-height:1;">' + flag + '</span>' +
                         '<div style="flex:1;min-width:0;">' +
-                        '<div style="font-size:0.85rem;font-weight:800;color:#fff;line-height:1.3;">' + e.type + (e.comparison ? ' <span style="color:#888;font-weight:400;font-size:0.75rem;">(' + e.comparison + ')</span>' : '') + '</div>' +
-                        '<div style="font-size:0.75rem;color:#888;margin-top:2px;">' + dateStr + ' · ' + timeStr + est + prev + '</div>' +
+                        '<div style="font-size:0.95rem;font-weight:800;color:#fff;line-height:1.3;">' + e.type + (e.comparison ? ' <span style="color:#888;font-weight:400;font-size:0.82rem;">(' + e.comparison + ')</span>' : '') + '</div>' +
+                        '<div style="font-size:0.8rem;color:#888;margin-top:3px;">' + dateStr + ' &nbsp;·&nbsp; ' + timeStr + est + prev + '</div>' +
                         '</div></div>';
                 });
                 html += '</div>';
             }
 
-            // ── Group events by day
+            // ── Group events by day (using UTC date key)
             var byDay = {};
             events.forEach(function (e) {
-                var d = e.date.split(' ')[0]; // YYYY-MM-DD
+                var d = e.date.split(' ')[0];
                 if (!byDay[d]) byDay[d] = [];
                 byDay[d].push(e);
             });
@@ -2189,53 +2189,60 @@
                 var dayDate = new Date(dayKey + 'T00:00:00');
                 var isToday = dayDate.toDateString() === today.toDateString();
                 var isPast = dayDate < today;
-                var dayLabel = isToday
-                    ? 'TODAY — ' + dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
-                    : dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+                var dayLabel = (isToday ? 'TODAY — ' : '') +
+                    dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
-                // Day header — gold for today, grey for past, black for future
-                var headerBg = isToday ? 'var(--primary)' : (isPast ? '#f5f5f5' : '#000');
-                var headerColor = isToday ? '#000' : (isPast ? '#aaa' : '#fff');
-                var borderColor = isToday ? 'var(--primary)' : (isPast ? '#e0e0e0' : '#000');
+                var headerBg = isToday ? 'var(--primary)' : (isPast ? '#f0f0f0' : '#000');
+                var headerColor = isToday ? '#000' : (isPast ? '#999' : '#fff');
+                var borderColor = isToday ? 'var(--primary)' : (isPast ? '#ddd' : '#000');
 
-                html += '<div style="margin-bottom:20px;border:2px solid ' + borderColor + ';">' +
-                    '<div style="background:' + headerBg + ';padding:10px 16px;font-size:0.78rem;font-weight:900;letter-spacing:0.5px;color:' + headerColor + ';">' +
-                    (isToday ? '📅 ' : '') + dayLabel + '</div>' +
-                    '<div>';
+                html += '<div style="margin-bottom:24px;border:2px solid ' + borderColor + ';">' +
+                    '<div style="background:' + headerBg + ';padding:12px 18px;font-size:0.85rem;font-weight:900;letter-spacing:0.5px;color:' + headerColor + ';">' +
+                    dayLabel + '</div><div>';
 
-                // Sort by time within day
                 var dayEvents = byDay[dayKey].sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
 
                 dayEvents.forEach(function (e, i) {
                     var impact = getImpact(e.type);
-                    var dot = impact === 'high' ? '🔴' : (impact === 'medium' ? '🟡' : '⚪');
+                    // Impact as colored text label instead of emoji
+                    var impactBadge = impact === 'high'
+                        ? '<span style="font-size:0.68rem;font-weight:900;color:#dc2626;text-transform:uppercase;letter-spacing:0.3px;margin-right:8px;">HIGH</span>'
+                        : impact === 'medium'
+                            ? '<span style="font-size:0.68rem;font-weight:900;color:#d97706;text-transform:uppercase;letter-spacing:0.3px;margin-right:8px;">MED</span>'
+                            : '<span style="font-size:0.68rem;font-weight:700;color:#ccc;text-transform:uppercase;letter-spacing:0.3px;margin-right:8px;">LOW</span>';
+
                     var flag = countryFlag(e.country);
                     var cname = COUNTRY_NAMES[e.country] || e.country;
                     var dt = new Date(e.date);
                     var timeStr = dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) + ' PHT';
                     var bg = i % 2 === 0 ? '#fff' : '#fafafa';
 
-                    // Values
-                    var actualStr = e.actual != null ? '<span style="font-weight:900;color:' + (e.actual >= (e.estimate || e.previous || 0) ? '#16a34a' : '#dc2626') + ';">' + e.actual + '</span>' : '<span style="color:#aaa;">TBA</span>';
+                    var actualStr = e.actual != null
+                        ? '<span style="font-weight:900;font-size:0.95rem;color:' + (e.actual >= (e.estimate || e.previous || 0) ? '#16a34a' : '#dc2626') + ';">' + e.actual + '</span>'
+                        : '<span style="color:#bbb;font-size:0.85rem;">TBA</span>';
                     var estStr = e.estimate != null ? e.estimate : '—';
                     var prevStr = e.previous != null ? e.previous : '—';
 
-                    html += '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:10px 16px;background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
-                        // Left: dot + flag + time
-                        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">' +
-                        '<span style="font-size:0.7rem;">' + dot + '</span>' +
-                        '<span style="font-size:1rem;">' + flag + '</span>' +
-                        '<div style="font-size:0.7rem;color:#888;font-family:Courier New,monospace;white-space:nowrap;">' + timeStr + '</div>' +
+                    html += '<div style="display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 18px;background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
+                        // Left: flag + time
+                        '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:52px;">' +
+                        '<span style="font-size:1.4rem;line-height:1;">' + flag + '</span>' +
+                        '<div style="font-size:0.72rem;color:#888;font-family:Courier New,monospace;white-space:nowrap;">' + timeStr + '</div>' +
                         '</div>' +
-                        // Middle: event name + country
+                        // Middle: impact + event name + country
                         '<div style="min-width:0;">' +
-                        '<div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;line-height:1.3;">' + e.type + (e.comparison ? ' <span style="color:#888;font-weight:400;font-size:0.72rem;">(' + e.comparison + ')</span>' : '') + (e.period ? ' <span style="color:#aaa;font-size:0.7rem;">' + e.period + '</span>' : '') + '</div>' +
-                        '<div style="font-size:0.72rem;color:#aaa;">' + cname + '</div>' +
+                        '<div style="display:flex;align-items:center;margin-bottom:2px;">' + impactBadge +
+                        '<span style="font-size:0.93rem;font-weight:700;color:#1a1a1a;line-height:1.3;">' + e.type +
+                        (e.comparison ? ' <span style="color:#999;font-weight:400;font-size:0.8rem;">(' + e.comparison + ')</span>' : '') +
+                        (e.period ? ' <span style="color:#bbb;font-size:0.78rem;">' + e.period + '</span>' : '') +
+                        '</span></div>' +
+                        '<div style="font-size:0.78rem;color:#aaa;">' + cname + '</div>' +
                         '</div>' +
                         // Right: actual / est / prev
-                        '<div style="text-align:right;font-family:Courier New,monospace;font-size:0.78rem;flex-shrink:0;">' +
-                        '<div>' + actualStr + '</div>' +
-                        '<div style="color:#888;font-size:0.68rem;">Est: ' + estStr + ' · Prev: ' + prevStr + '</div>' +
+                        '<div style="text-align:right;font-family:Courier New,monospace;flex-shrink:0;">' +
+                        '<div style="margin-bottom:3px;">' + actualStr + '</div>' +
+                        '<div style="color:#999;font-size:0.75rem;">Est: ' + estStr + '</div>' +
+                        '<div style="color:#bbb;font-size:0.72rem;">Prev: ' + prevStr + '</div>' +
                         '</div>' +
                         '</div>';
                 });
@@ -2244,7 +2251,7 @@
             });
 
             if (!days.length) {
-                html += '<div class="card" style="padding:30px;text-align:center;color:#888;">No events found for the next 14 days.</div>';
+                html += '<div class="card" style="padding:30px;text-align:center;color:#888;">No events scheduled for the next 7 days.</div>';
             }
 
             container.innerHTML = html;
