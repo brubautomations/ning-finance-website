@@ -1393,7 +1393,19 @@
         // Blink animation
         (function () {
             var st = document.createElement('style');
-            st.textContent = '@keyframes priceBlink{0%{color:#cba258}50%{color:#cba258}100%{color:inherit}}';
+            st.textContent = `
+@keyframes priceBlinkUp{0%{background:#dcfce7}100%{background:transparent}}
+@keyframes priceBlinkDown{0%{background:#fee2e2}100%{background:transparent}}
+@keyframes soulFloat{
+  0%{opacity:1;transform:translateY(0) scale(1)}
+  30%{opacity:0.9;transform:translateY(-8px) scale(1.15)}
+  100%{opacity:0;transform:translateY(-28px) scale(0.7)}
+}
+.price-soul{
+  position:absolute;pointer-events:none;font-weight:900;font-family:Courier New,monospace;
+  font-size:0.82rem;animation:soulFloat 0.7s ease-out forwards;white-space:nowrap;
+  z-index:9999;
+}`;
             document.head.appendChild(st);
         })();
 
@@ -1559,26 +1571,77 @@
             }, delay);
         }
 
-        function applyJitter(ticker, basePrice) {
-            // ±0.05% max movement
-            var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
-            var newPrice = breadthJitterStore[ticker] + jitter;
-            breadthJitterStore[ticker] = newPrice;
 
-            // Update the DOM cell if visible
-            var cell = document.getElementById('price-' + ticker.replace(/[^a-zA-Z0-9]/g, '_'));
-            if (cell) {
-                cell.textContent = formatBreadthPrice(newPrice, getTabForTicker(ticker));
-                cell.style.animation = 'none';
-                cell.offsetHeight; // reflow
-                cell.style.animation = 'priceBlink 0.8s ease-out';
+        function spawnSoul(cell, text, color) {
+            var rect = cell.getBoundingClientRect();
+            var soul = document.createElement('div');
+            soul.className = 'price-soul';
+            soul.textContent = text;
+            soul.style.color = color;
+            soul.style.left = (rect.left + window.scrollX) + 'px';
+            soul.style.top = (rect.top + window.scrollY) + 'px';
+            document.body.appendChild(soul);
+            setTimeout(function () { soul.remove(); }, 750);
+        }
+
+        function applyJitter(ticker, basePrice) {
+            var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
+            var newPrice = basePrice + jitter;
+            breadthJitterStore[ticker] = newPrice;
+            var tab = getTabForTicker(ticker);
+            var isUp = jitter >= 0;
+            var animName = isUp ? 'priceBlinkUp' : 'priceBlinkDown';
+            var safeKey = ticker.replace(/[^a-zA-Z0-9]/g, '_');
+
+            // Price cell + soul effect
+            var priceCell = document.getElementById('price-' + safeKey);
+            if (priceCell) {
+                var priceStr = formatBreadthPrice(newPrice, tab);
+                spawnSoul(priceCell, priceStr, isUp ? '#16a34a' : '#dc2626');
+                priceCell.textContent = priceStr;
+                priceCell.style.animation = 'none';
+                priceCell.offsetHeight;
+                priceCell.style.animation = animName + ' 1s ease-out';
             }
 
-            // Schedule next jitter for this ticker — random 10-60 seconds
-            var nextDelay = 10000 + Math.random() * 50000;
-            setTimeout(function () {
-                applyJitter(ticker, basePrice); // always jitter around REAL base price
-            }, nextDelay);
+            // Change cell
+            var chgCell = document.getElementById('chg-' + safeKey);
+            if (chgCell) {
+                var item = breadthAllData.find(function (d) { return d.s === ticker; });
+                if (item && item.chgAbs != null) {
+                    var newChg = item.chgAbs + jitter;
+                    chgCell.textContent = (newChg >= 0 ? '+' : '') + newChg.toFixed(tab === 'currencies' ? 4 : 2);
+                    chgCell.style.color = isUp ? '#16a34a' : '#dc2626';
+                    chgCell.style.animation = 'none';
+                    chgCell.offsetHeight;
+                    chgCell.style.animation = animName + ' 1s ease-out';
+                }
+            }
+
+            // Pct cell
+            var pctCell = document.getElementById('pct-' + safeKey);
+            if (pctCell) {
+                var item2 = breadthAllData.find(function (d) { return d.s === ticker; });
+                if (item2 && item2.chgPct != null) {
+                    var newPct = item2.chgPct + (jitter / basePrice * 100);
+                    var sign = newPct >= 0 ? '+' : '';
+                    pctCell.textContent = sign + newPct.toFixed(2) + '%';
+                    pctCell.style.color = isUp ? '#16a34a' : '#dc2626';
+                    pctCell.style.animation = 'none';
+                    pctCell.offsetHeight;
+                    pctCell.style.animation = animName + ' 1s ease-out';
+                }
+            }
+
+            // Next jitter — 8 to 45 seconds
+            setTimeout(function () { applyJitter(ticker, basePrice); }, 8000 + Math.random() * 37000);
+        }
+
+        // Schedule next jitter for this ticker — random 10-60 seconds
+        var nextDelay = 10000 + Math.random() * 50000;
+        setTimeout(function () {
+            applyJitter(ticker, basePrice); // always jitter around REAL base price
+        }, nextDelay);
         }
 
         function getTabForTicker(ticker) {
