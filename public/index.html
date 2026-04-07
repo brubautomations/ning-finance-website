@@ -1363,6 +1363,7 @@
             if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
             if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
             if (section === 'culture') window.fetchAirtable("Culture", "news-feed-culture");
+            if (section === 'market') window.switchMarketTab('breadth');
         };
 
         function normalizeSection(input) {
