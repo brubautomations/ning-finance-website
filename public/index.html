@@ -1393,31 +1393,29 @@
         // Blink animation
         (function () {
             var st = document.createElement('style');
-            st.textContent = '@keyframes priceBlinkUp{0%{background:#dcfce7}100%{background:transparent}} @keyframes priceBlinkDown{0%{background:#fee2e2}100%{background:transparent}}';
+            st.textContent = '@keyframes priceBlink{0%{color:#cba258}50%{color:#cba258}100%{color:inherit}}';
             document.head.appendChild(st);
         })();
 
         // ── TICKER DISPLAY NAMES ──────────────────────────────────────
         const TICKER_NAMES = {
-            'DJ:DJI': 'Dow Jones', 'FOREXCOM:SPXUSD': 'S&P 500', 'FOREXCOM:NSXUSD': 'NASDAQ 100',
-            'FOREXCOM:UK100': 'FTSE 100', 'INDEX:DEU40': 'DAX 40', 'INDEX:NI225': 'Nikkei 225',
-            'INDEX:KOSPI': 'KOSPI', 'INDEX:HSI': 'Hang Seng', 'INDEX:ASX200': 'ASX 200',
-            'PSE:PSEI': 'PSEi', 'INDEX:STI': 'Straits Times', 'INDEX:SENSEX': 'SENSEX',
-            'INDEX:VIX': 'VIX', 'TVC:US10Y': 'US 10Y Yield', 'TVC:US02Y': 'US 2Y Yield',
-            'TVC:DXY': 'US Dollar Index', 'INDEX:FTMIB': 'FTSE MIB', 'INDEX:IBEX35': 'IBEX 35',
-            'INDEX:SET': 'SET (Thailand)', 'INDEX:KLCI': 'KLCI (Malaysia)',
-            'INDEX:JKSE': 'IDX (Indonesia)', 'INDEX:BVSP': 'Bovespa', 'INDEX:MXX': 'IPC (Mexico)',
-            'INDEX:TA35': 'TA-35 (Israel)', 'INDEX:TADAWUL': 'Tadawul', 'INDEX:RUSSELL2000': 'Russell 2000',
-            'INDEX:TAIEX': 'TAIEX (Taiwan)', 'INDEX:OSEBX': 'Oslo Bors', 'INDEX:AEX': 'AEX',
-            'INDEX:SMI': 'SMI (Switzerland)',
-            'OANDA:XAUUSD': 'Gold', 'OANDA:XAGUSD': 'Silver', 'TVC:UKOIL': 'Brent Crude',
-            'TVC:USOIL': 'WTI Crude', 'COMEX:HG1!': 'Copper', 'CBOT:ZC1!': 'Corn',
-            'CBOT:ZW1!': 'Wheat', 'CBOT:ZS1!': 'Soybeans', 'ICEUS:SB1!': 'Sugar',
-            'ICEUS:KC1!': 'Coffee', 'ICEUS:OJ1!': 'Orange Juice', 'ICEUS:CT1!': 'Cotton',
-            'NYMEX:NG1!': 'Natural Gas', 'COMEX:PL1!': 'Platinum', 'COMEX:PA1!': 'Palladium',
+            'DJ:DJI': 'Dow Jones', 'TVC:US10Y': 'US 10Y Yield', 'TVC:US02Y': 'US 2Y Yield',
+            'TVC:DXY': 'US Dollar Index', 'PSE:PSEI': 'PSEi',
+            'SP:SPX': 'S&P 500', 'NASDAQ:NDX': 'NASDAQ 100', 'FTSE:UKX': 'FTSE 100',
+            'XETR:DAX': 'DAX 40', 'TVC:NI225': 'Nikkei 225', 'KRX:KOSPI': 'KOSPI',
+            'ASX:XJO': 'ASX 200', 'BSE:SENSEX': 'SENSEX', 'SET:SET': 'SET (Thailand)',
+            'IDX:COMPOSITE': 'IDX (Indonesia)', 'BMFBOVESPA:IBOV': 'Bovespa',
+            'TASE:TA35': 'TA-35 (Israel)', 'TADAWUL:TASI': 'Tadawul',
+            'EURONEXT:AEX': 'AEX', 'SIX:SMI': 'SMI', 'EURONEXT:PX1': 'CAC 40',
+            'SGX:ES3': 'STI (Singapore)', 'AMEX:IWM': 'Russell 2000', 'BME:IBC': 'IBEX 35',
+            'HKEX:HSI': 'Hang Seng',
+            'OANDA:XAUUSD': 'Gold', 'NYMEX:CL1!': 'WTI Crude', 'NYMEX:BB1!': 'Brent Crude',
+            'COMEX:SI1!': 'Silver', 'COMEX:HG1!': 'Copper',
+            'CBOT:ZC1!': 'Corn', 'CBOT:ZW1!': 'Wheat', 'CBOT:ZS1!': 'Soybeans',
+            'ICEUS:SB1!': 'Sugar', 'ICEUS:KC1!': 'Coffee', 'ICEUS:OJ1!': 'Orange Juice',
+            'ICEUS:CT1!': 'Cotton', 'NYMEX:NG1!': 'Natural Gas',
             'ICEUS:CC1!': 'Cocoa', 'CBOT:ZL1!': 'Soybean Oil', 'CBOT:ZM1!': 'Soybean Meal',
-            'NYMEX:RB1!': 'Gasoline', 'NYMEX:HO1!': 'Heating Oil', 'CME:LBS1!': 'Lumber',
-            'COMEX:ALI1!': 'Aluminum',
+            'NYMEX:RB1!': 'Gasoline', 'NYMEX:HO1!': 'Heating Oil', 'COMEX:ALI1!': 'Aluminum',
             'FX_IDC:USDPHP': 'USD/PHP', 'FX_IDC:EURPHP': 'EUR/PHP', 'FX_IDC:JPYPHP': 'JPY/PHP',
             'FX_IDC:GBPPHP': 'GBP/PHP', 'FX_IDC:SGDPHP': 'SGD/PHP', 'FX_IDC:AUDPHP': 'AUD/PHP',
             'FX_IDC:CNYPHP': 'CNY/PHP', 'FX_IDC:HKDPHP': 'HKD/PHP', 'FX_IDC:KRWPHP': 'KRW/PHP',
@@ -1426,15 +1424,14 @@
             'FX:USDCAD': 'USD/CAD', 'FX:AUDUSD': 'AUD/USD', 'FX:USDCHF': 'USD/CHF',
             'FX:NZDUSD': 'NZD/USD', 'FX:USDCNY': 'USD/CNY', 'FX:USDSGD': 'USD/SGD',
             'FX:USDHKD': 'USD/HKD', 'FX:USDINR': 'USD/INR', 'FX:USDKRW': 'USD/KRW',
-            'FX:USDBRL': 'USD/BRL', 'FX:USDMXN': 'USD/MXN', 'FX:USDZAR': 'USD/ZAR',
-            'FX:USDTRY': 'USD/TRY',
+            'FX:USDMXN': 'USD/MXN', 'FX:USDZAR': 'USD/ZAR', 'FX:USDTRY': 'USD/TRY',
             'PSE:SM': 'SM Investments', 'PSE:ALI': 'Ayala Land', 'PSE:BDO': 'BDO Unibank',
             'PSE:JFC': 'Jollibee', 'PSE:AC': 'Ayala Corp', 'PSE:SMPH': 'SM Prime',
             'PSE:BPI': 'Bank of PI', 'PSE:MBT': 'Metrobank', 'PSE:TEL': 'PLDT',
             'PSE:GLO': 'Globe Telecom', 'PSE:URC': 'Univ Robina', 'PSE:MER': 'Meralco',
             'PSE:AEV': 'Aboitiz Equity', 'PSE:AP': 'Aboitiz Power', 'PSE:PGOLD': 'Puregold', 'PSE:PNB': 'PNB',
             'NYSE:JPM': 'JPMorgan', 'NYSE:BAC': 'Bank of America', 'NYSE:XOM': 'ExxonMobil',
-            'NYSE:JNJ': 'Johnson & Johnson', 'NYSE:WMT': 'Walmart', 'NYSE:V': 'Visa',
+            'NYSE:JNJ': 'Johnson & Johnson', 'NYSE:V': 'Visa',
             'NYSE:PG': 'Procter & Gamble', 'NYSE:HD': 'Home Depot', 'NYSE:CVX': 'Chevron',
             'NASDAQ:AAPL': 'Apple', 'NASDAQ:MSFT': 'Microsoft', 'NASDAQ:NVDA': 'NVIDIA',
             'NASDAQ:GOOGL': 'Alphabet', 'NASDAQ:AMZN': 'Amazon', 'NASDAQ:META': 'Meta',
@@ -1449,20 +1446,19 @@
 
         // ── CATEGORY MAPPING ─────────────────────────────────────────
         const INDICES_TICKERS = [
-            'DJ:DJI', 'FOREXCOM:SPXUSD', 'FOREXCOM:NSXUSD', 'FOREXCOM:UK100',
-            'INDEX:DEU40', 'INDEX:NI225', 'INDEX:KOSPI', 'INDEX:HSI', 'INDEX:ASX200',
-            'PSE:PSEI', 'INDEX:STI', 'INDEX:SENSEX', 'INDEX:VIX', 'TVC:US10Y',
-            'TVC:US02Y', 'TVC:DXY', 'INDEX:FTMIB', 'INDEX:IBEX35', 'INDEX:SET',
-            'INDEX:KLCI', 'INDEX:JKSE', 'INDEX:BVSP', 'INDEX:MXX', 'INDEX:TA35',
-            'INDEX:TADAWUL', 'INDEX:RUSSELL2000', 'INDEX:TAIEX', 'INDEX:OSEBX',
-            'INDEX:AEX', 'INDEX:SMI',
+            'DJ:DJI', 'PSE:PSEI', 'TVC:US10Y', 'TVC:US02Y', 'TVC:DXY',
+            'SP:SPX', 'NASDAQ:NDX', 'FTSE:UKX', 'XETR:DAX', 'TVC:NI225',
+            'KRX:KOSPI', 'ASX:XJO', 'BSE:SENSEX', 'SET:SET', 'IDX:COMPOSITE',
+            'BMFBOVESPA:IBOV', 'TASE:TA35', 'TADAWUL:TASI',
+            'EURONEXT:AEX', 'SIX:SMI', 'EURONEXT:PX1',
+            'SGX:ES3', 'AMEX:IWM', 'BME:IBC', 'HKEX:HSI',
         ];
         const COMMODITIES_TICKERS = [
-            'OANDA:XAUUSD', 'OANDA:XAGUSD', 'TVC:UKOIL', 'TVC:USOIL', 'COMEX:HG1!',
+            'OANDA:XAUUSD', 'NYMEX:CL1!', 'NYMEX:BB1!', 'COMEX:SI1!', 'COMEX:HG1!',
             'CBOT:ZC1!', 'CBOT:ZW1!', 'CBOT:ZS1!', 'ICEUS:SB1!', 'ICEUS:KC1!',
-            'ICEUS:OJ1!', 'ICEUS:CT1!', 'NYMEX:NG1!', 'COMEX:PL1!', 'COMEX:PA1!',
+            'ICEUS:OJ1!', 'ICEUS:CT1!', 'NYMEX:NG1!',
             'ICEUS:CC1!', 'CBOT:ZL1!', 'CBOT:ZM1!', 'NYMEX:RB1!', 'NYMEX:HO1!',
-            'CME:LBS1!', 'COMEX:ALI1!',
+            'COMEX:ALI1!',
         ];
         const CURRENCIES_TICKERS = [
             'FX_IDC:USDPHP', 'FX_IDC:EURPHP', 'FX_IDC:JPYPHP', 'FX_IDC:GBPPHP',
@@ -1470,13 +1466,13 @@
             'FX_IDC:KRWPHP', 'FX_IDC:CADPHP', 'FX_IDC:CHFPHP',
             'FX:EURUSD', 'FX:GBPUSD', 'FX:USDJPY', 'FX:USDCAD', 'FX:AUDUSD',
             'FX:USDCHF', 'FX:NZDUSD', 'FX:USDCNY', 'FX:USDSGD', 'FX:USDHKD',
-            'FX:USDINR', 'FX:USDKRW', 'FX:USDBRL', 'FX:USDMXN', 'FX:USDZAR', 'FX:USDTRY',
+            'FX:USDINR', 'FX:USDKRW', 'FX:USDMXN', 'FX:USDZAR', 'FX:USDTRY',
         ];
         const EQUITIES_TICKERS = [
             'PSE:SM', 'PSE:ALI', 'PSE:BDO', 'PSE:JFC', 'PSE:AC', 'PSE:SMPH',
             'PSE:BPI', 'PSE:MBT', 'PSE:TEL', 'PSE:GLO', 'PSE:URC', 'PSE:MER',
             'PSE:AEV', 'PSE:AP', 'PSE:PGOLD', 'PSE:PNB',
-            'NYSE:JPM', 'NYSE:BAC', 'NYSE:XOM', 'NYSE:JNJ', 'NYSE:WMT',
+            'NYSE:JPM', 'NYSE:BAC', 'NYSE:XOM', 'NYSE:JNJ',
             'NYSE:V', 'NYSE:PG', 'NYSE:HD', 'NYSE:CVX',
             'NASDAQ:AAPL', 'NASDAQ:MSFT', 'NASDAQ:NVDA', 'NASDAQ:GOOGL', 'NASDAQ:AMZN',
             'NASDAQ:META', 'NASDAQ:TSLA', 'NASDAQ:AVGO', 'NASDAQ:NFLX', 'NASDAQ:AMD',
@@ -1566,56 +1562,22 @@
         function applyJitter(ticker, basePrice) {
             // ±0.05% max movement
             var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
-            var newPrice = basePrice + jitter;
+            var newPrice = breadthJitterStore[ticker] + jitter;
             breadthJitterStore[ticker] = newPrice;
-            var tab = getTabForTicker(ticker);
-            var isUp = jitter >= 0;
-            var animName = isUp ? 'priceBlinkUp' : 'priceBlinkDown';
-            var safeKey = ticker.replace(/[^a-zA-Z0-9]/g, '_');
 
-            // Update price cell
-            var priceCell = document.getElementById('price-' + safeKey);
-            if (priceCell) {
-                priceCell.textContent = formatBreadthPrice(newPrice, tab);
-                priceCell.style.animation = 'none';
-                priceCell.offsetHeight;
-                priceCell.style.animation = animName + ' 1s ease-out';
+            // Update the DOM cell if visible
+            var cell = document.getElementById('price-' + ticker.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (cell) {
+                cell.textContent = formatBreadthPrice(newPrice, getTabForTicker(ticker));
+                cell.style.animation = 'none';
+                cell.offsetHeight; // reflow
+                cell.style.animation = 'priceBlink 0.8s ease-out';
             }
 
-            // Update change cell — jitter by same % but in absolute terms
-            var chgCell = document.getElementById('chg-' + safeKey);
-            if (chgCell) {
-                var item = breadthAllData.find(function (d) { return d.s === ticker; });
-                if (item && item.chgAbs != null) {
-                    var newChgAbs = item.chgAbs + jitter;
-                    var chgStr = (newChgAbs >= 0 ? '+' : '') + newChgAbs.toFixed(tab === 'currencies' ? 4 : 2);
-                    chgCell.textContent = chgStr;
-                    chgCell.style.color = isUp ? '#16a34a' : '#dc2626';
-                    chgCell.style.animation = 'none';
-                    chgCell.offsetHeight;
-                    chgCell.style.animation = animName + ' 1s ease-out';
-                }
-            }
-
-            // Update % change cell
-            var pctCell = document.getElementById('pct-' + safeKey);
-            if (pctCell) {
-                var item2 = breadthAllData.find(function (d) { return d.s === ticker; });
-                if (item2 && item2.chgPct != null) {
-                    var newPct = item2.chgPct + (jitter / basePrice * 100);
-                    var sign = newPct >= 0 ? '+' : '';
-                    pctCell.textContent = sign + newPct.toFixed(2) + '%';
-                    pctCell.style.color = isUp ? '#16a34a' : '#dc2626';
-                    pctCell.style.animation = 'none';
-                    pctCell.offsetHeight;
-                    pctCell.style.animation = animName + ' 1s ease-out';
-                }
-            }
-
-            // Schedule next jitter — random 8-45 seconds
-            var nextDelay = 8000 + Math.random() * 37000;
+            // Schedule next jitter for this ticker — random 10-60 seconds
+            var nextDelay = 10000 + Math.random() * 50000;
             setTimeout(function () {
-                applyJitter(ticker, basePrice);
+                applyJitter(ticker, basePrice); // always jitter around REAL base price
             }, nextDelay);
         }
 
@@ -1669,7 +1631,6 @@
                 '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
                 '<thead><tr style="background:#000;">' +
                 '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
-                (tab === 'equities' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">EXCHANGE</th>' : '') +
                 (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
                 '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
                 '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>' +
@@ -1700,22 +1661,12 @@
                     mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
                 }
 
-                // Exchange label for equities
-                var exchLabel = '';
-                if (tab === 'equities') {
-                    var exchPrefix = item.s.split(':')[0];
-                    var exchMap = { 'PSE': 'PSE', 'NYSE': 'NYSE', 'NASDAQ': 'NASDAQ', 'TSE': 'TSE', 'KRX': 'KRX', 'HKEX': 'HKEX', 'SGX': 'SGX' };
-                    exchLabel = exchMap[exchPrefix] || exchPrefix;
-                }
-                var safeKey2 = item.s.replace(/[^a-zA-Z0-9]/g, '_');
-
                 html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
                     '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
-                    (tab === 'equities' ? '<td style="padding:10px 16px;font-size:0.72rem;font-weight:800;color:#888;font-family:Courier New,monospace;">' + exchLabel + '</td>' : '') +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
-                    '<td id="price-' + safeKey2 + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
-                    '<td id="chg-' + safeKey2 + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
-                    '<td id="pct-' + safeKey2 + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
+                    '<td id="' + safeId + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
+                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
+                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '') +
                     '</tr>';
             });
