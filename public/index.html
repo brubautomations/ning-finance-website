@@ -1490,11 +1490,11 @@
         // ── FETCH FROM AIRTABLE ───────────────────────────────────────
         window.fetchMarketData = async function () {
             try {
-                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + BREADTH_TABLE +
-                    '?filterByFormula={Field_Name}%3D%22MAIN%22&maxRecords=1';
+                // Just get the first (and only) record - no filter needed
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + BREADTH_TABLE + '?maxRecords=1';
                 var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
                 var json = await res.json();
-                if (!json.records || !json.records.length) return;
+                if (!json.records || !json.records.length) { console.warn('No market breadth records'); return; }
                 var fields = json.records[0].fields;
                 var d1 = fields.Market_Data ? JSON.parse(fields.Market_Data).data : [];
                 var d2 = fields.Market_Data2 ? JSON.parse(fields.Market_Data2).data : [];
