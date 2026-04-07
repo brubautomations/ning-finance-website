@@ -1474,27 +1474,46 @@
         // ── YAHOO FINANCE FETCH ───────────────────────────────────────
         async function fetchYahoo(symbols) {
             var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
-            var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
-            try {
-                var res = await fetchWithTimeout('https://corsproxy.io/?' + encodeURIComponent(url), {}, 8000);
-                var data = await res.json();
-                var quotes = (data.quoteResponse && data.quoteResponse.result) ? data.quoteResponse.result : [];
-                var map = {};
-                quotes.forEach(function (q) { map[q.symbol] = q; });
-                return symbols.map(function (sym) {
-                    var q = map[sym.s] || {};
-                    return {
-                        s: sym.s,
-                        name: sym.n,
-                        price: q.regularMarketPrice,
-                        chgAbs: q.regularMarketChange,
-                        chgPct: q.regularMarketChangePercent,
-                    };
-                }).filter(function (d) { return d.price != null; });
-            } catch (e) {
-                console.warn('Yahoo fetch error', e);
-                return [];
+            var yUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
+
+            // Try multiple proxies in order
+            var proxies = [
+                'https://corsproxy.io/?' + encodeURIComponent(yUrl),
+                'https://api.allorigins.win/raw?url=' + encodeURIComponent(yUrl),
+                'https://proxy.cors.sh/' + yUrl,
+            ];
+
+            var data = null;
+            for (var i = 0; i < proxies.length; i++) {
+                try {
+                    var res = await fetchWithTimeout(proxies[i], {
+                        headers: { 'x-requested-with': 'XMLHttpRequest' }
+                    }, 8000);
+                    var json = await res.json();
+                    if (json.quoteResponse && json.quoteResponse.result && json.quoteResponse.result.length > 0) {
+                        data = json;
+                        break;
+                    }
+                } catch (e) {
+                    console.warn('Proxy ' + i + ' failed:', e.message);
+                }
             }
+
+            if (!data) return [];
+
+            var quotes = data.quoteResponse.result;
+            var map = {};
+            quotes.forEach(function (q) { map[q.symbol] = q; });
+            return symbols.map(function (sym) {
+                var q = map[sym.s] || {};
+                return {
+                    s: sym.s,
+                    name: sym.n,
+                    price: q.regularMarketPrice,
+                    chgAbs: q.regularMarketChange,
+                    chgPct: q.regularMarketChangePercent,
+                };
+            }).filter(function (d) { return d.price != null; });
         }
 
         // ── COINGECKO FETCH ───────────────────────────────────────────
