@@ -1697,8 +1697,8 @@
                     '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
                     '<td id="' + safeId + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
+                    '<td id="chg-' + item.s.replace(/[^a-zA-Z0-9]/g, '_') + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
+                    '<td id="pct-' + item.s.replace(/[^a-zA-Z0-9]/g, '_') + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '') +
                     '</tr>';
             });
