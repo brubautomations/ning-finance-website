@@ -1943,7 +1943,7 @@
                     var fields = data.records[0].fields;
                     var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
                     var ageHours = (new Date() - lastUpdated) / 3600000;
-                    if (ageHours < 24 && (fields.News || fields.Earnings)) {
+                    if (ageHours < 168 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
                         var badge = document.createElement('div');
@@ -2205,7 +2205,7 @@
                     var fields = data.records[0].fields;
                     var updated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
                     var ageHours = (new Date() - updated) / 3600000;
-                    if (ageHours < 48 && fields.Fund_Data) {
+                    if (ageHours < 168 && fields.Fund_Data) {
                         renderFundData(fields.Fund_Data, ticker, type, container);
                         return;
                     }
