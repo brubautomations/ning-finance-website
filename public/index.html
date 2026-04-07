@@ -1167,7 +1167,7 @@
 
         // --- HELPER FUNCTIONS ---
         function getUserId() {
-            let userId = localStorage.getItem("ning_user_id");
+            var userId = localStorage.getItem("ning_user_id");
             if (!userId) {
                 userId = "user_" + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem("ning_user_id", userId);
@@ -1177,12 +1177,12 @@
 
         function timeAgo(dateParam) {
             if (!dateParam) return 'Live';
-            const date = new Date(dateParam);
-            const now = new Date();
-            const seconds = Math.round((now - date) / 1000);
-            const minutes = Math.round(seconds / 60);
-            const hours = Math.round(minutes / 60);
-            const days = Math.round(hours / 24);
+            var date = new Date(dateParam);
+            var now = new Date();
+            var seconds = Math.round((now - date) / 1000);
+            var minutes = Math.round(seconds / 60);
+            var hours = Math.round(minutes / 60);
+            var days = Math.round(hours / 24);
             if (seconds < 60) return 'Just now';
             if (minutes < 60) return `${minutes} mins ago`;
             if (hours < 24) return `${hours} hours ago`;
@@ -1194,14 +1194,14 @@
 
         // --- FETCH AIRTABLE ---
         window.fetchAirtable = async function (tableName, containerId) {
-            const feed = document.getElementById(containerId);
+            var feed = document.getElementById(containerId);
             if (!feed) return;
 
             try {
                 // Reverted URL to prevent Airtable API crashes
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
-                const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                const json = await response.json();
+                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
+                var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                var json = await response.json();
 
                 if (!json.records || json.records.length === 0) {
                     feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
@@ -1215,32 +1215,32 @@
                     updateTicker(json.records);
                 }
 
-                let html = "";
-                let count = 0;
+                var html = "";
+                var count = 0;
                 json.records.forEach(record => {
-                    const fields = record.fields;
-                    const recordId = record.id;
+                    var fields = record.fields;
+                    var recordId = record.id;
 
                     // THE FIX: Use the system creation time for the "mins ago" display
-                    const dateStr = record.createdTime;
-                    const t = timeAgo(dateStr);
+                    var dateStr = record.createdTime;
+                    var t = timeAgo(dateStr);
 
                     if (t !== null) {
-                        let borderStyle = "";
+                        var borderStyle = "";
                         if (tableName === "Commentary") borderStyle = "border-top-color: #ff9800;";
                         if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
                         if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
 
-                        const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+                        var author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
 
-                        let imageHtml = "";
+                        var imageHtml = "";
                         if (fields["News Image"] && fields["News Image"].length > 0) {
                             imageHtml = `<img src="${fields["News Image"][0].url}" class="card-image" alt="News Image">`;
                         } else if (fields["Image URL"]) {
                             imageHtml = `<img src="${fields["Image URL"]}" class="card-image" alt="News Image">`;
                         }
 
-                        const shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
+                        var shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
 
                         html += `
                         <div class="card" style="${borderStyle}">
@@ -1270,34 +1270,34 @@
 
         // --- LINKS & DEEP LINKING ---
         window.copyLink = function (tableName, recordId) {
-            const cleanTable = encodeURIComponent(tableName);
-            const url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
+            var cleanTable = encodeURIComponent(tableName);
+            var url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
             navigator.clipboard.writeText(url).then(() => { alert("Link copied!"); }).catch(err => { prompt("Copy link:", url); });
         }
 
         window.checkUrlForDeepLinks = async function () {
-            const params = new URLSearchParams(window.location.search);
-            const recordId = params.get('articleId');
-            const tabName = params.get('tab');
+            var params = new URLSearchParams(window.location.search);
+            var recordId = params.get('articleId');
+            var tabName = params.get('tab');
 
             if (tabName) {
-                let section = normalizeSection(tabName);
+                var section = normalizeSection(tabName);
                 window.nav(section, false);
             }
 
             if (recordId && tabName) {
-                const modal = document.getElementById('articleModal');
-                const container = document.getElementById('single-article-content');
+                var modal = document.getElementById('articleModal');
+                var container = document.getElementById('single-article-content');
                 modal.style.display = 'block';
                 container.innerHTML = '<h2>Loading...</h2>';
 
                 try {
-                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
-                    const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    const record = await response.json();
-                    const fields = record.fields;
+                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
+                    var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    var record = await response.json();
+                    var fields = record.fields;
 
-                    let imageHtml = "";
+                    var imageHtml = "";
                     if (fields["News Image"] && fields["News Image"].length > 0) {
                         imageHtml = `<img src="${fields["News Image"][0].url}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
                     } else if (fields["Image URL"]) {
@@ -1318,16 +1318,16 @@
 
         window.closeArticle = function () {
             document.getElementById('articleModal').style.display = 'none';
-            const url = new URL(window.location);
+            var url = new URL(window.location);
             url.searchParams.delete('articleId');
             window.history.pushState({}, '', url);
         }
 
         // --- TICKER ---
         function updateTicker(records) {
-            const ticker = document.getElementById('ticker-feed');
+            var ticker = document.getElementById('ticker-feed');
             if (!ticker) return;
-            const items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
+            var items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
             ticker.innerHTML = items;
         }
 
@@ -1335,14 +1335,14 @@
         window.nav = function (section, pushToHistory = true) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            const p = document.getElementById(section);
-            const t = document.getElementById('tab-' + section);
+            var p = document.getElementById(section);
+            var t = document.getElementById('tab-' + section);
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
             if (pushToHistory) {
-                const url = new URL(window.location);
-                let tableNameForUrl = "Global News";
+                var url = new URL(window.location);
+                var tableNameForUrl = "Global News";
                 if (section === 'asia') tableNameForUrl = "Asia News";
                 if (section === 'philippines') tableNameForUrl = "Philippines News";
                 if (section === 'luxury') tableNameForUrl = "Luxury";
@@ -1367,7 +1367,7 @@
         };
 
         function normalizeSection(input) {
-            let s = (input || "news").toLowerCase();
+            var s = (input || "news").toLowerCase();
             if (s.includes('asia')) return 'asia';
             if (s.includes('phil') || s.includes('ph')) return 'philippines';
             if (s.includes('lux') || s.includes('life')) return 'luxury';
@@ -1380,14 +1380,15 @@
         }
 
         // ============================================================
-        // MARKET BREADTH — Yahoo Finance + CoinGecko
-        // Zero Make.com, Zero Airtable, direct browser calls
+        // MARKET BREADTH — Airtable (TradingView via Make.com)
         // ============================================================
         var breadthCurrentTab = 'indices';
-        var breadthEquityExch = 'pse';
-        var breadthPrevValues = {};
-        var breadthAllData = [];
+        var breadthAllData = [];   // combined parsed array
         var breadthCryptoData = [];
+        var breadthJitterStore = {};   // ticker -> current jittered price
+        var breadthJitterTimer = null;
+        var breadthFetchInterval = null;
+        var BREADTH_TABLE = 'tbleFRbG5VPuntmuV';
 
         // Blink animation
         (function () {
@@ -1396,183 +1397,201 @@
             document.head.appendChild(st);
         })();
 
-        // ── YAHOO FINANCE SYMBOLS ─────────────────────────────────────
-        const YF_INDICES = [
-            { s: '^GSPC', n: 'S&P 500' }, { s: '^DJI', n: 'Dow Jones' },
-            { s: '^IXIC', n: 'NASDAQ' }, { s: '^RUT', n: 'Russell 2000' },
-            { s: '^VIX', n: 'VIX' }, { s: '^PSEI', n: 'PSEi' },
-            { s: '^N225', n: 'Nikkei 225' }, { s: '^KS11', n: 'KOSPI' },
-            { s: '^HSI', n: 'Hang Seng' }, { s: '^AXJO', n: 'ASX 200' },
-            { s: '^STI', n: 'Straits Times' }, { s: '^FTSE', n: 'FTSE 100' },
-            { s: '^GDAXI', n: 'DAX 40' }, { s: '^FCHI', n: 'CAC 40' },
-            { s: '^STOXX50E', n: 'Euro Stoxx 50' }, { s: '^BSESN', n: 'SENSEX' },
-            { s: '^NSEI', n: 'NIFTY 50' }, { s: '^TWII', n: 'TAIEX' },
-            { s: '^JKSE', n: 'IDX (Indonesia)' }, { s: '^KLSE', n: 'KLCI' },
-            { s: '^SET.BK', n: 'SET (Thailand)' }, { s: '^MXX', n: 'IPC (Mexico)' },
-            { s: '^BVSP', n: 'Bovespa' }, { s: '^MERV', n: 'Merval' },
-            { s: '^TA125.TA', n: 'TA-125 (Israel)' }, { s: '^TASI.SR', n: 'Tadawul' },
-            { s: 'DX-Y.NYB', n: 'US Dollar Index' }, { s: '^TNX', n: 'US 10Y Yield' },
-            { s: '^IRX', n: 'US 3M Yield' }, { s: '^FVX', n: 'US 5Y Yield' },
-        ];
-
-        const YF_COMMODITIES = [
-            { s: 'GC=F', n: 'Gold' }, { s: 'SI=F', n: 'Silver' },
-            { s: 'CL=F', n: 'WTI Crude' }, { s: 'BZ=F', n: 'Brent Crude' },
-            { s: 'NG=F', n: 'Natural Gas' }, { s: 'HG=F', n: 'Copper' },
-            { s: 'ZC=F', n: 'Corn' }, { s: 'ZW=F', n: 'Wheat' },
-            { s: 'ZS=F', n: 'Soybeans' }, { s: 'SB=F', n: 'Sugar' },
-            { s: 'KC=F', n: 'Coffee' }, { s: 'CT=F', n: 'Cotton' },
-            { s: 'OJ=F', n: 'Orange Juice' }, { s: 'PL=F', n: 'Platinum' },
-            { s: 'PA=F', n: 'Palladium' }, { s: 'CC=F', n: 'Cocoa' },
-            { s: 'ZL=F', n: 'Soybean Oil' }, { s: 'ZM=F', n: 'Soybean Meal' },
-            { s: 'RB=F', n: 'Gasoline' }, { s: 'HO=F', n: 'Heating Oil' },
-            { s: 'ALI=F', n: 'Aluminum' }, { s: 'LBS=F', n: 'Lumber' },
-        ];
-
-        const YF_CURRENCIES = [
-            // PHP pairs first
-            { s: 'PHP=X', n: 'USD/PHP' }, { s: 'EURPHP=X', n: 'EUR/PHP' },
-            { s: 'JPYPHP=X', n: 'JPY/PHP' }, { s: 'GBPPHP=X', n: 'GBP/PHP' },
-            { s: 'SGDPHP=X', n: 'SGD/PHP' }, { s: 'AUDPHP=X', n: 'AUD/PHP' },
-            { s: 'CNYP=X', n: 'CNY/PHP' }, { s: 'HKDPHP=X', n: 'HKD/PHP' },
-            { s: 'KRWPHP=X', n: 'KRW/PHP' }, { s: 'CADPHP=X', n: 'CAD/PHP' },
-            { s: 'CHFPHP=X', n: 'CHF/PHP' },
-            // Major pairs
-            { s: 'EURUSD=X', n: 'EUR/USD' }, { s: 'GBPUSD=X', n: 'GBP/USD' },
-            { s: 'USDJPY=X', n: 'USD/JPY' }, { s: 'USDCAD=X', n: 'USD/CAD' },
-            { s: 'AUDUSD=X', n: 'AUD/USD' }, { s: 'USDCHF=X', n: 'USD/CHF' },
-            { s: 'NZDUSD=X', n: 'NZD/USD' }, { s: 'USDCNY=X', n: 'USD/CNY' },
-            { s: 'USDSGD=X', n: 'USD/SGD' }, { s: 'USDINR=X', n: 'USD/INR' },
-            { s: 'USDKRW=X', n: 'USD/KRW' }, { s: 'USDBRL=X', n: 'USD/BRL' },
-            { s: 'USDMXN=X', n: 'USD/MXN' }, { s: 'USDZAR=X', n: 'USD/ZAR' },
-            { s: 'USDTRY=X', n: 'USD/TRY' }, { s: 'USDHKD=X', n: 'USD/HKD' },
-        ];
-
-        // Top stocks per exchange — curated blue chips
-        const EQUITY_LISTS = {
-            pse: [{ s: 'SM.PS', n: 'SM Investments' }, { s: 'ALI.PS', n: 'Ayala Land' }, { s: 'BDO.PS', n: 'BDO Unibank' }, { s: 'JFC.PS', n: 'Jollibee' }, { s: 'AC.PS', n: 'Ayala Corp' }, { s: 'SMPH.PS', n: 'SM Prime' }, { s: 'BPI.PS', n: 'Bank of PI' }, { s: 'MBT.PS', n: 'Metrobank' }, { s: 'TEL.PS', n: 'PLDT' }, { s: 'GLO.PS', n: 'Globe Telecom' }, { s: 'URC.PS', n: 'Univ Robina' }, { s: 'MER.PS', n: 'Meralco' }, { s: 'AEV.PS', n: 'Aboitiz Equity' }, { s: 'AP.PS', n: 'Aboitiz Power' }, { s: 'ICT.PS', n: 'Intl Container' }, { s: 'PGOLD.PS', n: 'Puregold' }, { s: 'RLC.PS', n: 'Robinsons Land' }, { s: 'DMC.PS', n: 'DMCI Holdings' }, { s: 'SCC.PS', n: 'Semirara Mining' }, { s: 'EMP.PS', n: 'Emperador' }],
-            nyse: [{ s: 'BRK-B', n: 'Berkshire Hath' }, { s: 'JPM', n: 'JPMorgan' }, { s: 'JNJ', n: 'Johnson & Johnson' }, { s: 'V', n: 'Visa' }, { s: 'PG', n: 'Procter & Gamble' }, { s: 'UNH', n: 'UnitedHealth' }, { s: 'HD', n: 'Home Depot' }, { s: 'XOM', n: 'ExxonMobil' }, { s: 'BAC', n: 'Bank of America' }, { s: 'MA', n: 'Mastercard' }, { s: 'CVX', n: 'Chevron' }, { s: 'LLY', n: 'Eli Lilly' }, { s: 'ABBV', n: 'AbbVie' }, { s: 'KO', n: 'Coca-Cola' }, { s: 'MRK', n: 'Merck' }, { s: 'PFE', n: 'Pfizer' }, { s: 'T', n: 'AT&T' }, { s: 'WMT', n: 'Walmart' }, { s: 'DIS', n: 'Disney' }, { s: 'GS', n: 'Goldman Sachs' }],
-            nasdaq: [{ s: 'AAPL', n: 'Apple' }, { s: 'MSFT', n: 'Microsoft' }, { s: 'NVDA', n: 'NVIDIA' }, { s: 'GOOGL', n: 'Alphabet' }, { s: 'AMZN', n: 'Amazon' }, { s: 'META', n: 'Meta' }, { s: 'TSLA', n: 'Tesla' }, { s: 'AVGO', n: 'Broadcom' }, { s: 'ASML', n: 'ASML' }, { s: 'AMD', n: 'AMD' }, { s: 'INTC', n: 'Intel' }, { s: 'QCOM', n: 'Qualcomm' }, { s: 'NFLX', n: 'Netflix' }, { s: 'COST', n: 'Costco' }, { s: 'ADBE', n: 'Adobe' }, { s: 'CSCO', n: 'Cisco' }, { s: 'TXN', n: 'Texas Instruments' }, { s: 'PYPL', n: 'PayPal' }, { s: 'SBUX', n: 'Starbucks' }, { s: 'INTU', n: 'Intuit' }],
-            tse: [{ s: '7203.T', n: 'Toyota' }, { s: '6758.T', n: 'Sony' }, { s: '6861.T', n: 'Keyence' }, { s: '9432.T', n: 'NTT' }, { s: '8306.T', n: 'MUFG' }, { s: '6501.T', n: 'Hitachi' }, { s: '9984.T', n: 'SoftBank' }, { s: '6367.T', n: 'Daikin' }, { s: '7974.T', n: 'Nintendo' }, { s: '4063.T', n: 'Shin-Etsu' }, { s: '6954.T', n: 'Fanuc' }, { s: '8035.T', n: 'Tokyo Electron' }, { s: '9983.T', n: 'Fast Retailing' }, { s: '4568.T', n: 'Daiichi Sankyo' }, { s: '6902.T', n: 'Denso' }, { s: '7267.T', n: 'Honda' }, { s: '8316.T', n: 'SMFG' }, { s: '6326.T', n: 'Kubota' }, { s: '3382.T', n: 'Seven & I' }, { s: '4661.T', n: 'Oriental Land' }],
-            krx: [{ s: '005930.KS', n: 'Samsung Elec' }, { s: '000660.KS', n: 'SK Hynix' }, { s: '207940.KS', n: 'Samsung Bio' }, { s: '005380.KS', n: 'Hyundai Motor' }, { s: '000270.KS', n: 'Kia Corp' }, { s: '051910.KS', n: 'LG Chem' }, { s: '035420.KS', n: 'NAVER' }, { s: '055550.KS', n: 'Shinhan' }, { s: '012330.KS', n: 'Hyundai Mobis' }, { s: '028260.KS', n: 'Samsung C&T' }, { s: '003550.KS', n: 'LG Corp' }, { s: '035720.KS', n: 'Kakao' }, { s: '096770.KS', n: 'SK Innovation' }, { s: '017670.KS', n: 'SK Telecom' }, { s: '030200.KS', n: 'KT Corp' }, { s: '105560.KS', n: 'KB Financial' }, { s: '316140.KS', n: 'Woori Financial' }, { s: '009150.KS', n: 'Samsung Electro' }, { s: '010130.KS', n: 'Korea Zinc' }, { s: '018260.KS', n: 'Samsung SDS' }],
-            hkex: [{ s: '0700.HK', n: 'Tencent' }, { s: '9988.HK', n: 'Alibaba' }, { s: '0941.HK', n: 'China Mobile' }, { s: '1299.HK', n: 'AIA Group' }, { s: '0005.HK', n: 'HSBC' }, { s: '3690.HK', n: 'Meituan' }, { s: '9618.HK', n: 'JD.com' }, { s: '2318.HK', n: 'Ping An' }, { s: '1398.HK', n: 'ICBC' }, { s: '0939.HK', n: 'CCB' }, { s: '9999.HK', n: 'NetEase' }, { s: '2020.HK', n: 'ANTA Sports' }, { s: '0388.HK', n: 'HK Exchanges' }, { s: '1810.HK', n: 'Xiaomi' }, { s: '0011.HK', n: 'Hang Seng Bank' }, { s: '1177.HK', n: 'Sino Biopharm' }, { s: '2382.HK', n: 'Sunny Optical' }, { s: '0016.HK', n: 'Sun Hung Kai' }, { s: '0883.HK', n: 'CNOOC' }, { s: '0175.HK', n: 'Geely Auto' }],
-            sgx: [{ s: 'D05.SI', n: 'DBS Group' }, { s: 'O39.SI', n: 'OCBC' }, { s: 'U11.SI', n: 'UOB' }, { s: 'Z74.SI', n: 'Singtel' }, { s: 'C6L.SI', n: 'Singapore Air' }, { s: 'BN4.SI', n: 'Keppel Corp' }, { s: 'F34.SI', n: 'Wilmar Intl' }, { s: 'A17U.SI', n: 'Ascendas REIT' }, { s: 'C09.SI', n: 'City Dev' }, { s: 'G13.SI', n: 'Genting SG' }, { s: 'S68.SI', n: 'SGX' }, { s: 'J36.SI', n: 'Jardine Matheson' }, { s: 'U96.SI', n: 'Sembcorp Ind' }, { s: 'V03.SI', n: 'Venture Corp' }, { s: 'BS6.SI', n: 'Yangzijiang' }, { s: '9CI.SI', n: 'CapitaLand Inv' }, { s: 'C38U.SI', n: 'CapitaLand Mall' }, { s: 'ME8U.SI', n: 'Mapletree Ind' }, { s: 'BUOU.SI', n: 'Frasers Log' }, { s: 'N2IU.SI', n: 'Mapletree Pan Asia' }],
-            asx: [{ s: 'BHP.AX', n: 'BHP' }, { s: 'CBA.AX', n: 'CommBank' }, { s: 'CSL.AX', n: 'CSL' }, { s: 'NAB.AX', n: 'NAB' }, { s: 'WBC.AX', n: 'Westpac' }, { s: 'ANZ.AX', n: 'ANZ' }, { s: 'WES.AX', n: 'Wesfarmers' }, { s: 'MQG.AX', n: 'Macquarie' }, { s: 'RIO.AX', n: 'Rio Tinto' }, { s: 'TLS.AX', n: 'Telstra' }, { s: 'WOW.AX', n: 'Woolworths' }, { s: 'FMG.AX', n: 'Fortescue' }, { s: 'TCL.AX', n: 'Transurban' }, { s: 'GMG.AX', n: 'Goodman Group' }, { s: 'SHL.AX', n: 'Sonic Health' }, { s: 'ALL.AX', n: 'Aristocrat' }, { s: 'QBE.AX', n: 'QBE Insurance' }, { s: 'REA.AX', n: 'REA Group' }, { s: 'COL.AX', n: 'Coles' }, { s: 'COH.AX', n: 'Cochlear' }],
-            lse: [{ s: 'SHEL.L', n: 'Shell' }, { s: 'AZN.L', n: 'AstraZeneca' }, { s: 'HSBA.L', n: 'HSBC' }, { s: 'ULVR.L', n: 'Unilever' }, { s: 'BP.L', n: 'BP' }, { s: 'RIO.L', n: 'Rio Tinto' }, { s: 'GSK.L', n: 'GSK' }, { s: 'BARC.L', n: 'Barclays' }, { s: 'LLOY.L', n: 'Lloyds' }, { s: 'VOD.L', n: 'Vodafone' }, { s: 'REL.L', n: 'RELX' }, { s: 'NG.L', n: 'National Grid' }, { s: 'DGE.L', n: 'Diageo' }, { s: 'CPG.L', n: 'Compass Group' }, { s: 'LSEG.L', n: 'London Stock Ex' }, { s: 'IMB.L', n: 'Imperial Brands' }, { s: 'BAB.L', n: 'Babcock' }, { s: 'BA.L', n: 'BAE Systems' }, { s: 'RKT.L', n: 'Reckitt' }, { s: 'GLEN.L', n: 'Glencore' }],
-            nse: [{ s: 'RELIANCE.NS', n: 'Reliance' }, { s: 'TCS.NS', n: 'TCS' }, { s: 'HDFCBANK.NS', n: 'HDFC Bank' }, { s: 'INFY.NS', n: 'Infosys' }, { s: 'ICICIBANK.NS', n: 'ICICI Bank' }, { s: 'HINDUNILVR.NS', n: 'Hindustan Unilever' }, { s: 'ITC.NS', n: 'ITC' }, { s: 'SBIN.NS', n: 'SBI' }, { s: 'BHARTIARTL.NS', n: 'Bharti Airtel' }, { s: 'KOTAKBANK.NS', n: 'Kotak Bank' }, { s: 'LT.NS', n: 'L&T' }, { s: 'AXISBANK.NS', n: 'Axis Bank' }, { s: 'ASIANPAINT.NS', n: 'Asian Paints' }, { s: 'WIPRO.NS', n: 'Wipro' }, { s: 'MARUTI.NS', n: 'Maruti Suzuki' }, { s: 'ULTRACEMCO.NS', n: 'UltraTech' }, { s: 'TITAN.NS', n: 'Titan' }, { s: 'BAJFINANCE.NS', n: 'Bajaj Finance' }, { s: 'HCLTECH.NS', n: 'HCL Tech' }, { s: 'SUNPHARMA.NS', n: 'Sun Pharma' }],
-            tsx: [{ s: 'RY.TO', n: 'Royal Bank' }, { s: 'TD.TO', n: 'TD Bank' }, { s: 'ENB.TO', n: 'Enbridge' }, { s: 'CNR.TO', n: 'CN Rail' }, { s: 'BNS.TO', n: 'Scotiabank' }, { s: 'BMO.TO', n: 'BMO' }, { s: 'CP.TO', n: 'CP Rail' }, { s: 'ABX.TO', n: 'Barrick Gold' }, { s: 'SU.TO', n: 'Suncor' }, { s: 'MFC.TO', n: 'Manulife' }, { s: 'TRI.TO', n: 'Thomson Reuters' }, { s: 'SHOP.TO', n: 'Shopify' }, { s: 'BCE.TO', n: 'BCE Inc' }, { s: 'NTR.TO', n: 'Nutrien' }, { s: 'CNQ.TO', n: 'Canadian Nat Res' }, { s: 'WCN.TO', n: 'Waste Connections' }, { s: 'CSU.TO', n: 'Constellation' }, { s: 'ATD.TO', n: 'Alimentation' }, { s: 'FNV.TO', n: 'Franco-Nevada' }, { s: 'TRP.TO', n: 'TC Energy' }],
-            bvmf: [{ s: 'VALE3.SA', n: 'Vale' }, { s: 'PETR4.SA', n: 'Petrobras' }, { s: 'ITUB4.SA', n: 'Itau Unibanco' }, { s: 'BBDC4.SA', n: 'Bradesco' }, { s: 'ABEV3.SA', n: 'Ambev' }, { s: 'B3SA3.SA', n: 'B3' }, { s: 'WEGE3.SA', n: 'WEG' }, { s: 'RENT3.SA', n: 'Localiza' }, { s: 'SUZB3.SA', n: 'Suzano' }, { s: 'RDOR3.SA', n: 'Rede D\'Or' }, { s: 'BBAS3.SA', n: 'Banco do Brasil' }, { s: 'LREN3.SA', n: 'Lojas Renner' }, { s: 'MGLU3.SA', n: 'Magazine Luiza' }, { s: 'ELET3.SA', n: 'Eletrobras' }, { s: 'JBSS3.SA', n: 'JBS' }, { s: 'HAPV3.SA', n: 'Hapvida' }, { s: 'SBSP3.SA', n: 'Sabesp' }, { s: 'ENEV3.SA', n: 'Eneva' }, { s: 'VBBR3.SA', n: 'Vibra Energia' }, { s: 'GGBR4.SA', n: 'Gerdau' }],
+        // ── TICKER DISPLAY NAMES ──────────────────────────────────────
+        const TICKER_NAMES = {
+            'DJ:DJI': 'Dow Jones', 'FOREXCOM:SPXUSD': 'S&P 500', 'FOREXCOM:NSXUSD': 'NASDAQ 100',
+            'FOREXCOM:UK100': 'FTSE 100', 'INDEX:DEU40': 'DAX 40', 'INDEX:NI225': 'Nikkei 225',
+            'INDEX:KOSPI': 'KOSPI', 'INDEX:HSI': 'Hang Seng', 'INDEX:ASX200': 'ASX 200',
+            'PSE:PSEI': 'PSEi', 'INDEX:STI': 'Straits Times', 'INDEX:SENSEX': 'SENSEX',
+            'INDEX:VIX': 'VIX', 'TVC:US10Y': 'US 10Y Yield', 'TVC:US02Y': 'US 2Y Yield',
+            'TVC:DXY': 'US Dollar Index', 'INDEX:FTMIB': 'FTSE MIB', 'INDEX:IBEX35': 'IBEX 35',
+            'INDEX:SET': 'SET (Thailand)', 'INDEX:KLCI': 'KLCI (Malaysia)',
+            'INDEX:JKSE': 'IDX (Indonesia)', 'INDEX:BVSP': 'Bovespa', 'INDEX:MXX': 'IPC (Mexico)',
+            'INDEX:TA35': 'TA-35 (Israel)', 'INDEX:TADAWUL': 'Tadawul', 'INDEX:RUSSELL2000': 'Russell 2000',
+            'INDEX:TAIEX': 'TAIEX (Taiwan)', 'INDEX:OSEBX': 'Oslo Bors', 'INDEX:AEX': 'AEX',
+            'INDEX:SMI': 'SMI (Switzerland)',
+            'OANDA:XAUUSD': 'Gold', 'OANDA:XAGUSD': 'Silver', 'TVC:UKOIL': 'Brent Crude',
+            'TVC:USOIL': 'WTI Crude', 'COMEX:HG1!': 'Copper', 'CBOT:ZC1!': 'Corn',
+            'CBOT:ZW1!': 'Wheat', 'CBOT:ZS1!': 'Soybeans', 'ICEUS:SB1!': 'Sugar',
+            'ICEUS:KC1!': 'Coffee', 'ICEUS:OJ1!': 'Orange Juice', 'ICEUS:CT1!': 'Cotton',
+            'NYMEX:NG1!': 'Natural Gas', 'COMEX:PL1!': 'Platinum', 'COMEX:PA1!': 'Palladium',
+            'ICEUS:CC1!': 'Cocoa', 'CBOT:ZL1!': 'Soybean Oil', 'CBOT:ZM1!': 'Soybean Meal',
+            'NYMEX:RB1!': 'Gasoline', 'NYMEX:HO1!': 'Heating Oil', 'CME:LBS1!': 'Lumber',
+            'COMEX:ALI1!': 'Aluminum',
+            'FX_IDC:USDPHP': 'USD/PHP', 'FX_IDC:EURPHP': 'EUR/PHP', 'FX_IDC:JPYPHP': 'JPY/PHP',
+            'FX_IDC:GBPPHP': 'GBP/PHP', 'FX_IDC:SGDPHP': 'SGD/PHP', 'FX_IDC:AUDPHP': 'AUD/PHP',
+            'FX_IDC:CNYPHP': 'CNY/PHP', 'FX_IDC:HKDPHP': 'HKD/PHP', 'FX_IDC:KRWPHP': 'KRW/PHP',
+            'FX_IDC:CADPHP': 'CAD/PHP', 'FX_IDC:CHFPHP': 'CHF/PHP',
+            'FX:EURUSD': 'EUR/USD', 'FX:GBPUSD': 'GBP/USD', 'FX:USDJPY': 'USD/JPY',
+            'FX:USDCAD': 'USD/CAD', 'FX:AUDUSD': 'AUD/USD', 'FX:USDCHF': 'USD/CHF',
+            'FX:NZDUSD': 'NZD/USD', 'FX:USDCNY': 'USD/CNY', 'FX:USDSGD': 'USD/SGD',
+            'FX:USDHKD': 'USD/HKD', 'FX:USDINR': 'USD/INR', 'FX:USDKRW': 'USD/KRW',
+            'FX:USDBRL': 'USD/BRL', 'FX:USDMXN': 'USD/MXN', 'FX:USDZAR': 'USD/ZAR',
+            'FX:USDTRY': 'USD/TRY',
+            'PSE:SM': 'SM Investments', 'PSE:ALI': 'Ayala Land', 'PSE:BDO': 'BDO Unibank',
+            'PSE:JFC': 'Jollibee', 'PSE:AC': 'Ayala Corp', 'PSE:SMPH': 'SM Prime',
+            'PSE:BPI': 'Bank of PI', 'PSE:MBT': 'Metrobank', 'PSE:TEL': 'PLDT',
+            'PSE:GLO': 'Globe Telecom', 'PSE:URC': 'Univ Robina', 'PSE:MER': 'Meralco',
+            'PSE:AEV': 'Aboitiz Equity', 'PSE:AP': 'Aboitiz Power', 'PSE:PGOLD': 'Puregold',
+            'NYSE:JPM': 'JPMorgan', 'NYSE:BAC': 'Bank of America', 'NYSE:XOM': 'ExxonMobil',
+            'NYSE:JNJ': 'Johnson & Johnson', 'NYSE:WMT': 'Walmart', 'NYSE:V': 'Visa',
+            'NYSE:PG': 'Procter & Gamble', 'NYSE:HD': 'Home Depot', 'NYSE:CVX': 'Chevron',
+            'NASDAQ:AAPL': 'Apple', 'NASDAQ:MSFT': 'Microsoft', 'NASDAQ:NVDA': 'NVIDIA',
+            'NASDAQ:GOOGL': 'Alphabet', 'NASDAQ:AMZN': 'Amazon', 'NASDAQ:META': 'Meta',
+            'NASDAQ:TSLA': 'Tesla', 'NASDAQ:AVGO': 'Broadcom', 'NASDAQ:NFLX': 'Netflix',
+            'NASDAQ:AMD': 'AMD', 'NASDAQ:INTC': 'Intel', 'NASDAQ:QCOM': 'Qualcomm',
+            'NASDAQ:COST': 'Costco', 'NASDAQ:ADBE': 'Adobe', 'NASDAQ:PYPL': 'PayPal',
+            'TSE:7203': 'Toyota', 'TSE:6758': 'Sony', 'TSE:9984': 'SoftBank',
+            'KRX:005930': 'Samsung', 'KRX:000660': 'SK Hynix',
+            'HKEX:700': 'Tencent', 'HKEX:9988': 'Alibaba',
+            'SGX:D05': 'DBS Group', 'SGX:O39': 'OCBC',
         };
 
-        const EXCHANGE_LABELS = {
-            pse: '🇵🇭 PSE (Philippines)', nyse: '🇺🇸 NYSE', nasdaq: '🇺🇸 NASDAQ',
-            tse: '🇯🇵 TSE (Japan)', krx: '🇰🇷 KRX (South Korea)', hkex: '🇭🇰 HKEX (Hong Kong)',
-            sgx: '🇸🇬 SGX (Singapore)', asx: '🇦🇺 ASX (Australia)', lse: '🇬🇧 LSE (London)',
-            nse: '🇮🇳 NSE (India)', tsx: '🇨🇦 TSX (Canada)', bvmf: '🇧🇷 BVMF (Brazil)',
-        };
+        // ── CATEGORY MAPPING ─────────────────────────────────────────
+        const INDICES_TICKERS = [
+            'DJ:DJI', 'FOREXCOM:SPXUSD', 'FOREXCOM:NSXUSD', 'FOREXCOM:UK100',
+            'INDEX:DEU40', 'INDEX:NI225', 'INDEX:KOSPI', 'INDEX:HSI', 'INDEX:ASX200',
+            'PSE:PSEI', 'INDEX:STI', 'INDEX:SENSEX', 'INDEX:VIX', 'TVC:US10Y',
+            'TVC:US02Y', 'TVC:DXY', 'INDEX:FTMIB', 'INDEX:IBEX35', 'INDEX:SET',
+            'INDEX:KLCI', 'INDEX:JKSE', 'INDEX:BVSP', 'INDEX:MXX', 'INDEX:TA35',
+            'INDEX:TADAWUL', 'INDEX:RUSSELL2000', 'INDEX:TAIEX', 'INDEX:OSEBX',
+            'INDEX:AEX', 'INDEX:SMI',
+        ];
+        const COMMODITIES_TICKERS = [
+            'OANDA:XAUUSD', 'OANDA:XAGUSD', 'TVC:UKOIL', 'TVC:USOIL', 'COMEX:HG1!',
+            'CBOT:ZC1!', 'CBOT:ZW1!', 'CBOT:ZS1!', 'ICEUS:SB1!', 'ICEUS:KC1!',
+            'ICEUS:OJ1!', 'ICEUS:CT1!', 'NYMEX:NG1!', 'COMEX:PL1!', 'COMEX:PA1!',
+            'ICEUS:CC1!', 'CBOT:ZL1!', 'CBOT:ZM1!', 'NYMEX:RB1!', 'NYMEX:HO1!',
+            'CME:LBS1!', 'COMEX:ALI1!',
+        ];
+        const CURRENCIES_TICKERS = [
+            'FX_IDC:USDPHP', 'FX_IDC:EURPHP', 'FX_IDC:JPYPHP', 'FX_IDC:GBPPHP',
+            'FX_IDC:SGDPHP', 'FX_IDC:AUDPHP', 'FX_IDC:CNYPHP', 'FX_IDC:HKDPHP',
+            'FX_IDC:KRWPHP', 'FX_IDC:CADPHP', 'FX_IDC:CHFPHP',
+            'FX:EURUSD', 'FX:GBPUSD', 'FX:USDJPY', 'FX:USDCAD', 'FX:AUDUSD',
+            'FX:USDCHF', 'FX:NZDUSD', 'FX:USDCNY', 'FX:USDSGD', 'FX:USDHKD',
+            'FX:USDINR', 'FX:USDKRW', 'FX:USDBRL', 'FX:USDMXN', 'FX:USDZAR', 'FX:USDTRY',
+        ];
+        const EQUITIES_TICKERS = [
+            'PSE:SM', 'PSE:ALI', 'PSE:BDO', 'PSE:JFC', 'PSE:AC', 'PSE:SMPH',
+            'PSE:BPI', 'PSE:MBT', 'PSE:TEL', 'PSE:GLO', 'PSE:URC', 'PSE:MER',
+            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD',
+            'NYSE:JPM', 'NYSE:BAC', 'NYSE:XOM', 'NYSE:JNJ', 'NYSE:WMT',
+            'NYSE:V', 'NYSE:PG', 'NYSE:HD', 'NYSE:CVX',
+            'NASDAQ:AAPL', 'NASDAQ:MSFT', 'NASDAQ:NVDA', 'NASDAQ:GOOGL', 'NASDAQ:AMZN',
+            'NASDAQ:META', 'NASDAQ:TSLA', 'NASDAQ:AVGO', 'NASDAQ:NFLX', 'NASDAQ:AMD',
+            'NASDAQ:INTC', 'NASDAQ:QCOM', 'NASDAQ:COST', 'NASDAQ:ADBE', 'NASDAQ:PYPL',
+            'TSE:7203', 'TSE:6758', 'TSE:9984',
+            'KRX:005930', 'KRX:000660',
+            'HKEX:700', 'HKEX:9988',
+            'SGX:D05', 'SGX:O39',
+        ];
 
-        // ── YAHOO FINANCE FETCH ───────────────────────────────────────
-        async function fetchYahoo(symbols) {
-            var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
-            var yUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
-
-            // Try multiple proxies in order
-            var proxies = [
-                'https://corsproxy.io/?' + encodeURIComponent(yUrl),
-                'https://api.allorigins.win/raw?url=' + encodeURIComponent(yUrl),
-                'https://proxy.cors.sh/' + yUrl,
-            ];
-
-            var data = null;
-            for (var i = 0; i < proxies.length; i++) {
-                try {
-                    var res = await fetchWithTimeout(proxies[i], {
-                        headers: { 'x-requested-with': 'XMLHttpRequest' }
-                    }, 8000);
-                    var json = await res.json();
-                    if (json.quoteResponse && json.quoteResponse.result && json.quoteResponse.result.length > 0) {
-                        data = json;
-                        break;
-                    }
-                } catch (e) {
-                    console.warn('Proxy ' + i + ' failed:', e.message);
-                }
-            }
-
-            if (!data) return [];
-
-            var quotes = data.quoteResponse.result;
-            var map = {};
-            quotes.forEach(function (q) { map[q.symbol] = q; });
-            return symbols.map(function (sym) {
-                var q = map[sym.s] || {};
-                return {
-                    s: sym.s,
-                    name: sym.n,
-                    price: q.regularMarketPrice,
-                    chgAbs: q.regularMarketChange,
-                    chgPct: q.regularMarketChangePercent,
-                };
-            }).filter(function (d) { return d.price != null; });
-        }
-
-        // ── COINGECKO FETCH ───────────────────────────────────────────
-        async function fetchCrypto() {
-            try {
-                var res = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h', {}, 8000);
-                var data = await res.json();
-                return data.map(function (c) {
-                    return {
-                        s: c.id,
-                        name: c.name,
-                        symbol: c.symbol.toUpperCase(),
-                        price: c.current_price,
-                        chgAbs: null,
-                        chgPct: c.price_change_percentage_24h,
-                        mcap: c.market_cap,
-                    };
-                });
-            } catch (e) {
-                console.warn('CoinGecko error', e);
-                return [];
-            }
-        }
-
-        // ── MAIN FETCH ────────────────────────────────────────────────
-        var breadthFetchInterval = null;
-        var breadthLoaded = false;
-
-        // Fetch with timeout helper
-        async function fetchWithTimeout(url, options, ms) {
-            var controller = new AbortController();
-            var timer = setTimeout(function () { controller.abort(); }, ms || 8000);
-            try {
-                var res = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
-                clearTimeout(timer);
-                return res;
-            } catch (e) {
-                clearTimeout(timer);
-                throw e;
-            }
-        }
-
+        // ── FETCH FROM AIRTABLE ───────────────────────────────────────
         window.fetchMarketData = async function () {
             try {
-                var [indData, comData, curData, cryptoData] = await Promise.all([
-                    fetchYahoo(YF_INDICES),
-                    fetchYahoo(YF_COMMODITIES),
-                    fetchYahoo(YF_CURRENCIES),
-                    fetchCrypto(),
-                ]);
-                breadthAllData = [].concat(indData, comData, curData);
-                breadthCryptoData = cryptoData;
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + BREADTH_TABLE +
+                    '?filterByFormula={Field_Name}%3D%22MAIN%22&maxRecords=1';
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                var json = await res.json();
+                if (!json.records || !json.records.length) return;
+                var fields = json.records[0].fields;
+                var d1 = fields.Market_Data ? JSON.parse(fields.Market_Data).data : [];
+                var d2 = fields.Market_Data2 ? JSON.parse(fields.Market_Data2).data : [];
+                breadthAllData = d1.concat(d2).map(function (item) {
+                    return {
+                        s: item.s,
+                        name: TICKER_NAMES[item.s] || (item.d[0] || item.s.split(':').pop()),
+                        price: item.d[1],
+                        chgPct: item.d[2],
+                        chgAbs: item.d[3],
+                    };
+                }).filter(function (d) { return d.price != null; });
+
+                // Init jitter store with real prices
+                breadthAllData.forEach(function (d) {
+                    breadthJitterStore[d.s] = d.price;
+                });
+
                 renderTopSection();
                 renderBreadthTab();
+                startJitter();
+
+                // Also fetch crypto
+                fetchCryptoData();
             } catch (e) {
                 console.warn('fetchMarketData error', e);
             }
         };
 
+        // ── COINGECKO CRYPTO ─────────────────────────────────────────
+        async function fetchCryptoData() {
+            try {
+                var res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h');
+                var data = await res.json();
+                breadthCryptoData = data.map(function (c) {
+                    return {
+                        s: c.id,
+                        name: c.name,
+                        symbol: c.symbol.toUpperCase(),
+                        price: c.current_price,
+                        chgPct: c.price_change_percentage_24h,
+                        chgAbs: null,
+                        mcap: c.market_cap,
+                    };
+                });
+                if (breadthCurrentTab === 'crypto') renderBreadthTab();
+            } catch (e) { console.warn('CoinGecko error', e); }
+        }
+
+        // ── JITTER ENGINE ─────────────────────────────────────────────
+        // Each asset gets its own random timer so they dont all blink together
+        function startJitter() {
+            if (breadthJitterTimer) return; // already running
+            // Stagger each ticker with a random initial delay
+            breadthAllData.forEach(function (item) {
+                scheduleJitter(item.s, item.price);
+            });
+        }
+
+        function scheduleJitter(ticker, basePrice) {
+            // Random delay between 3-60 seconds for this ticker
+            var delay = 3000 + Math.random() * 57000;
+            setTimeout(function () {
+                applyJitter(ticker, basePrice);
+            }, delay);
+        }
+
+        function applyJitter(ticker, basePrice) {
+            // ±0.05% max movement
+            var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
+            var newPrice = breadthJitterStore[ticker] + jitter;
+            breadthJitterStore[ticker] = newPrice;
+
+            // Update the DOM cell if visible
+            var cell = document.getElementById('price-' + ticker.replace(/[^a-zA-Z0-9]/g, '_'));
+            if (cell) {
+                cell.textContent = formatBreadthPrice(newPrice, getTabForTicker(ticker));
+                cell.style.animation = 'none';
+                cell.offsetHeight; // reflow
+                cell.style.animation = 'priceBlink 0.8s ease-out';
+            }
+
+            // Schedule next jitter for this ticker — random 10-60 seconds
+            var nextDelay = 10000 + Math.random() * 50000;
+            setTimeout(function () {
+                applyJitter(ticker, basePrice); // always jitter around REAL base price
+            }, nextDelay);
+        }
+
+        function getTabForTicker(ticker) {
+            if (CURRENCIES_TICKERS.indexOf(ticker) >= 0) return 'currencies';
+            if (COMMODITIES_TICKERS.indexOf(ticker) >= 0) return 'commodities';
+            if (INDICES_TICKERS.indexOf(ticker) >= 0) return 'indices';
+            return 'equities';
+        }
+
+        // ── TAB SWITCHING ─────────────────────────────────────────────
         window.switchBreadthTab = function (tab) {
             breadthCurrentTab = tab;
             ['indices', 'crypto', 'commodities', 'currencies', 'equities'].forEach(function (t) {
@@ -1584,69 +1603,42 @@
             renderBreadthTab();
         };
 
-        async function renderBreadthTab() {
+        // ── RENDER TAB ────────────────────────────────────────────────
+        function renderBreadthTab() {
             var container = document.getElementById('market-breadth-inner');
             if (!container) return;
             var tab = breadthCurrentTab;
             var items = [];
 
-            container.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-family:Courier New,monospace;font-size:0.82rem;">Loading...</div>';
-
             if (tab === 'crypto') {
-                items = breadthCryptoData.length ? breadthCryptoData : await fetchCrypto();
-                breadthCryptoData = items;
-            } else if (tab === 'equities') {
-                var list = EQUITY_LISTS[breadthEquityExch] || [];
-                items = await fetchYahoo(list);
+                items = breadthCryptoData;
             } else if (tab === 'indices') {
-                items = breadthAllData.filter(function (d) {
-                    return YF_INDICES.some(function (s) { return s.s === d.s; });
-                });
-                if (!items.length) items = await fetchYahoo(YF_INDICES);
+                items = breadthAllData.filter(function (d) { return INDICES_TICKERS.indexOf(d.s) >= 0; });
             } else if (tab === 'commodities') {
-                items = breadthAllData.filter(function (d) {
-                    return YF_COMMODITIES.some(function (s) { return s.s === d.s; });
-                });
-                if (!items.length) items = await fetchYahoo(YF_COMMODITIES);
+                items = breadthAllData.filter(function (d) { return COMMODITIES_TICKERS.indexOf(d.s) >= 0; });
             } else if (tab === 'currencies') {
-                items = breadthAllData.filter(function (d) {
-                    return YF_CURRENCIES.some(function (s) { return s.s === d.s; });
-                });
-                if (!items.length) items = await fetchYahoo(YF_CURRENCIES);
+                items = breadthAllData.filter(function (d) { return CURRENCIES_TICKERS.indexOf(d.s) >= 0; });
+            } else if (tab === 'equities') {
+                items = breadthAllData.filter(function (d) { return EQUITIES_TICKERS.indexOf(d.s) >= 0; });
             }
-
-            var html = '';
-
-            // Exchange selector for equities
-            if (tab === 'equities') {
-                html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">' +
-                    '<label style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#888;">EXCHANGE</label>' +
-                    '<select onchange="breadthEquityExch=this.value;renderBreadthTab()" style="padding:8px 12px;border:2px solid var(--border);font-family:Inter,sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">';
-                Object.keys(EXCHANGE_LABELS).forEach(function (k) {
-                    html += '<option value="' + k + '"' + (k === breadthEquityExch ? ' selected' : '') + '>' + EXCHANGE_LABELS[k] + '</option>';
-                });
-                html += '</select><span style="font-size:0.72rem;color:#aaa;">Top 20 blue chips</span></div>';
-            }
-
-            // DELAYED badge
-            html += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">' +
-                '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">DELAYED 15 MIN</div></div>';
 
             if (!items.length) {
-                html += '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">No data available. Please try again.</div>';
-                container.innerHTML = html;
+                container.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading market data...</div>';
                 return;
             }
 
-            // Table
+            var html = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">' +
+                '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">LIVE</div></div>';
+
             html += '<div style="border:2px solid #000;overflow:auto;">' +
                 '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
                 '<thead><tr style="background:#000;">' +
                 '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
                 (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
                 '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE (24H)</th>' +
-                (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">MARKET CAP</th>' : '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>') +
+                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>' +
+                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE</th>' +
+                (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">MKT CAP</th>' : '') +
                 '</tr></thead><tbody>';
 
             items.forEach(function (item, i) {
@@ -1655,43 +1647,30 @@
                 var sign = isUp ? '+' : '';
                 var bg = i % 2 === 0 ? '#fff' : '#fafafa';
                 var pctStr = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
+                var safeId = 'price-' + item.s.replace(/[^a-zA-Z0-9]/g, '_');
 
-                // Format price
-                var priceStr = '—';
-                if (item.price != null) {
-                    if (tab === 'currencies') priceStr = item.price.toFixed(4);
-                    else if (tab === 'crypto') {
-                        if (item.price >= 1000) priceStr = '$' + item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                        else if (item.price >= 1) priceStr = '$' + item.price.toFixed(4);
-                        else priceStr = '$' + item.price.toFixed(6);
-                    }
-                    else priceStr = item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                }
+                // Use jittered price if available
+                var displayPrice = tab !== 'crypto' && breadthJitterStore[item.s] != null
+                    ? breadthJitterStore[item.s] : item.price;
+                var priceStr = formatBreadthPrice(displayPrice, tab);
 
-                // Change abs
-                var chgStr = '—';
+                var chgAbsStr = '—';
                 if (tab !== 'crypto' && item.chgAbs != null) {
-                    chgStr = (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(tab === 'currencies' ? 4 : 2);
+                    chgAbsStr = (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(tab === 'currencies' ? 4 : 2);
                 }
 
-                // Market cap for crypto
                 var mcapStr = '—';
-                if (tab === 'crypto' && item.mcap != null) {
+                if (tab === 'crypto' && item.mcap) {
                     mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
                 }
-
-                // Blink on change
-                var prevKey = tab + ':' + item.s;
-                var blink = (breadthPrevValues[prevKey] !== undefined && breadthPrevValues[prevKey] !== item.price)
-                    ? 'animation:priceBlink 1.2s ease-out;' : '';
-                breadthPrevValues[prevKey] = item.price;
 
                 html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
                     '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
-                    '<td style="padding:10px 16px;text-align:right;font-weight:900;color:#000;' + blink + '">' + priceStr + '</td>' +
+                    '<td id="' + safeId + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
+                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
                     '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
-                    (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgStr + '</td>') +
+                    (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '') +
                     '</tr>';
             });
 
@@ -1699,14 +1678,12 @@
             container.innerHTML = html;
         }
 
+        // ── TOP SECTION ───────────────────────────────────────────────
         function renderTopSection() {
             var topEl = document.getElementById('breadth-top');
-            if (!topEl) return;
+            if (!topEl || !breadthAllData.length) return;
 
-            // Combine all data including crypto for top section
             var allCombined = breadthAllData.concat(breadthCryptoData);
-            if (!allCombined.length) return;
-
             var sorted = allCombined.filter(function (d) { return d.chgPct != null; })
                 .sort(function (a, b) { return (b.chgPct || 0) - (a.chgPct || 0); });
             var gainers = sorted.slice(0, 5);
@@ -1716,10 +1693,7 @@
                 var color = isGain ? '#16a34a' : '#dc2626';
                 var sign = isGain ? '+' : '';
                 var pct = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
-                var price = item.price != null ? (item.price >= 1000
-                    ? item.price.toLocaleString(undefined, { maximumFractionDigits: 2 })
-                    : item.price >= 1 ? item.price.toFixed(4)
-                        : item.price.toFixed(6)) : '—';
+                var price = formatBreadthPrice(item.price, '');
                 return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid ' + (isGain ? '#d1fae5' : '#fee2e2') + ';">' +
                     '<span style="font-size:0.88rem;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">' + item.name + '</span>' +
                     '<div style="text-align:right;flex-shrink:0;margin-left:8px;">' +
@@ -1739,6 +1713,19 @@
                 '</div>';
         }
 
+        // ── PRICE FORMATTER ───────────────────────────────────────────
+        function formatBreadthPrice(val, tab) {
+            if (val == null) return '—';
+            if (tab === 'currencies') return val.toFixed(4);
+            if (tab === 'crypto') {
+                if (val >= 1000) return '$' + val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                if (val >= 1) return '$' + val.toFixed(4);
+                return '$' + val.toFixed(6);
+            }
+            return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
+        }
+
+
 
 
 
@@ -1752,9 +1739,9 @@
         let mktCurrentCompany = null;
 
         function getNingLogoUrl(eodhd_ticker) {
-            const parts = (eodhd_ticker || '').split('.');
-            const code = parts[0];
-            const exchange = parts[1] || 'US';
+            var parts = (eodhd_ticker || '').split('.');
+            var code = parts[0];
+            var exchange = parts[1] || 'US';
             return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
         }
         let mktDebounce = null;
@@ -1907,32 +1894,32 @@
         const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
 
         async function fetchCompanyData(ticker) {
-            const nc = document.getElementById('mkt-news-container');
-            const ec = document.getElementById('mkt-earnings-container');
-            const msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
-            let msgIdx = 0;
-            const setLoading = (text) => {
-                const html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
+            var nc = document.getElementById('mkt-news-container');
+            var ec = document.getElementById('mkt-earnings-container');
+            var msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
+            var msgIdx = 0;
+            var setLoading = (text) => {
+                var html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
                 nc.innerHTML = html; ec.innerHTML = html;
             };
             setLoading(msgs[0]);
 
             // STEP 1: Check Airtable cache
             try {
-                const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                const data = await res.json();
+                var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                var data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    const fields = data.records[0].fields;
-                    const lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
-                    const ageHours = (new Date() - lastUpdated) / 3600000;
+                    var fields = data.records[0].fields;
+                    var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
+                    var ageHours = (new Date() - lastUpdated) / 3600000;
                     if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
-                        const badge = document.createElement('div');
+                        var badge = document.createElement('div');
                         badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
-                        const safeId = ticker.replace(/\./g, '_');
+                        var safeId = ticker.replace(/\./g, '_');
                         badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="rl-${safeId}">Refresh</a>`;
                         nc.insertBefore(badge, nc.firstChild);
                         document.getElementById(`rl-${safeId}`)?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
@@ -1946,18 +1933,18 @@
             try { await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' }); } catch (e) { }
 
             // STEP 3: Poll until data arrives
-            let attempts = 0;
-            const pollInterval = setInterval(async () => {
+            var attempts = 0;
+            var pollInterval = setInterval(async () => {
                 attempts++;
                 msgIdx = (msgIdx + 1) % msgs.length;
                 setLoading(`${msgs[msgIdx]}<br><span style="color:#888;font-size:0.75rem;font-weight:400;">${attempts * 4}s elapsed</span>`);
                 try {
-                    const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    const data = await res.json();
+                    var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                    var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    var data = await res.json();
                     if (data.records && data.records.length > 0) {
-                        const fields = data.records[0].fields;
+                        var fields = data.records[0].fields;
                         if (fields.News || fields.Earnings) {
                             clearInterval(pollInterval);
                             renderNews(fields.News || '[]', nc);
@@ -2562,25 +2549,25 @@
         // Uses open.er-api.com — free, no API key needed, updates every few hours
         // Falls back to fawazahmed0 CDN if primary fails
         async function fetchFxRates() {
-            const container = document.getElementById('fx-rates-container');
+            var container = document.getElementById('fx-rates-container');
             if (!container) return;
 
-            let r = null;
+            var r = null;
 
             // Primary: ExchangeRate-API free tier (no key, reliable)
             try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
+                var res = await fetch('https://open.er-api.com/v6/latest/USD');
+                var data = await res.json();
                 if (data.result === 'success') r = data.rates;
             } catch (e) { }
 
             // Fallback: fawazahmed0 CDN
             if (!r) {
                 try {
-                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                    const data = await res.json();
+                    var res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                    var data = await res.json();
                     // normalize to uppercase keys
-                    const raw = data.usd;
+                    var raw = data.usd;
                     r = {};
                     for (const k in raw) r[k.toUpperCase()] = raw[k];
                 } catch (e) { }
@@ -2591,11 +2578,11 @@
                 return;
             }
 
-            const usdPhp = r.PHP;
-            const eurPhp = r.PHP / r.EUR;
-            const jpyPhp = r.PHP / r.JPY;
-            const cadPhp = r.PHP / r.CAD;
-            const fmt = v => v.toFixed(2);
+            var usdPhp = r.PHP;
+            var eurPhp = r.PHP / r.EUR;
+            var jpyPhp = r.PHP / r.JPY;
+            var cadPhp = r.PHP / r.CAD;
+            var fmt = v => v.toFixed(2);
 
             container.innerHTML = `
                 <div class="fx-row">
@@ -2630,18 +2617,18 @@
 
         // --- SIDEBAR CLOCK LOGIC ---
         function updateWorldClocks() {
-            const now = new Date();
-            const zones = [
+            var now = new Date();
+            var zones = [
                 { id: 'manila', tz: 'Asia/Manila' },
                 { id: 'ny', tz: 'America/New_York' },
                 { id: 'tokyo', tz: 'Asia/Tokyo' },
                 { id: 'london', tz: 'Europe/London' }
             ];
             zones.forEach(zone => {
-                const timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
-                const [h, m, s] = timeStr.split(':');
-                const clockEl = document.getElementById(`clock-${zone.id}`);
-                const secEl = document.getElementById(`sec-${zone.id}`);
+                var timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
+                var [h, m, s] = timeStr.split(':');
+                var clockEl = document.getElementById(`clock-${zone.id}`);
+                var secEl = document.getElementById(`sec-${zone.id}`);
                 if (clockEl) clockEl.innerText = `${h}:${m}`;
                 if (secEl) secEl.innerText = `:${s}`;
             });
