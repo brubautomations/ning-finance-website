@@ -1380,282 +1380,298 @@
         }
 
         // ============================================================
-        // MARKET BREADTH — TradingView Scanner
+        // MARKET BREADTH — Yahoo Finance + CoinGecko
+        // Zero Make.com, Zero Airtable, direct browser calls
         // ============================================================
         var breadthCurrentTab = 'indices';
-        var breadthEquityExch = 'NYSE';
+        var breadthEquityExch = 'pse';
         var breadthPrevValues = {};
-        var breadthAllData = []; // cached full dataset for top section
+        var breadthAllData = [];
+        var breadthCryptoData = [];
 
         // Blink animation
         (function () {
             var st = document.createElement('style');
-            st.textContent = '@keyframes priceBlink{0%{color:#cba258}100%{color:inherit}}';
+            st.textContent = '@keyframes priceBlink{0%{color:#cba258}50%{color:#cba258}100%{color:inherit}}';
             document.head.appendChild(st);
         })();
 
-        const EQUITY_EXCHANGES = [
-            { code: 'NYSE', label: '🇺🇸 NYSE' }, { code: 'NASDAQ', label: '🇺🇸 NASDAQ' },
-            { code: 'PSE', label: '🇵🇭 PSE (Philippines)' }, { code: 'TSE', label: '🇯🇵 TSE (Japan)' },
-            { code: 'KRX', label: '🇰🇷 KRX (South Korea)' }, { code: 'HKEX', label: '🇭🇰 HKEX (HK)' },
-            { code: 'SGX', label: '🇸🇬 SGX (Singapore)' }, { code: 'ASX', label: '🇦🇺 ASX (Australia)' },
-            { code: 'LSE', label: '🇬🇧 LSE (London)' }, { code: 'XETR', label: '🇩🇪 XETR (Germany)' },
-            { code: 'EURONEXT', label: '🇫🇷 Euronext' }, { code: 'HOSE', label: '🇻🇳 HOSE (Vietnam)' },
-            { code: 'TADAWUL', label: '🇸🇦 Tadawul (Saudi)' }, { code: 'NSE', label: '🇮🇳 NSE (India)' },
-            { code: 'BVMF', label: '🇧🇷 BVMF (Brazil)' }, { code: 'TSX', label: '🇨🇦 TSX (Canada)' },
+        // ── YAHOO FINANCE SYMBOLS ─────────────────────────────────────
+        const YF_INDICES = [
+            { s: '^GSPC', n: 'S&P 500' }, { s: '^DJI', n: 'Dow Jones' },
+            { s: '^IXIC', n: 'NASDAQ' }, { s: '^RUT', n: 'Russell 2000' },
+            { s: '^VIX', n: 'VIX' }, { s: '^PSEI', n: 'PSEi' },
+            { s: '^N225', n: 'Nikkei 225' }, { s: '^KS11', n: 'KOSPI' },
+            { s: '^HSI', n: 'Hang Seng' }, { s: '^AXJO', n: 'ASX 200' },
+            { s: '^STI', n: 'Straits Times' }, { s: '^FTSE', n: 'FTSE 100' },
+            { s: '^GDAXI', n: 'DAX 40' }, { s: '^FCHI', n: 'CAC 40' },
+            { s: '^STOXX50E', n: 'Euro Stoxx 50' }, { s: '^BSESN', n: 'SENSEX' },
+            { s: '^NSEI', n: 'NIFTY 50' }, { s: '^TWII', n: 'TAIEX' },
+            { s: '^JKSE', n: 'IDX (Indonesia)' }, { s: '^KLSE', n: 'KLCI' },
+            { s: '^SET.BK', n: 'SET (Thailand)' }, { s: '^MXX', n: 'IPC (Mexico)' },
+            { s: '^BVSP', n: 'Bovespa' }, { s: '^MERV', n: 'Merval' },
+            { s: '^TA125.TA', n: 'TA-125 (Israel)' }, { s: '^TASI.SR', n: 'Tadawul' },
+            { s: 'DX-Y.NYB', n: 'US Dollar Index' }, { s: '^TNX', n: 'US 10Y Yield' },
+            { s: '^IRX', n: 'US 3M Yield' }, { s: '^FVX', n: 'US 5Y Yield' },
         ];
 
-        const BREADTH_TICKERS = {
-            indices: [
-                'FOREXCOM:SPXUSD', 'FOREXCOM:NSXUSD', 'DJ:DJI', 'FOREXCOM:UK100',
-                'INDEX:DEU40', 'INDEX:NI225', 'INDEX:KOSPI', 'INDEX:HSI',
-                'INDEX:ASX200', 'PSE:PSEI', 'INDEX:STI', 'INDEX:SENSEX',
-                'INDEX:VIX', 'TVC:US10Y', 'TVC:US02Y', 'TVC:DXY',
-                'INDEX:FTMIB', 'INDEX:IBEX35', 'INDEX:SET', 'INDEX:KLCI',
-                'INDEX:JKSE', 'INDEX:BVSP', 'INDEX:MXX', 'INDEX:TA35',
-                'INDEX:TADAWUL', 'INDEX:RUSSELL2000', 'INDEX:TAIEX',
-                'INDEX:OSEBX', 'INDEX:OMX', 'INDEX:AEX', 'INDEX:SMI',
-            ],
-            crypto: [
-                'BINANCE:BTCUSDT', 'BINANCE:ETHUSDT', 'BINANCE:BNBUSDT', 'BINANCE:XRPUSDT',
-                'BINANCE:SOLUSDT', 'BINANCE:ADAUSDT', 'BINANCE:DOGEUSDT', 'BINANCE:AVAXUSDT',
-                'BINANCE:TRXUSDT', 'BINANCE:LINKUSDT', 'BINANCE:DOTUSDT', 'BINANCE:MATICUSDT',
-                'BINANCE:LTCUSDT', 'BINANCE:BCHUSDT', 'BINANCE:UNIUSDT', 'BINANCE:ATOMUSDT',
-                'BINANCE:ETCUSDT', 'BINANCE:XLMUSDT', 'BINANCE:NEARUSDT', 'BINANCE:APTUSDT',
-                'BINANCE:OPUSDT', 'BINANCE:ARBUSDT', 'BINANCE:FILUSDT', 'BINANCE:INJUSDT',
-                'BINANCE:SUIUSDT', 'BINANCE:HBARUSDT', 'BINANCE:ALGOUSDT', 'BINANCE:XMRUSDT',
-                'BINANCE:AAVEUSDT', 'BINANCE:MKRUSDT', 'BINANCE:COMPUSDT', 'BINANCE:CRVUSDT',
-                'BINANCE:SANDUSDT', 'BINANCE:MANAUSDT', 'BINANCE:AXSUSDT', 'BINANCE:CHZUSDT',
-                'BINANCE:GRTUSDT', 'BINANCE:RENDERUSDT', 'BINANCE:FETUSDT', 'BINANCE:WLDUSDT',
-                'BINANCE:SEIUSDT', 'BINANCE:TIAUSDT', 'BINANCE:RUNEUSDT', 'BINANCE:IMXUSDT',
-                'BINANCE:APEUSDT', 'BINANCE:ENJUSDT', 'BINANCE:SNXUSDT', 'BINANCE:LRCUSDT',
-                'BINANCE:ZILUSDT', 'BINANCE:IOTAUSDT',
-            ],
-            commodities: [
-                'OANDA:XAUUSD', 'OANDA:XAGUSD', 'TVC:UKOIL', 'TVC:USOIL',
-                'COMEX:HG1!', 'CBOT:ZC1!', 'CBOT:ZW1!', 'CBOT:ZS1!',
-                'ICEUS:SB1!', 'ICEUS:KC1!', 'ICEUS:OJ1!', 'ICEUS:CT1!',
-                'NYMEX:NG1!', 'COMEX:PL1!', 'COMEX:PA1!', 'ICEUS:CC1!',
-                'CBOT:ZL1!', 'CBOT:ZM1!', 'NYMEX:RB1!', 'NYMEX:HO1!',
-                'CME:LBS1!', 'COMEX:ALI1!',
-            ],
-            currencies: [
-                'FX_IDC:USDPHP', 'FX_IDC:EURPHP', 'FX_IDC:JPYPHP', 'FX_IDC:GBPPHP',
-                'FX_IDC:SGDPHP', 'FX_IDC:AUDPHP', 'FX_IDC:CNYPHP', 'FX_IDC:HKDPHP',
-                'FX_IDC:KRWPHP', 'FX_IDC:CADPHP', 'FX_IDC:CHFPHP',
-                'FX:EURUSD', 'FX:GBPUSD', 'FX:USDJPY', 'FX:USDCAD',
-                'FX:AUDUSD', 'FX:USDCHF', 'FX:NZDUSD', 'FX:USDCNY',
-                'FX:USDSGD', 'FX:USDHKD', 'FX:USDINR', 'FX:USDKRW',
-                'FX:USDBRL', 'FX:USDMXN', 'FX:USDZAR', 'FX:USDTRY',
-            ],
+        const YF_COMMODITIES = [
+            { s: 'GC=F', n: 'Gold' }, { s: 'SI=F', n: 'Silver' },
+            { s: 'CL=F', n: 'WTI Crude' }, { s: 'BZ=F', n: 'Brent Crude' },
+            { s: 'NG=F', n: 'Natural Gas' }, { s: 'HG=F', n: 'Copper' },
+            { s: 'ZC=F', n: 'Corn' }, { s: 'ZW=F', n: 'Wheat' },
+            { s: 'ZS=F', n: 'Soybeans' }, { s: 'SB=F', n: 'Sugar' },
+            { s: 'KC=F', n: 'Coffee' }, { s: 'CT=F', n: 'Cotton' },
+            { s: 'OJ=F', n: 'Orange Juice' }, { s: 'PL=F', n: 'Platinum' },
+            { s: 'PA=F', n: 'Palladium' }, { s: 'CC=F', n: 'Cocoa' },
+            { s: 'ZL=F', n: 'Soybean Oil' }, { s: 'ZM=F', n: 'Soybean Meal' },
+            { s: 'RB=F', n: 'Gasoline' }, { s: 'HO=F', n: 'Heating Oil' },
+            { s: 'ALI=F', n: 'Aluminum' }, { s: 'LBS=F', n: 'Lumber' },
+        ];
+
+        const YF_CURRENCIES = [
+            // PHP pairs first
+            { s: 'PHP=X', n: 'USD/PHP' }, { s: 'EURPHP=X', n: 'EUR/PHP' },
+            { s: 'JPYPHP=X', n: 'JPY/PHP' }, { s: 'GBPPHP=X', n: 'GBP/PHP' },
+            { s: 'SGDPHP=X', n: 'SGD/PHP' }, { s: 'AUDPHP=X', n: 'AUD/PHP' },
+            { s: 'CNYP=X', n: 'CNY/PHP' }, { s: 'HKDPHP=X', n: 'HKD/PHP' },
+            { s: 'KRWPHP=X', n: 'KRW/PHP' }, { s: 'CADPHP=X', n: 'CAD/PHP' },
+            { s: 'CHFPHP=X', n: 'CHF/PHP' },
+            // Major pairs
+            { s: 'EURUSD=X', n: 'EUR/USD' }, { s: 'GBPUSD=X', n: 'GBP/USD' },
+            { s: 'USDJPY=X', n: 'USD/JPY' }, { s: 'USDCAD=X', n: 'USD/CAD' },
+            { s: 'AUDUSD=X', n: 'AUD/USD' }, { s: 'USDCHF=X', n: 'USD/CHF' },
+            { s: 'NZDUSD=X', n: 'NZD/USD' }, { s: 'USDCNY=X', n: 'USD/CNY' },
+            { s: 'USDSGD=X', n: 'USD/SGD' }, { s: 'USDINR=X', n: 'USD/INR' },
+            { s: 'USDKRW=X', n: 'USD/KRW' }, { s: 'USDBRL=X', n: 'USD/BRL' },
+            { s: 'USDMXN=X', n: 'USD/MXN' }, { s: 'USDZAR=X', n: 'USD/ZAR' },
+            { s: 'USDTRY=X', n: 'USD/TRY' }, { s: 'USDHKD=X', n: 'USD/HKD' },
+        ];
+
+        // Top stocks per exchange — curated blue chips
+        const EQUITY_LISTS = {
+            pse: [{ s: 'SM.PS', n: 'SM Investments' }, { s: 'ALI.PS', n: 'Ayala Land' }, { s: 'BDO.PS', n: 'BDO Unibank' }, { s: 'JFC.PS', n: 'Jollibee' }, { s: 'AC.PS', n: 'Ayala Corp' }, { s: 'SMPH.PS', n: 'SM Prime' }, { s: 'BPI.PS', n: 'Bank of PI' }, { s: 'MBT.PS', n: 'Metrobank' }, { s: 'TEL.PS', n: 'PLDT' }, { s: 'GLO.PS', n: 'Globe Telecom' }, { s: 'URC.PS', n: 'Univ Robina' }, { s: 'MER.PS', n: 'Meralco' }, { s: 'AEV.PS', n: 'Aboitiz Equity' }, { s: 'AP.PS', n: 'Aboitiz Power' }, {
+                s: 'ICT.PS', n: 'Int'l Container'},{s:'PGOLD.PS',n:'Puregold'},{s:'RLC.PS',n:'Robinsons Land'},{s:'DMC.PS',n:'DMCI Holdings'},{s:'SCC.PS',n:'Semirara Mining'},{s:'EMP.PS',n:'Emperador'}],
+            nyse: [{ s: 'BRK-B', n: 'Berkshire Hath' }, { s: 'JPM', n: 'JPMorgan' }, { s: 'JNJ', n: 'Johnson & Johnson' }, { s: 'V', n: 'Visa' }, { s: 'PG', n: 'Procter & Gamble' }, { s: 'UNH', n: 'UnitedHealth' }, { s: 'HD', n: 'Home Depot' }, { s: 'XOM', n: 'ExxonMobil' }, { s: 'BAC', n: 'Bank of America' }, { s: 'MA', n: 'Mastercard' }, { s: 'CVX', n: 'Chevron' }, { s: 'LLY', n: 'Eli Lilly' }, { s: 'ABBV', n: 'AbbVie' }, { s: 'KO', n: 'Coca-Cola' }, { s: 'MRK', n: 'Merck' }, { s: 'PFE', n: 'Pfizer' }, { s: 'T', n: 'AT&T' }, { s: 'WMT', n: 'Walmart' }, { s: 'DIS', n: 'Disney' }, { s: 'GS', n: 'Goldman Sachs' }],
+                nasdaq: [{ s: 'AAPL', n: 'Apple' }, { s: 'MSFT', n: 'Microsoft' }, { s: 'NVDA', n: 'NVIDIA' }, { s: 'GOOGL', n: 'Alphabet' }, { s: 'AMZN', n: 'Amazon' }, { s: 'META', n: 'Meta' }, { s: 'TSLA', n: 'Tesla' }, { s: 'AVGO', n: 'Broadcom' }, { s: 'ASML', n: 'ASML' }, { s: 'AMD', n: 'AMD' }, { s: 'INTC', n: 'Intel' }, { s: 'QCOM', n: 'Qualcomm' }, { s: 'NFLX', n: 'Netflix' }, { s: 'COST', n: 'Costco' }, { s: 'ADBE', n: 'Adobe' }, { s: 'CSCO', n: 'Cisco' }, { s: 'TXN', n: 'Texas Instruments' }, { s: 'PYPL', n: 'PayPal' }, { s: 'SBUX', n: 'Starbucks' }, { s: 'INTU', n: 'Intuit' }],
+                tse: [{ s: '7203.T', n: 'Toyota' }, { s: '6758.T', n: 'Sony' }, { s: '6861.T', n: 'Keyence' }, { s: '9432.T', n: 'NTT' }, { s: '8306.T', n: 'MUFG' }, { s: '6501.T', n: 'Hitachi' }, { s: '9984.T', n: 'SoftBank' }, { s: '6367.T', n: 'Daikin' }, { s: '7974.T', n: 'Nintendo' }, { s: '4063.T', n: 'Shin-Etsu' }, { s: '6954.T', n: 'Fanuc' }, { s: '8035.T', n: 'Tokyo Electron' }, { s: '9983.T', n: 'Fast Retailing' }, { s: '4568.T', n: 'Daiichi Sankyo' }, { s: '6902.T', n: 'Denso' }, { s: '7267.T', n: 'Honda' }, { s: '8316.T', n: 'SMFG' }, { s: '6326.T', n: 'Kubota' }, { s: '3382.T', n: 'Seven & I' }, { s: '4661.T', n: 'Oriental Land' }],
+                krx: [{ s: '005930.KS', n: 'Samsung Elec' }, { s: '000660.KS', n: 'SK Hynix' }, { s: '207940.KS', n: 'Samsung Bio' }, { s: '005380.KS', n: 'Hyundai Motor' }, { s: '000270.KS', n: 'Kia Corp' }, { s: '051910.KS', n: 'LG Chem' }, { s: '035420.KS', n: 'NAVER' }, { s: '055550.KS', n: 'Shinhan' }, { s: '012330.KS', n: 'Hyundai Mobis' }, { s: '028260.KS', n: 'Samsung C&T' }, { s: '003550.KS', n: 'LG Corp' }, { s: '035720.KS', n: 'Kakao' }, { s: '096770.KS', n: 'SK Innovation' }, { s: '017670.KS', n: 'SK Telecom' }, { s: '030200.KS', n: 'KT Corp' }, { s: '105560.KS', n: 'KB Financial' }, { s: '316140.KS', n: 'Woori Financial' }, { s: '009150.KS', n: 'Samsung Electro' }, { s: '010130.KS', n: 'Korea Zinc' }, { s: '018260.KS', n: 'Samsung SDS' }],
+                hkex: [{ s: '0700.HK', n: 'Tencent' }, { s: '9988.HK', n: 'Alibaba' }, { s: '0941.HK', n: 'China Mobile' }, { s: '1299.HK', n: 'AIA Group' }, { s: '0005.HK', n: 'HSBC' }, { s: '3690.HK', n: 'Meituan' }, { s: '9618.HK', n: 'JD.com' }, { s: '2318.HK', n: 'Ping An' }, { s: '1398.HK', n: 'ICBC' }, { s: '0939.HK', n: 'CCB' }, { s: '9999.HK', n: 'NetEase' }, { s: '2020.HK', n: 'ANTA Sports' }, { s: '0388.HK', n: 'HK Exchanges' }, { s: '1810.HK', n: 'Xiaomi' }, { s: '0011.HK', n: 'Hang Seng Bank' }, { s: '1177.HK', n: 'Sino Biopharm' }, { s: '2382.HK', n: 'Sunny Optical' }, { s: '0016.HK', n: 'Sun Hung Kai' }, { s: '0883.HK', n: 'CNOOC' }, { s: '0175.HK', n: 'Geely Auto' }],
+                sgx: [{ s: 'D05.SI', n: 'DBS Group' }, { s: 'O39.SI', n: 'OCBC' }, { s: 'U11.SI', n: 'UOB' }, { s: 'Z74.SI', n: 'Singtel' }, { s: 'C6L.SI', n: 'Singapore Air' }, { s: 'BN4.SI', n: 'Keppel Corp' }, { s: 'F34.SI', n: 'Wilmar Intl' }, { s: 'A17U.SI', n: 'Ascendas REIT' }, { s: 'C09.SI', n: 'City Dev' }, { s: 'G13.SI', n: 'Genting SG' }, { s: 'S68.SI', n: 'SGX' }, { s: 'J36.SI', n: 'Jardine Matheson' }, { s: 'U96.SI', n: 'Sembcorp Ind' }, { s: 'V03.SI', n: 'Venture Corp' }, { s: 'BS6.SI', n: 'Yangzijiang' }, { s: '9CI.SI', n: 'CapitaLand Inv' }, { s: 'C38U.SI', n: 'CapitaLand Mall' }, { s: 'ME8U.SI', n: 'Mapletree Ind' }, { s: 'BUOU.SI', n: 'Frasers Log' }, { s: 'N2IU.SI', n: 'Mapletree Pan Asia' }],
+                asx: [{ s: 'BHP.AX', n: 'BHP' }, { s: 'CBA.AX', n: 'CommBank' }, { s: 'CSL.AX', n: 'CSL' }, { s: 'NAB.AX', n: 'NAB' }, { s: 'WBC.AX', n: 'Westpac' }, { s: 'ANZ.AX', n: 'ANZ' }, { s: 'WES.AX', n: 'Wesfarmers' }, { s: 'MQG.AX', n: 'Macquarie' }, { s: 'RIO.AX', n: 'Rio Tinto' }, { s: 'TLS.AX', n: 'Telstra' }, { s: 'WOW.AX', n: 'Woolworths' }, { s: 'FMG.AX', n: 'Fortescue' }, { s: 'TCL.AX', n: 'Transurban' }, { s: 'GMG.AX', n: 'Goodman Group' }, { s: 'SHL.AX', n: 'Sonic Health' }, { s: 'ALL.AX', n: 'Aristocrat' }, { s: 'QBE.AX', n: 'QBE Insurance' }, { s: 'REA.AX', n: 'REA Group' }, { s: 'COL.AX', n: 'Coles' }, { s: 'COH.AX', n: 'Cochlear' }],
+                lse: [{ s: 'SHEL.L', n: 'Shell' }, { s: 'AZN.L', n: 'AstraZeneca' }, { s: 'HSBA.L', n: 'HSBC' }, { s: 'ULVR.L', n: 'Unilever' }, { s: 'BP.L', n: 'BP' }, { s: 'RIO.L', n: 'Rio Tinto' }, { s: 'GSK.L', n: 'GSK' }, { s: 'BARC.L', n: 'Barclays' }, { s: 'LLOY.L', n: 'Lloyds' }, { s: 'VOD.L', n: 'Vodafone' }, { s: 'REL.L', n: 'RELX' }, { s: 'NG.L', n: 'National Grid' }, { s: 'DGE.L', n: 'Diageo' }, { s: 'CPG.L', n: 'Compass Group' }, { s: 'LSEG.L', n: 'London Stock Ex' }, { s: 'IMB.L', n: 'Imperial Brands' }, { s: 'BAB.L', n: 'Babcock' }, { s: 'BA.L', n: 'BAE Systems' }, { s: 'RKT.L', n: 'Reckitt' }, { s: 'GLEN.L', n: 'Glencore' }],
+                nse: [{ s: 'RELIANCE.NS', n: 'Reliance' }, { s: 'TCS.NS', n: 'TCS' }, { s: 'HDFCBANK.NS', n: 'HDFC Bank' }, { s: 'INFY.NS', n: 'Infosys' }, { s: 'ICICIBANK.NS', n: 'ICICI Bank' }, { s: 'HINDUNILVR.NS', n: 'Hindustan Unilever' }, { s: 'ITC.NS', n: 'ITC' }, { s: 'SBIN.NS', n: 'SBI' }, { s: 'BHARTIARTL.NS', n: 'Bharti Airtel' }, { s: 'KOTAKBANK.NS', n: 'Kotak Bank' }, { s: 'LT.NS', n: 'L&T' }, { s: 'AXISBANK.NS', n: 'Axis Bank' }, { s: 'ASIANPAINT.NS', n: 'Asian Paints' }, { s: 'WIPRO.NS', n: 'Wipro' }, { s: 'MARUTI.NS', n: 'Maruti Suzuki' }, { s: 'ULTRACEMCO.NS', n: 'UltraTech' }, { s: 'TITAN.NS', n: 'Titan' }, { s: 'BAJFINANCE.NS', n: 'Bajaj Finance' }, { s: 'HCLTECH.NS', n: 'HCL Tech' }, { s: 'SUNPHARMA.NS', n: 'Sun Pharma' }],
+                tsx: [{ s: 'RY.TO', n: 'Royal Bank' }, { s: 'TD.TO', n: 'TD Bank' }, { s: 'ENB.TO', n: 'Enbridge' }, { s: 'CNR.TO', n: 'CN Rail' }, { s: 'BNS.TO', n: 'Scotiabank' }, { s: 'BMO.TO', n: 'BMO' }, { s: 'CP.TO', n: 'CP Rail' }, { s: 'ABX.TO', n: 'Barrick Gold' }, { s: 'SU.TO', n: 'Suncor' }, { s: 'MFC.TO', n: 'Manulife' }, { s: 'TRI.TO', n: 'Thomson Reuters' }, { s: 'SHOP.TO', n: 'Shopify' }, { s: 'BCE.TO', n: 'BCE Inc' }, { s: 'NTR.TO', n: 'Nutrien' }, { s: 'CNQ.TO', n: 'Canadian Nat Res' }, { s: 'WCN.TO', n: 'Waste Connections' }, { s: 'CSU.TO', n: 'Constellation' }, { s: 'ATD.TO', n: 'Alimentation' }, { s: 'FNV.TO', n: 'Franco-Nevada' }, { s: 'TRP.TO', n: 'TC Energy' }],
+                bvmf: [{ s: 'VALE3.SA', n: 'Vale' }, { s: 'PETR4.SA', n: 'Petrobras' }, { s: 'ITUB4.SA', n: 'Itau Unibanco' }, { s: 'BBDC4.SA', n: 'Bradesco' }, { s: 'ABEV3.SA', n: 'Ambev' }, { s: 'B3SA3.SA', n: 'B3' }, { s: 'WEGE3.SA', n: 'WEG' }, { s: 'RENT3.SA', n: 'Localiza' }, { s: 'SUZB3.SA', n: 'Suzano' }, {
+                    s: 'RDOR3.SA', n: 'Rede D'Or'},{s:'BBAS3.SA',n:'Banco do Brasil'},{s:'LREN3.SA',n:'Lojas Renner'},{s:'MGLU3.SA',n:'Magazine Luiza'},{s:'ELET3.SA',n:'Eletrobras'},{s:'JBSS3.SA',n:'JBS'},{s:'HAPV3.SA',n:'Hapvida'},{s:'SBSP3.SA',n:'Sabesp'},{s:'ENEV3.SA',n:'Eneva'},{s:'VBBR3.SA',n:'Vibra Energia'},{s:'GGBR4.SA',n:'Gerdau'}],
         };
 
-        const TICKER_NAMES = {
-            'FOREXCOM:SPXUSD': 'S&P 500', 'FOREXCOM:NSXUSD': 'NASDAQ 100', 'DJ:DJI': 'Dow Jones',
-            'FOREXCOM:UK100': 'FTSE 100', 'INDEX:DEU40': 'DAX 40', 'INDEX:NI225': 'Nikkei 225',
-            'INDEX:KOSPI': 'KOSPI', 'INDEX:HSI': 'Hang Seng', 'INDEX:ASX200': 'ASX 200',
-            'PSE:PSEI': 'PSEi', 'INDEX:STI': 'Straits Times', 'INDEX:SENSEX': 'SENSEX',
-            'INDEX:VIX': 'VIX', 'TVC:US10Y': 'US 10Y Yield', 'TVC:US02Y': 'US 2Y Yield',
-            'TVC:DXY': 'US Dollar Index', 'INDEX:FTMIB': 'FTSE MIB', 'INDEX:IBEX35': 'IBEX 35',
-            'INDEX:SET': 'SET (Thailand)', 'INDEX:KLCI': 'KLCI (Malaysia)',
-            'INDEX:JKSE': 'IDX (Indonesia)', 'INDEX:BVSP': 'Bovespa', 'INDEX:MXX': 'IPC (Mexico)',
-            'INDEX:TA35': 'TA-35 (Israel)', 'INDEX:TADAWUL': 'Tadawul', 'INDEX:RUSSELL2000': 'Russell 2000',
-            'INDEX:TAIEX': 'TAIEX (Taiwan)', 'INDEX:OSEBX': 'Oslo Bors', 'INDEX:OMX': 'OMX Stockholm',
-            'INDEX:AEX': 'AEX (Netherlands)', 'INDEX:SMI': 'SMI (Switzerland)',
-            'OANDA:XAUUSD': 'Gold', 'OANDA:XAGUSD': 'Silver', 'TVC:UKOIL': 'Brent Crude',
-            'TVC:USOIL': 'WTI Crude', 'COMEX:HG1!': 'Copper', 'CBOT:ZC1!': 'Corn',
-            'CBOT:ZW1!': 'Wheat', 'CBOT:ZS1!': 'Soybeans', 'ICEUS:SB1!': 'Sugar',
-            'ICEUS:KC1!': 'Coffee', 'ICEUS:OJ1!': 'Orange Juice', 'ICEUS:CT1!': 'Cotton',
-            'NYMEX:NG1!': 'Natural Gas', 'COMEX:PL1!': 'Platinum', 'COMEX:PA1!': 'Palladium',
-            'ICEUS:CC1!': 'Cocoa', 'CBOT:ZL1!': 'Soybean Oil', 'CBOT:ZM1!': 'Soybean Meal',
-            'NYMEX:RB1!': 'Gasoline', 'NYMEX:HO1!': 'Heating Oil', 'CME:LBS1!': 'Lumber',
-            'COMEX:ALI1!': 'Aluminum',
-            'FX_IDC:USDPHP': 'USD/PHP', 'FX_IDC:EURPHP': 'EUR/PHP', 'FX_IDC:JPYPHP': 'JPY/PHP',
-            'FX_IDC:GBPPHP': 'GBP/PHP', 'FX_IDC:SGDPHP': 'SGD/PHP', 'FX_IDC:AUDPHP': 'AUD/PHP',
-            'FX_IDC:CNYPHP': 'CNY/PHP', 'FX_IDC:HKDPHP': 'HKD/PHP', 'FX_IDC:KRWPHP': 'KRW/PHP',
-            'FX_IDC:CADPHP': 'CAD/PHP', 'FX_IDC:CHFPHP': 'CHF/PHP',
-            'FX:EURUSD': 'EUR/USD', 'FX:GBPUSD': 'GBP/USD', 'FX:USDJPY': 'USD/JPY',
-            'FX:USDCAD': 'USD/CAD', 'FX:AUDUSD': 'AUD/USD', 'FX:USDCHF': 'USD/CHF',
-            'FX:NZDUSD': 'NZD/USD', 'FX:USDCNY': 'USD/CNY', 'FX:USDSGD': 'USD/SGD',
-            'FX:USDHKD': 'USD/HKD', 'FX:USDINR': 'USD/INR', 'FX:USDKRW': 'USD/KRW',
-            'FX:USDBRL': 'USD/BRL', 'FX:USDMXN': 'USD/MXN', 'FX:USDZAR': 'USD/ZAR',
-            'FX:USDTRY': 'USD/TRY',
-            'BINANCE:BTCUSDT': 'Bitcoin', 'BINANCE:ETHUSDT': 'Ethereum', 'BINANCE:BNBUSDT': 'BNB',
-            'BINANCE:XRPUSDT': 'XRP', 'BINANCE:SOLUSDT': 'Solana', 'BINANCE:ADAUSDT': 'Cardano',
-            'BINANCE:DOGEUSDT': 'Dogecoin', 'BINANCE:AVAXUSDT': 'Avalanche', 'BINANCE:TRXUSDT': 'TRON',
-            'BINANCE:LINKUSDT': 'Chainlink', 'BINANCE:DOTUSDT': 'Polkadot', 'BINANCE:MATICUSDT': 'Polygon',
-            'BINANCE:LTCUSDT': 'Litecoin', 'BINANCE:BCHUSDT': 'Bitcoin Cash', 'BINANCE:UNIUSDT': 'Uniswap',
-            'BINANCE:ATOMUSDT': 'Cosmos', 'BINANCE:ETCUSDT': 'Ethereum Classic', 'BINANCE:XLMUSDT': 'Stellar',
-            'BINANCE:NEARUSDT': 'NEAR', 'BINANCE:APTUSDT': 'Aptos', 'BINANCE:OPUSDT': 'Optimism',
-            'BINANCE:ARBUSDT': 'Arbitrum', 'BINANCE:FILUSDT': 'Filecoin', 'BINANCE:INJUSDT': 'Injective',
-            'BINANCE:SUIUSDT': 'Sui', 'BINANCE:HBARUSDT': 'Hedera', 'BINANCE:ALGOUSDT': 'Algorand',
-            'BINANCE:XMRUSDT': 'Monero', 'BINANCE:AAVEUSDT': 'Aave', 'BINANCE:MKRUSDT': 'Maker',
-            'BINANCE:COMPUSDT': 'Compound', 'BINANCE:CRVUSDT': 'Curve', 'BINANCE:SANDUSDT': 'The Sandbox',
-            'BINANCE:MANAUSDT': 'Decentraland', 'BINANCE:AXSUSDT': 'Axie Infinity', 'BINANCE:CHZUSDT': 'Chiliz',
-            'BINANCE:GRTUSDT': 'The Graph', 'BINANCE:RENDERUSDT': 'Render', 'BINANCE:FETUSDT': 'Fetch.ai',
-            'BINANCE:WLDUSDT': 'Worldcoin', 'BINANCE:SEIUSDT': 'Sei', 'BINANCE:TIAUSDT': 'Celestia',
-            'BINANCE:RUNEUSDT': 'THORChain', 'BINANCE:IMXUSDT': 'Immutable X', 'BINANCE:APEUSDT': 'ApeCoin',
-            'BINANCE:ENJUSDT': 'Enjin', 'BINANCE:SNXUSDT': 'Synthetix', 'BINANCE:LRCUSDT': 'Loopring',
-            'BINANCE:ZILUSDT': 'Zilliqa', 'BINANCE:IOTAUSDT': 'IOTA',
-        };
+                const EXCHANGE_LABELS = {
+                    pse: '🇵🇭 PSE (Philippines)', nyse: '🇺🇸 NYSE', nasdaq: '🇺🇸 NASDAQ',
+                    tse: '🇯🇵 TSE (Japan)', krx: '🇰🇷 KRX (South Korea)', hkex: '🇭🇰 HKEX (Hong Kong)',
+                    sgx: '🇸🇬 SGX (Singapore)', asx: '🇦🇺 ASX (Australia)', lse: '🇬🇧 LSE (London)',
+                    nse: '🇮🇳 NSE (India)', tsx: '🇨🇦 TSX (Canada)', bvmf: '🇧🇷 BVMF (Brazil)',
+                };
 
-        // ALL tickers combined for the top section
-        var ALL_TICKERS = [].concat(
-            BREADTH_TICKERS.indices,
-            BREADTH_TICKERS.crypto,
-            BREADTH_TICKERS.commodities,
-            BREADTH_TICKERS.currencies
-        );
+                // ── YAHOO FINANCE FETCH ───────────────────────────────────────
+                async function fetchYahoo(symbols) {
+                var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
+                var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
+                try {
+                    var res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+                    var data = await res.json();
+                    var quotes = (data.quoteResponse && data.quoteResponse.result) ? data.quoteResponse.result : [];
+                    var map = {};
+                    quotes.forEach(function (q) { map[q.symbol] = q; });
+                    return symbols.map(function (sym) {
+                        var q = map[sym.s] || {};
+                        return {
+                            s: sym.s,
+                            name: sym.n,
+                            price: q.regularMarketPrice,
+                            chgAbs: q.regularMarketChange,
+                            chgPct: q.regularMarketChangePercent,
+                        };
+                    }).filter(function (d) { return d.price != null; });
+                } catch(e) {
+                    console.warn('Yahoo fetch error', e);
+                    return [];
+                }
+            }
 
-        window.switchBreadthTab = function (tab) {
-            breadthCurrentTab = tab;
-            ['indices', 'crypto', 'commodities', 'currencies', 'equities'].forEach(function (t) {
-                var el = document.getElementById('btab-' + t);
-                if (!el) return;
-                el.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent';
-                el.style.color = t === tab ? '#000' : '#888';
-            });
-            renderBreadthTab();
-        };
+        // ── COINGECKO FETCH ───────────────────────────────────────────
+        async function fetchCrypto() {
+                try {
+                    var res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h');
+                    var data = await res.json();
+                    return data.map(function (c) {
+                        return {
+                            s: c.id,
+                            name: c.name,
+                            symbol: c.symbol.toUpperCase(),
+                            price: c.current_price,
+                            chgAbs: null,
+                            chgPct: c.price_change_percentage_24h,
+                            mcap: c.market_cap,
+                        };
+                    });
+                } catch (e) {
+                    console.warn('CoinGecko error', e);
+                    return [];
+                }
+            }
 
+        // ── MAIN FETCH ────────────────────────────────────────────────
         window.fetchMarketData = async function () {
-            var container = document.getElementById('market-breadth-inner');
-            if (!container) return;
-
-            // Fetch ALL tickers in one call for the top section
-            try {
-                var allRes = await fetch('https://scanner.tradingview.com/global/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        symbols: { tickers: ALL_TICKERS },
-                        columns: ['name', 'close', 'change', 'change_abs']
-                    })
-                });
-                var allData = await allRes.json();
-                breadthAllData = (allData.data || []).map(function (item) {
-                    return {
-                        s: item.s,
-                        name: TICKER_NAMES[item.s] || (item.d[0] || item.s.split(':').pop()),
-                        price: item.d[1],
-                        chgPct: item.d[2],
-                        chgAbs: item.d[3],
-                    };
-                });
+                // Fetch all data for top section simultaneously
+                var [indData, comData, curData, cryptoData] = await Promise.all([
+                    fetchYahoo(YF_INDICES),
+                    fetchYahoo(YF_COMMODITIES),
+                    fetchYahoo(YF_CURRENCIES),
+                    fetchCrypto(),
+                ]);
+                breadthAllData = [].concat(indData, comData, curData);
+                breadthCryptoData = cryptoData;
                 renderTopSection();
-            } catch (e) { console.warn('Breadth all fetch error', e); }
+                renderBreadthTab();
+            };
 
-            // Fetch current tab data
-            renderBreadthTab();
-        };
-
-        async function renderBreadthTab() {
-            var container = document.getElementById('market-breadth-inner');
-            if (!container) return;
-            var tab = breadthCurrentTab;
-
-            var items = [];
-            if (tab === 'equities') {
-                try {
-                    var res = await fetch('https://scanner.tradingview.com/global/scan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            filter: [{ left: 'exchange', operation: 'equal', right: breadthEquityExch }],
-                            sort: { sortBy: 'volume', sortOrder: 'desc' },
-                            columns: ['name', 'close', 'change', 'change_abs', 'volume'],
-                            range: [0, 50]
-                        })
-                    });
-                    var d = await res.json();
-                    items = d.data || [];
-                } catch (e) { }
-            } else {
-                var tickers = BREADTH_TICKERS[tab] || [];
-                try {
-                    var res = await fetch('https://scanner.tradingview.com/global/scan', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            symbols: { tickers: tickers },
-                            columns: ['name', 'close', 'change', 'change_abs']
-                        })
-                    });
-                    var d = await res.json();
-                    items = d.data || [];
-                } catch (e) { }
-            }
-
-            var html = '';
-
-            // Exchange selector for equities
-            if (tab === 'equities') {
-                html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">' +
-                    '<label style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#888;">EXCHANGE</label>' +
-                    '<select onchange="breadthEquityExch=this.value;renderBreadthTab()" style="padding:8px 12px;border:2px solid var(--border);font-family:Inter,sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">';
-                EQUITY_EXCHANGES.forEach(function (ex) {
-                    html += '<option value="' + ex.code + '"' + (ex.code === breadthEquityExch ? ' selected' : '') + '>' + ex.label + '</option>';
+            window.switchBreadthTab = function (tab) {
+                breadthCurrentTab = tab;
+                ['indices', 'crypto', 'commodities', 'currencies', 'equities'].forEach(function (t) {
+                    var el = document.getElementById('btab-' + t);
+                    if (!el) return;
+                    el.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent';
+                    el.style.color = t === tab ? '#000' : '#888';
                 });
-                html += '</select><span style="font-size:0.72rem;color:#aaa;">Top 50 by volume</span></div>';
+                renderBreadthTab();
+            };
+
+            async function renderBreadthTab() {
+                var container = document.getElementById('market-breadth-inner');
+        if (!container) return;
+        var tab = breadthCurrentTab;
+        var items = [];
+
+        container.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-family:Courier New,monospace;font-size:0.82rem;">Loading...</div>';
+
+        if (tab === 'crypto') {
+            items = breadthCryptoData.length ? breadthCryptoData : await fetchCrypto();
+            breadthCryptoData = items;
+        } else if (tab === 'equities') {
+            var list = EQUITY_LISTS[breadthEquityExch] || [];
+            items = await fetchYahoo(list);
+        } else if (tab === 'indices') {
+            items = breadthAllData.filter(function (d) {
+                return YF_INDICES.some(function (s) { return s.s === d.s; });
+            });
+            if (!items.length) items = await fetchYahoo(YF_INDICES);
+        } else if (tab === 'commodities') {
+            items = breadthAllData.filter(function (d) {
+                return YF_COMMODITIES.some(function (s) { return s.s === d.s; });
+            });
+            if (!items.length) items = await fetchYahoo(YF_COMMODITIES);
+        } else if (tab === 'currencies') {
+            items = breadthAllData.filter(function (d) {
+                return YF_CURRENCIES.some(function (s) { return s.s === d.s; });
+            });
+            if (!items.length) items = await fetchYahoo(YF_CURRENCIES);
+        }
+
+        var html = '';
+
+        // Exchange selector for equities
+        if (tab === 'equities') {
+            html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">' +
+                '<label style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#888;">EXCHANGE</label>' +
+                '<select onchange="breadthEquityExch=this.value;renderBreadthTab()" style="padding:8px 12px;border:2px solid var(--border);font-family:Inter,sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">';
+            Object.keys(EXCHANGE_LABELS).forEach(function (k) {
+                html += '<option value="' + k + '"' + (k === breadthEquityExch ? ' selected' : '') + '>' + EXCHANGE_LABELS[k] + '</option>';
+            });
+            html += '</select><span style="font-size:0.72rem;color:#aaa;">Top 20 blue chips</span></div>';
+        }
+
+        // DELAYED badge
+        html += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">' +
+            '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">DELAYED 15 MIN</div></div>';
+
+        if (!items.length) {
+            html += '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">No data available. Please try again.</div>';
+            container.innerHTML = html;
+            return;
+        }
+
+        // Table
+        html += '<div style="border:2px solid #000;overflow:auto;">' +
+            '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
+            '<thead><tr style="background:#000;">' +
+            '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
+            (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
+            '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
+            '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE (24H)</th>' +
+            (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">MARKET CAP</th>' : '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>') +
+            '</tr></thead><tbody>';
+
+        items.forEach(function (item, i) {
+            var isUp = item.chgPct != null ? item.chgPct >= 0 : true;
+            var color = isUp ? '#16a34a' : '#dc2626';
+            var sign = isUp ? '+' : '';
+            var bg = i % 2 === 0 ? '#fff' : '#fafafa';
+            var pctStr = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
+
+            // Format price
+            var priceStr = '—';
+            if (item.price != null) {
+                if (tab === 'currencies') priceStr = item.price.toFixed(4);
+                else if (tab === 'crypto') {
+                    if (item.price >= 1000) priceStr = '$' + item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                    else if (item.price >= 1) priceStr = '$' + item.price.toFixed(4);
+                    else priceStr = '$' + item.price.toFixed(6);
+                }
+                else priceStr = item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
             }
 
-            // DELAYED badge
-            html += '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">' +
-                '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">DELAYED 5 MIN</div></div>';
+            // Change abs
+            var chgStr = '—';
+            if (tab !== 'crypto' && item.chgAbs != null) {
+                chgStr = (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(tab === 'currencies' ? 4 : 2);
+            }
 
-            // Table
-            html += '<div style="border:2px solid #000;overflow:auto;">' +
-                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
-                '<thead><tr style="background:#000;">' +
-                '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">ASSET</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE</th>' +
-                '</tr></thead><tbody>';
+            // Market cap for crypto
+            var mcapStr = '—';
+            if (tab === 'crypto' && item.mcap != null) {
+                mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
+            }
 
-            items.forEach(function (item, i) {
-                var d = item.d || [];
-                var ticker = item.s;
-                var dispName = tab === 'equities'
-                    ? (d[0] || ticker.split(':').pop())
-                    : (TICKER_NAMES[ticker] || d[0] || ticker.split(':').pop());
-                if (tab === 'crypto') dispName = dispName.replace(/USDT$|USDC$/, '');
+            // Blink on change
+            var prevKey = tab + ':' + item.s;
+            var blink = (breadthPrevValues[prevKey] !== undefined && breadthPrevValues[prevKey] !== item.price)
+                ? 'animation:priceBlink 1.2s ease-out;' : '';
+            breadthPrevValues[prevKey] = item.price;
 
-                var price = d[1];
-                var chgPct = d[2];
-                var chgAbs = d[3];
-                var isUp = chgPct != null ? chgPct >= 0 : true;
-                var color = isUp ? '#16a34a' : '#dc2626';
-                var sign = isUp ? '+' : '';
-                var bg = i % 2 === 0 ? '#fff' : '#fafafa';
+            html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
+                '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
+                (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
+                '<td style="padding:10px 16px;text-align:right;font-weight:900;color:#000;' + blink + '">' + priceStr + '</td>' +
+                '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
+                (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgStr + '</td>') +
+                '</tr>';
+        });
 
-                var priceStr = price != null ? formatBreadthPrice(price, tab) : '—';
-                var chgAbsStr = chgAbs != null ? (sign + Math.abs(chgAbs).toFixed(tab === 'currencies' ? 4 : 2)) : '—';
-                var chgPctStr = chgPct != null ? (sign + chgPct.toFixed(2) + '%') : '—';
-
-                // Blink if changed
-                var prevKey = tab + ':' + ticker;
-                var blink = (breadthPrevValues[prevKey] !== undefined && breadthPrevValues[prevKey] !== price)
-                    ? 'animation:priceBlink 1.2s ease-out;' : '';
-                breadthPrevValues[prevKey] = price;
-
-                html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
-                    '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + dispName + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;font-weight:900;color:#000;' + blink + '">' + priceStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + chgPctStr + '</td>' +
-                    '</tr>';
-            });
-
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
         }
 
         function renderTopSection() {
             var topEl = document.getElementById('breadth-top');
-            if (!topEl || !breadthAllData.length) return;
+            if (!topEl) return;
 
-            var sorted = breadthAllData.slice().sort(function (a, b) { return (b.chgPct || 0) - (a.chgPct || 0); });
+            // Combine all data including crypto for top section
+            var allCombined = breadthAllData.concat(breadthCryptoData);
+            if (!allCombined.length) return;
+
+            var sorted = allCombined.filter(function (d) { return d.chgPct != null; })
+                .sort(function (a, b) { return (b.chgPct || 0) - (a.chgPct || 0); });
             var gainers = sorted.slice(0, 5);
             var losers = sorted.slice(-5).reverse();
 
@@ -1663,39 +1679,29 @@
                 var color = isGain ? '#16a34a' : '#dc2626';
                 var sign = isGain ? '+' : '';
                 var pct = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
-                var price = item.price != null ? item.price.toLocaleString(undefined, { maximumFractionDigits: 4 }) : '—';
+                var price = item.price != null ? (item.price >= 1000
+                    ? item.price.toLocaleString(undefined, { maximumFractionDigits: 2 })
+                    : item.price >= 1 ? item.price.toFixed(4)
+                        : item.price.toFixed(6)) : '—';
                 return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid ' + (isGain ? '#d1fae5' : '#fee2e2') + ';">' +
-                    '<span style="font-size:0.88rem;font-weight:700;color:#1a1a1a;">' + item.name + '</span>' +
-                    '<div style="text-align:right;">' +
-                    '<div style="font-size:0.88rem;font-weight:900;color:#000;">' + price + '</div>' +
+                    '<span style="font-size:0.88rem;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">' + item.name + '</span>' +
+                    '<div style="text-align:right;flex-shrink:0;margin-left:8px;">' +
+                    '<div style="font-size:0.82rem;font-weight:900;color:#000;">' + price + '</div>' +
                     '<div style="font-size:0.82rem;font-weight:900;color:' + color + ';">' + pct + '</div>' +
                     '</div></div>';
             }
-
-            var gainRows = gainers.map(function (i) { return renderRow(i, true); }).join('');
-            var lossRows = losers.map(function (i) { return renderRow(i, false); }).join('');
 
             topEl.innerHTML =
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">' +
                 '<div style="background:#f0fdf4;border:2px solid #16a34a;padding:16px 20px;">' +
                 '<div style="font-size:0.78rem;font-weight:900;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">MOST LONGED</div>' +
-                gainRows + '</div>' +
+                gainers.map(function (i) { return renderRow(i, true); }).join('') + '</div>' +
                 '<div style="background:#fef2f2;border:2px solid #dc2626;padding:16px 20px;">' +
                 '<div style="font-size:0.78rem;font-weight:900;color:#dc2626;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">MOST SHORTED</div>' +
-                lossRows + '</div>' +
+                losers.map(function (i) { return renderRow(i, false); }).join('') + '</div>' +
                 '</div>';
         }
 
-        function formatBreadthPrice(val, tab) {
-            if (val == null) return '—';
-            if (tab === 'currencies') return val.toFixed(4);
-            if (tab === 'crypto') {
-                if (val >= 1000) return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                if (val >= 1) return val.toFixed(4);
-                return val.toFixed(6);
-            }
-            return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
-        }
 
 
 
