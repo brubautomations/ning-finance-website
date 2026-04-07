@@ -1161,13 +1161,13 @@
 
         // --- CONFIGURATION ---
         const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-        const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
+        const AIRTABLE_TOKEN = "patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e";
         const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
         const AI_NAMES = ["Andy Roid", "Artie Ficial", "Jenni Rator", "Alex Murph-e", "Termi-Narrator", "Optimus Prime-Time", "Hal 9000-Words", "Bot Ross", "Chip Munk"];
 
         // --- HELPER FUNCTIONS ---
         function getUserId() {
-            let userId = localStorage.getItem("ning_user_id");
+            var userId = localStorage.getItem("ning_user_id");
             if (!userId) {
                 userId = "user_" + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem("ning_user_id", userId);
@@ -1177,12 +1177,12 @@
 
         function timeAgo(dateParam) {
             if (!dateParam) return 'Live';
-            const date = new Date(dateParam);
-            const now = new Date();
-            const seconds = Math.round((now - date) / 1000);
-            const minutes = Math.round(seconds / 60);
-            const hours = Math.round(minutes / 60);
-            const days = Math.round(hours / 24);
+            var date = new Date(dateParam);
+            var now = new Date();
+            var seconds = Math.round((now - date) / 1000);
+            var minutes = Math.round(seconds / 60);
+            var hours = Math.round(minutes / 60);
+            var days = Math.round(hours / 24);
             if (seconds < 60) return 'Just now';
             if (minutes < 60) return `${minutes} mins ago`;
             if (hours < 24) return `${hours} hours ago`;
@@ -1194,14 +1194,14 @@
 
         // --- FETCH AIRTABLE ---
         window.fetchAirtable = async function (tableName, containerId) {
-            const feed = document.getElementById(containerId);
+            var feed = document.getElementById(containerId);
             if (!feed) return;
 
             try {
                 // Reverted URL to prevent Airtable API crashes
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
-                const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                const json = await response.json();
+                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
+                var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                var json = await response.json();
 
                 if (!json.records || json.records.length === 0) {
                     feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
@@ -1215,32 +1215,32 @@
                     updateTicker(json.records);
                 }
 
-                let html = "";
-                let count = 0;
+                var html = "";
+                var count = 0;
                 json.records.forEach(record => {
-                    const fields = record.fields;
-                    const recordId = record.id;
+                    var fields = record.fields;
+                    var recordId = record.id;
 
                     // THE FIX: Use the system creation time for the "mins ago" display
-                    const dateStr = record.createdTime;
-                    const t = timeAgo(dateStr);
+                    var dateStr = record.createdTime;
+                    var t = timeAgo(dateStr);
 
                     if (t !== null) {
-                        let borderStyle = "";
+                        var borderStyle = "";
                         if (tableName === "Commentary") borderStyle = "border-top-color: #ff9800;";
                         if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
                         if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
 
-                        const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+                        var author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
 
-                        let imageHtml = "";
+                        var imageHtml = "";
                         if (fields["News Image"] && fields["News Image"].length > 0) {
                             imageHtml = `<img src="${fields["News Image"][0].url}" class="card-image" alt="News Image">`;
                         } else if (fields["Image URL"]) {
                             imageHtml = `<img src="${fields["Image URL"]}" class="card-image" alt="News Image">`;
                         }
 
-                        const shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
+                        var shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
 
                         html += `
                         <div class="card" style="${borderStyle}">
@@ -1270,34 +1270,34 @@
 
         // --- LINKS & DEEP LINKING ---
         window.copyLink = function (tableName, recordId) {
-            const cleanTable = encodeURIComponent(tableName);
-            const url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
+            var cleanTable = encodeURIComponent(tableName);
+            var url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
             navigator.clipboard.writeText(url).then(() => { alert("Link copied!"); }).catch(err => { prompt("Copy link:", url); });
         }
 
         window.checkUrlForDeepLinks = async function () {
-            const params = new URLSearchParams(window.location.search);
-            const recordId = params.get('articleId');
-            const tabName = params.get('tab');
+            var params = new URLSearchParams(window.location.search);
+            var recordId = params.get('articleId');
+            var tabName = params.get('tab');
 
             if (tabName) {
-                let section = normalizeSection(tabName);
+                var section = normalizeSection(tabName);
                 window.nav(section, false);
             }
 
             if (recordId && tabName) {
-                const modal = document.getElementById('articleModal');
-                const container = document.getElementById('single-article-content');
+                var modal = document.getElementById('articleModal');
+                var container = document.getElementById('single-article-content');
                 modal.style.display = 'block';
                 container.innerHTML = '<h2>Loading...</h2>';
 
                 try {
-                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
-                    const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    const record = await response.json();
-                    const fields = record.fields;
+                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
+                    var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    var record = await response.json();
+                    var fields = record.fields;
 
-                    let imageHtml = "";
+                    var imageHtml = "";
                     if (fields["News Image"] && fields["News Image"].length > 0) {
                         imageHtml = `<img src="${fields["News Image"][0].url}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
                     } else if (fields["Image URL"]) {
@@ -1318,16 +1318,16 @@
 
         window.closeArticle = function () {
             document.getElementById('articleModal').style.display = 'none';
-            const url = new URL(window.location);
+            var url = new URL(window.location);
             url.searchParams.delete('articleId');
             window.history.pushState({}, '', url);
         }
 
         // --- TICKER ---
         function updateTicker(records) {
-            const ticker = document.getElementById('ticker-feed');
+            var ticker = document.getElementById('ticker-feed');
             if (!ticker) return;
-            const items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
+            var items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
             ticker.innerHTML = items;
         }
 
@@ -1335,14 +1335,14 @@
         window.nav = function (section, pushToHistory = true) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            const p = document.getElementById(section);
-            const t = document.getElementById('tab-' + section);
+            var p = document.getElementById(section);
+            var t = document.getElementById('tab-' + section);
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
             if (pushToHistory) {
-                const url = new URL(window.location);
-                let tableNameForUrl = "Global News";
+                var url = new URL(window.location);
+                var tableNameForUrl = "Global News";
                 if (section === 'asia') tableNameForUrl = "Asia News";
                 if (section === 'philippines') tableNameForUrl = "Philippines News";
                 if (section === 'luxury') tableNameForUrl = "Luxury";
@@ -1367,7 +1367,7 @@
         };
 
         function normalizeSection(input) {
-            let s = (input || "news").toLowerCase();
+            var s = (input || "news").toLowerCase();
             if (s.includes('asia')) return 'asia';
             if (s.includes('phil') || s.includes('ph')) return 'philippines';
             if (s.includes('lux') || s.includes('life')) return 'luxury';
@@ -1735,9 +1735,9 @@
         let mktCurrentCompany = null;
 
         function getNingLogoUrl(eodhd_ticker) {
-            const parts = (eodhd_ticker || '').split('.');
-            const code = parts[0];
-            const exchange = parts[1] || 'US';
+            var parts = (eodhd_ticker || '').split('.');
+            var code = parts[0];
+            var exchange = parts[1] || 'US';
             return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
         }
         let mktDebounce = null;
@@ -1890,32 +1890,32 @@
         const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
 
         async function fetchCompanyData(ticker) {
-            const nc = document.getElementById('mkt-news-container');
-            const ec = document.getElementById('mkt-earnings-container');
-            const msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
-            let msgIdx = 0;
-            const setLoading = (text) => {
-                const html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
+            var nc = document.getElementById('mkt-news-container');
+            var ec = document.getElementById('mkt-earnings-container');
+            var msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
+            var msgIdx = 0;
+            var setLoading = (text) => {
+                var html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
                 nc.innerHTML = html; ec.innerHTML = html;
             };
             setLoading(msgs[0]);
 
             // STEP 1: Check Airtable cache
             try {
-                const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                const data = await res.json();
+                var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                var data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    const fields = data.records[0].fields;
-                    const lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
-                    const ageHours = (new Date() - lastUpdated) / 3600000;
+                    var fields = data.records[0].fields;
+                    var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
+                    var ageHours = (new Date() - lastUpdated) / 3600000;
                     if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
-                        const badge = document.createElement('div');
+                        var badge = document.createElement('div');
                         badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
-                        const safeId = ticker.replace(/\./g, '_');
+                        var safeId = ticker.replace(/\./g, '_');
                         badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="rl-${safeId}">Refresh</a>`;
                         nc.insertBefore(badge, nc.firstChild);
                         document.getElementById(`rl-${safeId}`)?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
@@ -1929,18 +1929,18 @@
             try { await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' }); } catch (e) { }
 
             // STEP 3: Poll until data arrives
-            let attempts = 0;
-            const pollInterval = setInterval(async () => {
+            var attempts = 0;
+            var pollInterval = setInterval(async () => {
                 attempts++;
                 msgIdx = (msgIdx + 1) % msgs.length;
                 setLoading(`${msgs[msgIdx]}<br><span style="color:#888;font-size:0.75rem;font-weight:400;">${attempts * 4}s elapsed</span>`);
                 try {
-                    const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    const data = await res.json();
+                    var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                    var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    var data = await res.json();
                     if (data.records && data.records.length > 0) {
-                        const fields = data.records[0].fields;
+                        var fields = data.records[0].fields;
                         if (fields.News || fields.Earnings) {
                             clearInterval(pollInterval);
                             renderNews(fields.News || '[]', nc);
@@ -2545,25 +2545,25 @@
         // Uses open.er-api.com — free, no API key needed, updates every few hours
         // Falls back to fawazahmed0 CDN if primary fails
         async function fetchFxRates() {
-            const container = document.getElementById('fx-rates-container');
+            var container = document.getElementById('fx-rates-container');
             if (!container) return;
 
-            let r = null;
+            var r = null;
 
             // Primary: ExchangeRate-API free tier (no key, reliable)
             try {
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
+                var res = await fetch('https://open.er-api.com/v6/latest/USD');
+                var data = await res.json();
                 if (data.result === 'success') r = data.rates;
             } catch (e) { }
 
             // Fallback: fawazahmed0 CDN
             if (!r) {
                 try {
-                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                    const data = await res.json();
+                    var res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                    var data = await res.json();
                     // normalize to uppercase keys
-                    const raw = data.usd;
+                    var raw = data.usd;
                     r = {};
                     for (const k in raw) r[k.toUpperCase()] = raw[k];
                 } catch (e) { }
@@ -2574,11 +2574,11 @@
                 return;
             }
 
-            const usdPhp = r.PHP;
-            const eurPhp = r.PHP / r.EUR;
-            const jpyPhp = r.PHP / r.JPY;
-            const cadPhp = r.PHP / r.CAD;
-            const fmt = v => v.toFixed(2);
+            var usdPhp = r.PHP;
+            var eurPhp = r.PHP / r.EUR;
+            var jpyPhp = r.PHP / r.JPY;
+            var cadPhp = r.PHP / r.CAD;
+            var fmt = v => v.toFixed(2);
 
             container.innerHTML = `
                 <div class="fx-row">
@@ -2613,18 +2613,18 @@
 
         // --- SIDEBAR CLOCK LOGIC ---
         function updateWorldClocks() {
-            const now = new Date();
-            const zones = [
+            var now = new Date();
+            var zones = [
                 { id: 'manila', tz: 'Asia/Manila' },
                 { id: 'ny', tz: 'America/New_York' },
                 { id: 'tokyo', tz: 'Asia/Tokyo' },
                 { id: 'london', tz: 'Europe/London' }
             ];
             zones.forEach(zone => {
-                const timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
-                const [h, m, s] = timeStr.split(':');
-                const clockEl = document.getElementById(`clock-${zone.id}`);
-                const secEl = document.getElementById(`sec-${zone.id}`);
+                var timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
+                var [h, m, s] = timeStr.split(':');
+                var clockEl = document.getElementById(`clock-${zone.id}`);
+                var secEl = document.getElementById(`sec-${zone.id}`);
                 if (clockEl) clockEl.innerText = `${h}:${m}`;
                 if (secEl) secEl.innerText = `:${s}`;
             });
