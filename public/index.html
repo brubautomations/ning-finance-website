@@ -1167,7 +1167,7 @@
 
         // --- HELPER FUNCTIONS ---
         function getUserId() {
-            var userId = localStorage.getItem("ning_user_id");
+            let userId = localStorage.getItem("ning_user_id");
             if (!userId) {
                 userId = "user_" + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem("ning_user_id", userId);
@@ -1177,12 +1177,12 @@
 
         function timeAgo(dateParam) {
             if (!dateParam) return 'Live';
-            var date = new Date(dateParam);
-            var now = new Date();
-            var seconds = Math.round((now - date) / 1000);
-            var minutes = Math.round(seconds / 60);
-            var hours = Math.round(minutes / 60);
-            var days = Math.round(hours / 24);
+            const date = new Date(dateParam);
+            const now = new Date();
+            const seconds = Math.round((now - date) / 1000);
+            const minutes = Math.round(seconds / 60);
+            const hours = Math.round(minutes / 60);
+            const days = Math.round(hours / 24);
             if (seconds < 60) return 'Just now';
             if (minutes < 60) return `${minutes} mins ago`;
             if (hours < 24) return `${hours} hours ago`;
@@ -1194,14 +1194,14 @@
 
         // --- FETCH AIRTABLE ---
         window.fetchAirtable = async function (tableName, containerId) {
-            var feed = document.getElementById(containerId);
+            const feed = document.getElementById(containerId);
             if (!feed) return;
 
             try {
                 // Reverted URL to prevent Airtable API crashes
-                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
-                var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                var json = await response.json();
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(tableName)}?sort%5B0%5D%5Bfield%5D=Date&sort%5B0%5D%5Bdirection%5D=desc`;
+                const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                const json = await response.json();
 
                 if (!json.records || json.records.length === 0) {
                     feed.innerHTML = `<div class="card"><h3>Feed Empty</h3><p>Waiting for updates in ${tableName}.</p></div>`;
@@ -1215,32 +1215,32 @@
                     updateTicker(json.records);
                 }
 
-                var html = "";
-                var count = 0;
+                let html = "";
+                let count = 0;
                 json.records.forEach(record => {
-                    var fields = record.fields;
-                    var recordId = record.id;
+                    const fields = record.fields;
+                    const recordId = record.id;
 
                     // THE FIX: Use the system creation time for the "mins ago" display
-                    var dateStr = record.createdTime;
-                    var t = timeAgo(dateStr);
+                    const dateStr = record.createdTime;
+                    const t = timeAgo(dateStr);
 
                     if (t !== null) {
-                        var borderStyle = "";
+                        let borderStyle = "";
                         if (tableName === "Commentary") borderStyle = "border-top-color: #ff9800;";
                         if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
                         if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
 
-                        var author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+                        const author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
 
-                        var imageHtml = "";
+                        let imageHtml = "";
                         if (fields["News Image"] && fields["News Image"].length > 0) {
                             imageHtml = `<img src="${fields["News Image"][0].url}" class="card-image" alt="News Image">`;
                         } else if (fields["Image URL"]) {
                             imageHtml = `<img src="${fields["Image URL"]}" class="card-image" alt="News Image">`;
                         }
 
-                        var shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
+                        const shareBtn = `<button class="share-btn" onclick="copyLink('${tableName}', '${recordId}')">SHARE 🔗</button>`;
 
                         html += `
                         <div class="card" style="${borderStyle}">
@@ -1270,34 +1270,34 @@
 
         // --- LINKS & DEEP LINKING ---
         window.copyLink = function (tableName, recordId) {
-            var cleanTable = encodeURIComponent(tableName);
-            var url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
+            const cleanTable = encodeURIComponent(tableName);
+            const url = `${window.location.origin}${window.location.pathname}?tab=${cleanTable}&articleId=${recordId}`;
             navigator.clipboard.writeText(url).then(() => { alert("Link copied!"); }).catch(err => { prompt("Copy link:", url); });
         }
 
         window.checkUrlForDeepLinks = async function () {
-            var params = new URLSearchParams(window.location.search);
-            var recordId = params.get('articleId');
-            var tabName = params.get('tab');
+            const params = new URLSearchParams(window.location.search);
+            const recordId = params.get('articleId');
+            const tabName = params.get('tab');
 
             if (tabName) {
-                var section = normalizeSection(tabName);
+                let section = normalizeSection(tabName);
                 window.nav(section, false);
             }
 
             if (recordId && tabName) {
-                var modal = document.getElementById('articleModal');
-                var container = document.getElementById('single-article-content');
+                const modal = document.getElementById('articleModal');
+                const container = document.getElementById('single-article-content');
                 modal.style.display = 'block';
                 container.innerHTML = '<h2>Loading...</h2>';
 
                 try {
-                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
-                    var response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    var record = await response.json();
-                    var fields = record.fields;
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tabName}/${recordId}`;
+                    const response = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    const record = await response.json();
+                    const fields = record.fields;
 
-                    var imageHtml = "";
+                    let imageHtml = "";
                     if (fields["News Image"] && fields["News Image"].length > 0) {
                         imageHtml = `<img src="${fields["News Image"][0].url}" style="width:100%; height:auto; border-radius:4px; margin-bottom:20px;">`;
                     } else if (fields["Image URL"]) {
@@ -1318,16 +1318,16 @@
 
         window.closeArticle = function () {
             document.getElementById('articleModal').style.display = 'none';
-            var url = new URL(window.location);
+            const url = new URL(window.location);
             url.searchParams.delete('articleId');
             window.history.pushState({}, '', url);
         }
 
         // --- TICKER ---
         function updateTicker(records) {
-            var ticker = document.getElementById('ticker-feed');
+            const ticker = document.getElementById('ticker-feed');
             if (!ticker) return;
-            var items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
+            const items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
             ticker.innerHTML = items;
         }
 
@@ -1335,14 +1335,14 @@
         window.nav = function (section, pushToHistory = true) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            var p = document.getElementById(section);
-            var t = document.getElementById('tab-' + section);
+            const p = document.getElementById(section);
+            const t = document.getElementById('tab-' + section);
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
             if (pushToHistory) {
-                var url = new URL(window.location);
-                var tableNameForUrl = "Global News";
+                const url = new URL(window.location);
+                let tableNameForUrl = "Global News";
                 if (section === 'asia') tableNameForUrl = "Asia News";
                 if (section === 'philippines') tableNameForUrl = "Philippines News";
                 if (section === 'luxury') tableNameForUrl = "Luxury";
@@ -1367,7 +1367,7 @@
         };
 
         function normalizeSection(input) {
-            var s = (input || "news").toLowerCase();
+            let s = (input || "news").toLowerCase();
             if (s.includes('asia')) return 'asia';
             if (s.includes('phil') || s.includes('ph')) return 'philippines';
             if (s.includes('lux') || s.includes('life')) return 'luxury';
@@ -1450,93 +1450,91 @@
 
         // Top stocks per exchange — curated blue chips
         const EQUITY_LISTS = {
-            pse: [{ s: 'SM.PS', n: 'SM Investments' }, { s: 'ALI.PS', n: 'Ayala Land' }, { s: 'BDO.PS', n: 'BDO Unibank' }, { s: 'JFC.PS', n: 'Jollibee' }, { s: 'AC.PS', n: 'Ayala Corp' }, { s: 'SMPH.PS', n: 'SM Prime' }, { s: 'BPI.PS', n: 'Bank of PI' }, { s: 'MBT.PS', n: 'Metrobank' }, { s: 'TEL.PS', n: 'PLDT' }, { s: 'GLO.PS', n: 'Globe Telecom' }, { s: 'URC.PS', n: 'Univ Robina' }, { s: 'MER.PS', n: 'Meralco' }, { s: 'AEV.PS', n: 'Aboitiz Equity' }, { s: 'AP.PS', n: 'Aboitiz Power' }, {
-                s: 'ICT.PS', n: 'Int'l Container'},{s:'PGOLD.PS',n:'Puregold'},{s:'RLC.PS',n:'Robinsons Land'},{s:'DMC.PS',n:'DMCI Holdings'},{s:'SCC.PS',n:'Semirara Mining'},{s:'EMP.PS',n:'Emperador'}],
+            pse: [{ s: 'SM.PS', n: 'SM Investments' }, { s: 'ALI.PS', n: 'Ayala Land' }, { s: 'BDO.PS', n: 'BDO Unibank' }, { s: 'JFC.PS', n: 'Jollibee' }, { s: 'AC.PS', n: 'Ayala Corp' }, { s: 'SMPH.PS', n: 'SM Prime' }, { s: 'BPI.PS', n: 'Bank of PI' }, { s: 'MBT.PS', n: 'Metrobank' }, { s: 'TEL.PS', n: 'PLDT' }, { s: 'GLO.PS', n: 'Globe Telecom' }, { s: 'URC.PS', n: 'Univ Robina' }, { s: 'MER.PS', n: 'Meralco' }, { s: 'AEV.PS', n: 'Aboitiz Equity' }, { s: 'AP.PS', n: 'Aboitiz Power' }, { s: 'ICT.PS', n: 'Intl Container' }, { s: 'PGOLD.PS', n: 'Puregold' }, { s: 'RLC.PS', n: 'Robinsons Land' }, { s: 'DMC.PS', n: 'DMCI Holdings' }, { s: 'SCC.PS', n: 'Semirara Mining' }, { s: 'EMP.PS', n: 'Emperador' }],
             nyse: [{ s: 'BRK-B', n: 'Berkshire Hath' }, { s: 'JPM', n: 'JPMorgan' }, { s: 'JNJ', n: 'Johnson & Johnson' }, { s: 'V', n: 'Visa' }, { s: 'PG', n: 'Procter & Gamble' }, { s: 'UNH', n: 'UnitedHealth' }, { s: 'HD', n: 'Home Depot' }, { s: 'XOM', n: 'ExxonMobil' }, { s: 'BAC', n: 'Bank of America' }, { s: 'MA', n: 'Mastercard' }, { s: 'CVX', n: 'Chevron' }, { s: 'LLY', n: 'Eli Lilly' }, { s: 'ABBV', n: 'AbbVie' }, { s: 'KO', n: 'Coca-Cola' }, { s: 'MRK', n: 'Merck' }, { s: 'PFE', n: 'Pfizer' }, { s: 'T', n: 'AT&T' }, { s: 'WMT', n: 'Walmart' }, { s: 'DIS', n: 'Disney' }, { s: 'GS', n: 'Goldman Sachs' }],
-                nasdaq: [{ s: 'AAPL', n: 'Apple' }, { s: 'MSFT', n: 'Microsoft' }, { s: 'NVDA', n: 'NVIDIA' }, { s: 'GOOGL', n: 'Alphabet' }, { s: 'AMZN', n: 'Amazon' }, { s: 'META', n: 'Meta' }, { s: 'TSLA', n: 'Tesla' }, { s: 'AVGO', n: 'Broadcom' }, { s: 'ASML', n: 'ASML' }, { s: 'AMD', n: 'AMD' }, { s: 'INTC', n: 'Intel' }, { s: 'QCOM', n: 'Qualcomm' }, { s: 'NFLX', n: 'Netflix' }, { s: 'COST', n: 'Costco' }, { s: 'ADBE', n: 'Adobe' }, { s: 'CSCO', n: 'Cisco' }, { s: 'TXN', n: 'Texas Instruments' }, { s: 'PYPL', n: 'PayPal' }, { s: 'SBUX', n: 'Starbucks' }, { s: 'INTU', n: 'Intuit' }],
-                tse: [{ s: '7203.T', n: 'Toyota' }, { s: '6758.T', n: 'Sony' }, { s: '6861.T', n: 'Keyence' }, { s: '9432.T', n: 'NTT' }, { s: '8306.T', n: 'MUFG' }, { s: '6501.T', n: 'Hitachi' }, { s: '9984.T', n: 'SoftBank' }, { s: '6367.T', n: 'Daikin' }, { s: '7974.T', n: 'Nintendo' }, { s: '4063.T', n: 'Shin-Etsu' }, { s: '6954.T', n: 'Fanuc' }, { s: '8035.T', n: 'Tokyo Electron' }, { s: '9983.T', n: 'Fast Retailing' }, { s: '4568.T', n: 'Daiichi Sankyo' }, { s: '6902.T', n: 'Denso' }, { s: '7267.T', n: 'Honda' }, { s: '8316.T', n: 'SMFG' }, { s: '6326.T', n: 'Kubota' }, { s: '3382.T', n: 'Seven & I' }, { s: '4661.T', n: 'Oriental Land' }],
-                krx: [{ s: '005930.KS', n: 'Samsung Elec' }, { s: '000660.KS', n: 'SK Hynix' }, { s: '207940.KS', n: 'Samsung Bio' }, { s: '005380.KS', n: 'Hyundai Motor' }, { s: '000270.KS', n: 'Kia Corp' }, { s: '051910.KS', n: 'LG Chem' }, { s: '035420.KS', n: 'NAVER' }, { s: '055550.KS', n: 'Shinhan' }, { s: '012330.KS', n: 'Hyundai Mobis' }, { s: '028260.KS', n: 'Samsung C&T' }, { s: '003550.KS', n: 'LG Corp' }, { s: '035720.KS', n: 'Kakao' }, { s: '096770.KS', n: 'SK Innovation' }, { s: '017670.KS', n: 'SK Telecom' }, { s: '030200.KS', n: 'KT Corp' }, { s: '105560.KS', n: 'KB Financial' }, { s: '316140.KS', n: 'Woori Financial' }, { s: '009150.KS', n: 'Samsung Electro' }, { s: '010130.KS', n: 'Korea Zinc' }, { s: '018260.KS', n: 'Samsung SDS' }],
-                hkex: [{ s: '0700.HK', n: 'Tencent' }, { s: '9988.HK', n: 'Alibaba' }, { s: '0941.HK', n: 'China Mobile' }, { s: '1299.HK', n: 'AIA Group' }, { s: '0005.HK', n: 'HSBC' }, { s: '3690.HK', n: 'Meituan' }, { s: '9618.HK', n: 'JD.com' }, { s: '2318.HK', n: 'Ping An' }, { s: '1398.HK', n: 'ICBC' }, { s: '0939.HK', n: 'CCB' }, { s: '9999.HK', n: 'NetEase' }, { s: '2020.HK', n: 'ANTA Sports' }, { s: '0388.HK', n: 'HK Exchanges' }, { s: '1810.HK', n: 'Xiaomi' }, { s: '0011.HK', n: 'Hang Seng Bank' }, { s: '1177.HK', n: 'Sino Biopharm' }, { s: '2382.HK', n: 'Sunny Optical' }, { s: '0016.HK', n: 'Sun Hung Kai' }, { s: '0883.HK', n: 'CNOOC' }, { s: '0175.HK', n: 'Geely Auto' }],
-                sgx: [{ s: 'D05.SI', n: 'DBS Group' }, { s: 'O39.SI', n: 'OCBC' }, { s: 'U11.SI', n: 'UOB' }, { s: 'Z74.SI', n: 'Singtel' }, { s: 'C6L.SI', n: 'Singapore Air' }, { s: 'BN4.SI', n: 'Keppel Corp' }, { s: 'F34.SI', n: 'Wilmar Intl' }, { s: 'A17U.SI', n: 'Ascendas REIT' }, { s: 'C09.SI', n: 'City Dev' }, { s: 'G13.SI', n: 'Genting SG' }, { s: 'S68.SI', n: 'SGX' }, { s: 'J36.SI', n: 'Jardine Matheson' }, { s: 'U96.SI', n: 'Sembcorp Ind' }, { s: 'V03.SI', n: 'Venture Corp' }, { s: 'BS6.SI', n: 'Yangzijiang' }, { s: '9CI.SI', n: 'CapitaLand Inv' }, { s: 'C38U.SI', n: 'CapitaLand Mall' }, { s: 'ME8U.SI', n: 'Mapletree Ind' }, { s: 'BUOU.SI', n: 'Frasers Log' }, { s: 'N2IU.SI', n: 'Mapletree Pan Asia' }],
-                asx: [{ s: 'BHP.AX', n: 'BHP' }, { s: 'CBA.AX', n: 'CommBank' }, { s: 'CSL.AX', n: 'CSL' }, { s: 'NAB.AX', n: 'NAB' }, { s: 'WBC.AX', n: 'Westpac' }, { s: 'ANZ.AX', n: 'ANZ' }, { s: 'WES.AX', n: 'Wesfarmers' }, { s: 'MQG.AX', n: 'Macquarie' }, { s: 'RIO.AX', n: 'Rio Tinto' }, { s: 'TLS.AX', n: 'Telstra' }, { s: 'WOW.AX', n: 'Woolworths' }, { s: 'FMG.AX', n: 'Fortescue' }, { s: 'TCL.AX', n: 'Transurban' }, { s: 'GMG.AX', n: 'Goodman Group' }, { s: 'SHL.AX', n: 'Sonic Health' }, { s: 'ALL.AX', n: 'Aristocrat' }, { s: 'QBE.AX', n: 'QBE Insurance' }, { s: 'REA.AX', n: 'REA Group' }, { s: 'COL.AX', n: 'Coles' }, { s: 'COH.AX', n: 'Cochlear' }],
-                lse: [{ s: 'SHEL.L', n: 'Shell' }, { s: 'AZN.L', n: 'AstraZeneca' }, { s: 'HSBA.L', n: 'HSBC' }, { s: 'ULVR.L', n: 'Unilever' }, { s: 'BP.L', n: 'BP' }, { s: 'RIO.L', n: 'Rio Tinto' }, { s: 'GSK.L', n: 'GSK' }, { s: 'BARC.L', n: 'Barclays' }, { s: 'LLOY.L', n: 'Lloyds' }, { s: 'VOD.L', n: 'Vodafone' }, { s: 'REL.L', n: 'RELX' }, { s: 'NG.L', n: 'National Grid' }, { s: 'DGE.L', n: 'Diageo' }, { s: 'CPG.L', n: 'Compass Group' }, { s: 'LSEG.L', n: 'London Stock Ex' }, { s: 'IMB.L', n: 'Imperial Brands' }, { s: 'BAB.L', n: 'Babcock' }, { s: 'BA.L', n: 'BAE Systems' }, { s: 'RKT.L', n: 'Reckitt' }, { s: 'GLEN.L', n: 'Glencore' }],
-                nse: [{ s: 'RELIANCE.NS', n: 'Reliance' }, { s: 'TCS.NS', n: 'TCS' }, { s: 'HDFCBANK.NS', n: 'HDFC Bank' }, { s: 'INFY.NS', n: 'Infosys' }, { s: 'ICICIBANK.NS', n: 'ICICI Bank' }, { s: 'HINDUNILVR.NS', n: 'Hindustan Unilever' }, { s: 'ITC.NS', n: 'ITC' }, { s: 'SBIN.NS', n: 'SBI' }, { s: 'BHARTIARTL.NS', n: 'Bharti Airtel' }, { s: 'KOTAKBANK.NS', n: 'Kotak Bank' }, { s: 'LT.NS', n: 'L&T' }, { s: 'AXISBANK.NS', n: 'Axis Bank' }, { s: 'ASIANPAINT.NS', n: 'Asian Paints' }, { s: 'WIPRO.NS', n: 'Wipro' }, { s: 'MARUTI.NS', n: 'Maruti Suzuki' }, { s: 'ULTRACEMCO.NS', n: 'UltraTech' }, { s: 'TITAN.NS', n: 'Titan' }, { s: 'BAJFINANCE.NS', n: 'Bajaj Finance' }, { s: 'HCLTECH.NS', n: 'HCL Tech' }, { s: 'SUNPHARMA.NS', n: 'Sun Pharma' }],
-                tsx: [{ s: 'RY.TO', n: 'Royal Bank' }, { s: 'TD.TO', n: 'TD Bank' }, { s: 'ENB.TO', n: 'Enbridge' }, { s: 'CNR.TO', n: 'CN Rail' }, { s: 'BNS.TO', n: 'Scotiabank' }, { s: 'BMO.TO', n: 'BMO' }, { s: 'CP.TO', n: 'CP Rail' }, { s: 'ABX.TO', n: 'Barrick Gold' }, { s: 'SU.TO', n: 'Suncor' }, { s: 'MFC.TO', n: 'Manulife' }, { s: 'TRI.TO', n: 'Thomson Reuters' }, { s: 'SHOP.TO', n: 'Shopify' }, { s: 'BCE.TO', n: 'BCE Inc' }, { s: 'NTR.TO', n: 'Nutrien' }, { s: 'CNQ.TO', n: 'Canadian Nat Res' }, { s: 'WCN.TO', n: 'Waste Connections' }, { s: 'CSU.TO', n: 'Constellation' }, { s: 'ATD.TO', n: 'Alimentation' }, { s: 'FNV.TO', n: 'Franco-Nevada' }, { s: 'TRP.TO', n: 'TC Energy' }],
-                bvmf: [{ s: 'VALE3.SA', n: 'Vale' }, { s: 'PETR4.SA', n: 'Petrobras' }, { s: 'ITUB4.SA', n: 'Itau Unibanco' }, { s: 'BBDC4.SA', n: 'Bradesco' }, { s: 'ABEV3.SA', n: 'Ambev' }, { s: 'B3SA3.SA', n: 'B3' }, { s: 'WEGE3.SA', n: 'WEG' }, { s: 'RENT3.SA', n: 'Localiza' }, { s: 'SUZB3.SA', n: 'Suzano' }, {
-                    s: 'RDOR3.SA', n: 'Rede D'Or'},{s:'BBAS3.SA',n:'Banco do Brasil'},{s:'LREN3.SA',n:'Lojas Renner'},{s:'MGLU3.SA',n:'Magazine Luiza'},{s:'ELET3.SA',n:'Eletrobras'},{s:'JBSS3.SA',n:'JBS'},{s:'HAPV3.SA',n:'Hapvida'},{s:'SBSP3.SA',n:'Sabesp'},{s:'ENEV3.SA',n:'Eneva'},{s:'VBBR3.SA',n:'Vibra Energia'},{s:'GGBR4.SA',n:'Gerdau'}],
+            nasdaq: [{ s: 'AAPL', n: 'Apple' }, { s: 'MSFT', n: 'Microsoft' }, { s: 'NVDA', n: 'NVIDIA' }, { s: 'GOOGL', n: 'Alphabet' }, { s: 'AMZN', n: 'Amazon' }, { s: 'META', n: 'Meta' }, { s: 'TSLA', n: 'Tesla' }, { s: 'AVGO', n: 'Broadcom' }, { s: 'ASML', n: 'ASML' }, { s: 'AMD', n: 'AMD' }, { s: 'INTC', n: 'Intel' }, { s: 'QCOM', n: 'Qualcomm' }, { s: 'NFLX', n: 'Netflix' }, { s: 'COST', n: 'Costco' }, { s: 'ADBE', n: 'Adobe' }, { s: 'CSCO', n: 'Cisco' }, { s: 'TXN', n: 'Texas Instruments' }, { s: 'PYPL', n: 'PayPal' }, { s: 'SBUX', n: 'Starbucks' }, { s: 'INTU', n: 'Intuit' }],
+            tse: [{ s: '7203.T', n: 'Toyota' }, { s: '6758.T', n: 'Sony' }, { s: '6861.T', n: 'Keyence' }, { s: '9432.T', n: 'NTT' }, { s: '8306.T', n: 'MUFG' }, { s: '6501.T', n: 'Hitachi' }, { s: '9984.T', n: 'SoftBank' }, { s: '6367.T', n: 'Daikin' }, { s: '7974.T', n: 'Nintendo' }, { s: '4063.T', n: 'Shin-Etsu' }, { s: '6954.T', n: 'Fanuc' }, { s: '8035.T', n: 'Tokyo Electron' }, { s: '9983.T', n: 'Fast Retailing' }, { s: '4568.T', n: 'Daiichi Sankyo' }, { s: '6902.T', n: 'Denso' }, { s: '7267.T', n: 'Honda' }, { s: '8316.T', n: 'SMFG' }, { s: '6326.T', n: 'Kubota' }, { s: '3382.T', n: 'Seven & I' }, { s: '4661.T', n: 'Oriental Land' }],
+            krx: [{ s: '005930.KS', n: 'Samsung Elec' }, { s: '000660.KS', n: 'SK Hynix' }, { s: '207940.KS', n: 'Samsung Bio' }, { s: '005380.KS', n: 'Hyundai Motor' }, { s: '000270.KS', n: 'Kia Corp' }, { s: '051910.KS', n: 'LG Chem' }, { s: '035420.KS', n: 'NAVER' }, { s: '055550.KS', n: 'Shinhan' }, { s: '012330.KS', n: 'Hyundai Mobis' }, { s: '028260.KS', n: 'Samsung C&T' }, { s: '003550.KS', n: 'LG Corp' }, { s: '035720.KS', n: 'Kakao' }, { s: '096770.KS', n: 'SK Innovation' }, { s: '017670.KS', n: 'SK Telecom' }, { s: '030200.KS', n: 'KT Corp' }, { s: '105560.KS', n: 'KB Financial' }, { s: '316140.KS', n: 'Woori Financial' }, { s: '009150.KS', n: 'Samsung Electro' }, { s: '010130.KS', n: 'Korea Zinc' }, { s: '018260.KS', n: 'Samsung SDS' }],
+            hkex: [{ s: '0700.HK', n: 'Tencent' }, { s: '9988.HK', n: 'Alibaba' }, { s: '0941.HK', n: 'China Mobile' }, { s: '1299.HK', n: 'AIA Group' }, { s: '0005.HK', n: 'HSBC' }, { s: '3690.HK', n: 'Meituan' }, { s: '9618.HK', n: 'JD.com' }, { s: '2318.HK', n: 'Ping An' }, { s: '1398.HK', n: 'ICBC' }, { s: '0939.HK', n: 'CCB' }, { s: '9999.HK', n: 'NetEase' }, { s: '2020.HK', n: 'ANTA Sports' }, { s: '0388.HK', n: 'HK Exchanges' }, { s: '1810.HK', n: 'Xiaomi' }, { s: '0011.HK', n: 'Hang Seng Bank' }, { s: '1177.HK', n: 'Sino Biopharm' }, { s: '2382.HK', n: 'Sunny Optical' }, { s: '0016.HK', n: 'Sun Hung Kai' }, { s: '0883.HK', n: 'CNOOC' }, { s: '0175.HK', n: 'Geely Auto' }],
+            sgx: [{ s: 'D05.SI', n: 'DBS Group' }, { s: 'O39.SI', n: 'OCBC' }, { s: 'U11.SI', n: 'UOB' }, { s: 'Z74.SI', n: 'Singtel' }, { s: 'C6L.SI', n: 'Singapore Air' }, { s: 'BN4.SI', n: 'Keppel Corp' }, { s: 'F34.SI', n: 'Wilmar Intl' }, { s: 'A17U.SI', n: 'Ascendas REIT' }, { s: 'C09.SI', n: 'City Dev' }, { s: 'G13.SI', n: 'Genting SG' }, { s: 'S68.SI', n: 'SGX' }, { s: 'J36.SI', n: 'Jardine Matheson' }, { s: 'U96.SI', n: 'Sembcorp Ind' }, { s: 'V03.SI', n: 'Venture Corp' }, { s: 'BS6.SI', n: 'Yangzijiang' }, { s: '9CI.SI', n: 'CapitaLand Inv' }, { s: 'C38U.SI', n: 'CapitaLand Mall' }, { s: 'ME8U.SI', n: 'Mapletree Ind' }, { s: 'BUOU.SI', n: 'Frasers Log' }, { s: 'N2IU.SI', n: 'Mapletree Pan Asia' }],
+            asx: [{ s: 'BHP.AX', n: 'BHP' }, { s: 'CBA.AX', n: 'CommBank' }, { s: 'CSL.AX', n: 'CSL' }, { s: 'NAB.AX', n: 'NAB' }, { s: 'WBC.AX', n: 'Westpac' }, { s: 'ANZ.AX', n: 'ANZ' }, { s: 'WES.AX', n: 'Wesfarmers' }, { s: 'MQG.AX', n: 'Macquarie' }, { s: 'RIO.AX', n: 'Rio Tinto' }, { s: 'TLS.AX', n: 'Telstra' }, { s: 'WOW.AX', n: 'Woolworths' }, { s: 'FMG.AX', n: 'Fortescue' }, { s: 'TCL.AX', n: 'Transurban' }, { s: 'GMG.AX', n: 'Goodman Group' }, { s: 'SHL.AX', n: 'Sonic Health' }, { s: 'ALL.AX', n: 'Aristocrat' }, { s: 'QBE.AX', n: 'QBE Insurance' }, { s: 'REA.AX', n: 'REA Group' }, { s: 'COL.AX', n: 'Coles' }, { s: 'COH.AX', n: 'Cochlear' }],
+            lse: [{ s: 'SHEL.L', n: 'Shell' }, { s: 'AZN.L', n: 'AstraZeneca' }, { s: 'HSBA.L', n: 'HSBC' }, { s: 'ULVR.L', n: 'Unilever' }, { s: 'BP.L', n: 'BP' }, { s: 'RIO.L', n: 'Rio Tinto' }, { s: 'GSK.L', n: 'GSK' }, { s: 'BARC.L', n: 'Barclays' }, { s: 'LLOY.L', n: 'Lloyds' }, { s: 'VOD.L', n: 'Vodafone' }, { s: 'REL.L', n: 'RELX' }, { s: 'NG.L', n: 'National Grid' }, { s: 'DGE.L', n: 'Diageo' }, { s: 'CPG.L', n: 'Compass Group' }, { s: 'LSEG.L', n: 'London Stock Ex' }, { s: 'IMB.L', n: 'Imperial Brands' }, { s: 'BAB.L', n: 'Babcock' }, { s: 'BA.L', n: 'BAE Systems' }, { s: 'RKT.L', n: 'Reckitt' }, { s: 'GLEN.L', n: 'Glencore' }],
+            nse: [{ s: 'RELIANCE.NS', n: 'Reliance' }, { s: 'TCS.NS', n: 'TCS' }, { s: 'HDFCBANK.NS', n: 'HDFC Bank' }, { s: 'INFY.NS', n: 'Infosys' }, { s: 'ICICIBANK.NS', n: 'ICICI Bank' }, { s: 'HINDUNILVR.NS', n: 'Hindustan Unilever' }, { s: 'ITC.NS', n: 'ITC' }, { s: 'SBIN.NS', n: 'SBI' }, { s: 'BHARTIARTL.NS', n: 'Bharti Airtel' }, { s: 'KOTAKBANK.NS', n: 'Kotak Bank' }, { s: 'LT.NS', n: 'L&T' }, { s: 'AXISBANK.NS', n: 'Axis Bank' }, { s: 'ASIANPAINT.NS', n: 'Asian Paints' }, { s: 'WIPRO.NS', n: 'Wipro' }, { s: 'MARUTI.NS', n: 'Maruti Suzuki' }, { s: 'ULTRACEMCO.NS', n: 'UltraTech' }, { s: 'TITAN.NS', n: 'Titan' }, { s: 'BAJFINANCE.NS', n: 'Bajaj Finance' }, { s: 'HCLTECH.NS', n: 'HCL Tech' }, { s: 'SUNPHARMA.NS', n: 'Sun Pharma' }],
+            tsx: [{ s: 'RY.TO', n: 'Royal Bank' }, { s: 'TD.TO', n: 'TD Bank' }, { s: 'ENB.TO', n: 'Enbridge' }, { s: 'CNR.TO', n: 'CN Rail' }, { s: 'BNS.TO', n: 'Scotiabank' }, { s: 'BMO.TO', n: 'BMO' }, { s: 'CP.TO', n: 'CP Rail' }, { s: 'ABX.TO', n: 'Barrick Gold' }, { s: 'SU.TO', n: 'Suncor' }, { s: 'MFC.TO', n: 'Manulife' }, { s: 'TRI.TO', n: 'Thomson Reuters' }, { s: 'SHOP.TO', n: 'Shopify' }, { s: 'BCE.TO', n: 'BCE Inc' }, { s: 'NTR.TO', n: 'Nutrien' }, { s: 'CNQ.TO', n: 'Canadian Nat Res' }, { s: 'WCN.TO', n: 'Waste Connections' }, { s: 'CSU.TO', n: 'Constellation' }, { s: 'ATD.TO', n: 'Alimentation' }, { s: 'FNV.TO', n: 'Franco-Nevada' }, { s: 'TRP.TO', n: 'TC Energy' }],
+            bvmf: [{ s: 'VALE3.SA', n: 'Vale' }, { s: 'PETR4.SA', n: 'Petrobras' }, { s: 'ITUB4.SA', n: 'Itau Unibanco' }, { s: 'BBDC4.SA', n: 'Bradesco' }, { s: 'ABEV3.SA', n: 'Ambev' }, { s: 'B3SA3.SA', n: 'B3' }, { s: 'WEGE3.SA', n: 'WEG' }, { s: 'RENT3.SA', n: 'Localiza' }, { s: 'SUZB3.SA', n: 'Suzano' }, { s: 'RDOR3.SA', n: 'Rede D\'Or' }, { s: 'BBAS3.SA', n: 'Banco do Brasil' }, { s: 'LREN3.SA', n: 'Lojas Renner' }, { s: 'MGLU3.SA', n: 'Magazine Luiza' }, { s: 'ELET3.SA', n: 'Eletrobras' }, { s: 'JBSS3.SA', n: 'JBS' }, { s: 'HAPV3.SA', n: 'Hapvida' }, { s: 'SBSP3.SA', n: 'Sabesp' }, { s: 'ENEV3.SA', n: 'Eneva' }, { s: 'VBBR3.SA', n: 'Vibra Energia' }, { s: 'GGBR4.SA', n: 'Gerdau' }],
         };
 
-                const EXCHANGE_LABELS = {
-                    pse: '🇵🇭 PSE (Philippines)', nyse: '🇺🇸 NYSE', nasdaq: '🇺🇸 NASDAQ',
-                    tse: '🇯🇵 TSE (Japan)', krx: '🇰🇷 KRX (South Korea)', hkex: '🇭🇰 HKEX (Hong Kong)',
-                    sgx: '🇸🇬 SGX (Singapore)', asx: '🇦🇺 ASX (Australia)', lse: '🇬🇧 LSE (London)',
-                    nse: '🇮🇳 NSE (India)', tsx: '🇨🇦 TSX (Canada)', bvmf: '🇧🇷 BVMF (Brazil)',
-                };
+        const EXCHANGE_LABELS = {
+            pse: '🇵🇭 PSE (Philippines)', nyse: '🇺🇸 NYSE', nasdaq: '🇺🇸 NASDAQ',
+            tse: '🇯🇵 TSE (Japan)', krx: '🇰🇷 KRX (South Korea)', hkex: '🇭🇰 HKEX (Hong Kong)',
+            sgx: '🇸🇬 SGX (Singapore)', asx: '🇦🇺 ASX (Australia)', lse: '🇬🇧 LSE (London)',
+            nse: '🇮🇳 NSE (India)', tsx: '🇨🇦 TSX (Canada)', bvmf: '🇧🇷 BVMF (Brazil)',
+        };
 
-                // ── YAHOO FINANCE FETCH ───────────────────────────────────────
-                async function fetchYahoo(symbols) {
-                var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
-                var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
-                try {
-                    var res = await fetchWithTimeout('https://corsproxy.io/?' + encodeURIComponent(url), {}, 8000);
-                    var data = await res.json();
-                    var quotes = (data.quoteResponse && data.quoteResponse.result) ? data.quoteResponse.result : [];
-                    var map = {};
-                    quotes.forEach(function (q) { map[q.symbol] = q; });
-                    return symbols.map(function (sym) {
-                        var q = map[sym.s] || {};
-                        return {
-                            s: sym.s,
-                            name: sym.n,
-                            price: q.regularMarketPrice,
-                            chgAbs: q.regularMarketChange,
-                            chgPct: q.regularMarketChangePercent,
-                        };
-                    }).filter(function (d) { return d.price != null; });
-                } catch(e) {
-                    console.warn('Yahoo fetch error', e);
-                    return [];
-                }
+        // ── YAHOO FINANCE FETCH ───────────────────────────────────────
+        async function fetchYahoo(symbols) {
+            var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
+            var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
+            try {
+                var res = await fetchWithTimeout('https://corsproxy.io/?' + encodeURIComponent(url), {}, 8000);
+                var data = await res.json();
+                var quotes = (data.quoteResponse && data.quoteResponse.result) ? data.quoteResponse.result : [];
+                var map = {};
+                quotes.forEach(function (q) { map[q.symbol] = q; });
+                return symbols.map(function (sym) {
+                    var q = map[sym.s] || {};
+                    return {
+                        s: sym.s,
+                        name: sym.n,
+                        price: q.regularMarketPrice,
+                        chgAbs: q.regularMarketChange,
+                        chgPct: q.regularMarketChangePercent,
+                    };
+                }).filter(function (d) { return d.price != null; });
+            } catch (e) {
+                console.warn('Yahoo fetch error', e);
+                return [];
             }
+        }
 
         // ── COINGECKO FETCH ───────────────────────────────────────────
         async function fetchCrypto() {
-                try {
-                    var res = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h', {}, 8000);
-                    var data = await res.json();
-                    return data.map(function (c) {
-                        return {
-                            s: c.id,
-                            name: c.name,
-                            symbol: c.symbol.toUpperCase(),
-                            price: c.current_price,
-                            chgAbs: null,
-                            chgPct: c.price_change_percentage_24h,
-                            mcap: c.market_cap,
-                        };
-                    });
-                } catch (e) {
-                    console.warn('CoinGecko error', e);
-                    return [];
-                }
+            try {
+                var res = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h', {}, 8000);
+                var data = await res.json();
+                return data.map(function (c) {
+                    return {
+                        s: c.id,
+                        name: c.name,
+                        symbol: c.symbol.toUpperCase(),
+                        price: c.current_price,
+                        chgAbs: null,
+                        chgPct: c.price_change_percentage_24h,
+                        mcap: c.market_cap,
+                    };
+                });
+            } catch (e) {
+                console.warn('CoinGecko error', e);
+                return [];
             }
+        }
 
         // ── MAIN FETCH ────────────────────────────────────────────────
         var breadthFetchInterval = null;
-            var breadthLoaded = false;
+        var breadthLoaded = false;
 
-            // Fetch with timeout helper
-            async function fetchWithTimeout(url, options, ms) {
-                var controller = new AbortController();
-        var timer = setTimeout(function () { controller.abort(); }, ms || 8000);
-        try {
-            var res = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
-            clearTimeout(timer);
-            return res;
-        } catch (e) {
-            clearTimeout(timer);
-            throw e;
-        }
+        // Fetch with timeout helper
+        async function fetchWithTimeout(url, options, ms) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, ms || 8000);
+            try {
+                var res = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+                clearTimeout(timer);
+                return res;
+            } catch (e) {
+                clearTimeout(timer);
+                throw e;
+            }
         }
 
         window.fetchMarketData = async function () {
@@ -1735,9 +1733,9 @@
         let mktCurrentCompany = null;
 
         function getNingLogoUrl(eodhd_ticker) {
-            var parts = (eodhd_ticker || '').split('.');
-            var code = parts[0];
-            var exchange = parts[1] || 'US';
+            const parts = (eodhd_ticker || '').split('.');
+            const code = parts[0];
+            const exchange = parts[1] || 'US';
             return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
         }
         let mktDebounce = null;
@@ -1890,32 +1888,32 @@
         const COMPANY_DATA_TABLE = 'tblqFozYaPJnlZtRh';
 
         async function fetchCompanyData(ticker) {
-            var nc = document.getElementById('mkt-news-container');
-            var ec = document.getElementById('mkt-earnings-container');
-            var msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
-            var msgIdx = 0;
-            var setLoading = (text) => {
-                var html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
+            const nc = document.getElementById('mkt-news-container');
+            const ec = document.getElementById('mkt-earnings-container');
+            const msgs = ['SCANNING INSTITUTIONAL DATABASE...', 'RETRIEVING MARKET INTELLIGENCE...', 'FETCHING EARNINGS HISTORY...', 'COMPILING NEWS ARCHIVE...', 'LOADING COMPANY DATA...'];
+            let msgIdx = 0;
+            const setLoading = (text) => {
+                const html = `<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">${text}</div>`;
                 nc.innerHTML = html; ec.innerHTML = html;
             };
             setLoading(msgs[0]);
 
             // STEP 1: Check Airtable cache
             try {
-                var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                var data = await res.json();
+                const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                const data = await res.json();
                 if (data.records && data.records.length > 0) {
-                    var fields = data.records[0].fields;
-                    var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
-                    var ageHours = (new Date() - lastUpdated) / 3600000;
+                    const fields = data.records[0].fields;
+                    const lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
+                    const ageHours = (new Date() - lastUpdated) / 3600000;
                     if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
-                        var badge = document.createElement('div');
+                        const badge = document.createElement('div');
                         badge.style.cssText = 'font-size:0.7rem;color:#888;font-style:italic;margin-bottom:12px;';
-                        var safeId = ticker.replace(/\./g, '_');
+                        const safeId = ticker.replace(/\./g, '_');
                         badge.innerHTML = `⚡ Cached · Updated ${Math.round(ageHours)}h ago · <a href="#" style="color:var(--primary);font-weight:800;" id="rl-${safeId}">Refresh</a>`;
                         nc.insertBefore(badge, nc.firstChild);
                         document.getElementById(`rl-${safeId}`)?.addEventListener('click', (e) => { e.preventDefault(); forceRefreshCompanyData(ticker); });
@@ -1929,18 +1927,18 @@
             try { await fetch(`${MAKE_WEBHOOK}?ticker=${encodeURIComponent(ticker)}`, { mode: 'no-cors' }); } catch (e) { }
 
             // STEP 3: Poll until data arrives
-            var attempts = 0;
-            var pollInterval = setInterval(async () => {
+            let attempts = 0;
+            const pollInterval = setInterval(async () => {
                 attempts++;
                 msgIdx = (msgIdx + 1) % msgs.length;
                 setLoading(`${msgs[msgIdx]}<br><span style="color:#888;font-size:0.75rem;font-weight:400;">${attempts * 4}s elapsed</span>`);
                 try {
-                    var formula = encodeURIComponent(`{Ticker}='${ticker}'`);
-                    var url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
-                    var res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-                    var data = await res.json();
+                    const formula = encodeURIComponent(`{Ticker}='${ticker}'`);
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${COMPANY_DATA_TABLE}?filterByFormula=${formula}&maxRecords=1`;
+                    const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
+                    const data = await res.json();
                     if (data.records && data.records.length > 0) {
-                        var fields = data.records[0].fields;
+                        const fields = data.records[0].fields;
                         if (fields.News || fields.Earnings) {
                             clearInterval(pollInterval);
                             renderNews(fields.News || '[]', nc);
@@ -2545,25 +2543,25 @@
         // Uses open.er-api.com — free, no API key needed, updates every few hours
         // Falls back to fawazahmed0 CDN if primary fails
         async function fetchFxRates() {
-            var container = document.getElementById('fx-rates-container');
+            const container = document.getElementById('fx-rates-container');
             if (!container) return;
 
-            var r = null;
+            let r = null;
 
             // Primary: ExchangeRate-API free tier (no key, reliable)
             try {
-                var res = await fetch('https://open.er-api.com/v6/latest/USD');
-                var data = await res.json();
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
                 if (data.result === 'success') r = data.rates;
             } catch (e) { }
 
             // Fallback: fawazahmed0 CDN
             if (!r) {
                 try {
-                    var res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                    var data = await res.json();
+                    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                    const data = await res.json();
                     // normalize to uppercase keys
-                    var raw = data.usd;
+                    const raw = data.usd;
                     r = {};
                     for (const k in raw) r[k.toUpperCase()] = raw[k];
                 } catch (e) { }
@@ -2574,11 +2572,11 @@
                 return;
             }
 
-            var usdPhp = r.PHP;
-            var eurPhp = r.PHP / r.EUR;
-            var jpyPhp = r.PHP / r.JPY;
-            var cadPhp = r.PHP / r.CAD;
-            var fmt = v => v.toFixed(2);
+            const usdPhp = r.PHP;
+            const eurPhp = r.PHP / r.EUR;
+            const jpyPhp = r.PHP / r.JPY;
+            const cadPhp = r.PHP / r.CAD;
+            const fmt = v => v.toFixed(2);
 
             container.innerHTML = `
                 <div class="fx-row">
@@ -2613,18 +2611,18 @@
 
         // --- SIDEBAR CLOCK LOGIC ---
         function updateWorldClocks() {
-            var now = new Date();
-            var zones = [
+            const now = new Date();
+            const zones = [
                 { id: 'manila', tz: 'Asia/Manila' },
                 { id: 'ny', tz: 'America/New_York' },
                 { id: 'tokyo', tz: 'Asia/Tokyo' },
                 { id: 'london', tz: 'Europe/London' }
             ];
             zones.forEach(zone => {
-                var timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
-                var [h, m, s] = timeStr.split(':');
-                var clockEl = document.getElementById(`clock-${zone.id}`);
-                var secEl = document.getElementById(`sec-${zone.id}`);
+                const timeStr = now.toLocaleTimeString('en-US', { timeZone: zone.tz, hour12: false });
+                const [h, m, s] = timeStr.split(':');
+                const clockEl = document.getElementById(`clock-${zone.id}`);
+                const secEl = document.getElementById(`sec-${zone.id}`);
                 if (clockEl) clockEl.innerText = `${h}:${m}`;
                 if (secEl) secEl.innerText = `:${s}`;
             });
