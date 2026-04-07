@@ -1478,7 +1478,7 @@
                 var tickers = symbols.map(function (s) { return encodeURIComponent(s.s); }).join('%2C');
                 var url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + tickers + '&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent';
                 try {
-                    var res = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+                    var res = await fetchWithTimeout('https://corsproxy.io/?' + encodeURIComponent(url), {}, 8000);
                     var data = await res.json();
                     var quotes = (data.quoteResponse && data.quoteResponse.result) ? data.quoteResponse.result : [];
                     var map = {};
@@ -1502,7 +1502,7 @@
         // ── COINGECKO FETCH ───────────────────────────────────────────
         async function fetchCrypto() {
                 try {
-                    var res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h');
+                    var res = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h', {}, 8000);
                     var data = await res.json();
                     return data.map(function (c) {
                         return {
@@ -1522,8 +1522,25 @@
             }
 
         // ── MAIN FETCH ────────────────────────────────────────────────
+        var breadthFetchInterval = null;
+            var breadthLoaded = false;
+
+            // Fetch with timeout helper
+            async function fetchWithTimeout(url, options, ms) {
+                var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, ms || 8000);
+        try {
+            var res = await fetch(url, Object.assign({}, options, { signal: controller.signal }));
+            clearTimeout(timer);
+            return res;
+        } catch (e) {
+            clearTimeout(timer);
+            throw e;
+        }
+        }
+
         window.fetchMarketData = async function () {
-                // Fetch all data for top section simultaneously
+            try {
                 var [indData, comData, curData, cryptoData] = await Promise.all([
                     fetchYahoo(YF_INDICES),
                     fetchYahoo(YF_COMMODITIES),
@@ -1534,132 +1551,135 @@
                 breadthCryptoData = cryptoData;
                 renderTopSection();
                 renderBreadthTab();
-            };
+            } catch (e) {
+                console.warn('fetchMarketData error', e);
+            }
+        };
 
-            window.switchBreadthTab = function (tab) {
-                breadthCurrentTab = tab;
-                ['indices', 'crypto', 'commodities', 'currencies', 'equities'].forEach(function (t) {
-                    var el = document.getElementById('btab-' + t);
-                    if (!el) return;
-                    el.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent';
-                    el.style.color = t === tab ? '#000' : '#888';
+        window.switchBreadthTab = function (tab) {
+            breadthCurrentTab = tab;
+            ['indices', 'crypto', 'commodities', 'currencies', 'equities'].forEach(function (t) {
+                var el = document.getElementById('btab-' + t);
+                if (!el) return;
+                el.style.borderBottomColor = t === tab ? 'var(--primary)' : 'transparent';
+                el.style.color = t === tab ? '#000' : '#888';
+            });
+            renderBreadthTab();
+        };
+
+        async function renderBreadthTab() {
+            var container = document.getElementById('market-breadth-inner');
+            if (!container) return;
+            var tab = breadthCurrentTab;
+            var items = [];
+
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-family:Courier New,monospace;font-size:0.82rem;">Loading...</div>';
+
+            if (tab === 'crypto') {
+                items = breadthCryptoData.length ? breadthCryptoData : await fetchCrypto();
+                breadthCryptoData = items;
+            } else if (tab === 'equities') {
+                var list = EQUITY_LISTS[breadthEquityExch] || [];
+                items = await fetchYahoo(list);
+            } else if (tab === 'indices') {
+                items = breadthAllData.filter(function (d) {
+                    return YF_INDICES.some(function (s) { return s.s === d.s; });
                 });
-                renderBreadthTab();
-            };
+                if (!items.length) items = await fetchYahoo(YF_INDICES);
+            } else if (tab === 'commodities') {
+                items = breadthAllData.filter(function (d) {
+                    return YF_COMMODITIES.some(function (s) { return s.s === d.s; });
+                });
+                if (!items.length) items = await fetchYahoo(YF_COMMODITIES);
+            } else if (tab === 'currencies') {
+                items = breadthAllData.filter(function (d) {
+                    return YF_CURRENCIES.some(function (s) { return s.s === d.s; });
+                });
+                if (!items.length) items = await fetchYahoo(YF_CURRENCIES);
+            }
 
-            async function renderBreadthTab() {
-                var container = document.getElementById('market-breadth-inner');
-        if (!container) return;
-        var tab = breadthCurrentTab;
-        var items = [];
+            var html = '';
 
-        container.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-family:Courier New,monospace;font-size:0.82rem;">Loading...</div>';
+            // Exchange selector for equities
+            if (tab === 'equities') {
+                html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">' +
+                    '<label style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#888;">EXCHANGE</label>' +
+                    '<select onchange="breadthEquityExch=this.value;renderBreadthTab()" style="padding:8px 12px;border:2px solid var(--border);font-family:Inter,sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">';
+                Object.keys(EXCHANGE_LABELS).forEach(function (k) {
+                    html += '<option value="' + k + '"' + (k === breadthEquityExch ? ' selected' : '') + '>' + EXCHANGE_LABELS[k] + '</option>';
+                });
+                html += '</select><span style="font-size:0.72rem;color:#aaa;">Top 20 blue chips</span></div>';
+            }
 
-        if (tab === 'crypto') {
-            items = breadthCryptoData.length ? breadthCryptoData : await fetchCrypto();
-            breadthCryptoData = items;
-        } else if (tab === 'equities') {
-            var list = EQUITY_LISTS[breadthEquityExch] || [];
-            items = await fetchYahoo(list);
-        } else if (tab === 'indices') {
-            items = breadthAllData.filter(function (d) {
-                return YF_INDICES.some(function (s) { return s.s === d.s; });
-            });
-            if (!items.length) items = await fetchYahoo(YF_INDICES);
-        } else if (tab === 'commodities') {
-            items = breadthAllData.filter(function (d) {
-                return YF_COMMODITIES.some(function (s) { return s.s === d.s; });
-            });
-            if (!items.length) items = await fetchYahoo(YF_COMMODITIES);
-        } else if (tab === 'currencies') {
-            items = breadthAllData.filter(function (d) {
-                return YF_CURRENCIES.some(function (s) { return s.s === d.s; });
-            });
-            if (!items.length) items = await fetchYahoo(YF_CURRENCIES);
-        }
+            // DELAYED badge
+            html += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">' +
+                '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">DELAYED 15 MIN</div></div>';
 
-        var html = '';
+            if (!items.length) {
+                html += '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">No data available. Please try again.</div>';
+                container.innerHTML = html;
+                return;
+            }
 
-        // Exchange selector for equities
-        if (tab === 'equities') {
-            html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">' +
-                '<label style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#888;">EXCHANGE</label>' +
-                '<select onchange="breadthEquityExch=this.value;renderBreadthTab()" style="padding:8px 12px;border:2px solid var(--border);font-family:Inter,sans-serif;font-size:0.85rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">';
-            Object.keys(EXCHANGE_LABELS).forEach(function (k) {
-                html += '<option value="' + k + '"' + (k === breadthEquityExch ? ' selected' : '') + '>' + EXCHANGE_LABELS[k] + '</option>';
-            });
-            html += '</select><span style="font-size:0.72rem;color:#aaa;">Top 20 blue chips</span></div>';
-        }
+            // Table
+            html += '<div style="border:2px solid #000;overflow:auto;">' +
+                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
+                '<thead><tr style="background:#000;">' +
+                '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
+                (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
+                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
+                '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE (24H)</th>' +
+                (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">MARKET CAP</th>' : '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>') +
+                '</tr></thead><tbody>';
 
-        // DELAYED badge
-        html += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">' +
-            '<div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">DELAYED 15 MIN</div></div>';
+            items.forEach(function (item, i) {
+                var isUp = item.chgPct != null ? item.chgPct >= 0 : true;
+                var color = isUp ? '#16a34a' : '#dc2626';
+                var sign = isUp ? '+' : '';
+                var bg = i % 2 === 0 ? '#fff' : '#fafafa';
+                var pctStr = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
 
-        if (!items.length) {
-            html += '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">No data available. Please try again.</div>';
-            container.innerHTML = html;
-            return;
-        }
-
-        // Table
-        html += '<div style="border:2px solid #000;overflow:auto;">' +
-            '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
-            '<thead><tr style="background:#000;">' +
-            '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
-            (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
-            '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
-            '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE (24H)</th>' +
-            (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">MARKET CAP</th>' : '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>') +
-            '</tr></thead><tbody>';
-
-        items.forEach(function (item, i) {
-            var isUp = item.chgPct != null ? item.chgPct >= 0 : true;
-            var color = isUp ? '#16a34a' : '#dc2626';
-            var sign = isUp ? '+' : '';
-            var bg = i % 2 === 0 ? '#fff' : '#fafafa';
-            var pctStr = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
-
-            // Format price
-            var priceStr = '—';
-            if (item.price != null) {
-                if (tab === 'currencies') priceStr = item.price.toFixed(4);
-                else if (tab === 'crypto') {
-                    if (item.price >= 1000) priceStr = '$' + item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                    else if (item.price >= 1) priceStr = '$' + item.price.toFixed(4);
-                    else priceStr = '$' + item.price.toFixed(6);
+                // Format price
+                var priceStr = '—';
+                if (item.price != null) {
+                    if (tab === 'currencies') priceStr = item.price.toFixed(4);
+                    else if (tab === 'crypto') {
+                        if (item.price >= 1000) priceStr = '$' + item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                        else if (item.price >= 1) priceStr = '$' + item.price.toFixed(4);
+                        else priceStr = '$' + item.price.toFixed(6);
+                    }
+                    else priceStr = item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
                 }
-                else priceStr = item.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
-            }
 
-            // Change abs
-            var chgStr = '—';
-            if (tab !== 'crypto' && item.chgAbs != null) {
-                chgStr = (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(tab === 'currencies' ? 4 : 2);
-            }
+                // Change abs
+                var chgStr = '—';
+                if (tab !== 'crypto' && item.chgAbs != null) {
+                    chgStr = (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(tab === 'currencies' ? 4 : 2);
+                }
 
-            // Market cap for crypto
-            var mcapStr = '—';
-            if (tab === 'crypto' && item.mcap != null) {
-                mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
-            }
+                // Market cap for crypto
+                var mcapStr = '—';
+                if (tab === 'crypto' && item.mcap != null) {
+                    mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
+                }
 
-            // Blink on change
-            var prevKey = tab + ':' + item.s;
-            var blink = (breadthPrevValues[prevKey] !== undefined && breadthPrevValues[prevKey] !== item.price)
-                ? 'animation:priceBlink 1.2s ease-out;' : '';
-            breadthPrevValues[prevKey] = item.price;
+                // Blink on change
+                var prevKey = tab + ':' + item.s;
+                var blink = (breadthPrevValues[prevKey] !== undefined && breadthPrevValues[prevKey] !== item.price)
+                    ? 'animation:priceBlink 1.2s ease-out;' : '';
+                breadthPrevValues[prevKey] = item.price;
 
-            html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
-                '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
-                (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
-                '<td style="padding:10px 16px;text-align:right;font-weight:900;color:#000;' + blink + '">' + priceStr + '</td>' +
-                '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
-                (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgStr + '</td>') +
-                '</tr>';
-        });
+                html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
+                    '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
+                    (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
+                    '<td style="padding:10px 16px;text-align:right;font-weight:900;color:#000;' + blink + '">' + priceStr + '</td>' +
+                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
+                    (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgStr + '</td>') +
+                    '</tr>';
+            });
 
-        html += '</tbody></table></div>';
-        container.innerHTML = html;
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
         }
 
         function renderTopSection() {
@@ -1742,6 +1762,19 @@
             // load economic calendar on first open
             if (tab === 'ecocal') {
                 loadEconomicCalendar();
+            }
+            // lazy-load breadth only when tab is opened, with 60s refresh
+            if (tab === 'breadth') {
+                window.fetchMarketData();
+                if (!breadthFetchInterval) {
+                    breadthFetchInterval = setInterval(window.fetchMarketData, 60000);
+                }
+            } else {
+                // stop refreshing when user leaves breadth tab
+                if (breadthFetchInterval) {
+                    clearInterval(breadthFetchInterval);
+                    breadthFetchInterval = null;
+                }
             }
         };
 
@@ -2641,14 +2674,12 @@
         window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
 
-        window.fetchMarketData();
         fetchFxRates();
         setupMarketSearch();
 
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
-        setInterval(window.fetchMarketData, 60000);
-        setInterval(fetchFxRates, 60000);  // REFRESH FX EVERY 60 SECONDS
+        setInterval(fetchFxRates, 60000);
 
     </script>
 </body>
