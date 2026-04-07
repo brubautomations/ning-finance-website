@@ -1393,7 +1393,7 @@
         // Blink animation
         (function () {
             var st = document.createElement('style');
-            st.textContent = '@keyframes priceBlink{0%{color:#cba258}50%{color:#cba258}100%{color:inherit}}';
+            st.textContent = '@keyframes priceBlinkUp{0%{background:#dcfce7}100%{background:transparent}} @keyframes priceBlinkDown{0%{background:#fee2e2}100%{background:transparent}}';
             document.head.appendChild(st);
         })();
 
@@ -1432,7 +1432,7 @@
             'PSE:JFC': 'Jollibee', 'PSE:AC': 'Ayala Corp', 'PSE:SMPH': 'SM Prime',
             'PSE:BPI': 'Bank of PI', 'PSE:MBT': 'Metrobank', 'PSE:TEL': 'PLDT',
             'PSE:GLO': 'Globe Telecom', 'PSE:URC': 'Univ Robina', 'PSE:MER': 'Meralco',
-            'PSE:AEV': 'Aboitiz Equity', 'PSE:AP': 'Aboitiz Power', 'PSE:PGOLD': 'Puregold',
+            'PSE:AEV': 'Aboitiz Equity', 'PSE:AP': 'Aboitiz Power', 'PSE:PGOLD': 'Puregold', 'PSE:PNB': 'PNB',
             'NYSE:JPM': 'JPMorgan', 'NYSE:BAC': 'Bank of America', 'NYSE:XOM': 'ExxonMobil',
             'NYSE:JNJ': 'Johnson & Johnson', 'NYSE:WMT': 'Walmart', 'NYSE:V': 'Visa',
             'NYSE:PG': 'Procter & Gamble', 'NYSE:HD': 'Home Depot', 'NYSE:CVX': 'Chevron',
@@ -1475,7 +1475,7 @@
         const EQUITIES_TICKERS = [
             'PSE:SM', 'PSE:ALI', 'PSE:BDO', 'PSE:JFC', 'PSE:AC', 'PSE:SMPH',
             'PSE:BPI', 'PSE:MBT', 'PSE:TEL', 'PSE:GLO', 'PSE:URC', 'PSE:MER',
-            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD',
+            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD', 'PSE:PNB',
             'NYSE:JPM', 'NYSE:BAC', 'NYSE:XOM', 'NYSE:JNJ', 'NYSE:WMT',
             'NYSE:V', 'NYSE:PG', 'NYSE:HD', 'NYSE:CVX',
             'NASDAQ:AAPL', 'NASDAQ:MSFT', 'NASDAQ:NVDA', 'NASDAQ:GOOGL', 'NASDAQ:AMZN',
@@ -1566,22 +1566,56 @@
         function applyJitter(ticker, basePrice) {
             // ±0.05% max movement
             var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
-            var newPrice = breadthJitterStore[ticker] + jitter;
+            var newPrice = basePrice + jitter;
             breadthJitterStore[ticker] = newPrice;
+            var tab = getTabForTicker(ticker);
+            var isUp = jitter >= 0;
+            var animName = isUp ? 'priceBlinkUp' : 'priceBlinkDown';
+            var safeKey = ticker.replace(/[^a-zA-Z0-9]/g, '_');
 
-            // Update the DOM cell if visible
-            var cell = document.getElementById('price-' + ticker.replace(/[^a-zA-Z0-9]/g, '_'));
-            if (cell) {
-                cell.textContent = formatBreadthPrice(newPrice, getTabForTicker(ticker));
-                cell.style.animation = 'none';
-                cell.offsetHeight; // reflow
-                cell.style.animation = 'priceBlink 0.8s ease-out';
+            // Update price cell
+            var priceCell = document.getElementById('price-' + safeKey);
+            if (priceCell) {
+                priceCell.textContent = formatBreadthPrice(newPrice, tab);
+                priceCell.style.animation = 'none';
+                priceCell.offsetHeight;
+                priceCell.style.animation = animName + ' 1s ease-out';
             }
 
-            // Schedule next jitter for this ticker — random 10-60 seconds
-            var nextDelay = 10000 + Math.random() * 50000;
+            // Update change cell — jitter by same % but in absolute terms
+            var chgCell = document.getElementById('chg-' + safeKey);
+            if (chgCell) {
+                var item = breadthAllData.find(function (d) { return d.s === ticker; });
+                if (item && item.chgAbs != null) {
+                    var newChgAbs = item.chgAbs + jitter;
+                    var chgStr = (newChgAbs >= 0 ? '+' : '') + newChgAbs.toFixed(tab === 'currencies' ? 4 : 2);
+                    chgCell.textContent = chgStr;
+                    chgCell.style.color = isUp ? '#16a34a' : '#dc2626';
+                    chgCell.style.animation = 'none';
+                    chgCell.offsetHeight;
+                    chgCell.style.animation = animName + ' 1s ease-out';
+                }
+            }
+
+            // Update % change cell
+            var pctCell = document.getElementById('pct-' + safeKey);
+            if (pctCell) {
+                var item2 = breadthAllData.find(function (d) { return d.s === ticker; });
+                if (item2 && item2.chgPct != null) {
+                    var newPct = item2.chgPct + (jitter / basePrice * 100);
+                    var sign = newPct >= 0 ? '+' : '';
+                    pctCell.textContent = sign + newPct.toFixed(2) + '%';
+                    pctCell.style.color = isUp ? '#16a34a' : '#dc2626';
+                    pctCell.style.animation = 'none';
+                    pctCell.offsetHeight;
+                    pctCell.style.animation = animName + ' 1s ease-out';
+                }
+            }
+
+            // Schedule next jitter — random 8-45 seconds
+            var nextDelay = 8000 + Math.random() * 37000;
             setTimeout(function () {
-                applyJitter(ticker, basePrice); // always jitter around REAL base price
+                applyJitter(ticker, basePrice);
             }, nextDelay);
         }
 
@@ -1635,6 +1669,7 @@
                 '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
                 '<thead><tr style="background:#000;">' +
                 '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">' + (tab === 'crypto' ? 'COIN' : 'ASSET') + '</th>' +
+                (tab === 'equities' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">EXCHANGE</th>' : '') +
                 (tab === 'crypto' ? '<th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">SYMBOL</th>' : '') +
                 '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th>' +
                 '<th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th>' +
@@ -1665,12 +1700,22 @@
                     mcapStr = item.mcap >= 1e9 ? '$' + (item.mcap / 1e9).toFixed(2) + 'B' : '$' + (item.mcap / 1e6).toFixed(0) + 'M';
                 }
 
+                // Exchange label for equities
+                var exchLabel = '';
+                if (tab === 'equities') {
+                    var exchPrefix = item.s.split(':')[0];
+                    var exchMap = { 'PSE': 'PSE', 'NYSE': 'NYSE', 'NASDAQ': 'NASDAQ', 'TSE': 'TSE', 'KRX': 'KRX', 'HKEX': 'HKEX', 'SGX': 'SGX' };
+                    exchLabel = exchMap[exchPrefix] || exchPrefix;
+                }
+                var safeKey2 = item.s.replace(/[^a-zA-Z0-9]/g, '_');
+
                 html += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;">' +
                     '<td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td>' +
+                    (tab === 'equities' ? '<td style="padding:10px 16px;font-size:0.72rem;font-weight:800;color:#888;font-family:Courier New,monospace;">' + exchLabel + '</td>' : '') +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;color:#888;font-weight:700;">' + (item.symbol || '') + '</td>' : '') +
-                    '<td id="' + safeId + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
-                    '<td style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
+                    '<td id="price-' + safeKey2 + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td>' +
+                    '<td id="chg-' + safeKey2 + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td>' +
+                    '<td id="pct-' + safeKey2 + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td>' +
                     (tab === 'crypto' ? '<td style="padding:10px 16px;text-align:right;color:#888;font-size:0.82rem;">' + mcapStr + '</td>' : '') +
                     '</tr>';
             });
