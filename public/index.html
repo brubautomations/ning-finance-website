@@ -1393,7 +1393,7 @@
         // Blink animation
         (function () {
             var st = document.createElement('style');
-            st.textContent = '@keyframes priceBlinkUp{0%{background:#dcfce7}100%{background:transparent}} @keyframes priceBlinkDown{0%{background:#fee2e2}100%{background:transparent}} @keyframes soulFloat{0%{opacity:1;transform:translateY(0) scale(1)} 30%{opacity:0.9;transform:translateY(-8px) scale(1.15)} 100%{opacity:0;transform:translateY(-28px) scale(0.7)}} .price-soul{position:absolute;pointer-events:none;font-weight:900;font-family:Courier New,monospace;font-size:0.82rem;animation:soulFloat 0.7s ease-out forwards;white-space:nowrap;z-index:9999;}';
+            st.textContent = '@keyframes priceBlinkUp{0%{background:#dcfce7}100%{background:transparent}} @keyframes priceBlinkDown{0%{background:#fee2e2}100%{background:transparent}}';
             document.head.appendChild(st);
         })();
 
@@ -1560,17 +1560,6 @@
         }
 
 
-        function spawnSoul(cell, text, color) {
-            var rect = cell.getBoundingClientRect();
-            var soul = document.createElement('div');
-            soul.className = 'price-soul';
-            soul.textContent = text;
-            soul.style.color = color;
-            soul.style.left = (rect.left + window.scrollX) + 'px';
-            soul.style.top = (rect.top + window.scrollY) + 'px';
-            document.body.appendChild(soul);
-            setTimeout(function () { soul.remove(); }, 750);
-        }
 
         function applyJitter(ticker, basePrice) {
             var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
@@ -1585,7 +1574,6 @@
             var priceCell = document.getElementById('price-' + safeKey);
             if (priceCell) {
                 var priceStr = formatBreadthPrice(newPrice, tab);
-                spawnSoul(priceCell, priceStr, isUp ? '#16a34a' : '#dc2626');
                 priceCell.textContent = priceStr;
                 priceCell.style.animation = 'none';
                 priceCell.offsetHeight;
@@ -1623,13 +1611,6 @@
 
             // Next jitter — 8 to 45 seconds
             setTimeout(function () { applyJitter(ticker, basePrice); }, 8000 + Math.random() * 37000);
-        }
-
-        // Schedule next jitter for this ticker — random 10-60 seconds
-        var nextDelay = 10000 + Math.random() * 50000;
-        setTimeout(function () {
-            applyJitter(ticker, basePrice); // always jitter around REAL base price
-        }, nextDelay);
         }
 
         function getTabForTicker(ticker) {
