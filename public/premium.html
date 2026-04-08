@@ -2473,7 +2473,7 @@
 
             try {
                 // Ping Make.com to run the AI
-                await fetch(AVM_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'avm', ticker: tickerInput, company_name: companyName }) });
+                await fetch(AVM_WEBHOOK, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ type: 'avm', ticker: tickerInput, company_name: companyName }) });
 
                 // Poll Airtable every 5 seconds until the result appears
                 let attempts = 0;
@@ -2720,7 +2720,7 @@
 
             try {
                 const ecoCompanyName = (document.getElementById('ecosystem-ticker') ? document.getElementById('ecosystem-ticker').value.split('(')[0].trim() : tickerInput) || tickerInput;
-                await fetch(ECO_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'ecosystem', ticker: tickerInput, company_name: ecoCompanyName }) });
+                await fetch(ECO_WEBHOOK, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ type: 'ecosystem', ticker: tickerInput, company_name: ecoCompanyName }) });
 
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
