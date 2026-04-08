@@ -1546,46 +1546,65 @@
         function isTickerMarketOpen(ticker) {
             var now = new Date();
             var day = now.getUTCDay(); // 0=Sun, 6=Sat
-            if (day === 0 || day === 6) return false; // weekend always closed
+            if (day === 0 || day === 6) return false;
 
             var phtH = (now.getUTCHours() + 8) % 24;
             var phtM = now.getUTCMinutes();
-            var t = phtH * 60 + phtM; // minutes since midnight PHT
+            var t = phtH * 60 + phtM;
 
             var exch = ticker.split(':')[0];
 
-            // PSE: 9:30AM – 3:30PM PHT
-            if (exch === 'PSE') return t >= 570 && t <= 930;
+            // ── FOREX & CRYPTO: 24/5 ─────────────────────────────────
+            if (['FX', 'FX_IDC', 'OANDA'].includes(exch)) return true;
 
-            // TSE/Japan: 8:00AM – 3:00PM PHT (9AM-4PM JST)
-            if (exch === 'TSE') return t >= 480 && t <= 900;
-
-            // KRX/Korea: 8:00AM – 3:30PM PHT (9AM-4:30PM KST)
-            if (exch === 'KRX') return t >= 480 && t <= 930;
-
-            // HKEX/HK: 9:30AM – 4:00PM PHT
-            if (exch === 'HKEX') return t >= 570 && t <= 960;
-
-            // SGX/Singapore: 9:00AM – 5:00PM PHT
-            if (exch === 'SGX') return t >= 540 && t <= 1020;
-
-            // BSE/India: 11:15AM – 5:30PM PHT (9:15AM-3:30PM IST)
-            if (exch === 'BSE') return t >= 675 && t <= 1050;
-
-            // European (XETR/EURONEXT/SIX/BME/FTSE): 3:00PM – 11:30PM PHT
-            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL'].includes(exch)) return t >= 900 && t <= 1410;
-
-            // US (NYSE/NASDAQ/AMEX/SP): 9:30PM – 4:00AM PHT
-            if (['NYSE', 'NASDAQ', 'AMEX', 'SP'].includes(exch)) return t >= 1290 || t <= 240;
-
-            // Forex/FX: Mon-Fri 24 hours (already passed weekend check)
-            if (exch === 'FX' || exch === 'FX_IDC' || exch === 'OANDA') return true;
-
-            // Commodities: roughly follow US hours
+            // ── COMMODITIES: US hours 9:30PM–4AM PHT ─────────────────
             if (['NYMEX', 'COMEX', 'CBOT', 'ICEUS', 'CME'].includes(exch)) return t >= 1290 || t <= 240;
 
-            // Indices (TVC, DJ, etc): use broad window 8AM-midnight PHT
-            return t >= 480 && t <= 1440;
+            // ── US MARKETS: NYSE/NASDAQ 9:30PM–4AM PHT ───────────────
+            if (['NYSE', 'NASDAQ', 'AMEX', 'SP'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // ── US INDICES (DJ=Dow, TVC=US10Y/DXY etc) ───────────────
+            if (exch === 'DJ') return t >= 1290 || t <= 240;
+            if (exch === 'TVC') return t >= 1290 || t <= 240;  // US10Y, US02Y, DXY
+
+            // ── PSE: 9:30AM–3:30PM PHT ───────────────────────────────
+            if (exch === 'PSE') return t >= 570 && t <= 930;
+
+            // ── JAPAN TSE/TVC:NI225: 8AM–3PM PHT ─────────────────────
+            if (exch === 'TSE') return t >= 480 && t <= 900;
+
+            // ── KOREA KRX/KOSPI: 8AM–3:30PM PHT ─────────────────────
+            if (exch === 'KRX') return t >= 480 && t <= 930;
+
+            // ── HONG KONG HKEX/HSI: 9:30AM–4PM PHT ──────────────────
+            if (exch === 'HKEX') return t >= 570 && t <= 960;
+
+            // ── SINGAPORE SGX/STI: 9AM–5PM PHT ───────────────────────
+            if (exch === 'SGX') return t >= 540 && t <= 1020;
+
+            // ── INDIA BSE/SENSEX: 11:15AM–5:30PM PHT ─────────────────
+            if (exch === 'BSE') return t >= 675 && t <= 1050;
+
+            // ── AUSTRALIA ASX: 7AM–1:30PM PHT ────────────────────────
+            if (exch === 'ASX') return t >= 420 && t <= 810;
+
+            // ── INDONESIA IDX: 9:30AM–4PM PHT ────────────────────────
+            if (exch === 'IDX') return t >= 570 && t <= 960;
+
+            // ── THAILAND SET: 9:30AM–4:30PM PHT ──────────────────────
+            if (exch === 'SET') return t >= 570 && t <= 990;
+
+            // ── BRAZIL BMFBOVESPA: 9PM–2:55AM PHT ────────────────────
+            if (exch === 'BMFBOVESPA') return t >= 1260 || t <= 175;
+
+            // ── EUROPE: 3PM–11:30PM PHT ───────────────────────────────
+            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL', 'TASE', 'TADAWUL', 'OSLBORS'].includes(exch)) return t >= 900 && t <= 1410;
+
+            // ── US INDEX ETFs (AMEX:IWM = Russell 2000) ───────────────
+            if (exch === 'AMEX') return t >= 1290 || t <= 240;
+
+            // Default: closed
+            return false;
         }
 
         function isMarketOpen() {
@@ -2715,7 +2734,7 @@
                         ? ((f.Price - f.Previous_Price) / f.Previous_Price * 100) : 0;
                     var isUp = changePct > 0.01;
                     var isDown = changePct < -0.01;
-                    var arrow = isFishball ? '—' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
+                    var arrow = isFishball ? '— eternal 😂' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
                     var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
                     var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0);
 
