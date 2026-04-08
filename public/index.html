@@ -1142,9 +1142,9 @@
             </div>
 
             <div class="sidebar-widget" style="margin-top: 40px;">
-                <div class="sidebar-title">LIVE FX RATES</div>
-                <div id="fx-rates-container">
-                    <div style="font-size: 0.8rem; color: #888; font-style: italic;">Connecting to FX feed...</div>
+                <div class="sidebar-title">CONSUMER MOOD</div>
+                <div id="consumer-mood-container">
+                    <div style="font-size:0.8rem;color:#888;font-style:italic;">Loading...</div>
                 </div>
             </div>
 
@@ -2630,63 +2630,114 @@
             container.innerHTML = html;
         }
 
-        // ── LIVE FX TICKER ---
-        // Uses open.er-api.com — free, no API key needed, updates every few hours
-        // Falls back to fawazahmed0 CDN if primary fails
-        async function fetchFxRates() {
-            var container = document.getElementById('fx-rates-container');
+        // ── CONSUMER MOOD WIDGET ─────────────────────────────────
+        const CONSUMER_PRICES_TABLE = 'tblLkMwWq7SQTsvLc';
+
+        var MOOD_LEVELS = [
+            { max: 5, emoji: '🤩', label: 'ELATED', color: '#15803d' },
+            { max: 15, emoji: '😊', label: 'HAPPY', color: '#16a34a' },
+            { max: 28, emoji: '😌', label: 'SATISFIED', color: '#65a30d' },
+            { max: 40, emoji: '😐', label: 'MEH', color: '#ca8a04' },
+            { max: 52, emoji: '😟', label: 'CONCERNED', color: '#d97706' },
+            { max: 63, emoji: '😰', label: 'WORRIED', color: '#ea580c' },
+            { max: 74, emoji: '😢', label: 'SAD', color: '#dc2626' },
+            { max: 85, emoji: '😤', label: 'ANGRY', color: '#b91c1c' },
+            { max: 100, emoji: '🔪😡', label: "I'M GOING TO KILL SOMEONE", color: '#7f1d1d' },
+        ];
+
+        var ITEM_EMOJI = {
+            'Rice (well-milled)': '🍚',
+            'Pork (kasim)': '🥩',
+            'Galunggong': '🐟',
+            'Red Onion': '🧅',
+            'Cooking Oil': '🍳',
+            'Petrol (RON95)': '⛽',
+            'Fishball': '🐡',
+        };
+
+        async function fetchConsumerMood() {
+            var container = document.getElementById('consumer-mood-container');
             if (!container) return;
-
-            var r = null;
-
-            // Primary: ExchangeRate-API free tier (no key, reliable)
             try {
-                var res = await fetch('https://open.er-api.com/v6/latest/USD');
-                var data = await res.json();
-                if (data.result === 'success') r = data.rates;
-            } catch (e) { }
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + CONSUMER_PRICES_TABLE;
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                var json = await res.json();
+                if (!json.records || !json.records.length) return;
 
-            // Fallback: fawazahmed0 CDN
-            if (!r) {
-                try {
-                    var res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                    var data = await res.json();
-                    // normalize to uppercase keys
-                    var raw = data.usd;
-                    r = {};
-                    for (const k in raw) r[k.toUpperCase()] = raw[k];
-                } catch (e) { }
+                var records = json.records.map(function (r) { return r.fields; });
+
+                // Calculate mood score — weighted avg price change %
+                var weights = {
+                    'Rice (well-milled)': 30,
+                    'Pork (kasim)': 20,
+                    'Galunggong': 15,
+                    'Petrol (RON95)': 25,
+                    'Cooking Oil': 10,
+                };
+                var totalWeight = 0, weightedSum = 0;
+                records.forEach(function (f) {
+                    var w = weights[f.Item];
+                    if (w && f.Price && f.Previous_Price && f.Previous_Price > 0) {
+                        var changePct = ((f.Price - f.Previous_Price) / f.Previous_Price) * 100;
+                        weightedSum += changePct * w;
+                        totalWeight += w;
+                    }
+                });
+
+                var score = totalWeight > 0 ? weightedSum / totalWeight : 0;
+                // Normalize: +5% change = max pain (100), -5% = max happiness (0)
+                var normalized = Math.min(100, Math.max(0, (score + 5) * 10));
+
+                var mood = MOOD_LEVELS[MOOD_LEVELS.length - 1];
+                for (var i = 0; i < MOOD_LEVELS.length; i++) {
+                    if (normalized <= MOOD_LEVELS[i].max) { mood = MOOD_LEVELS[i]; break; }
+                }
+
+                // Find latest updated date
+                var dates = records.filter(function (f) { return f.Last_Updated; })
+                    .map(function (f) { return new Date(f.Last_Updated); });
+                var latestDate = dates.length ? new Date(Math.max.apply(null, dates)) : new Date();
+                var dateStr = latestDate.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Build HTML
+                var html = '<div style="text-align:center;padding:12px 0 16px;">' +
+                    '<div style="font-size:2rem;line-height:1;">' + mood.emoji + '</div>' +
+                    '<div style="font-size:0.95rem;font-weight:900;color:' + mood.color + ';letter-spacing:0.5px;margin-top:6px;">' + mood.label + '</div>' +
+                    '<div style="font-size:0.65rem;color:#aaa;margin-top:4px;">Based on PSA retail prices · ' + dateStr + '</div>' +
+                    '</div>';
+
+                html += '<div style="border-top:1px solid #eee;padding-top:10px;">';
+                records.forEach(function (f) {
+                    if (!f.Item || !f.Price) return;
+                    var emoji = ITEM_EMOJI[f.Item] || '📦';
+                    var isFishball = f.Item === 'Fishball';
+                    var changePct = (f.Previous_Price && f.Previous_Price > 0)
+                        ? ((f.Price - f.Previous_Price) / f.Previous_Price * 100) : 0;
+                    var isUp = changePct > 0.01;
+                    var isDown = changePct < -0.01;
+                    var arrow = isFishball ? '— eternal 😂' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
+                    var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
+                    var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0);
+
+                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;">' +
+                        '<div>' +
+                        '<span style="font-size:0.9rem;">' + emoji + '</span>' +
+                        '<span style="font-size:0.72rem;font-weight:700;color:#1a1a1a;margin-left:5px;">' + f.Item + '</span>' +
+                        '<div style="font-size:0.65rem;color:#aaa;margin-left:22px;">' + (f.Unit || '') + '</div>' +
+                        '</div>' +
+                        '<div style="text-align:right;flex-shrink:0;">' +
+                        '<div style="font-size:0.82rem;font-weight:900;color:#000;">' + priceStr + '</div>' +
+                        '<div style="font-size:0.65rem;font-weight:700;color:' + arrowColor + ';">' + arrow + '</div>' +
+                        '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+                html += '<div style="font-size:0.6rem;color:#bbb;text-align:center;margin-top:8px;">Source: PSA Price Situationer</div>';
+
+                container.innerHTML = html;
+            } catch (e) {
+                console.warn('Consumer mood error', e);
             }
-
-            if (!r) {
-                container.innerHTML = '<div style="color:#dc2626;font-size:0.8rem;font-weight:bold;">FX feed unavailable.</div>';
-                return;
-            }
-
-            var usdPhp = r.PHP;
-            var eurPhp = r.PHP / r.EUR;
-            var jpyPhp = r.PHP / r.JPY;
-            var cadPhp = r.PHP / r.CAD;
-            var fmt = v => v.toFixed(2);
-
-            container.innerHTML = `
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">US USD</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(usdPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">EU EUR</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(eurPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">JP JPY</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(jpyPhp)}</span>
-                </div>
-                <div class="fx-row">
-                    <span class="fx-pair"><span class="fx-base">CA CAD</span> / PHP</span>
-                    <span class="fx-price">₱${fmt(cadPhp)}</span>
-                </div>
-            `;
         }
 
         // --- IMAGE POPUP LOGIC ---
@@ -2763,12 +2814,12 @@
         window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
 
-        fetchFxRates();
+        fetchConsumerMood();
         setupMarketSearch();
 
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
-        setInterval(fetchFxRates, 60000);
+        setInterval(fetchConsumerMood, 300000);
 
     </script>
 </body>
