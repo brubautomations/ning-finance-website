@@ -1471,14 +1471,14 @@
         const EQUITIES_TICKERS = [
             'PSE:SM', 'PSE:ALI', 'PSE:BDO', 'PSE:JFC', 'PSE:AC', 'PSE:SMPH',
             'PSE:BPI', 'PSE:MBT', 'PSE:TEL', 'PSE:GLO', 'PSE:URC', 'PSE:MER',
-            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD', 'PSE:PNB',
-            'NYSE:JPM', 'NYSE:BAC', 'NYSE:XOM', 'NYSE:JNJ',
-            'NYSE:V', 'NYSE:PG', 'NYSE:HD', 'NYSE:CVX',
+            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD', 'PSE:PNB', 'PSE:PLUS',
+            'NYSE:JPM', 'NYSE:BAC', 'NYSE:WMT', 'NYSE:V', 'NYSE:CVX',
             'NASDAQ:AAPL', 'NASDAQ:MSFT', 'NASDAQ:NVDA', 'NASDAQ:GOOGL', 'NASDAQ:AMZN',
             'NASDAQ:META', 'NASDAQ:TSLA', 'NASDAQ:AVGO', 'NASDAQ:NFLX', 'NASDAQ:AMD',
-            'NASDAQ:INTC', 'NASDAQ:QCOM', 'NASDAQ:COST', 'NASDAQ:ADBE', 'NASDAQ:PYPL',
-            'TSE:7203', 'TSE:6758', 'TSE:9984',
-            'KRX:005930', 'KRX:000660',
+            'NASDAQ:INTC', 'NASDAQ:COST', 'NASDAQ:ADBE', 'NASDAQ:PYPL',
+            'NASDAQ:PLTR', 'NASDAQ:ICHR',
+            'TSE:7203', 'TSE:6758', 'TSE:9984', 'TSE:5020',
+            'KRX:005930', 'KRX:000660', 'KRX:000800',
             'HKEX:700', 'HKEX:9988',
             'SGX:D05', 'SGX:O39',
         ];
@@ -1543,9 +1543,61 @@
 
         // ── JITTER ENGINE ─────────────────────────────────────────────
         // Each asset gets its own random timer so they dont all blink together
+        function isTickerMarketOpen(ticker) {
+            var now = new Date();
+            var day = now.getUTCDay(); // 0=Sun, 6=Sat
+            if (day === 0 || day === 6) return false; // weekend always closed
+
+            var phtH = (now.getUTCHours() + 8) % 24;
+            var phtM = now.getUTCMinutes();
+            var t = phtH * 60 + phtM; // minutes since midnight PHT
+
+            var exch = ticker.split(':')[0];
+
+            // PSE: 9:30AM – 3:30PM PHT
+            if (exch === 'PSE') return t >= 570 && t <= 930;
+
+            // TSE/Japan: 8:00AM – 3:00PM PHT (9AM-4PM JST)
+            if (exch === 'TSE') return t >= 480 && t <= 900;
+
+            // KRX/Korea: 8:00AM – 3:30PM PHT (9AM-4:30PM KST)
+            if (exch === 'KRX') return t >= 480 && t <= 930;
+
+            // HKEX/HK: 9:30AM – 4:00PM PHT
+            if (exch === 'HKEX') return t >= 570 && t <= 960;
+
+            // SGX/Singapore: 9:00AM – 5:00PM PHT
+            if (exch === 'SGX') return t >= 540 && t <= 1020;
+
+            // BSE/India: 11:15AM – 5:30PM PHT (9:15AM-3:30PM IST)
+            if (exch === 'BSE') return t >= 675 && t <= 1050;
+
+            // European (XETR/EURONEXT/SIX/BME/FTSE): 3:00PM – 11:30PM PHT
+            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL'].includes(exch)) return t >= 900 && t <= 1410;
+
+            // US (NYSE/NASDAQ/AMEX/SP): 9:30PM – 4:00AM PHT
+            if (['NYSE', 'NASDAQ', 'AMEX', 'SP'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // Forex/FX: Mon-Fri 24 hours (already passed weekend check)
+            if (exch === 'FX' || exch === 'FX_IDC' || exch === 'OANDA') return true;
+
+            // Commodities: roughly follow US hours
+            if (['NYMEX', 'COMEX', 'CBOT', 'ICEUS', 'CME'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // Indices (TVC, DJ, etc): use broad window 8AM-midnight PHT
+            return t >= 480 && t <= 1440;
+        }
+
+        function isMarketOpen() {
+            // Keep for backward compat — check if ANY market is open
+            var now = new Date();
+            var day = now.getUTCDay();
+            if (day === 0 || day === 6) return false;
+            return true; // weekday — let per-ticker check handle it
+        }
+
         function startJitter() {
-            if (breadthJitterTimer) return; // already running
-            // Stagger each ticker with a random initial delay
+            if (breadthJitterTimer) return;
             breadthAllData.forEach(function (item) {
                 scheduleJitter(item.s, item.price);
             });
@@ -1562,6 +1614,10 @@
 
 
         function applyJitter(ticker, basePrice) {
+            if (!isTickerMarketOpen(ticker)) {
+                setTimeout(function () { applyJitter(ticker, basePrice); }, 60000);
+                return;
+            }
             var jitter = basePrice * (Math.random() * 0.001 - 0.0005);
             var newPrice = basePrice + jitter;
             breadthJitterStore[ticker] = newPrice;
@@ -1943,7 +1999,7 @@
                     var fields = data.records[0].fields;
                     var lastUpdated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
                     var ageHours = (new Date() - lastUpdated) / 3600000;
-                    if (ageHours < 168 && (fields.News || fields.Earnings)) {
+                    if (ageHours < 24 && (fields.News || fields.Earnings)) {
                         renderNews(fields.News || '[]', nc);
                         renderEarnings(fields.Earnings || '{}', ec);
                         var badge = document.createElement('div');
@@ -2205,7 +2261,7 @@
                     var fields = data.records[0].fields;
                     var updated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
                     var ageHours = (new Date() - updated) / 3600000;
-                    if (ageHours < 168 && fields.Fund_Data) {
+                    if (ageHours < 48 && fields.Fund_Data) {
                         renderFundData(fields.Fund_Data, ticker, type, container);
                         return;
                     }
