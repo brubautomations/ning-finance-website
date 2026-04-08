@@ -2353,7 +2353,7 @@
 
         // --- AVM MODULE JS ---
         const ECO_BASE_ID = 'app1hHgLzAlJgLB8H';
-        const ECO_PAT = 'patXxOYsi7mCWQtLX.73a8f86cea56eb3c30cecc62e2044b4ab34e6e8e575153a08938ec6f82f0556e';
+        const ECO_PAT = 'patEHheyAwgUUMjHQ.2655ba64dec36f3a17d9ecf31906360f9e0b2e3b2d0d1e7c2ae0f4f88ee0d464';
         const AVM_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzL3fyAJlgYi7iKNQXCuP0y_c5PUUS7YLb53mzuEYSAckd488CR9Cs17EoC9LOx3h4/exec';
 
         async function loadAVM() {
@@ -2473,7 +2473,7 @@
 
             try {
                 // Ping Make.com to run the AI
-                await fetch(`${AVM_WEBHOOK}?type=avm&ticker=${encodeURIComponent(tickerInput)}&company_name=${encodeURIComponent(companyName)}`, { mode: 'no-cors' });
+                try { await fetch(`${AVM_WEBHOOK}?type=avm&ticker=${encodeURIComponent(tickerInput)}&company_name=${encodeURIComponent(companyName)}`); } catch (_) { }
 
                 // Poll Airtable every 5 seconds until the result appears
                 let attempts = 0;
@@ -2720,7 +2720,7 @@
 
             try {
                 const ecoCompanyName = (document.getElementById('ecosystem-ticker') ? document.getElementById('ecosystem-ticker').value.split('(')[0].trim() : tickerInput) || tickerInput;
-                await fetch(`${ECO_WEBHOOK}?type=ecosystem&ticker=${encodeURIComponent(tickerInput)}&company_name=${encodeURIComponent(ecoCompanyName)}`, { mode: 'no-cors' });
+                try { await fetch(`${ECO_WEBHOOK}?type=ecosystem&ticker=${encodeURIComponent(tickerInput)}&company_name=${encodeURIComponent(ecoCompanyName)}`); } catch (_) { }
 
                 let attempts = 0;
                 const pollInterval = setInterval(async () => {
