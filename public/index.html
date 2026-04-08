@@ -2734,7 +2734,7 @@
                         ? ((f.Price - f.Previous_Price) / f.Previous_Price * 100) : 0;
                     var isUp = changePct > 0.01;
                     var isDown = changePct < -0.01;
-                    var arrow = isFishball ? '— eternal 😂' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
+                    var arrow = isFishball ? '—' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
                     var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
                     var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0);
 
