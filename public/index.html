@@ -735,49 +735,142 @@
 
         @media (max-width: 768px) {
             header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 20px;
+                padding: 12px 16px;
+                flex-wrap: wrap;
+                gap: 8px;
             }
 
             .logo {
-                width: 100%;
-                justify-content: center;
+                font-size: 1.4rem;
+            }
+
+            .logo-tag {
+                font-size: 0.5rem;
+                padding: 2px 5px;
             }
 
             #callBtn {
                 width: 100%;
                 justify-content: center;
+                font-size: 0.8rem;
+                padding: 10px 20px;
+            }
+
+            .ticker-label {
+                font-size: 0.6rem;
+                padding: 0 10px;
             }
 
             .nav-tabs {
-                padding: 0 15px;
-                gap: 20px;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-                justify-content: flex-start;
+                display: none !important;
             }
 
-            .nav-tabs::-webkit-scrollbar {
-                display: none;
+            #mobile-bottom-bar {
+                display: flex !important;
             }
 
             #content-area {
-                padding: 20px 15px;
+                padding: 16px 12px 80px 12px;
+            }
+
+            h2 {
+                font-size: 1.1rem;
+                padding-left: 10px;
+            }
+
+            .sidebar {
+                display: none !important;
+            }
+
+            .main-container {
+                max-width: 100%;
+            }
+
+            .card {
+                padding: 18px 14px;
+            }
+
+            .card h3 {
+                font-size: 1.05rem;
+            }
+
+            .card p {
+                font-size: 0.9rem;
+            }
+
+            #market-breadth-inner>div {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #market-breadth-inner table {
+                min-width: 480px;
+            }
+
+            #breadth-top>div {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
             }
 
             .pricing-container {
                 flex-direction: column;
+                gap: 16px;
             }
 
-            h2 {
-                font-size: 1.2rem;
+            footer {
+                padding: 12px 16px;
+                font-size: 0.7rem;
             }
+        }
 
-            .header-row {
-                justify-content: flex-start;
-            }
+        #mobile-bottom-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 3px solid var(--primary);
+            z-index: 500;
+            height: 58px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #mobile-bottom-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mob-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 12px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            min-width: 55px;
+            height: 100%;
+            border-top: 3px solid transparent;
+            margin-top: -3px;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mob-tab.active {
+            color: #000;
+            border-top-color: var(--primary);
+        }
+
+        .mob-tab .mob-icon {
+            font-size: 1.05rem;
+            margin-bottom: 1px;
+            line-height: 1;
         }
     </style>
 </head>
@@ -1340,6 +1433,12 @@
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
+            document.querySelectorAll('.mob-tab').forEach(function (el) { el.classList.remove('active'); });
+            var mobTab = document.getElementById('mob-tab-' + section);
+            if (mobTab) { mobTab.classList.add('active'); mobTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+            var ca = document.getElementById('content-area');
+            if (ca && window.innerWidth <= 768) ca.scrollTop = 0;
+
             if (pushToHistory) {
                 var url = new URL(window.location);
                 var tableNameForUrl = "Global News";
@@ -1545,47 +1644,27 @@
         // Each asset gets its own random timer so they dont all blink together
         function isTickerMarketOpen(ticker) {
             var now = new Date();
-            var day = now.getUTCDay(); // 0=Sun, 6=Sat
-            if (day === 0 || day === 6) return false; // weekend always closed
-
+            var day = now.getUTCDay();
+            if (day === 0 || day === 6) return false;
             var phtH = (now.getUTCHours() + 8) % 24;
             var phtM = now.getUTCMinutes();
-            var t = phtH * 60 + phtM; // minutes since midnight PHT
-
+            var t = phtH * 60 + phtM;
             var exch = ticker.split(':')[0];
-
-            // PSE: 9:30AM – 3:30PM PHT
-            if (exch === 'PSE') return t >= 570 && t <= 930;
-
-            // TSE/Japan: 8:00AM – 3:00PM PHT (9AM-4PM JST)
-            if (exch === 'TSE') return t >= 480 && t <= 900;
-
-            // KRX/Korea: 8:00AM – 3:30PM PHT (9AM-4:30PM KST)
-            if (exch === 'KRX') return t >= 480 && t <= 930;
-
-            // HKEX/HK: 9:30AM – 4:00PM PHT
-            if (exch === 'HKEX') return t >= 570 && t <= 960;
-
-            // SGX/Singapore: 9:00AM – 5:00PM PHT
-            if (exch === 'SGX') return t >= 540 && t <= 1020;
-
-            // BSE/India: 11:15AM – 5:30PM PHT (9:15AM-3:30PM IST)
-            if (exch === 'BSE') return t >= 675 && t <= 1050;
-
-            // European (XETR/EURONEXT/SIX/BME/FTSE): 3:00PM – 11:30PM PHT
-            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL'].includes(exch)) return t >= 900 && t <= 1410;
-
-            // US (NYSE/NASDAQ/AMEX/SP): 9:30PM – 4:00AM PHT
-            if (['NYSE', 'NASDAQ', 'AMEX', 'SP'].includes(exch)) return t >= 1290 || t <= 240;
-
-            // Forex/FX: Mon-Fri 24 hours (already passed weekend check)
-            if (exch === 'FX' || exch === 'FX_IDC' || exch === 'OANDA') return true;
-
-            // Commodities: roughly follow US hours
+            if (['FX', 'FX_IDC', 'OANDA'].includes(exch)) return true;
             if (['NYMEX', 'COMEX', 'CBOT', 'ICEUS', 'CME'].includes(exch)) return t >= 1290 || t <= 240;
-
-            // Indices (TVC, DJ, etc): use broad window 8AM-midnight PHT
-            return t >= 480 && t <= 1440;
+            if (['NYSE', 'NASDAQ', 'AMEX', 'SP', 'DJ', 'TVC'].includes(exch)) return t >= 1290 || t <= 240;
+            if (exch === 'PSE') return t >= 570 && t <= 930;
+            if (exch === 'TSE') return t >= 480 && t <= 900;
+            if (exch === 'KRX') return t >= 480 && t <= 930;
+            if (exch === 'HKEX') return t >= 570 && t <= 960;
+            if (exch === 'SGX') return t >= 540 && t <= 1020;
+            if (exch === 'BSE') return t >= 675 && t <= 1050;
+            if (exch === 'ASX') return t >= 420 && t <= 810;
+            if (exch === 'IDX') return t >= 570 && t <= 960;
+            if (exch === 'SET') return t >= 570 && t <= 990;
+            if (exch === 'BMFBOVESPA') return t >= 1260 || t <= 175;
+            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL', 'TASE', 'TADAWUL'].includes(exch)) return t >= 900 && t <= 1410;
+            return false;
         }
 
         function isMarketOpen() {
@@ -2717,7 +2796,7 @@
                     var isDown = changePct < -0.01;
                     var arrow = isFishball ? '—' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
                     var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
-                    var priceStr = isFishball ? '₱' + f.Price.toFixed(0) : (f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0));
+                    var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0);
 
                     html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;">' +
                         '<div>' +
@@ -2822,6 +2901,21 @@
         setInterval(fetchConsumerMood, 300000);
 
     </script>
+
+    <div id="mobile-bottom-bar">
+        <div class="mob-tab active" id="mob-tab-global" onclick="nav('global')"><span class="mob-icon">🌍</span>GLOBAL
+        </div>
+        <div class="mob-tab" id="mob-tab-asia" onclick="nav('asia')"><span class="mob-icon">🌏</span>ASIA</div>
+        <div class="mob-tab" id="mob-tab-philippines" onclick="nav('philippines')"><span class="mob-icon">🇵🇭</span>PH
+        </div>
+        <div class="mob-tab" id="mob-tab-market" onclick="nav('market')"><span class="mob-icon">📈</span>MARKET</div>
+        <div class="mob-tab" id="mob-tab-tech" onclick="nav('tech')"><span class="mob-icon">🤖</span>AI/TECH</div>
+        <div class="mob-tab" id="mob-tab-opinions" onclick="nav('opinions')"><span class="mob-icon">💬</span>OPINIONS
+        </div>
+        <div class="mob-tab" id="mob-tab-luxury" onclick="nav('luxury')"><span class="mob-icon">💎</span>LUXURY</div>
+        <div class="mob-tab" id="mob-tab-culture" onclick="nav('culture')"><span class="mob-icon">🎭</span>CULTURE</div>
+        <div class="mob-tab" id="mob-tab-subs" onclick="nav('subs')"><span class="mob-icon">⭐</span>PRO</div>
+    </div>
 </body>
 
 </html>
