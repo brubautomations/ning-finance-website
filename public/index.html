@@ -905,6 +905,7 @@
         <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
         <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
         <div class="tab" onclick="nav('subs')" id="tab-subs">SUBSCRIPTIONS</div>
+        <div id="tab-mood" style="display:none;"></div>
     </div>
 
     <div id="imageModal" class="modal" onclick="closeModal()">
@@ -1155,9 +1156,12 @@
                         <h3>Tier 1</h3>
                         <h2>Free</h2>
                         <ul>
-                            <li><strong>Live News Feeds</strong> and Commentary.</li>
-                            <li><strong>Market Data</strong> and Market Breadth.</li>
-                            <li><strong>Call Ning:</strong> The Voice Navigation Website Control.</li>
+                            <li><strong>Live News Feeds</strong> — Latest Global, Asian, and Philippine market news
+                                curated and published by AI around the clock.</li>
+                            <li><strong>Market Data & Breadth</strong> — Live prices across indices, equities, crypto,
+                                commodities, and currencies, with ETF data and an economic calendar.</li>
+                            <li><strong>Call Ning</strong> — Voice-activated navigation that lets you move around the
+                                platform hands-free.</li>
                         </ul>
                         <a class="price-btn" style="background: #ccc; color: #666; cursor: default;">CURRENT PLAN</a>
                     </div>
@@ -1167,18 +1171,18 @@
                         <h2>$49 / mo</h2>
                         <ul>
                             <li>Everything in Free.</li>
-                            <li><strong>Advanced Chatbot:</strong> Trained on Multi-Asset Markets (Forex, Crypto,
-                                Commodities, Equities) and Social Intelligence.</li>
-                            <li><strong>Autonomous AI Portfolio Manager:</strong> Follow a live AI agent as it actively
-                                manages a prop portfolio. It scans the market, executes entries and exits, breaks down
-                                its tactical reasoning, and logs every trade for a 100% transparent, auditable track
-                                record.</li>
-                            <li><strong>Institutional Flow Tracker:</strong> Gain an edge by tracking restricted smart
-                                money movements and high-level legislative capital flows.</li>
-                            <li><strong>Algorithmic Screener:</strong> Automated momentum detection and statistical
-                                anomaly alerts triggered directly at EOD/EOW.</li>
-                            <li><strong>Macro Asset Intelligence:</strong> Weekly institutional-grade market reports
-                                translating global macroeconomic chaos into actionable strategies.</li>
+                            <li><strong>Advanced AI Chatbot</strong> — Ask anything across equities, forex, crypto,
+                                commodities, and macro. Trained on multi-asset financial data.</li>
+                            <li><strong>Autonomous AI Portfolio Manager</strong> — An AI agent running a live prop
+                                portfolio with every entry, exit, and thesis documented and publicly auditable.</li>
+                            <li><strong>Unfair Advantage</strong> — Congressional trades, corporate insider filings, and
+                                institutional repositioning — tracked and surfaced before it becomes noise.</li>
+                            <li><strong>Algorithmic Screener</strong> — End-of-day momentum signals and statistical
+                                anomalies automatically detected across multiple global markets.</li>
+                            <li><strong>Macro Asset Intelligence</strong> — Weekly institutional-grade report
+                                translating global macro developments into actionable strategies for risk assets.</li>
+                            <li><strong>Economic Data by Country</strong> — 50 years of macroeconomic data across 40
+                                countries, with charts.</li>
                         </ul>
                         <a href="https://paymongo.page/l/ning-finance-pro" class="price-btn" target="_blank">UPGRADE
                             NOW</a>
@@ -1186,17 +1190,33 @@
 
                     <div class="card price-card" style="border-top-color: #000;">
                         <h3 style="color:#000;">Tier 3</h3>
-                        <h2>$1,000 / mo</h2>
+                        <h2
+                            style="font-size:1.2rem;color:#888;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:1px;">
+                            CONTACT SALES</h2>
                         <ul>
-                            <li>Everything in Pro.</li>
-                            <li><strong>Automated Valuation Model (AVM):</strong> Instantly calculates a stock's
-                                intrinsic fair value using DCF to spot market price anomalies.</li>
-                            <li><strong>Ecosystem Analytics:</strong> Interactive mapping of corporate supply chains and
-                                direct market competition.</li>
+                            <li>Everything in Tier 2.</li>
+                            <li><strong>Automated Valuation Model</strong> — Computes the intrinsic fair value of any
+                                global and local stock using discounted cash flow analysis. No narratives, no sentiment
+                                — just the math.</li>
+                            <li><strong>Ecosystem Analytics</strong> — Maps a company's supply chain, competitive
+                                landscape, and macro exposures with full strategic intelligence and SWOT analysis.</li>
+                            <li><strong>Priority Institutional Access</strong> — Custom onboarding, dedicated support,
+                                and early access to new modules.</li>
                         </ul>
-                        <a href="#" class="price-btn">CONTACT SALES</a>
+                        <a href="mailto:hello@brubai.net?subject=Ning Finance Tier 3 Inquiry&body=Hi BRUB AI team,%0D%0A%0D%0AI am interested in Tier 3 access for Ning Finance. Please contact me to discuss.%0D%0A%0D%0AName:%0D%0ACompany:%0D%0AContact Number:"
+                            class="price-btn">CONTACT SALES</a>
                     </div>
 
+                </div>
+            </div>
+        </div>
+
+        <div id="mood" class="page">
+            <h2>CONSUMER MOOD</h2>
+            <div style="display:flex;justify-content:center;">
+                <div id="consumer-mood-mobile-page"
+                    style="width:100%;max-width:420px;background:#fff;padding:20px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+                    <div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading...</div>
                 </div>
             </div>
         </div>
@@ -1433,12 +1453,6 @@
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
 
-            document.querySelectorAll('.mob-tab').forEach(function (el) { el.classList.remove('active'); });
-            var mobTab = document.getElementById('mob-tab-' + section);
-            if (mobTab) { mobTab.classList.add('active'); mobTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
-            var ca = document.getElementById('content-area');
-            if (ca && window.innerWidth <= 768) ca.scrollTop = 0;
-
             if (pushToHistory) {
                 var url = new URL(window.location);
                 var tableNameForUrl = "Global News";
@@ -1455,6 +1469,7 @@
                 window.history.pushState({}, '', url);
             }
 
+            if (section === 'mood') renderMobileMood();
             if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
             if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
             if (section === 'philippines') window.fetchAirtable("Philippines News", "news-feed-philippines");
@@ -2914,7 +2929,8 @@
         </div>
         <div class="mob-tab" id="mob-tab-luxury" onclick="nav('luxury')"><span class="mob-icon">💎</span>LUXURY</div>
         <div class="mob-tab" id="mob-tab-culture" onclick="nav('culture')"><span class="mob-icon">🎭</span>CULTURE</div>
-        <div class="mob-tab" id="mob-tab-subs" onclick="nav('subs')"><span class="mob-icon">⭐</span>PRO</div>
+        <div class="mob-tab" id="mob-tab-mood" onclick="nav('mood')"><span class="mob-icon">🌡️</span>MOOD</div>
+        <div class="mob-tab" id="mob-tab-subs" onclick="nav('subs')"><span class="mob-icon">⭐</span>SUB</div>
     </div>
 </body>
 
