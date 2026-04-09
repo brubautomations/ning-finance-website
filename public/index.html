@@ -1204,8 +1204,11 @@
 
         <div id="mood" class="page">
             <h2>CONSUMER MOOD</h2>
-            <div id="consumer-mood-mobile-page" style="max-width:480px;">
-                <div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading...</div>
+            <div style="display:flex;justify-content:center;">
+                <div id="consumer-mood-mobile-page"
+                    style="width:100%;max-width:420px;background:#fff;padding:20px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+                    <div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading...</div>
+                </div>
             </div>
         </div>
 
@@ -2894,18 +2897,74 @@
 
 
         // ── MOBILE MOOD PAGE ─────────────────────────────────────
-        function renderMobileMood() {
-            var src = document.getElementById('consumer-mood-container');
+        async function renderMobileMood() {
             var dest = document.getElementById('consumer-mood-mobile-page');
             if (!dest) return;
-            if (src && src.innerHTML && !src.innerHTML.includes('Loading')) {
+            // Try sidebar first (already loaded on desktop)
+            var src = document.getElementById('consumer-mood-container');
+            if (src && src.innerHTML && src.innerHTML.length > 100 && !src.innerHTML.includes('Loading')) {
                 dest.innerHTML = src.innerHTML;
-            } else {
-                // fetch fresh if not loaded yet
-                fetchConsumerMood().then(function () {
-                    var s = document.getElementById('consumer-mood-container');
-                    if (s && dest) dest.innerHTML = s.innerHTML;
+                return;
+            }
+            // Fetch directly into the mobile page container
+            dest.innerHTML = '<div style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;">LOADING CONSUMER MOOD...</div>';
+            try {
+                var url = 'https://api.airtable.com/v0/' + AIRTABLE_BASE_ID + '/' + CONSUMER_PRICES_TABLE;
+                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + AIRTABLE_TOKEN } });
+                var json = await res.json();
+                if (!json.records || !json.records.length) {
+                    dest.innerHTML = '<div style="padding:20px;color:#888;">No data available.</div>';
+                    return;
+                }
+                var records = json.records.map(function (r) { return r.fields; });
+                var weights = { 'Rice (well-milled)': 30, 'Pork (kasim)': 20, 'Galunggong': 15, 'Petrol (RON95)': 25, 'Cooking Oil': 10 };
+                var totalWeight = 0, weightedSum = 0;
+                records.forEach(function (f) {
+                    var w = weights[f.Item];
+                    if (w && f.Price && f.Previous_Price && f.Previous_Price > 0) {
+                        var changePct = ((f.Price - f.Previous_Price) / f.Previous_Price) * 100;
+                        weightedSum += changePct * w;
+                        totalWeight += w;
+                    }
                 });
+                var score = totalWeight > 0 ? weightedSum / totalWeight : 0;
+                var normalized = Math.min(100, Math.max(0, (score + 5) * 10));
+                var mood = MOOD_LEVELS[MOOD_LEVELS.length - 1];
+                for (var i = 0; i < MOOD_LEVELS.length; i++) {
+                    if (normalized <= MOOD_LEVELS[i].max) { mood = MOOD_LEVELS[i]; break; }
+                }
+                var dates = records.filter(function (f) { return f.Last_Updated; }).map(function (f) { return new Date(f.Last_Updated); });
+                var latestDate = dates.length ? new Date(Math.max.apply(null, dates)) : new Date();
+                var dateStr = latestDate.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                var html = '<div style="text-align:center;padding:20px 0 24px;">' +
+                    '<div style="font-size:3rem;line-height:1;">' + mood.emoji + '</div>' +
+                    '<div style="font-size:1.1rem;font-weight:900;color:' + mood.color + ';letter-spacing:0.5px;margin-top:8px;">' + mood.label + '</div>' +
+                    '<div style="font-size:0.7rem;color:#aaa;margin-top:6px;">Based on PSA retail prices · ' + dateStr + '</div>' +
+                    '</div>';
+                html += '<div style="border-top:1px solid #eee;padding-top:12px;">';
+                records.forEach(function (f) {
+                    if (!f.Item || !f.Price) return;
+                    var emoji = ITEM_EMOJI[f.Item] || '📦';
+                    var isFishball = f.Item === 'Fishball';
+                    var changePct = (f.Previous_Price && f.Previous_Price > 0) ? ((f.Price - f.Previous_Price) / f.Previous_Price * 100) : 0;
+                    var isUp = changePct > 0.01;
+                    var isDown = changePct < -0.01;
+                    var arrow = isFishball ? '—' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
+                    var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
+                    var priceStr = isFishball ? '₱' + f.Price.toFixed(0) : (f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0));
+                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;">' +
+                        '<div><span style="font-size:1.1rem;">' + emoji + '</span><span style="font-size:0.9rem;font-weight:700;color:#1a1a1a;margin-left:8px;">' + f.Item + '</span>' +
+                        '<div style="font-size:0.7rem;color:#aaa;margin-left:32px;">' + (f.Unit || '') + '</div></div>' +
+                        '<div style="text-align:right;flex-shrink:0;">' +
+                        '<div style="font-size:0.95rem;font-weight:900;color:#000;">' + priceStr + '</div>' +
+                        '<div style="font-size:0.75rem;font-weight:700;color:' + arrowColor + ';">' + arrow + '</div>' +
+                        '</div></div>';
+                });
+                html += '</div><div style="font-size:0.65rem;color:#bbb;text-align:center;margin-top:12px;">Source: PSA Price Situationer</div>';
+                dest.innerHTML = html;
+            } catch (e) {
+                dest.innerHTML = '<div style="padding:20px;color:#dc2626;">Failed to load mood data.</div>';
             }
         }
 
