@@ -735,142 +735,49 @@
 
         @media (max-width: 768px) {
             header {
-                padding: 12px 16px;
-                flex-wrap: wrap;
-                gap: 8px;
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
             }
 
             .logo {
-                font-size: 1.4rem;
-            }
-
-            .logo-tag {
-                font-size: 0.5rem;
-                padding: 2px 5px;
+                width: 100%;
+                justify-content: center;
             }
 
             #callBtn {
                 width: 100%;
                 justify-content: center;
-                font-size: 0.8rem;
-                padding: 10px 20px;
-            }
-
-            .ticker-label {
-                font-size: 0.6rem;
-                padding: 0 10px;
             }
 
             .nav-tabs {
-                display: none !important;
+                padding: 0 15px;
+                gap: 20px;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                justify-content: flex-start;
             }
 
-            #mobile-bottom-bar {
-                display: flex !important;
+            .nav-tabs::-webkit-scrollbar {
+                display: none;
             }
 
             #content-area {
-                padding: 16px 12px 80px 12px;
-            }
-
-            h2 {
-                font-size: 1.1rem;
-                padding-left: 10px;
-            }
-
-            .sidebar {
-                display: none !important;
-            }
-
-            .main-container {
-                max-width: 100%;
-            }
-
-            .card {
-                padding: 18px 14px;
-            }
-
-            .card h3 {
-                font-size: 1.05rem;
-            }
-
-            .card p {
-                font-size: 0.9rem;
-            }
-
-            #market-breadth-inner>div {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            #market-breadth-inner table {
-                min-width: 480px;
-            }
-
-            #breadth-top>div {
-                grid-template-columns: 1fr !important;
-                gap: 12px !important;
+                padding: 20px 15px;
             }
 
             .pricing-container {
                 flex-direction: column;
-                gap: 16px;
             }
 
-            footer {
-                padding: 12px 16px;
-                font-size: 0.7rem;
+            h2 {
+                font-size: 1.2rem;
             }
-        }
 
-        #mobile-bottom-bar {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border-top: 3px solid var(--primary);
-            z-index: 500;
-            height: 58px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #mobile-bottom-bar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .mob-tab {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 5px 12px;
-            cursor: pointer;
-            color: #888;
-            font-size: 0.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            min-width: 55px;
-            height: 100%;
-            border-top: 3px solid transparent;
-            margin-top: -3px;
-            transition: 0.2s;
-            flex-shrink: 0;
-        }
-
-        .mob-tab.active {
-            color: #000;
-            border-top-color: var(--primary);
-        }
-
-        .mob-tab .mob-icon {
-            font-size: 1.05rem;
-            margin-bottom: 1px;
-            line-height: 1;
+            .header-row {
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
@@ -905,7 +812,6 @@
         <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
         <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
         <div class="tab" onclick="nav('subs')" id="tab-subs">SUBSCRIPTIONS</div>
-        <div id="tab-mood" style="display:none;"></div>
     </div>
 
     <div id="imageModal" class="modal" onclick="closeModal()">
@@ -1156,12 +1062,9 @@
                         <h3>Tier 1</h3>
                         <h2>Free</h2>
                         <ul>
-                            <li><strong>Live News Feeds</strong> — Latest Global, Asian, and Philippine market news
-                                curated and published by AI around the clock.</li>
-                            <li><strong>Market Data & Breadth</strong> — Live prices across indices, equities, crypto,
-                                commodities, and currencies, with ETF data and an economic calendar.</li>
-                            <li><strong>Call Ning</strong> — Voice-activated navigation that lets you move around the
-                                platform hands-free.</li>
+                            <li><strong>Live News Feeds</strong> and Commentary.</li>
+                            <li><strong>Market Data</strong> and Market Breadth.</li>
+                            <li><strong>Call Ning:</strong> The Voice Navigation Website Control.</li>
                         </ul>
                         <a class="price-btn" style="background: #ccc; color: #666; cursor: default;">CURRENT PLAN</a>
                     </div>
@@ -1171,18 +1074,18 @@
                         <h2>$49 / mo</h2>
                         <ul>
                             <li>Everything in Free.</li>
-                            <li><strong>Advanced AI Chatbot</strong> — Ask anything across equities, forex, crypto,
-                                commodities, and macro. Trained on multi-asset financial data.</li>
-                            <li><strong>Autonomous AI Portfolio Manager</strong> — An AI agent running a live prop
-                                portfolio with every entry, exit, and thesis documented and publicly auditable.</li>
-                            <li><strong>Unfair Advantage</strong> — Congressional trades, corporate insider filings, and
-                                institutional repositioning — tracked and surfaced before it becomes noise.</li>
-                            <li><strong>Algorithmic Screener</strong> — End-of-day momentum signals and statistical
-                                anomalies automatically detected across multiple global markets.</li>
-                            <li><strong>Macro Asset Intelligence</strong> — Weekly institutional-grade report
-                                translating global macro developments into actionable strategies for risk assets.</li>
-                            <li><strong>Economic Data by Country</strong> — 50 years of macroeconomic data across 40
-                                countries, with charts.</li>
+                            <li><strong>Advanced Chatbot:</strong> Trained on Multi-Asset Markets (Forex, Crypto,
+                                Commodities, Equities) and Social Intelligence.</li>
+                            <li><strong>Autonomous AI Portfolio Manager:</strong> Follow a live AI agent as it actively
+                                manages a prop portfolio. It scans the market, executes entries and exits, breaks down
+                                its tactical reasoning, and logs every trade for a 100% transparent, auditable track
+                                record.</li>
+                            <li><strong>Institutional Flow Tracker:</strong> Gain an edge by tracking restricted smart
+                                money movements and high-level legislative capital flows.</li>
+                            <li><strong>Algorithmic Screener:</strong> Automated momentum detection and statistical
+                                anomaly alerts triggered directly at EOD/EOW.</li>
+                            <li><strong>Macro Asset Intelligence:</strong> Weekly institutional-grade market reports
+                                translating global macroeconomic chaos into actionable strategies.</li>
                         </ul>
                         <a href="https://paymongo.page/l/ning-finance-pro" class="price-btn" target="_blank">UPGRADE
                             NOW</a>
@@ -1190,33 +1093,17 @@
 
                     <div class="card price-card" style="border-top-color: #000;">
                         <h3 style="color:#000;">Tier 3</h3>
-                        <h2
-                            style="font-size:1.2rem;color:#888;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:1px;">
-                            CONTACT SALES</h2>
+                        <h2>$1,000 / mo</h2>
                         <ul>
-                            <li>Everything in Tier 2.</li>
-                            <li><strong>Automated Valuation Model</strong> — Computes the intrinsic fair value of any
-                                global and local stock using discounted cash flow analysis. No narratives, no sentiment
-                                — just the math.</li>
-                            <li><strong>Ecosystem Analytics</strong> — Maps a company's supply chain, competitive
-                                landscape, and macro exposures with full strategic intelligence and SWOT analysis.</li>
-                            <li><strong>Priority Institutional Access</strong> — Custom onboarding, dedicated support,
-                                and early access to new modules.</li>
+                            <li>Everything in Pro.</li>
+                            <li><strong>Automated Valuation Model (AVM):</strong> Instantly calculates a stock's
+                                intrinsic fair value using DCF to spot market price anomalies.</li>
+                            <li><strong>Ecosystem Analytics:</strong> Interactive mapping of corporate supply chains and
+                                direct market competition.</li>
                         </ul>
-                        <a href="mailto:hello@brubai.net?subject=Ning Finance Tier 3 Inquiry&body=Hi BRUB AI team,%0D%0A%0D%0AI am interested in Tier 3 access for Ning Finance. Please contact me to discuss.%0D%0A%0D%0AName:%0D%0ACompany:%0D%0AContact Number:"
-                            class="price-btn">CONTACT SALES</a>
+                        <a href="#" class="price-btn">CONTACT SALES</a>
                     </div>
 
-                </div>
-            </div>
-        </div>
-
-        <div id="mood" class="page">
-            <h2>CONSUMER MOOD</h2>
-            <div style="display:flex;justify-content:center;">
-                <div id="consumer-mood-mobile-page"
-                    style="width:100%;max-width:420px;background:#fff;padding:20px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-                    <div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading...</div>
                 </div>
             </div>
         </div>
@@ -1469,7 +1356,6 @@
                 window.history.pushState({}, '', url);
             }
 
-            if (section === 'mood') renderMobileMood();
             if (section === 'global') window.fetchAirtable("Global News", "news-feed-global");
             if (section === 'asia') window.fetchAirtable("Asia News", "news-feed-asia");
             if (section === 'philippines') window.fetchAirtable("Philippines News", "news-feed-philippines");
@@ -1513,6 +1399,7 @@
 
         // ── TICKER DISPLAY NAMES ──────────────────────────────────────
         const TICKER_NAMES = {
+            // INDICES
             'DJ:DJI': 'Dow Jones', 'TVC:US10Y': 'US 10Y Yield', 'TVC:US02Y': 'US 2Y Yield',
             'TVC:DXY': 'US Dollar Index', 'PSE:PSEI': 'PSEi',
             'SP:SPX': 'S&P 500', 'NASDAQ:NDX': 'NASDAQ 100', 'FTSE:UKX': 'FTSE 100',
@@ -1523,6 +1410,7 @@
             'EURONEXT:AEX': 'AEX', 'SIX:SMI': 'SMI', 'EURONEXT:PX1': 'CAC 40',
             'SGX:ES3': 'STI (Singapore)', 'AMEX:IWM': 'Russell 2000', 'BME:IBC': 'IBEX 35',
             'HKEX:HSI': 'Hang Seng',
+            // COMMODITIES
             'OANDA:XAUUSD': 'Gold', 'NYMEX:CL1!': 'WTI Crude', 'NYMEX:BB1!': 'Brent Crude',
             'COMEX:SI1!': 'Silver', 'COMEX:HG1!': 'Copper',
             'CBOT:ZC1!': 'Corn', 'CBOT:ZW1!': 'Wheat', 'CBOT:ZS1!': 'Soybeans',
@@ -1530,6 +1418,7 @@
             'ICEUS:CT1!': 'Cotton', 'NYMEX:NG1!': 'Natural Gas',
             'ICEUS:CC1!': 'Cocoa', 'CBOT:ZL1!': 'Soybean Oil', 'CBOT:ZM1!': 'Soybean Meal',
             'NYMEX:RB1!': 'Gasoline', 'NYMEX:HO1!': 'Heating Oil', 'COMEX:ALI1!': 'Aluminum',
+            // CURRENCIES
             'FX_IDC:USDPHP': 'USD/PHP', 'FX_IDC:EURPHP': 'EUR/PHP', 'FX_IDC:JPYPHP': 'JPY/PHP',
             'FX_IDC:GBPPHP': 'GBP/PHP', 'FX_IDC:SGDPHP': 'SGD/PHP', 'FX_IDC:AUDPHP': 'AUD/PHP',
             'FX_IDC:CNYPHP': 'CNY/PHP', 'FX_IDC:HKDPHP': 'HKD/PHP', 'FX_IDC:KRWPHP': 'KRW/PHP',
@@ -1539,23 +1428,35 @@
             'FX:NZDUSD': 'NZD/USD', 'FX:USDCNY': 'USD/CNY', 'FX:USDSGD': 'USD/SGD',
             'FX:USDHKD': 'USD/HKD', 'FX:USDINR': 'USD/INR', 'FX:USDKRW': 'USD/KRW',
             'FX:USDMXN': 'USD/MXN', 'FX:USDZAR': 'USD/ZAR', 'FX:USDTRY': 'USD/TRY',
-            'PSE:SM': 'SM Investments', 'PSE:ALI': 'Ayala Land', 'PSE:BDO': 'BDO Unibank',
-            'PSE:JFC': 'Jollibee', 'PSE:AC': 'Ayala Corp', 'PSE:SMPH': 'SM Prime',
-            'PSE:BPI': 'Bank of PI', 'PSE:MBT': 'Metrobank', 'PSE:TEL': 'PLDT',
-            'PSE:GLO': 'Globe Telecom', 'PSE:URC': 'Univ Robina', 'PSE:MER': 'Meralco',
-            'PSE:AEV': 'Aboitiz Equity', 'PSE:AP': 'Aboitiz Power', 'PSE:PGOLD': 'Puregold', 'PSE:PNB': 'PNB',
-            'NYSE:JPM': 'JPMorgan', 'NYSE:BAC': 'Bank of America', 'NYSE:XOM': 'ExxonMobil',
-            'NYSE:JNJ': 'Johnson & Johnson', 'NYSE:V': 'Visa',
-            'NYSE:PG': 'Procter & Gamble', 'NYSE:HD': 'Home Depot', 'NYSE:CVX': 'Chevron',
-            'NASDAQ:AAPL': 'Apple', 'NASDAQ:MSFT': 'Microsoft', 'NASDAQ:NVDA': 'NVIDIA',
-            'NASDAQ:GOOGL': 'Alphabet', 'NASDAQ:AMZN': 'Amazon', 'NASDAQ:META': 'Meta',
-            'NASDAQ:TSLA': 'Tesla', 'NASDAQ:AVGO': 'Broadcom', 'NASDAQ:NFLX': 'Netflix',
-            'NASDAQ:AMD': 'AMD', 'NASDAQ:INTC': 'Intel', 'NASDAQ:QCOM': 'Qualcomm',
-            'NASDAQ:COST': 'Costco', 'NASDAQ:ADBE': 'Adobe', 'NASDAQ:PYPL': 'PayPal',
-            'TSE:7203': 'Toyota', 'TSE:6758': 'Sony', 'TSE:9984': 'SoftBank',
-            'KRX:005930': 'Samsung', 'KRX:000660': 'SK Hynix',
+            // ── EQUITIES ─────────────────────────────────────────────
+            // UNITED STATES
+            'NASDAQ:AMD': 'AMD', 'NASDAQ:BBAI': 'BigBear.ai',
+            'NASDAQ:COIN': 'Coinbase', 'NASDAQ:ICHR': 'Ichor Holdings',
+            'NASDAQ:META': 'Meta', 'NASDAQ:MSTR': 'MicroStrategy',
+            'NASDAQ:NFLX': 'Netflix', 'NYSE:NOC': 'Northrop Grumman',
+            'NASDAQ:NVDA': 'Nvidia', 'NASDAQ:PLTR': 'Palantir',
+            'NASDAQ:RIVN': 'Rivian', 'NYSE:SPOT': 'Spotify',
+            'NYSE:TKO': 'TKO Group', 'NASDAQ:TSLA': 'Tesla',
+            'NYSE:UNH': 'UnitedHealth', 'NASDAQ:GOOGL': 'Alphabet',
+            // SOUTH KOREA
+            'KRX:005930': 'Samsung', 'KRX:041510': 'SM Entertainment',
+            'KRX:352820': 'HYBE', 'KRX:004990': 'Lotte Corp',
+            'KRX:035720': 'Kakao',
+            // JAPAN
+            'TSE:5020': 'Eneos Holdings', 'TSE:9432': 'NTT',
+            'TSE:2809': 'Kewpie', 'TSE:9984': 'SoftBank',
+            // PHILIPPINES
+            'PSE:ALI': 'Ayala Land', 'PSE:APX': 'Apex Mining',
+            'PSE:ICT': 'Int'l Container Terminal', 'PSE: MER': 'Meralco',
+            'PSE:PGOLD': 'Puregold', 'PSE:JFC': 'Jollibee',
+            'PSE:CNVRG': 'Converge ICT', 'PSE:PLUS': 'Premiere Island Power',
+            'PSE:TEL': 'PLDT', 'PSE:SCC': 'Semirara Mining',
+            // HONG KONG
             'HKEX:700': 'Tencent', 'HKEX:9988': 'Alibaba',
-            'SGX:D05': 'DBS Group', 'SGX:O39': 'OCBC',
+            'HKEX:3690': 'Meituan', 'HKEX:1211': 'BYD',
+            // SINGAPORE
+            'SGX:D05': 'DBS Group', 'SGX:S68': 'Sea Limited',
+            'SGX:Z74': 'Singtel',
         };
 
         // ── CATEGORY MAPPING ─────────────────────────────────────────
@@ -1583,18 +1484,32 @@
             'FX:USDINR', 'FX:USDKRW', 'FX:USDMXN', 'FX:USDZAR', 'FX:USDTRY',
         ];
         const EQUITIES_TICKERS = [
-            'PSE:SM', 'PSE:ALI', 'PSE:BDO', 'PSE:JFC', 'PSE:AC', 'PSE:SMPH',
-            'PSE:BPI', 'PSE:MBT', 'PSE:TEL', 'PSE:GLO', 'PSE:URC', 'PSE:MER',
-            'PSE:AEV', 'PSE:AP', 'PSE:PGOLD', 'PSE:PNB', 'PSE:PLUS',
-            'NYSE:JPM', 'NYSE:BAC', 'NYSE:WMT', 'NYSE:V', 'NYSE:CVX',
-            'NASDAQ:AAPL', 'NASDAQ:MSFT', 'NASDAQ:NVDA', 'NASDAQ:GOOGL', 'NASDAQ:AMZN',
-            'NASDAQ:META', 'NASDAQ:TSLA', 'NASDAQ:AVGO', 'NASDAQ:NFLX', 'NASDAQ:AMD',
-            'NASDAQ:INTC', 'NASDAQ:COST', 'NASDAQ:ADBE', 'NASDAQ:PYPL',
-            'NASDAQ:PLTR', 'NASDAQ:ICHR',
-            'TSE:7203', 'TSE:6758', 'TSE:9984', 'TSE:5020',
-            'KRX:005930', 'KRX:000660', 'KRX:000800',
-            'HKEX:700', 'HKEX:9988',
-            'SGX:D05', 'SGX:O39',
+            // US
+            'NASDAQ:AMD', 'NASDAQ:BBAI', 'NASDAQ:COIN', 'NASDAQ:ICHR',
+            'NASDAQ:META', 'NASDAQ:MSTR', 'NASDAQ:NFLX', 'NYSE:NOC',
+            'NASDAQ:NVDA', 'NASDAQ:PLTR', 'NASDAQ:RIVN', 'NYSE:SPOT',
+            'NYSE:TKO', 'NASDAQ:TSLA', 'NYSE:UNH', 'NASDAQ:GOOGL',
+            // KOREA
+            'KRX:005930', 'KRX:041510', 'KRX:352820', 'KRX:004990', 'KRX:035720',
+            // JAPAN
+            'TSE:5020', 'TSE:9432', 'TSE:2809', 'TSE:9984',
+            // PHILIPPINES
+            'PSE:ALI', 'PSE:APX', 'PSE:ICT', 'PSE:MER', 'PSE:PGOLD',
+            'PSE:JFC', 'PSE:CNVRG', 'PSE:PLUS', 'PSE:TEL', 'PSE:SCC',
+            // HONG KONG
+            'HKEX:700', 'HKEX:9988', 'HKEX:3690', 'HKEX:1211',
+            // SINGAPORE
+            'SGX:D05', 'SGX:S68', 'SGX:Z74',
+        ];
+
+        // ── EQUITIES COUNTRY GROUPS (for divider rendering) ──────────
+        const EQUITIES_GROUPS = [
+            { label: '🇺🇸 UNITED STATES', tickers: ['NASDAQ:AMD', 'NASDAQ:BBAI', 'NASDAQ:COIN', 'NASDAQ:ICHR', 'NASDAQ:META', 'NASDAQ:MSTR', 'NASDAQ:NFLX', 'NYSE:NOC', 'NASDAQ:NVDA', 'NASDAQ:PLTR', 'NASDAQ:RIVN', 'NYSE:SPOT', 'NYSE:TKO', 'NASDAQ:TSLA', 'NYSE:UNH', 'NASDAQ:GOOGL'] },
+            { label: '🇰🇷 SOUTH KOREA', tickers: ['KRX:005930', 'KRX:041510', 'KRX:352820', 'KRX:004990', 'KRX:035720'] },
+            { label: '🇯🇵 JAPAN', tickers: ['TSE:5020', 'TSE:9432', 'TSE:2809', 'TSE:9984'] },
+            { label: '🇵🇭 PHILIPPINES', tickers: ['PSE:ALI', 'PSE:APX', 'PSE:ICT', 'PSE:MER', 'PSE:PGOLD', 'PSE:JFC', 'PSE:CNVRG', 'PSE:PLUS', 'PSE:TEL', 'PSE:SCC'] },
+            { label: '🇭🇰 HONG KONG', tickers: ['HKEX:700', 'HKEX:9988', 'HKEX:3690', 'HKEX:1211'] },
+            { label: '🇸🇬 SINGAPORE', tickers: ['SGX:D05', 'SGX:S68', 'SGX:Z74'] },
         ];
 
         // ── FETCH FROM AIRTABLE ───────────────────────────────────────
@@ -1659,27 +1574,47 @@
         // Each asset gets its own random timer so they dont all blink together
         function isTickerMarketOpen(ticker) {
             var now = new Date();
-            var day = now.getUTCDay();
-            if (day === 0 || day === 6) return false;
+            var day = now.getUTCDay(); // 0=Sun, 6=Sat
+            if (day === 0 || day === 6) return false; // weekend always closed
+
             var phtH = (now.getUTCHours() + 8) % 24;
             var phtM = now.getUTCMinutes();
-            var t = phtH * 60 + phtM;
+            var t = phtH * 60 + phtM; // minutes since midnight PHT
+
             var exch = ticker.split(':')[0];
-            if (['FX', 'FX_IDC', 'OANDA'].includes(exch)) return true;
-            if (['NYMEX', 'COMEX', 'CBOT', 'ICEUS', 'CME'].includes(exch)) return t >= 1290 || t <= 240;
-            if (['NYSE', 'NASDAQ', 'AMEX', 'SP', 'DJ', 'TVC'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // PSE: 9:30AM – 3:30PM PHT
             if (exch === 'PSE') return t >= 570 && t <= 930;
+
+            // TSE/Japan: 8:00AM – 3:00PM PHT (9AM-4PM JST)
             if (exch === 'TSE') return t >= 480 && t <= 900;
+
+            // KRX/Korea: 8:00AM – 3:30PM PHT (9AM-4:30PM KST)
             if (exch === 'KRX') return t >= 480 && t <= 930;
+
+            // HKEX/HK: 9:30AM – 4:00PM PHT
             if (exch === 'HKEX') return t >= 570 && t <= 960;
+
+            // SGX/Singapore: 9:00AM – 5:00PM PHT
             if (exch === 'SGX') return t >= 540 && t <= 1020;
+
+            // BSE/India: 11:15AM – 5:30PM PHT (9:15AM-3:30PM IST)
             if (exch === 'BSE') return t >= 675 && t <= 1050;
-            if (exch === 'ASX') return t >= 420 && t <= 810;
-            if (exch === 'IDX') return t >= 570 && t <= 960;
-            if (exch === 'SET') return t >= 570 && t <= 990;
-            if (exch === 'BMFBOVESPA') return t >= 1260 || t <= 175;
-            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL', 'TASE', 'TADAWUL'].includes(exch)) return t >= 900 && t <= 1410;
-            return false;
+
+            // European (XETR/EURONEXT/SIX/BME/FTSE): 3:00PM – 11:30PM PHT
+            if (['XETR', 'EURONEXT', 'SIX', 'BME', 'FTSE', 'MIL'].includes(exch)) return t >= 900 && t <= 1410;
+
+            // US (NYSE/NASDAQ/AMEX/SP): 9:30PM – 4:00AM PHT
+            if (['NYSE', 'NASDAQ', 'AMEX', 'SP'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // Forex/FX: Mon-Fri 24 hours (already passed weekend check)
+            if (exch === 'FX' || exch === 'FX_IDC' || exch === 'OANDA') return true;
+
+            // Commodities: roughly follow US hours
+            if (['NYMEX', 'COMEX', 'CBOT', 'ICEUS', 'CME'].includes(exch)) return t >= 1290 || t <= 240;
+
+            // Indices (TVC, DJ, etc): use broad window 8AM-midnight PHT
+            return t >= 480 && t <= 1440;
         }
 
         function isMarketOpen() {
@@ -1799,6 +1734,34 @@
                 items = breadthAllData.filter(function (d) { return CURRENCIES_TICKERS.indexOf(d.s) >= 0; });
             } else if (tab === 'equities') {
                 items = breadthAllData.filter(function (d) { return EQUITIES_TICKERS.indexOf(d.s) >= 0; });
+            }
+
+            // Equities: render with country group dividers
+            if (tab === 'equities' && items.length) {
+                var eqHtml = '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><div style="font-size:0.7rem;font-weight:700;color:#888;border:1px solid #ddd;padding:2px 8px;">LIVE</div></div>';
+                eqHtml += '<div style="border:2px solid #000;overflow:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;"><thead><tr style="background:#000;"><th style="padding:10px 16px;text-align:left;color:var(--primary);font-size:0.75rem;">ASSET</th><th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">PRICE</th><th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">CHANGE</th><th style="padding:10px 16px;text-align:right;color:var(--primary);font-size:0.75rem;">% CHANGE</th></tr></thead><tbody>';
+                var rowIdx = 0;
+                EQUITIES_GROUPS.forEach(function (group) {
+                    var groupItems = items.filter(function (d) { return group.tickers.indexOf(d.s) >= 0; });
+                    if (!groupItems.length) return;
+                    eqHtml += '<tr><td colspan="4" style="padding:8px 16px;background:#000;color:var(--primary);font-size:0.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;">' + group.label + '</td></tr>';
+                    groupItems.forEach(function (item) {
+                        var isUp = item.chgPct != null ? item.chgPct >= 0 : true;
+                        var color = isUp ? '#16a34a' : '#dc2626';
+                        var sign = isUp ? '+' : '';
+                        var bg = rowIdx % 2 === 0 ? '#fff' : '#fafafa';
+                        var pctStr = item.chgPct != null ? (sign + item.chgPct.toFixed(2) + '%') : '—';
+                        var safeId = 'price-' + item.s.replace(/[^a-zA-Z0-9]/g, '_');
+                        var displayPrice = breadthJitterStore[item.s] != null ? breadthJitterStore[item.s] : item.price;
+                        var priceStr = formatBreadthPrice(displayPrice, 'equities');
+                        var chgAbsStr = item.chgAbs != null ? (item.chgAbs >= 0 ? '+' : '') + item.chgAbs.toFixed(2) : '—';
+                        eqHtml += '<tr style="background:' + bg + ';border-bottom:1px solid #f0f0f0;"><td style="padding:10px 16px;font-weight:700;color:#1a1a1a;">' + item.name + '</td><td id="' + safeId + '" style="padding:10px 16px;text-align:right;font-weight:900;color:#000;">' + priceStr + '</td><td id="chg-' + item.s.replace(/[^a-zA-Z0-9]/g, '_') + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:700;">' + chgAbsStr + '</td><td id="pct-' + item.s.replace(/[^a-zA-Z0-9]/g, '_') + '" style="padding:10px 16px;text-align:right;color:' + color + ';font-weight:900;">' + pctStr + '</td></tr>';
+                        rowIdx++;
+                    });
+                });
+                eqHtml += '</tbody></table></div>';
+                container.innerHTML = eqHtml;
+                return;
             }
 
             if (!items.length) {
@@ -2809,7 +2772,7 @@
                         ? ((f.Price - f.Previous_Price) / f.Previous_Price * 100) : 0;
                     var isUp = changePct > 0.01;
                     var isDown = changePct < -0.01;
-                    var arrow = isFishball ? '—' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
+                    var arrow = isFishball ? '— since forever' : (isUp ? '▲ +' + changePct.toFixed(1) + '%' : isDown ? '▼ ' + changePct.toFixed(1) + '%' : '—');
                     var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
                     var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(0);
 
@@ -2916,22 +2879,6 @@
         setInterval(fetchConsumerMood, 300000);
 
     </script>
-
-    <div id="mobile-bottom-bar">
-        <div class="mob-tab active" id="mob-tab-global" onclick="nav('global')"><span class="mob-icon">🌍</span>GLOBAL
-        </div>
-        <div class="mob-tab" id="mob-tab-asia" onclick="nav('asia')"><span class="mob-icon">🌏</span>ASIA</div>
-        <div class="mob-tab" id="mob-tab-philippines" onclick="nav('philippines')"><span class="mob-icon">🇵🇭</span>PH
-        </div>
-        <div class="mob-tab" id="mob-tab-market" onclick="nav('market')"><span class="mob-icon">📈</span>MARKET</div>
-        <div class="mob-tab" id="mob-tab-tech" onclick="nav('tech')"><span class="mob-icon">🤖</span>AI/TECH</div>
-        <div class="mob-tab" id="mob-tab-opinions" onclick="nav('opinions')"><span class="mob-icon">💬</span>OPINIONS
-        </div>
-        <div class="mob-tab" id="mob-tab-luxury" onclick="nav('luxury')"><span class="mob-icon">💎</span>LUXURY</div>
-        <div class="mob-tab" id="mob-tab-culture" onclick="nav('culture')"><span class="mob-icon">🎭</span>CULTURE</div>
-        <div class="mob-tab" id="mob-tab-mood" onclick="nav('mood')"><span class="mob-icon">🌡️</span>MOOD</div>
-        <div class="mob-tab" id="mob-tab-subs" onclick="nav('subs')"><span class="mob-icon">⭐</span>SUB</div>
-    </div>
 </body>
 
 </html>
