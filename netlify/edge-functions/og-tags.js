@@ -44,7 +44,7 @@ export default async (request, context) => {
   }
 
   const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
-  const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.9ca90bc2406d0c66a0829a716d265f3a3a4d94f255b7bad59dcefc22951db0f1";
+  const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.868501c04f5d75acbad4a34c0c35799978e659dc149919f4ec237dc44f2c72ea";
   const airtableUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${tableId}/${articleId}`;
 
   try {
