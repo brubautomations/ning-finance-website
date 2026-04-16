@@ -791,13 +791,47 @@
         }
 
         footer {
-            padding: 15px;
+            padding: 10px 15px 8px;
             text-align: center;
             color: #999;
             font-size: 0.75rem;
             background: #fff;
             border-top: 1px solid var(--border);
             flex-shrink: 0;
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.68rem;
+            color: #bbb;
+            letter-spacing: 0.3px;
+        }
+
+        .footer-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer-stat-num {
+            color: #999;
+            font-weight: 700;
+            font-size: 0.72rem;
+            transition: color 0.3s;
+        }
+
+        .footer-stat-num.tick {
+            color: var(--primary);
+        }
+
+        .footer-stat-divider {
+            color: #e0e0e0;
+            font-size: 0.7rem;
         }
 
         footer a {
@@ -984,7 +1018,8 @@
         <div class="ticker-label"
             style="background:#0a0f1e;border-right:1px solid #1a2744;font-size:0.62rem;letter-spacing:1px;line-height:1.25;text-align:center;padding:0 12px;">
             <span style="color:#22c55e;font-weight:900;">MARKET</span><br><span
-                style="color:#ef4444;font-weight:900;">MOVERS</span></div>
+                style="color:#ef4444;font-weight:900;">MOVERS</span>
+        </div>
         <div class="ticker-track">
             <div class="ticker-content market-pulse-content" id="market-pulse-feed">
                 <span style="color:#2a3a5e;font-size:0.75rem;font-family:'Courier New',monospace;">Fetching market
@@ -1363,9 +1398,29 @@
 
     </div>
 
-    <footer>Ning Finance | 99% AI-Operated News Website | Powered by <a href="https://brubai.net/" target="_blank">BRUB
-            AI</a> | Data
-        delayed by 5 minutes</footer>
+    <footer>
+        Ning Finance | 99% AI-Operated News Website | Powered by <a href="https://brubai.net/" target="_blank">BRUB
+            AI</a> | Data delayed by 5 minutes
+        <div class="footer-stats">
+            <div class="footer-stat-item">
+                <span style="opacity:0.5;">👤</span>
+                <span style="color:#ccc;">Visitors</span>
+                <span class="footer-stat-num" id="stat-visitors">—</span>
+            </div>
+            <span class="footer-stat-divider">|</span>
+            <div class="footer-stat-item">
+                <span style="opacity:0.5;">📡</span>
+                <span style="color:#ccc;">Visits</span>
+                <span class="footer-stat-num" id="stat-visits">—</span>
+            </div>
+            <span class="footer-stat-divider">|</span>
+            <div class="footer-stat-item">
+                <span style="opacity:0.5;">👁</span>
+                <span style="color:#ccc;">Views</span>
+                <span class="footer-stat-num" id="stat-views">—</span>
+            </div>
+        </div>
+    </footer>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script type="module">
@@ -3105,6 +3160,66 @@
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
         setInterval(fetchConsumerMood, 300000);
+
+        // --- UMAMI STATS ---
+        const UMAMI_KEY = 'api_WxitS05p9TrCznhralpmXMbS3Qbs2CCx';
+        const UMAMI_SITE_ID = '7d8c9072-1757-41dd-b64e-9a9ee2e2e924';
+        var umamiStats = { visitors: 0, visits: 0, views: 0 };
+
+        function formatStatNum(n) {
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+            return n.toLocaleString();
+        }
+
+        function tickStat(elId, currentVal) {
+            var el = document.getElementById(elId);
+            if (!el) return;
+            el.textContent = formatStatNum(currentVal);
+            el.classList.add('tick');
+            setTimeout(function () { el.classList.remove('tick'); }, 600);
+        }
+
+        async function fetchUmamiStats() {
+            try {
+                var now = Date.now();
+                var startOfYear = new Date(new Date().getFullYear(), 0, 1).getTime();
+                var url = 'https://cloud.umami.is/api/websites/' + UMAMI_SITE_ID + '/stats?startAt=' + startOfYear + '&endAt=' + now;
+                var res = await fetch(url, {
+                    headers: { 'x-umami-api-key': UMAMI_KEY }
+                });
+                var data = await res.json();
+                if (data && data.visitors) {
+                    umamiStats.visitors = data.visitors.value || 0;
+                    umamiStats.visits = data.visits.value || 0;
+                    umamiStats.views = data.pageviews.value || 0;
+                    tickStat('stat-visitors', umamiStats.visitors);
+                    tickStat('stat-visits', umamiStats.visits);
+                    tickStat('stat-views', umamiStats.views);
+                }
+            } catch (e) {
+                console.warn('Umami stats error', e);
+            }
+        }
+
+        function flickerStats() {
+            // Small random increments to feel live between real refreshes
+            var fields = ['visitors', 'visits', 'views'];
+            var weights = [1, 2, 3]; // views increment fastest, visitors slowest
+            fields.forEach(function (f, i) {
+                if (umamiStats[f] === 0) return;
+                if (Math.random() < 0.4) { // 40% chance each field ticks
+                    var inc = Math.floor(Math.random() * weights[i]) + (i > 0 ? 1 : 0);
+                    umamiStats[f] += inc;
+                    tickStat('stat-' + f, umamiStats[f]);
+                }
+            });
+        }
+
+        // Fire on load, refresh every 5 mins, flicker every 20s
+        fetchUmamiStats();
+        setInterval(fetchUmamiStats, 300000);
+        setInterval(flickerStats, 20000);
 
     </script>
 
