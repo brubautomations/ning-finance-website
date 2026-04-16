@@ -98,6 +98,12 @@
             z-index: 95;
         }
 
+        .ticker-bar.market-pulse-bar {
+            background: #0a0f1e;
+            border-bottom: 1px solid #1a2744;
+            border-top: 1px solid #0f1e3d;
+        }
+
         .ticker-label {
             background: var(--primary);
             color: #000;
@@ -111,6 +117,7 @@
             font-size: 0.7rem;
             z-index: 2;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
         }
 
         .ticker-track {
@@ -125,9 +132,13 @@
             display: inline-block;
             white-space: nowrap;
             padding-left: 100%;
-            animation: scroll-left 400s linear infinite;
+            animation: scroll-left 180s linear infinite;
             will-change: transform;
             transform: translateZ(0);
+        }
+
+        .ticker-content.market-pulse-content {
+            animation-duration: 55s;
         }
 
         .ticker-content:hover {
@@ -144,6 +155,80 @@
             color: var(--primary);
             margin-right: 8px;
             font-weight: bold;
+        }
+
+        /* Market pulse ticker items */
+        .pulse-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 32px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .pulse-item .pulse-sep {
+            color: #2a3a5e;
+            margin: 0 28px 0 0;
+            font-size: 0.9rem;
+        }
+
+        .pulse-item .pulse-name {
+            color: #8ba3cc;
+            margin-right: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .pulse-item .pulse-val {
+            font-weight: 900;
+            margin-right: 5px;
+        }
+
+        .pulse-item .pulse-pct {
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .pulse-up .pulse-val,
+        .pulse-up .pulse-pct {
+            color: #22c55e;
+        }
+
+        .pulse-down .pulse-val,
+        .pulse-down .pulse-pct {
+            color: #ef4444;
+        }
+
+        .pulse-section-label {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            padding: 1px 8px;
+            border-radius: 2px;
+            margin-right: 14px;
+            vertical-align: middle;
+        }
+
+        .pulse-section-label.up-label {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .pulse-section-label.down-label {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .news-tab-label {
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 0.7rem;
+            margin-right: 6px;
+            letter-spacing: 0.5px;
         }
 
         @keyframes scroll-left {
@@ -895,6 +980,18 @@
         </div>
     </div>
 
+    <div class="ticker-bar market-pulse-bar">
+        <div class="ticker-label"
+            style="background:#0a0f1e;color:#4a6fa5;border-right:1px solid #1a2744;font-size:0.6rem;letter-spacing:1.2px;line-height:1.3;text-align:center;">
+            MARKET<br>PULSE</div>
+        <div class="ticker-track">
+            <div class="ticker-content market-pulse-content" id="market-pulse-feed">
+                <span style="color:#2a3a5e;font-size:0.75rem;font-family:'Courier New',monospace;">Fetching market
+                    data...</span>
+            </div>
+        </div>
+    </div>
+
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('global')" id="tab-global">GLOBAL</div>
         <div class="tab" onclick="nav('asia')" id="tab-asia">ASIA</div>
@@ -1325,8 +1422,8 @@
                 // THE FIX: Sort by Airtable's exact system creation time right here in the browser
                 json.records.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
 
-                if (tableName === "Global News" && json.records.length > 0) {
-                    updateTicker(json.records);
+                if (json.records.length > 0) {
+                    updateTicker(json.records, tableName);
                 }
 
                 var html = "";
@@ -1438,11 +1535,87 @@
         }
 
         // --- TICKER ---
-        function updateTicker(records) {
+        var flashNewsStore = {
+            'Global News': { label: 'GLOBAL', records: [] },
+            'Asia News': { label: 'ASIA', records: [] },
+            'Philippines News': { label: 'PH', records: [] },
+            'AI News': { label: 'AI & TECH', records: [] },
+            'Luxury': { label: 'LUXURY', records: [] },
+            'Culture': { label: 'CULTURE', records: [] },
+        };
+
+        function updateTicker(records, tableName) {
+            var tab = tableName || 'Global News';
+            if (flashNewsStore[tab]) {
+                flashNewsStore[tab].records = records;
+            }
+            rebuildFlashTicker();
+        }
+
+        function rebuildFlashTicker() {
             var ticker = document.getElementById('ticker-feed');
             if (!ticker) return;
-            var items = records.map(r => `<div class="ticker-item"><span>///</span> ${r.fields.Headline || "Market Update"}</div>`).join('');
-            ticker.innerHTML = items;
+            var allItems = [];
+            var tabOrder = ['Global News', 'Asia News', 'Philippines News', 'AI News', 'Luxury', 'Culture'];
+            tabOrder.forEach(function (tab) {
+                var entry = flashNewsStore[tab];
+                if (!entry || !entry.records.length) return;
+                entry.records.slice(0, 8).forEach(function (r) {
+                    var headline = (r.fields && r.fields.Headline) ? r.fields.Headline : 'Update';
+                    allItems.push(
+                        '<div class="ticker-item">' +
+                        '<span class="news-tab-label">' + entry.label + ':</span>' +
+                        '<span style="color:#e0e0e0;">' + headline + '</span>' +
+                        '</div>'
+                    );
+                });
+            });
+            if (!allItems.length) return;
+            var html = allItems.join('');
+            ticker.innerHTML = html + html;
+            var approxWidth = allItems.length * 420;
+            var duration = Math.max(60, Math.round(approxWidth / 120));
+            ticker.style.animation = 'none';
+            ticker.offsetHeight;
+            ticker.style.animation = 'scroll-left ' + duration + 's linear infinite';
+        }
+
+        // --- MARKET PULSE TICKER ---
+        function renderMarketPulseTicker() {
+            var feed = document.getElementById('market-pulse-feed');
+            if (!feed) return;
+            var allData = (breadthAllData || []).concat(breadthCryptoData || []);
+            var valid = allData.filter(function (d) { return d.chgPct != null; });
+            if (!valid.length) return;
+            var sorted = valid.slice().sort(function (a, b) { return (b.chgPct || 0) - (a.chgPct || 0); });
+            var gainers = sorted.slice(0, 10);
+            var losers = sorted.slice(-10).reverse();
+            var html = '';
+            html += '<span class="pulse-section-label up-label">&#9650; MOST LONGED</span>';
+            gainers.forEach(function (item) {
+                var sign = item.chgPct >= 0 ? '+' : '';
+                var shortName = item.name.length > 18 ? item.name.substring(0, 17) + '…' : item.name;
+                html += '<span class="pulse-item pulse-up">' +
+                    '<span class="pulse-name">' + shortName + '</span>' +
+                    '<span class="pulse-pct">' + sign + item.chgPct.toFixed(2) + '%</span>' +
+                    '</span><span style="color:#1a2744;margin:0 8px;font-size:0.8rem;">|</span>';
+            });
+            html += '<span style="display:inline-block;width:50px;"></span>';
+            html += '<span class="pulse-section-label down-label">&#9660; MOST SHORTED</span>';
+            losers.forEach(function (item) {
+                var sign = item.chgPct >= 0 ? '+' : '';
+                var shortName = item.name.length > 18 ? item.name.substring(0, 17) + '…' : item.name;
+                html += '<span class="pulse-item pulse-down">' +
+                    '<span class="pulse-name">' + shortName + '</span>' +
+                    '<span class="pulse-pct">' + sign + item.chgPct.toFixed(2) + '%</span>' +
+                    '</span><span style="color:#1a2744;margin:0 8px;font-size:0.8rem;">|</span>';
+            });
+            feed.innerHTML = html + '<span style="display:inline-block;width:100px;"></span>' + html;
+            var approxWidth = (gainers.length + losers.length) * 210;
+            var duration = Math.max(35, Math.round(approxWidth / 90));
+            feed.style.animation = 'none';
+            feed.offsetHeight;
+            feed.style.animation = 'scroll-left ' + duration + 's linear infinite';
         }
 
         // --- NAVIGATION ---
@@ -1644,6 +1817,7 @@
                 renderTopSection();
                 renderBreadthTab();
                 startJitter();
+                renderMarketPulseTicker();
 
                 // Also fetch crypto
                 fetchCryptoData();
@@ -1669,6 +1843,7 @@
                     };
                 });
                 if (breadthCurrentTab === 'crypto') renderBreadthTab();
+                renderMarketPulseTicker();
             } catch (e) { console.warn('CoinGecko error', e); }
         }
 
@@ -2917,9 +3092,14 @@
         window.fetchAirtable("Philippines News", "news-feed-philippines");
         window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
+        window.fetchAirtable("Culture", "news-feed-culture");
 
         fetchConsumerMood();
         setupMarketSearch();
+
+        // Background market data fetch for Market Pulse ticker (no UI dependency)
+        setTimeout(function () { window.fetchMarketData(); }, 1500);
+        setInterval(function () { window.fetchMarketData(); }, 120000);
 
         updateWorldClocks();
         setInterval(updateWorldClocks, 1000);
