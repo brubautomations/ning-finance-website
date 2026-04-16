@@ -3154,8 +3154,7 @@
         setInterval(fetchConsumerMood, 300000);
 
         // --- UMAMI STATS ---
-        const UMAMI_KEY = 'api_WxitS05p9TrCznhralpmXMbS3Qbs2CCx';
-        const UMAMI_SITE_ID = '7d8c9072-1757-41dd-b64e-9a9ee2e2e924';
+        const UMAMI_PROXY = 'https://script.google.com/macros/s/AKfycbxXUFCmDraPQZ0gD5WOXE9VD5RJB8JDohx4BJNY5JLq3xOE1QDKNvA6K6BsQ2DB2hY/exec';
         var umamiStats = { visitors: 0, visits: 0, views: 0 };
 
         function formatStatNum(n) {
@@ -3174,14 +3173,7 @@
 
         async function fetchUmamiStats() {
             try {
-                var now = Date.now();
-                var startOfYear = new Date(new Date().getFullYear(), 0, 1).getTime();
-                var apiUrl = 'https://cloud.umami.is/api/websites/' + UMAMI_SITE_ID + '/stats?startAt=' + startOfYear + '&endAt=' + now;
-                // Route through CORS proxy since Umami Cloud blocks direct browser calls
-                var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(apiUrl);
-                var res = await fetch(proxyUrl, {
-                    headers: { 'x-umami-api-key': UMAMI_KEY }
-                });
+                var res = await fetch(UMAMI_PROXY);
                 var data = await res.json();
                 if (data && data.visitors) {
                     umamiStats.visitors = data.visitors.value || 0;
