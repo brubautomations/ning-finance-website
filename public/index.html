@@ -1928,7 +1928,7 @@
         // ============================================================
         // MARKET DATA SUB-TABS
         // ============================================================
-        const MAKE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz6mpgd7xyMkxxAuuDISNeN1TV8514IQg3UT9IQJ4HGpPs5vROZzO25tca9T_D1I8zg/exec';
+        const MAKE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxVw1mHyVXL8rstjeP0f2S7kOhVhPzfxWqSIVJRk9Z9qFcNtBjBVmA2qDXiSfDP5Sop/exec';
         const FINNHUB_KEY = 'd77sidhr01qsamsi1magd77sidhr01qsamsi1mb0';
 
         let mktCurrentTicker = null;
@@ -2257,7 +2257,7 @@
         // ============================================================
         // ETF & FUNDS — FUND TAB SWITCHING
         // ============================================================
-        const FUND_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz6mpgd7xyMkxxAuuDISNeN1TV8514IQg3UT9IQJ4HGpPs5vROZzO25tca9T_D1I8zg/exec';
+        const FUND_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxVw1mHyVXL8rstjeP0f2S7kOhVhPzfxWqSIVJRk9Z9qFcNtBjBVmA2qDXiSfDP5Sop/exec';
         const FUND_TABLE = 'Fund_Data'; // new Airtable table
 
         // ── FUND SEARCH — single merged search for ETF + Mutual Funds
@@ -2376,7 +2376,7 @@
 
             // Step 2 — fire Make webhook
             container.innerHTML = '<div class="card" style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">DISPATCHING REQUEST FOR ' + ticker + '...<br><span style="color:#888;font-size:0.75rem;font-weight:400;">This may take 15-30 seconds</span></div>';
-            try { await fetch('https://script.google.com/macros/s/AKfycbz6mpgd7xyMkxxAuuDISNeN1TV8514IQg3UT9IQJ4HGpPs5vROZzO25tca9T_D1I8zg/exec?action=getFundData&ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' }); } catch (e) { }
+            try { await fetch('https://script.google.com/macros/s/AKfycbxVw1mHyVXL8rstjeP0f2S7kOhVhPzfxWqSIVJRk9Z9qFcNtBjBVmA2qDXiSfDP5Sop/exec?action=getFundData&ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' }); } catch (e) { }
 
             // Step 3 — poll Airtable
             var attempts = 0;
