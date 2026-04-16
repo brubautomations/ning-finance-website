@@ -982,8 +982,9 @@
 
     <div class="ticker-bar market-pulse-bar">
         <div class="ticker-label"
-            style="background:#0a0f1e;color:#4a6fa5;border-right:1px solid #1a2744;font-size:0.6rem;letter-spacing:1.2px;line-height:1.3;text-align:center;">
-            MARKET<br>PULSE</div>
+            style="background:#0a0f1e;border-right:1px solid #1a2744;font-size:0.62rem;letter-spacing:1px;line-height:1.25;text-align:center;padding:0 12px;">
+            <span style="color:#22c55e;font-weight:900;">MARKET</span><br><span
+                style="color:#ef4444;font-weight:900;">MOVERS</span></div>
         <div class="ticker-track">
             <div class="ticker-content market-pulse-content" id="market-pulse-feed">
                 <span style="color:#2a3a5e;font-size:0.75rem;font-family:'Courier New',monospace;">Fetching market
@@ -1574,7 +1575,7 @@
             var html = allItems.join('');
             ticker.innerHTML = html + html;
             var approxWidth = allItems.length * 420;
-            var duration = Math.max(60, Math.round(approxWidth / 120));
+            var duration = Math.max(120, Math.round(approxWidth / 50));
             ticker.style.animation = 'none';
             ticker.offsetHeight;
             ticker.style.animation = 'scroll-left ' + duration + 's linear infinite';
@@ -1612,7 +1613,7 @@
             });
             feed.innerHTML = html + '<span style="display:inline-block;width:100px;"></span>' + html;
             var approxWidth = (gainers.length + losers.length) * 210;
-            var duration = Math.max(35, Math.round(approxWidth / 90));
+            var duration = Math.max(80, Math.round(approxWidth / 35));
             feed.style.animation = 'none';
             feed.offsetHeight;
             feed.style.animation = 'scroll-left ' + duration + 's linear infinite';
