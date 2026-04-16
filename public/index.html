@@ -3157,16 +3157,10 @@
         const UMAMI_PROXY = 'https://script.google.com/macros/s/AKfycbzvv2mRJg0kDlO6n09K6EDjI9WgsOSt5qXOP7IVzXEDRwHZpbbnojg0wQSHG1nn8A/exec';
         var umamiStats = { visitors: 0, visits: 0, views: 0 };
 
-        function formatStatNum(n) {
-            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-            if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
-            return n.toLocaleString();
-        }
-
         function tickStat(elId, currentVal) {
             var el = document.getElementById(elId);
             if (!el) return;
-            el.textContent = formatStatNum(currentVal);
+            el.textContent = currentVal.toLocaleString();
             el.classList.add('tick');
             setTimeout(function () { el.classList.remove('tick'); }, 600);
         }
