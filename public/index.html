@@ -2624,9 +2624,7 @@
             today.setHours(0, 0, 0, 0);
             var html = '';
 
-            if (updated) {
-                html += '<div style="font-size:0.78rem;color:#aaa;font-style:italic;margin-bottom:16px;">Last updated: ' + updated + ' · Refreshes daily at 5AM PHT</div>';
-            }
+
 
             // ── MARKET MOVERS banner
             var highEvents = events.filter(function (e) { return getImpact(e.type) === 'high'; })
