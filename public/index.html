@@ -3176,9 +3176,9 @@
                 var res = await fetch(UMAMI_PROXY);
                 var data = await res.json();
                 if (data && data.visitors) {
-                    umamiStats.visitors = data.visitors.value || 0;
-                    umamiStats.visits = data.visits.value || 0;
-                    umamiStats.views = data.pageviews.value || 0;
+                    umamiStats.visitors = data.visitors || 0;
+                    umamiStats.visits = data.visits || 0;
+                    umamiStats.views = data.pageviews || 0;
                     tickStat('stat-visitors', umamiStats.visitors);
                     tickStat('stat-visits', umamiStats.visits);
                     tickStat('stat-views', umamiStats.views);
