@@ -2062,19 +2062,367 @@
         }
 
         // ============================================================
-        // CRYPTO DATA — TOP HOLDERS (placeholder — next build)
+        // CRYPTO DATA — TOP HOLDERS
         // ============================================================
         var holdersSearchTimer = null;
+        var holdersSelectedCoin = null;
+        const ETHERSCAN_KEY = 'YourEtherscanKeyHere'; // free at etherscan.io
+
         function holdersSearch(query) {
-            // TODO: build in next session
+            clearTimeout(holdersSearchTimer);
+            var suggestions = document.getElementById('holders-suggestions');
+            if (!query || query.length < 2) { suggestions.style.display = 'none'; return; }
+            holdersSearchTimer = setTimeout(async function() {
+                try {
+                    var res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(query));
+                    var data = await res.json();
+                    var coins = (data.coins || []).slice(0, 8);
+                    if (!coins.length) { suggestions.style.display = 'none'; return; }
+                    suggestions.innerHTML = coins.map(function(c) {
+                        return '<li onclick="selectHoldersCoin(\'' + c.id + '\',\'' + (c.name||'').replace(/'/g,"\\'") + '\',\'' + (c.symbol||'').toUpperCase() + '\')" ' +
+                            'style="padding:10px 16px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;" ' +
+                            'onmouseover="this.style.background=\'#fff8f0\'" onmouseout="this.style.background=\'#fff\'">' +
+                            (c.thumb ? '<img src="' + c.thumb + '" style="width:20px;height:20px;border-radius:50%;">' : '') +
+                            '<span>' + (c.name||'') + '</span>' +
+                            '<span style="color:#aaa;font-size:0.75rem;">' + (c.symbol||'').toUpperCase() + '</span>' +
+                            '<span style="margin-left:auto;font-size:0.7rem;color:#ccc;">RANK #' + (c.market_cap_rank||'—') + '</span>' +
+                            '</li>';
+                    }).join('');
+                    suggestions.style.display = 'block';
+                } catch(e) { suggestions.style.display = 'none'; }
+            }, 300);
         }
 
+        async function selectHoldersCoin(id, name, symbol) {
+            document.getElementById('holders-search-input').value = name + ' (' + symbol + ')';
+            document.getElementById('holders-suggestions').style.display = 'none';
+            holdersSelectedCoin = { id, name, symbol };
+            await loadTopHolders(id, symbol);
+        }
+
+        async function loadTopHolders(id, symbol) {
+            var result = document.getElementById('crypto-holders-result');
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Fetching top holders for ' + symbol + '...</div>';
+            try {
+                // Get coin details from CoinGecko to find contract address
+                var cgRes = await fetch('https://api.coingecko.com/api/v3/coins/' + id + '?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false');
+                var cgData = await cgRes.json();
+                var platforms = cgData.platforms || {};
+
+                // BTC special case — use blockchain.info rich list
+                if (id === 'bitcoin') {
+                    await loadBTCRichList(result);
+                    return;
+                }
+
+                // Find Ethereum contract address
+                var ethContract = platforms['ethereum'] || platforms['ethereum-pos'] || null;
+                if (!ethContract) {
+                    // No ETH contract — show what chains are available
+                    var chains = Object.entries(platforms).filter(function(e){ return e[1]; });
+                    if (!chains.length) {
+                        result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No on-chain holder data available for ' + symbol + '. This coin may not have a public holder API.</div>';
+                    } else {
+                        result.innerHTML = '<div style="padding:20px;background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;">' +
+                            '<div style="font-size:0.75rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:10px;">AVAILABLE ON CHAINS</div>' +
+                            chains.map(function(e){ return '<div style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">' + e[0].toUpperCase() + ': <span style="font-family:Courier New,monospace;font-size:0.75rem;word-break:break-all;">' + e[1] + '</span></div>'; }).join('') +
+                            '<div style="margin-top:14px;font-size:0.8rem;color:#aaa;">Top holder data is currently supported for Ethereum (ERC-20) and Bitcoin only.</div>' +
+                            '</div>';
+                    }
+                    return;
+                }
+
+                // Fetch top holders from Etherscan
+                var url = 'https://api.etherscan.io/api?module=token&action=tokenholderlist&contractaddress=' + ethContract + '&page=1&offset=20&apikey=' + ETHERSCAN_KEY;
+                var res = await fetch(url);
+                var data = await res.json();
+
+                if (!data.result || data.result === 'Max rate limit reached' || data.status === '0') {
+                    // Etherscan rate limited or no key — show contract info only
+                    result.innerHTML = buildHoldersNoDataCard(symbol, ethContract, cgData);
+                    return;
+                }
+
+                // Get total supply for % calculation
+                var supplyRes = await fetch('https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=' + ethContract + '&apikey=' + ETHERSCAN_KEY);
+                var supplyData = await supplyRes.json();
+                var totalSupply = parseFloat(supplyData.result) || 0;
+
+                var holders = data.result;
+                var html = buildHoldersTable(holders, totalSupply, symbol, ethContract);
+                result.innerHTML = html;
+
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading holder data. Please try again.</div>';
+            }
+        }
+
+        async function loadBTCRichList(result) {
+            try {
+                var res = await fetch('https://blockchain.info/richlist?format=json');
+                var data = await res.json();
+                var holders = data.addresses || [];
+                var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">BITCOIN TOP HOLDERS (RICH LIST)</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.8rem;">';
+                html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">#</th>' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">ADDRESS</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BALANCE (BTC)</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">LAST TX</th>' +
+                    '</tr></thead><tbody>';
+                holders.slice(0,20).forEach(function(h, i) {
+                    var btc = (h.final_balance / 1e8).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+                    var lastTx = h.n_tx ? timeAgoFromTs(h.account_index) : '—';
+                    var shortAddr = h.address ? h.address.substring(0,8) + '...' + h.address.substring(h.address.length-6) : '—';
+                    html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
+                        '<td style="padding:10px 12px;font-weight:900;color:var(--primary);">' + (i+1) + '</td>' +
+                        '<td style="padding:10px 12px;"><span title="' + h.address + '" style="cursor:help;">' + shortAddr + '</span></td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + btc + '</td>' +
+                        '<td style="padding:10px 12px;text-align:right;color:#888;">' + lastTx + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: blockchain.info · Hover address to see full wallet</div>';
+                result.innerHTML = html;
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Bitcoin rich list unavailable. blockchain.info may be blocking browser requests due to CORS. Try again later.</div>';
+            }
+        }
+
+        function buildHoldersTable(holders, totalSupply, symbol, contract) {
+            var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">TOP HOLDERS — ' + symbol + '</div>';
+            html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;font-family:Courier New,monospace;word-break:break-all;">Contract: ' + contract + '</div>';
+            html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.8rem;">';
+            html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
+                '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">#</th>' +
+                '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">ADDRESS</th>' +
+                '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BALANCE</th>' +
+                '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">% SUPPLY</th>' +
+                '</tr></thead><tbody>';
+            holders.forEach(function(h, i) {
+                var bal = parseFloat(h.TokenHolderQuantity) || 0;
+                var pctSupply = totalSupply > 0 ? ((bal / totalSupply) * 100).toFixed(4) : '—';
+                var shortAddr = h.TokenHolderAddress ? h.TokenHolderAddress.substring(0,8) + '...' + h.TokenHolderAddress.substring(h.TokenHolderAddress.length-6) : '—';
+                var balFmt = bal >= 1e12 ? (bal/1e12).toFixed(2)+'T' : bal >= 1e9 ? (bal/1e9).toFixed(2)+'B' : bal >= 1e6 ? (bal/1e6).toFixed(2)+'M' : bal.toLocaleString();
+                html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
+                    '<td style="padding:10px 12px;font-weight:900;color:var(--primary);">' + (i+1) + '</td>' +
+                    '<td style="padding:10px 12px;"><a href="https://etherscan.io/address/' + h.TokenHolderAddress + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + h.TokenHolderAddress + '">' + shortAddr + ' 🔗</a></td>' +
+                    '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + balFmt + '</td>' +
+                    '<td style="padding:10px 12px;text-align:right;color:#888;">' + pctSupply + '%</td>' +
+                    '</tr>';
+            });
+            html += '</tbody></table></div>';
+            html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: Etherscan · Click address to view on Etherscan · Hover to see full wallet address</div>';
+            return html;
+        }
+
+        function buildHoldersNoDataCard(symbol, contract, cgData) {
+            return '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;padding:20px;">' +
+                '<div style="font-size:0.75rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:10px;">CONTRACT FOUND — ' + symbol + '</div>' +
+                '<div style="font-size:0.75rem;font-family:Courier New,monospace;word-break:break-all;margin-bottom:14px;color:var(--text-main);">' + contract + '</div>' +
+                '<div style="font-size:0.8rem;color:#888;">Full holder list requires an Etherscan API key. Add your free key at etherscan.io/apis and update ETHERSCAN_KEY in the code.</div>' +
+                '<a href="https://etherscan.io/token/' + contract + '#balances" target="_blank" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#f7931a;color:#000;font-size:0.75rem;font-weight:900;text-decoration:none;">VIEW ON ETHERSCAN →</a>' +
+                '</div>';
+        }
+
+        function timeAgoFromTs(ts) {
+            if (!ts) return '—';
+            var seconds = Math.floor(Date.now()/1000) - ts;
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return Math.floor(seconds/60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds/3600) + 'h ago';
+            return Math.floor(seconds/86400) + 'd ago';
+        }
+
+
         // ============================================================
-        // CRYPTO DATA — WHALE ALERTS (placeholder — next build)
+        // CRYPTO DATA — WHALE ALERTS
         // ============================================================
         var whalesSearchTimer = null;
+        var whalesSelectedCoin = null;
+
         function whalesSearch(query) {
-            // TODO: build in next session
+            clearTimeout(whalesSearchTimer);
+            var suggestions = document.getElementById('whales-suggestions');
+            if (!query || query.length < 2) { suggestions.style.display = 'none'; return; }
+            whalesSearchTimer = setTimeout(async function() {
+                try {
+                    var res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(query));
+                    var data = await res.json();
+                    var coins = (data.coins || []).slice(0, 8);
+                    if (!coins.length) { suggestions.style.display = 'none'; return; }
+                    suggestions.innerHTML = coins.map(function(c) {
+                        return '<li onclick="selectWhalesCoin(\'' + c.id + '\',\'' + (c.name||'').replace(/'/g,"\\'") + '\',\'' + (c.symbol||'').toUpperCase() + '\')" ' +
+                            'style="padding:10px 16px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;" ' +
+                            'onmouseover="this.style.background=\'#fff8f0\'" onmouseout="this.style.background=\'#fff\'">' +
+                            (c.thumb ? '<img src="' + c.thumb + '" style="width:20px;height:20px;border-radius:50%;">' : '') +
+                            '<span>' + (c.name||'') + '</span>' +
+                            '<span style="color:#aaa;font-size:0.75rem;">' + (c.symbol||'').toUpperCase() + '</span>' +
+                            '<span style="margin-left:auto;font-size:0.7rem;color:#ccc;">RANK #' + (c.market_cap_rank||'—') + '</span>' +
+                            '</li>';
+                    }).join('');
+                    suggestions.style.display = 'block';
+                } catch(e) { suggestions.style.display = 'none'; }
+            }, 300);
+        }
+
+        async function selectWhalesCoin(id, name, symbol) {
+            document.getElementById('whales-search-input').value = name + ' (' + symbol + ')';
+            document.getElementById('whales-suggestions').style.display = 'none';
+            whalesSelectedCoin = { id, name, symbol };
+            await loadWhaleAlerts(id, symbol);
+        }
+
+        async function loadWhaleAlerts(id, symbol) {
+            var result = document.getElementById('crypto-whales-result');
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Scanning large transactions for ' + symbol + '...</div>';
+            try {
+                var cgRes = await fetch('https://api.coingecko.com/api/v3/coins/' + id + '?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false');
+                var cgData = await cgRes.json();
+                var platforms = cgData.platforms || {};
+                var priceUsd = cgData.market_data && cgData.market_data.current_price && cgData.market_data.current_price.usd || 0;
+
+                // BTC — use mempool.space large transactions
+                if (id === 'bitcoin') {
+                    await loadBTCWhales(result, priceUsd);
+                    return;
+                }
+
+                var ethContract = platforms['ethereum'] || platforms['ethereum-pos'] || null;
+                if (!ethContract) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Whale alert data is currently supported for Ethereum (ERC-20) tokens and Bitcoin only.<br><br>' +
+                        (Object.keys(platforms).length ? 'This token is on: ' + Object.keys(platforms).filter(function(k){return platforms[k];}).join(', ') : '') + '</div>';
+                    return;
+                }
+
+                // Get large token transfers via Etherscan
+                var url = 'https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=' + ethContract +
+                    '&page=1&offset=50&sort=desc&apikey=' + ETHERSCAN_KEY;
+                var res = await fetch(url);
+                var data = await res.json();
+
+                if (!data.result || data.status === '0') {
+                    result.innerHTML = buildWhalesNoDataCard(symbol, ethContract);
+                    return;
+                }
+
+                // Filter large transactions — top 20% by value
+                var txs = data.result;
+                var decimals = txs[0] ? parseInt(txs[0].tokenDecimal) || 18 : 18;
+                var parsed = txs.map(function(tx) {
+                    var amount = parseFloat(tx.value) / Math.pow(10, decimals);
+                    var usdValue = priceUsd ? amount * priceUsd : 0;
+                    return { tx, amount, usdValue };
+                }).filter(function(t) { return t.usdValue >= 100000 || t.amount > 0; });
+
+                // Sort by value descending, take top 20
+                parsed.sort(function(a,b){ return b.usdValue - a.usdValue; });
+                var large = parsed.slice(0, 20);
+
+                if (!large.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No large transactions found in the last 50 transfers. Try a higher-volume token.</div>';
+                    return;
+                }
+
+                var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">LARGE TRANSFERS — ' + symbol + '</div>';
+                html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;">Showing largest recent on-chain movements · Threshold: $100,000+</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.78rem;">';
+                html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TIME</th>' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">FROM</th>' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TO</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">AMOUNT</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">USD VALUE</th>' +
+                    '</tr></thead><tbody>';
+
+                large.forEach(function(item) {
+                    var tx = item.tx;
+                    var timeAgoStr = timeAgoFromTs(parseInt(tx.timeStamp));
+                    var from = tx.from ? tx.from.substring(0,6)+'...'+tx.from.substring(tx.from.length-4) : '—';
+                    var to   = tx.to   ? tx.to.substring(0,6)+'...'+tx.to.substring(tx.to.length-4)     : '—';
+                    var amtFmt = item.amount >= 1e9 ? (item.amount/1e9).toFixed(2)+'B' :
+                                 item.amount >= 1e6 ? (item.amount/1e6).toFixed(2)+'M' :
+                                 item.amount >= 1e3 ? (item.amount/1e3).toFixed(2)+'K' :
+                                 item.amount.toFixed(2);
+                    var usdFmt = item.usdValue >= 1e9 ? '$'+(item.usdValue/1e9).toFixed(2)+'B' :
+                                 item.usdValue >= 1e6 ? '$'+(item.usdValue/1e6).toFixed(2)+'M' :
+                                 item.usdValue >= 1e3 ? '$'+(item.usdValue/1e3).toFixed(0)+'K' :
+                                 item.usdValue > 0 ? '$'+item.usdValue.toFixed(2) : '—';
+                    var usdColor = item.usdValue >= 1e6 ? '#dc2626' : item.usdValue >= 500000 ? '#f97316' : '#888';
+                    html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
+                        '<td style="padding:10px 12px;color:#888;">' + timeAgoStr + '</td>' +
+                        '<td style="padding:10px 12px;"><a href="https://etherscan.io/address/' + tx.from + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + tx.from + '">' + from + '</a></td>' +
+                        '<td style="padding:10px 12px;"><a href="https://etherscan.io/address/' + tx.to + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + tx.to + '">' + to + '</a></td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + amtFmt + ' ' + symbol + '</td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-weight:900;color:' + usdColor + ';">' + usdFmt + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: Etherscan · Hover addresses to see full wallet · Click to view on Etherscan</div>';
+                result.innerHTML = html;
+
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading whale data. Please try again.</div>';
+            }
+        }
+
+        async function loadBTCWhales(result, priceUsd) {
+            try {
+                var res = await fetch('https://blockchain.info/unconfirmed-transactions?format=json&limit=50');
+                var data = await res.json();
+                var txs = data.txs || [];
+
+                // Filter large ones
+                var large = txs.map(function(tx) {
+                    var totalOut = (tx.out || []).reduce(function(s,o){ return s + (o.value||0); }, 0);
+                    var btcAmount = totalOut / 1e8;
+                    var usdValue = priceUsd ? btcAmount * priceUsd : 0;
+                    return { tx, btcAmount, usdValue };
+                }).filter(function(t){ return t.usdValue >= 100000; })
+                  .sort(function(a,b){ return b.usdValue - a.usdValue; })
+                  .slice(0, 20);
+
+                if (!large.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No BTC transactions above $100,000 in current mempool. Try again shortly.</div>';
+                    return;
+                }
+
+                var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">BTC WHALE MOVEMENTS — LIVE MEMPOOL</div>';
+                html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;">Unconfirmed transactions above $100,000 · Updates on refresh</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.78rem;">';
+                html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
+                    '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TX HASH</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BTC AMOUNT</th>' +
+                    '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">USD VALUE</th>' +
+                    '</tr></thead><tbody>';
+
+                large.forEach(function(item) {
+                    var hash = item.tx.hash ? item.tx.hash.substring(0,10)+'...' : '—';
+                    var btcFmt = item.btcAmount.toFixed(4) + ' BTC';
+                    var usdFmt = item.usdValue >= 1e6 ? '$'+(item.usdValue/1e6).toFixed(2)+'M' :
+                                 '$'+(item.usdValue/1e3).toFixed(0)+'K';
+                    var usdColor = item.usdValue >= 1e6 ? '#dc2626' : '#f97316';
+                    html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
+                        '<td style="padding:10px 12px;"><a href="https://blockchain.info/tx/' + item.tx.hash + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + item.tx.hash + '">' + hash + ' 🔗</a></td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + btcFmt + '</td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-weight:900;color:' + usdColor + ';">' + usdFmt + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: blockchain.info mempool · Click TX hash to view on blockchain.info</div>';
+                result.innerHTML = html;
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">BTC mempool data unavailable due to CORS restrictions. Try again or view directly at blockchain.info.</div>';
+            }
+        }
+
+        function buildWhalesNoDataCard(symbol, contract) {
+            return '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;padding:20px;">' +
+                '<div style="font-size:0.75rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:10px;">CONTRACT FOUND — ' + symbol + '</div>' +
+                '<div style="font-size:0.75rem;font-family:Courier New,monospace;word-break:break-all;margin-bottom:14px;color:var(--text-main);">' + contract + '</div>' +
+                '<div style="font-size:0.8rem;color:#888;">Large transaction data requires an Etherscan API key. Add your free key at etherscan.io/apis and update ETHERSCAN_KEY in the code.</div>' +
+                '<a href="https://etherscan.io/token/' + contract + '" target="_blank" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#f7931a;color:#000;font-size:0.75rem;font-weight:900;text-decoration:none;">VIEW ON ETHERSCAN →</a>' +
+                '</div>';
         }
 
         // Session memory — resets on page refresh, no storage needed
