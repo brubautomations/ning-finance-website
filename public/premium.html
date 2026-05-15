@@ -986,6 +986,7 @@
         <div class="tab" onclick="nav('ecodata')" id="tab-ecodata">ECONOMIC DATA BY COUNTRY</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
+        <div class="tab" onclick="nav('cryptodata')" id="tab-cryptodata" style="color:#f7931a;font-weight:900;">CRYPTO DATA</div>
         <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
 
         <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
@@ -1327,6 +1328,79 @@
                     </div>
                     <div id="institutional-content"></div>
                 </div>
+            </div>
+
+        </div>
+
+
+        <div id="cryptodata" class="page">
+            <h2 style="border-left-color:#f7931a;">CRYPTO DATA <span style="font-size:0.7rem;color:#f7931a;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:1px;margin-left:10px;">LIVE ON-CHAIN INTELLIGENCE</span></h2>
+
+            <!-- CRYPTO SUB-TABS -->
+            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:30px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
+                <div id="crypto-tab-fundamentals" onclick="switchCryptoTab('fundamentals')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid #f7931a;color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    TOKEN FUNDAMENTALS</div>
+                <div id="crypto-tab-holders" onclick="switchCryptoTab('holders')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    TOP HOLDERS</div>
+                <div id="crypto-tab-whales" onclick="switchCryptoTab('whales')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    WHALE ALERTS</div>
+            </div>
+
+            <!-- TOKEN FUNDAMENTALS SUB-PAGE -->
+            <div id="crypto-sub-fundamentals">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">SEARCH ANY CRYPTOCURRENCY</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Type a coin name or symbol — e.g. Bitcoin, PEPE, Solana, Dogecoin...</div>
+                <div style="position:relative;max-width:480px;margin-bottom:24px;">
+                    <input type="text" id="crypto-search-input" autocomplete="off"
+                        placeholder="Search coins..."
+                        style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;background:var(--card-bg);color:var(--text-main);"
+                        oninput="cryptoSearch(this.value)"
+                        onfocus="this.style.borderColor='#f7931a'"
+                        onblur="this.style.borderColor='var(--border)'">
+                    <ul id="crypto-suggestions"
+                        style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:2px solid #f7931a;border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                    </ul>
+                </div>
+                <div id="crypto-fundamentals-result"></div>
+            </div>
+
+            <!-- TOP HOLDERS SUB-PAGE -->
+            <div id="crypto-sub-holders" style="display:none;">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">TOP WALLET HOLDERS</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Search a token to see its largest wallet holders, balances, and last movement.</div>
+                <div style="position:relative;max-width:480px;margin-bottom:24px;">
+                    <input type="text" id="holders-search-input" autocomplete="off"
+                        placeholder="Search coins..."
+                        style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;background:var(--card-bg);color:var(--text-main);"
+                        oninput="holdersSearch(this.value)"
+                        onfocus="this.style.borderColor='#f7931a'"
+                        onblur="this.style.borderColor='var(--border)'">
+                    <ul id="holders-suggestions"
+                        style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:2px solid #f7931a;border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                    </ul>
+                </div>
+                <div id="crypto-holders-result"></div>
+            </div>
+
+            <!-- WHALE ALERTS SUB-PAGE -->
+            <div id="crypto-sub-whales" style="display:none;">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">LARGE ON-CHAIN TRANSACTIONS</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Search a token to see recent whale movements above threshold.</div>
+                <div style="position:relative;max-width:480px;margin-bottom:24px;">
+                    <input type="text" id="whales-search-input" autocomplete="off"
+                        placeholder="Search coins..."
+                        style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;background:var(--card-bg);color:var(--text-main);"
+                        oninput="whalesSearch(this.value)"
+                        onfocus="this.style.borderColor='#f7931a'"
+                        onblur="this.style.borderColor='var(--border)'">
+                    <ul id="whales-suggestions"
+                        style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:2px solid #f7931a;border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
+                    </ul>
+                </div>
+                <div id="crypto-whales-result"></div>
             </div>
 
         </div>
@@ -1822,6 +1896,186 @@
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
         function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
+
+        // ============================================================
+        // CRYPTO DATA — SUB-TAB SWITCHER
+        // ============================================================
+        function switchCryptoTab(tab) {
+            ['fundamentals','holders','whales'].forEach(function(t) {
+                var el = document.getElementById('crypto-sub-' + t);
+                var tabEl = document.getElementById('crypto-tab-' + t);
+                if (el) el.style.display = t === tab ? 'block' : 'none';
+                if (tabEl) {
+                    tabEl.style.borderBottom = t === tab ? '3px solid #f7931a' : '3px solid transparent';
+                    tabEl.style.color = t === tab ? '#000' : '#888';
+                }
+            });
+        }
+
+        // ============================================================
+        // CRYPTO DATA — TOKEN FUNDAMENTALS (CoinGecko free API)
+        // ============================================================
+        var cryptoSearchTimer = null;
+        var cryptoSelectedCoin = null;
+
+        function cryptoSearch(query) {
+            clearTimeout(cryptoSearchTimer);
+            var suggestions = document.getElementById('crypto-suggestions');
+            if (!query || query.length < 2) { suggestions.style.display = 'none'; return; }
+            cryptoSearchTimer = setTimeout(async function() {
+                try {
+                    var res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(query));
+                    var data = await res.json();
+                    var coins = (data.coins || []).slice(0, 8);
+                    if (!coins.length) { suggestions.style.display = 'none'; return; }
+                    suggestions.innerHTML = coins.map(function(c) {
+                        return '<li onclick="selectCoin(\'' + c.id + '\',\'' + (c.name||'').replace(/'/g,"\\'") + '\',\'' + (c.symbol||'').toUpperCase() + '\')" ' +
+                            'style="padding:10px 16px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;" ' +
+                            'onmouseover="this.style.background=\'#fff8f0\'" onmouseout="this.style.background=\'#fff\'">' +
+                            (c.thumb ? '<img src="' + c.thumb + '" style="width:20px;height:20px;border-radius:50%;">' : '') +
+                            '<span>' + (c.name||'') + '</span>' +
+                            '<span style="color:#aaa;font-size:0.75rem;">' + (c.symbol||'').toUpperCase() + '</span>' +
+                            '<span style="margin-left:auto;font-size:0.7rem;color:#ccc;">RANK #' + (c.market_cap_rank||'—') + '</span>' +
+                            '</li>';
+                    }).join('');
+                    suggestions.style.display = 'block';
+                } catch(e) { suggestions.style.display = 'none'; }
+            }, 300);
+        }
+
+        async function selectCoin(id, name, symbol) {
+            document.getElementById('crypto-search-input').value = name + ' (' + symbol + ')';
+            document.getElementById('crypto-suggestions').style.display = 'none';
+            cryptoSelectedCoin = { id, name, symbol };
+            await loadTokenFundamentals(id);
+        }
+
+        async function loadTokenFundamentals(id) {
+            var result = document.getElementById('crypto-fundamentals-result');
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading ' + id + ' data...</div>';
+            try {
+                var res = await fetch('https://api.coingecko.com/api/v3/coins/' + id + '?localization=false&tickers=false&community_data=false&developer_data=false');
+                var d = await res.json();
+                var m = d.market_data || {};
+
+                function fmt(n) {
+                    if (n == null) return '—';
+                    if (Math.abs(n) >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+                    if (Math.abs(n) >= 1e9)  return '$' + (n/1e9).toFixed(2) + 'B';
+                    if (Math.abs(n) >= 1e6)  return '$' + (n/1e6).toFixed(2) + 'M';
+                    if (Math.abs(n) >= 1e3)  return '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+                    return '$' + n.toFixed(6);
+                }
+                function fmtNum(n) {
+                    if (n == null) return '—';
+                    if (n >= 1e12) return (n/1e12).toFixed(2) + 'T';
+                    if (n >= 1e9)  return (n/1e9).toFixed(2) + 'B';
+                    if (n >= 1e6)  return (n/1e6).toFixed(2) + 'M';
+                    return n.toLocaleString();
+                }
+                function pct(n) {
+                    if (n == null) return '—';
+                    var color = n >= 0 ? '#16a34a' : '#dc2626';
+                    var sign = n >= 0 ? '+' : '';
+                    return '<span style="color:' + color + ';font-weight:900;">' + sign + n.toFixed(2) + '%</span>';
+                }
+
+                var price = m.current_price && m.current_price.usd;
+                var ath = m.ath && m.ath.usd;
+                var athDate = m.ath_date && m.ath_date.usd ? new Date(m.ath_date.usd).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
+                var athPctOff = m.ath_change_percentage && m.ath_change_percentage.usd;
+                var mcap = m.market_cap && m.market_cap.usd;
+                var vol24h = m.total_volume && m.total_volume.usd;
+                var supply = m.circulating_supply;
+                var totalSupply = m.total_supply;
+                var maxSupply = m.max_supply;
+                var pct1h = m.price_change_percentage_1h_in_currency && m.price_change_percentage_1h_in_currency.usd;
+                var pct24h = m.price_change_percentage_24h;
+                var pct7d = m.price_change_percentage_7d;
+                var pct30d = m.price_change_percentage_30d;
+                var contract = d.platforms ? Object.entries(d.platforms).filter(function(e){return e[1];}) : [];
+
+                var html = '<div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">';
+                if (d.image && d.image.large) html += '<img src="' + d.image.large + '" style="width:56px;height:56px;border-radius:50%;">';
+                html += '<div>';
+                html += '<div style="font-family:Merriweather,serif;font-size:1.6rem;font-weight:900;">' + (d.name||'') + '</div>';
+                html += '<div style="font-size:0.8rem;color:#888;font-weight:700;letter-spacing:1px;">' + (d.symbol||'').toUpperCase() + ' · RANK #' + (d.market_cap_rank||'—') + '</div>';
+                html += '</div></div>';
+
+                // Price + changes
+                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;">';
+                var cards = [
+                    { label:'CURRENT PRICE', val: fmt(price) },
+                    { label:'MARKET CAP',    val: fmt(mcap) },
+                    { label:'24H VOLUME',    val: fmt(vol24h) },
+                    { label:'ALL-TIME HIGH', val: fmt(ath) + '<div style="font-size:0.7rem;color:#aaa;margin-top:2px;">' + athDate + ' · ' + (athPctOff != null ? '<span style="color:' + (athPctOff>=0?'#16a34a':'#dc2626') + ';">' + (athPctOff>=0?'+':'') + athPctOff.toFixed(1) + '% from ATH</span>' : '') + '</div>' },
+                    { label:'CIRCULATING SUPPLY', val: fmtNum(supply) + ' ' + (d.symbol||'').toUpperCase() },
+                    { label:'TOTAL SUPPLY',  val: fmtNum(totalSupply) + (totalSupply ? ' ' + (d.symbol||'').toUpperCase() : '') },
+                    { label:'MAX SUPPLY',    val: maxSupply ? fmtNum(maxSupply) + ' ' + (d.symbol||'').toUpperCase() : '∞ Unlimited' },
+                ];
+                cards.forEach(function(c) {
+                    html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;padding:16px 20px;">' +
+                        '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">' + c.label + '</div>' +
+                        '<div style="font-size:1.1rem;font-weight:900;color:var(--text-main);">' + c.val + '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+
+                // Price changes table
+                html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #000;padding:20px;margin-bottom:24px;">';
+                html += '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">PRICE PERFORMANCE</div>';
+                html += '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;">';
+                html += '<thead><tr style="border-bottom:2px solid var(--border);">' +
+                    '<th style="padding:8px 12px;text-align:left;font-size:0.7rem;color:#aaa;font-weight:900;">PERIOD</th>' +
+                    '<th style="padding:8px 12px;text-align:right;font-size:0.7rem;color:#aaa;font-weight:900;">CHANGE</th>' +
+                    '</tr></thead><tbody>';
+                [
+                    ['1 HOUR',   pct1h],
+                    ['24 HOURS', pct24h],
+                    ['7 DAYS',   pct7d],
+                    ['30 DAYS',  pct30d],
+                ].forEach(function(row) {
+                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:10px 12px;font-size:0.8rem;font-weight:700;color:var(--text-main);">' + row[0] + '</td>' +
+                        '<td style="padding:10px 12px;text-align:right;font-size:0.9rem;">' + pct(row[1]) + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+
+                // Contract addresses
+                if (contract.length) {
+                    html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #000;padding:20px;">';
+                    html += '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">CONTRACT ADDRESSES</div>';
+                    contract.forEach(function(e) {
+                        html += '<div style="margin-bottom:10px;">' +
+                            '<div style="font-size:0.65rem;font-weight:900;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">' + e[0] + '</div>' +
+                            '<div style="font-size:0.75rem;font-family:Courier New,monospace;word-break:break-all;color:var(--text-main);">' + e[1] + '</div>' +
+                            '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                result.innerHTML = html;
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading data. CoinGecko may be rate limiting — try again in a moment.</div>';
+            }
+        }
+
+        // ============================================================
+        // CRYPTO DATA — TOP HOLDERS (placeholder — next build)
+        // ============================================================
+        var holdersSearchTimer = null;
+        function holdersSearch(query) {
+            // TODO: build in next session
+        }
+
+        // ============================================================
+        // CRYPTO DATA — WHALE ALERTS (placeholder — next build)
+        // ============================================================
+        var whalesSearchTimer = null;
+        function whalesSearch(query) {
+            // TODO: build in next session
+        }
 
         // Session memory — resets on page refresh, no storage needed
         let chatHistory = [];
@@ -3254,6 +3508,7 @@
         <div class="mob-tab" id="mob-tab-screener" onclick="nav('screener')"><span class="mob-icon">🎯</span>SCREENER
         </div>
         <div class="mob-tab" id="mob-tab-flows" onclick="nav('flows')"><span class="mob-icon">🐋</span>SMART$</div>
+        <div class="mob-tab" id="mob-tab-cryptodata" onclick="nav('cryptodata')" style="color:#f7931a;"><span class="mob-icon">🪙</span>CRYPTO</div>
         <div class="mob-tab" id="mob-tab-ningning" onclick="nav('ningning')"><span class="mob-icon">🤖</span>NINGNING
         </div>
         <div class="mob-tab" id="mob-tab-avm" onclick="nav('avm')" style="color:#cba258;"><span
