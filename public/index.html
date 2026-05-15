@@ -1300,7 +1300,7 @@
                         ECONOMIC CALENDAR</div>
                     <div id="mkt-tab-crypto" onclick="switchMarketTab('crypto')"
                         style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                        CRYPTO LOOKUP</div>
+                        CRYPTOCURRENCY</div>
                 </div>
                 <div id="mkt-breadth" class="mkt-subpage">
                     <!-- MOST LONGED / MOST SHORTED — always visible -->
@@ -3412,7 +3412,7 @@
         // --- CRYPTO LOOKUP ---
         var cryptoLookupTimer = null;
 
-        function cryptoLookupSearch(query) {
+        window.cryptoLookupSearch = function(query) {
             clearTimeout(cryptoLookupTimer);
             var suggestions = document.getElementById('crypto-lookup-suggestions');
             if (!query || query.length < 2) { suggestions.style.display = 'none'; return; }
@@ -3437,7 +3437,7 @@
             }, 300);
         }
 
-        async function cryptoLookupSelect(id, name, symbol) {
+        window.cryptoLookupSelect = async function(id, name, symbol) {
             document.getElementById('crypto-lookup-input').value = name + ' (' + symbol + ')';
             document.getElementById('crypto-lookup-suggestions').style.display = 'none';
             var result = document.getElementById('crypto-lookup-result');
