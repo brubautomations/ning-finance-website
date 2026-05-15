@@ -20,7 +20,7 @@ exports.handler = async function(event) {
   let url = '';
 
   if (action === 'tokenowners') {
-    url = `https://deep-index.moralis.io/api/v2.2/erc20/${contract}/owners?chain=${chain}&limit=${limit}&order=DESC`;
+    url = `https://deep-index.moralis.io/api/v2.2/erc20/${contract}/holders?chain=${chain}&limit=${limit}&order=DESC`;
     if (cursor) url += `&cursor=${cursor}`;
   } else {
     return {
