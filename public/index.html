@@ -3362,21 +3362,6 @@
             }
         }
 
-
-        // --- THEME TOGGLE ---
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('ning_theme', theme);
-            document.getElementById('theme-light').classList.toggle('active', theme === 'light');
-            document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
-        }
-
-        // Load saved theme on start
-        (function() {
-            var saved = localStorage.getItem('ning_theme') || 'light';
-            setTheme(saved);
-        })();
-
         // --- AUTO START ---
         window.checkUrlForDeepLinks();
         const params = new URLSearchParams(window.location.search);
@@ -3464,6 +3449,22 @@
         <div class="mob-tab" id="mob-tab-culture" onclick="nav('culture')"><span class="mob-icon">🎭</span>CULTURE</div>
     </div>
 
+
+    <script>
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('ning_theme', theme);
+            var light = document.getElementById('theme-light');
+            var dark  = document.getElementById('theme-dark');
+            if (light) light.classList.toggle('active', theme === 'light');
+            if (dark)  dark.classList.toggle('active', theme === 'dark');
+        }
+        // Apply saved theme immediately on load
+        (function() {
+            var saved = localStorage.getItem('ning_theme') || 'light';
+            setTheme(saved);
+        })();
+    </script>
 </body>
 
 </html>
