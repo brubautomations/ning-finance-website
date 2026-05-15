@@ -2130,22 +2130,17 @@
                     return;
                 }
 
-                // Fetch top holders via Netlify proxy (key stays server-side)
-                var res = await fetch('/.netlify/functions/etherscan?action=tokenholderlist&contract=' + ethContract + '&page=1&offset=20');
+                // Fetch top holders via Moralis (supports free tier, no Pro needed)
+                var res = await fetch('/.netlify/functions/moralis?action=tokenowners&contract=' + ethContract + '&limit=20');
                 var data = await res.json();
 
-                if (!data.result || data.status === '0') {
+                if (!data.result || !data.result.length) {
                     result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Holder data temporarily unavailable. Please try again in a moment.</div>';
                     return;
                 }
 
-                // Get total supply for % calculation
-                var supplyRes = await fetch('/.netlify/functions/etherscan?action=tokensupply&contract=' + ethContract);
-                var supplyData = await supplyRes.json();
-                var totalSupply = parseFloat(supplyData.result) || 0;
-
                 var holders = data.result;
-                var html = buildHoldersTable(holders, totalSupply, symbol, ethContract);
+                var html = buildHoldersTable(holders, symbol, ethContract);
                 result.innerHTML = html;
 
             } catch(e) {
@@ -2185,9 +2180,8 @@
             }
         }
 
-        function buildHoldersTable(holders, totalSupply, symbol, contract) {
-            var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">TOP HOLDERS — ' + symbol + '</div>';
-            html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;font-family:Courier New,monospace;word-break:break-all;">Contract: ' + contract + '</div>';
+        function buildHoldersTable(holders, symbol, contract) {
+            var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">TOP HOLDERS — ' + symbol + '</div>';
             html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.8rem;">';
             html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
                 '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">#</th>' +
@@ -2196,19 +2190,29 @@
                 '<th style="padding:10px 12px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">% SUPPLY</th>' +
                 '</tr></thead><tbody>';
             holders.forEach(function(h, i) {
-                var bal = parseFloat(h.TokenHolderQuantity) || 0;
-                var pctSupply = totalSupply > 0 ? ((bal / totalSupply) * 100).toFixed(4) : '—';
-                var shortAddr = h.TokenHolderAddress ? h.TokenHolderAddress.substring(0,8) + '...' + h.TokenHolderAddress.substring(h.TokenHolderAddress.length-6) : '—';
-                var balFmt = bal >= 1e12 ? (bal/1e12).toFixed(2)+'T' : bal >= 1e9 ? (bal/1e9).toFixed(2)+'B' : bal >= 1e6 ? (bal/1e6).toFixed(2)+'M' : bal.toLocaleString();
+                // Moralis returns balance_formatted and percentage_relative_to_total_supply
+                var bal = parseFloat(h.balance_formatted) || 0;
+                var pct = h.percentage_relative_to_total_supply != null
+                    ? parseFloat(h.percentage_relative_to_total_supply).toFixed(4) + '%'
+                    : '—';
+                var addr = h.owner_address || h.address || '';
+                var shortAddr = addr ? addr.substring(0,8) + '...' + addr.substring(addr.length-6) : '—';
+                var balFmt = bal >= 1e12 ? (bal/1e12).toFixed(2)+'T' :
+                             bal >= 1e9  ? (bal/1e9).toFixed(2)+'B'  :
+                             bal >= 1e6  ? (bal/1e6).toFixed(2)+'M'  :
+                             bal >= 1e3  ? (bal/1e3).toFixed(2)+'K'  :
+                             bal.toLocaleString(undefined, {maximumFractionDigits:2});
+                // Flag known exchange wallets
+                var label = h.owner_address_label ? ' <span style="font-size:0.65rem;background:#f5f5f5;color:#888;padding:1px 5px;border-radius:2px;">' + h.owner_address_label + '</span>' : '';
                 html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
                     '<td style="padding:10px 12px;font-weight:900;color:var(--primary);">' + (i+1) + '</td>' +
-                    '<td style="padding:10px 12px;"><a href="https://etherscan.io/address/' + h.TokenHolderAddress + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + h.TokenHolderAddress + '">' + shortAddr + ' 🔗</a></td>' +
-                    '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + balFmt + '</td>' +
-                    '<td style="padding:10px 12px;text-align:right;color:#888;">' + pctSupply + '%</td>' +
+                    '<td style="padding:10px 12px;"><span title="' + addr + '" style="cursor:help;">' + shortAddr + '</span>' + label + '</td>' +
+                    '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + balFmt + ' ' + symbol + '</td>' +
+                    '<td style="padding:10px 12px;text-align:right;color:#888;">' + pct + '</td>' +
                     '</tr>';
             });
             html += '</tbody></table></div>';
-            html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Hover addresses to see full wallet</div>';
+            html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Hover address to see full wallet</div>';
             return html;
         }
 
@@ -2293,14 +2297,14 @@
                     return;
                 }
 
-                // Filter large transactions — top 20% by value
+                // Filter to genuine large transactions only — $50,000+ USD value
                 var txs = data.result;
                 var decimals = txs[0] ? parseInt(txs[0].tokenDecimal) || 18 : 18;
                 var parsed = txs.map(function(tx) {
                     var amount = parseFloat(tx.value) / Math.pow(10, decimals);
                     var usdValue = priceUsd ? amount * priceUsd : 0;
                     return { tx, amount, usdValue };
-                }).filter(function(t) { return t.usdValue >= 100000 || t.amount > 0; });
+                }).filter(function(t) { return t.usdValue >= 50000; });
 
                 // Sort by value descending, take top 20
                 parsed.sort(function(a,b){ return b.usdValue - a.usdValue; });
@@ -2312,7 +2316,7 @@
                 }
 
                 var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">LARGE TRANSFERS — ' + symbol + '</div>';
-                html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;">Showing largest recent on-chain movements · Threshold: $100,000+</div>';
+                html += '<div style="font-size:0.7rem;color:#aaa;margin-bottom:14px;">Showing largest recent on-chain movements · Threshold: $50,000+</div>';
                 html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.78rem;">';
                 html += '<thead><tr style="border-bottom:2px solid var(--border);background:var(--card-bg);">' +
                     '<th style="padding:10px 12px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TIME</th>' +
