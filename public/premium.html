@@ -2066,8 +2066,6 @@
         // ============================================================
         var holdersSearchTimer = null;
         var holdersSelectedCoin = null;
-        const ETHERSCAN_KEY = 'YourEtherscanKeyHere'; // free at etherscan.io
-
         function holdersSearch(query) {
             clearTimeout(holdersSearchTimer);
             var suggestions = document.getElementById('holders-suggestions');
@@ -2132,19 +2130,17 @@
                     return;
                 }
 
-                // Fetch top holders from Etherscan
-                var url = 'https://api.etherscan.io/api?module=token&action=tokenholderlist&contractaddress=' + ethContract + '&page=1&offset=20&apikey=' + ETHERSCAN_KEY;
-                var res = await fetch(url);
+                // Fetch top holders via Netlify proxy (key stays server-side)
+                var res = await fetch('/.netlify/functions/etherscan?action=tokenholderlist&contract=' + ethContract + '&page=1&offset=20');
                 var data = await res.json();
 
-                if (!data.result || data.result === 'Max rate limit reached' || data.status === '0') {
-                    // Etherscan rate limited or no key — show contract info only
-                    result.innerHTML = buildHoldersNoDataCard(symbol, ethContract, cgData);
+                if (!data.result || data.status === '0') {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Holder data temporarily unavailable. Please try again in a moment.</div>';
                     return;
                 }
 
                 // Get total supply for % calculation
-                var supplyRes = await fetch('https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=' + ethContract + '&apikey=' + ETHERSCAN_KEY);
+                var supplyRes = await fetch('/.netlify/functions/etherscan?action=tokensupply&contract=' + ethContract);
                 var supplyData = await supplyRes.json();
                 var totalSupply = parseFloat(supplyData.result) || 0;
 
@@ -2159,7 +2155,7 @@
 
         async function loadBTCRichList(result) {
             try {
-                var res = await fetch('https://blockchain.info/richlist?format=json');
+                var res = await fetch('/.netlify/functions/blockchain?action=richlist');
                 var data = await res.json();
                 var holders = data.addresses || [];
                 var html = '<div style="font-size:0.7rem;font-weight:900;letter-spacing:1px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">BITCOIN TOP HOLDERS (RICH LIST)</div>';
@@ -2182,10 +2178,10 @@
                         '</tr>';
                 });
                 html += '</tbody></table></div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: blockchain.info · Hover address to see full wallet</div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Hover address to see full wallet</div>';
                 result.innerHTML = html;
             } catch(e) {
-                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Bitcoin rich list unavailable. blockchain.info may be blocking browser requests due to CORS. Try again later.</div>';
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Bitcoin rich list temporarily unavailable. Please try again in a moment.</div>';
             }
         }
 
@@ -2212,18 +2208,11 @@
                     '</tr>';
             });
             html += '</tbody></table></div>';
-            html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: Etherscan · Click address to view on Etherscan · Hover to see full wallet address</div>';
+            html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Hover addresses to see full wallet</div>';
             return html;
         }
 
-        function buildHoldersNoDataCard(symbol, contract, cgData) {
-            return '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;padding:20px;">' +
-                '<div style="font-size:0.75rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:10px;">CONTRACT FOUND — ' + symbol + '</div>' +
-                '<div style="font-size:0.75rem;font-family:Courier New,monospace;word-break:break-all;margin-bottom:14px;color:var(--text-main);">' + contract + '</div>' +
-                '<div style="font-size:0.8rem;color:#888;">Full holder list requires an Etherscan API key. Add your free key at etherscan.io/apis and update ETHERSCAN_KEY in the code.</div>' +
-                '<a href="https://etherscan.io/token/' + contract + '#balances" target="_blank" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#f7931a;color:#000;font-size:0.75rem;font-weight:900;text-decoration:none;">VIEW ON ETHERSCAN →</a>' +
-                '</div>';
-        }
+
 
         function timeAgoFromTs(ts) {
             if (!ts) return '—';
@@ -2295,14 +2284,12 @@
                     return;
                 }
 
-                // Get large token transfers via Etherscan
-                var url = 'https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=' + ethContract +
-                    '&page=1&offset=50&sort=desc&apikey=' + ETHERSCAN_KEY;
-                var res = await fetch(url);
+                // Get large token transfers via Netlify proxy (key stays server-side)
+                var res = await fetch('/.netlify/functions/etherscan?action=tokentx&contract=' + ethContract);
                 var data = await res.json();
 
                 if (!data.result || data.status === '0') {
-                    result.innerHTML = buildWhalesNoDataCard(symbol, ethContract);
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">Transaction data temporarily unavailable. Please try again in a moment.</div>';
                     return;
                 }
 
@@ -2358,7 +2345,7 @@
                         '</tr>';
                 });
                 html += '</tbody></table></div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: Etherscan · Hover addresses to see full wallet · Click to view on Etherscan</div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Hover addresses to see full wallet</div>';
                 result.innerHTML = html;
 
             } catch(e) {
@@ -2368,7 +2355,7 @@
 
         async function loadBTCWhales(result, priceUsd) {
             try {
-                var res = await fetch('https://blockchain.info/unconfirmed-transactions?format=json&limit=50');
+                var res = await fetch('/.netlify/functions/blockchain?action=mempool');
                 var data = await res.json();
                 var txs = data.txs || [];
 
@@ -2403,27 +2390,20 @@
                                  '$'+(item.usdValue/1e3).toFixed(0)+'K';
                     var usdColor = item.usdValue >= 1e6 ? '#dc2626' : '#f97316';
                     html += '<tr style="border-bottom:1px solid var(--border);" onmouseover="this.style.background=\'var(--bg)\'" onmouseout="this.style.background=\'\'">' +
-                        '<td style="padding:10px 12px;"><a href="https://blockchain.info/tx/' + item.tx.hash + '" target="_blank" style="color:var(--text-main);text-decoration:none;" title="' + item.tx.hash + '">' + hash + ' 🔗</a></td>' +
+                        '<td style="padding:10px 12px;font-family:Courier New,monospace;" title="' + item.tx.hash + '">' + hash + '</td>' +
                         '<td style="padding:10px 12px;text-align:right;font-weight:900;color:var(--text-main);">' + btcFmt + '</td>' +
                         '<td style="padding:10px 12px;text-align:right;font-weight:900;color:' + usdColor + ';">' + usdFmt + '</td>' +
                         '</tr>';
                 });
                 html += '</tbody></table></div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Source: blockchain.info mempool · Click TX hash to view on blockchain.info</div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Data refreshed live · Click TX hash for full details</div>';
                 result.innerHTML = html;
             } catch(e) {
-                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">BTC mempool data unavailable due to CORS restrictions. Try again or view directly at blockchain.info.</div>';
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">BTC mempool data temporarily unavailable. Please try again in a moment.</div>';
             }
         }
 
-        function buildWhalesNoDataCard(symbol, contract) {
-            return '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:3px solid #f7931a;padding:20px;">' +
-                '<div style="font-size:0.75rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:10px;">CONTRACT FOUND — ' + symbol + '</div>' +
-                '<div style="font-size:0.75rem;font-family:Courier New,monospace;word-break:break-all;margin-bottom:14px;color:var(--text-main);">' + contract + '</div>' +
-                '<div style="font-size:0.8rem;color:#888;">Large transaction data requires an Etherscan API key. Add your free key at etherscan.io/apis and update ETHERSCAN_KEY in the code.</div>' +
-                '<a href="https://etherscan.io/token/' + contract + '" target="_blank" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#f7931a;color:#000;font-size:0.75rem;font-weight:900;text-decoration:none;">VIEW ON ETHERSCAN →</a>' +
-                '</div>';
-        }
+
 
         // Session memory — resets on page refresh, no storage needed
         let chatHistory = [];
