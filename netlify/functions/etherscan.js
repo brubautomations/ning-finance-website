@@ -21,11 +21,11 @@ exports.handler = async function(event) {
   let url = '';
 
   if (action === 'tokenholderlist') {
-    url = `https://api.etherscan.io/api?module=token&action=tokenholderlist&contractaddress=${contract}&page=${page}&offset=${offset}&apikey=${key}`;
+    url = `https://api.etherscan.io/v2/api?chainid=1&module=token&action=tokenholderlist&contractaddress=${contract}&page=${page}&offset=${offset}&apikey=${key}`;
   } else if (action === 'tokensupply') {
-    url = `https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=${contract}&apikey=${key}`;
+    url = `https://api.etherscan.io/v2/api?chainid=1&module=stats&action=tokensupply&contractaddress=${contract}&apikey=${key}`;
   } else if (action === 'tokentx') {
-    url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contract}&page=${page}&offset=50&sort=${sort}&apikey=${key}`;
+    url = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=tokentx&contractaddress=${contract}&page=${page}&offset=50&sort=${sort}&apikey=${key}`;
   } else {
     return {
       statusCode: 400,
