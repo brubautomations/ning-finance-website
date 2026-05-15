@@ -1034,6 +1034,7 @@
         <div class="tab" onclick="nav('philippines')" id="tab-philippines">PHILIPPINES</div>
         <div class="tab" onclick="nav('market')" id="tab-market">MARKET DATA</div>
         <div class="tab" onclick="nav('tech')" id="tab-tech">AI & TECH</div>
+        <div class="tab" onclick="nav('crypto')" id="tab-crypto">CRYPTO</div>
         <div class="tab" onclick="nav('opinions')" id="tab-opinions">OPINIONS</div>
         <div class="tab" onclick="nav('luxury')" id="tab-luxury">LUXURY</div>
         <div class="tab" onclick="nav('culture')" id="tab-culture">CULTURE</div>
@@ -1239,6 +1240,18 @@
                 </div>
             </div>
 
+            <div id="crypto" class="page">
+                <h2>
+                    <div class="header-row">CRYPTO NEWS <span id="status-indicator">LIVE FEED ACTIVE</span></div>
+                </h2>
+                <div class="vertical-feed" id="news-feed-crypto">
+                    <div class="card" style="border-top-color: #f7931a;">
+                        <h3>Loading...</h3>
+                        <p>Connecting to crypto feed.</p>
+                    </div>
+                </div>
+            </div>
+
             <div id="opinions" class="page">
                 <h2>
                     <div class="header-row">OPINIONS & COMMENTARY<span id="status-indicator"
@@ -1390,6 +1403,13 @@
             <div class="sidebar-widget" style="margin-top: 40px;">
                 <div class="sidebar-title">CONSUMER MOOD</div>
                 <div id="consumer-mood-container">
+                    <div style="font-size:0.8rem;color:#888;font-style:italic;">Loading...</div>
+                </div>
+            </div>
+
+            <div class="sidebar-widget" id="fear-greed-widget" style="display:none;">
+                <div class="sidebar-title">CRYPTO SENTIMENT</div>
+                <div id="fear-greed-container">
                     <div style="font-size:0.8rem;color:#888;font-style:italic;">Loading...</div>
                 </div>
             </div>
@@ -1588,6 +1608,7 @@
             'Asia News': { label: 'ASIA', records: [] },
             'Philippines News': { label: 'PH', records: [] },
             'AI News': { label: 'AI & TECH', records: [] },
+            'Crypto News': { label: 'CRYPTO', records: [] },
             'Luxury': { label: 'LUXURY', records: [] },
             'Culture': { label: 'CULTURE', records: [] },
         };
@@ -1604,7 +1625,7 @@
             var ticker = document.getElementById('ticker-feed');
             if (!ticker) return;
             var allItems = [];
-            var tabOrder = ['Global News', 'Asia News', 'Philippines News', 'AI News', 'Luxury', 'Culture'];
+            var tabOrder = ['Global News', 'Asia News', 'Philippines News', 'AI News', 'Crypto News', 'Luxury', 'Culture'];
             tabOrder.forEach(function (tab) {
                 var entry = flashNewsStore[tab];
                 if (!entry || !entry.records.length) return;
@@ -1683,6 +1704,7 @@
                 if (section === 'luxury') tableNameForUrl = "Luxury";
                 if (section === 'culture') tableNameForUrl = "Culture";
                 if (section === 'tech') tableNameForUrl = "AI News";
+                if (section === 'crypto') tableNameForUrl = "Crypto News";
                 if (section === 'opinions') tableNameForUrl = "Commentary";
                 if (section === 'market') tableNameForUrl = "Market";
                 if (section === 'subs') tableNameForUrl = "Subscriptions";
@@ -1697,6 +1719,18 @@
             if (section === 'philippines') window.fetchAirtable("Philippines News", "news-feed-philippines");
             if (section === 'luxury') window.fetchAirtable("Luxury", "news-feed-luxury");
             if (section === 'tech') window.fetchAirtable("AI News", "news-feed-ai");
+            if (section === 'crypto') {
+                window.fetchAirtable("Crypto News", "news-feed-crypto");
+                fetchFearGreed();
+                document.getElementById('fear-greed-widget').style.display = 'block';
+                var cm = document.querySelector('.sidebar-widget:has(#consumer-mood-container)');
+                if (cm) cm.style.display = 'none';
+            } else {
+                var fgw = document.getElementById('fear-greed-widget');
+                if (fgw) fgw.style.display = 'none';
+                var cm = document.querySelector('.sidebar-widget:has(#consumer-mood-container)');
+                if (cm) cm.style.display = 'block';
+            }
             if (section === 'opinions') window.fetchAirtable("Commentary", "news-feed-opinions");
             if (section === 'culture') window.fetchAirtable("Culture", "news-feed-culture");
             if (section === 'market') window.switchMarketTab('breadth');
@@ -1709,6 +1743,7 @@
             if (s.includes('lux') || s.includes('life')) return 'luxury';
             if (s.includes('culture') || s.includes('style')) return 'culture';
             if (s.includes('tech') || s.includes('ai')) return 'tech';
+            if (s.includes('crypto') || s.includes('bitcoin') || s.includes('blockchain')) return 'crypto';
             if (s.includes('commentary') || s.includes('opinion')) return 'opinions';
             if (s.includes('market')) return 'market';
             if (s.includes('sub')) return 'subs';
@@ -3132,6 +3167,37 @@
             } catch (err) { alert("Could not start call. " + err.message); callBtn.innerHTML = "CALL NING"; }
         };
 
+
+        // --- FEAR & GREED INDEX ---
+        async function fetchFearGreed() {
+            var container = document.getElementById('fear-greed-container');
+            if (!container) return;
+            try {
+                var res = await fetch('https://api.alternative.me/fng/?limit=1');
+                var data = await res.json();
+                var item = data.data[0];
+                var val = parseInt(item.value);
+                var label = item.value_classification;
+                var color = val <= 25 ? '#dc2626' : val <= 45 ? '#f97316' : val <= 55 ? '#eab308' : val <= 75 ? '#22c55e' : '#16a34a';
+                var emoji = val <= 25 ? '😱' : val <= 45 ? '😰' : val <= 55 ? '😐' : val <= 75 ? '😊' : '🤑';
+                container.innerHTML =
+                    '<div style="text-align:center;padding:10px 0;">' +
+                    '<div style="font-size:2.5rem;font-weight:900;color:' + color + ';font-family:Courier New;">' + val + '</div>' +
+                    '<div style="font-size:1.5rem;margin:4px 0;">' + emoji + '</div>' +
+                    '<div style="font-size:0.9rem;font-weight:900;color:' + color + ';letter-spacing:0.5px;">' + label.toUpperCase() + '</div>' +
+
+                    '</div>' +
+                    '<div style="background:#f5f5f5;border-radius:4px;height:8px;margin-top:10px;overflow:hidden;">' +
+                    '<div style="background:' + color + ';height:100%;width:' + val + '%;transition:width 1s ease;"></div>' +
+                    '</div>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#aaa;margin-top:4px;">' +
+                    '<span>EXTREME FEAR</span><span>EXTREME GREED</span>' +
+                    '</div>';
+            } catch(e) {
+                if (container) container.innerHTML = '<div style="font-size:0.8rem;color:#888;">Unable to load.</div>';
+            }
+        }
+
         // --- AUTO START ---
         window.checkUrlForDeepLinks();
         const params = new URLSearchParams(window.location.search);
@@ -3140,6 +3206,7 @@
         window.fetchAirtable("Philippines News", "news-feed-philippines");
         window.fetchAirtable("Luxury", "news-feed-luxury");
         window.fetchAirtable("AI News", "news-feed-ai");
+        window.fetchAirtable("Crypto News", "news-feed-crypto");
         window.fetchAirtable("Culture", "news-feed-culture");
 
         fetchConsumerMood();
@@ -3211,6 +3278,7 @@
         </div>
         <div class="mob-tab" id="mob-tab-market" onclick="nav('market')"><span class="mob-icon">📈</span>MARKET</div>
         <div class="mob-tab" id="mob-tab-tech" onclick="nav('tech')"><span class="mob-icon">🤖</span>AI/TECH</div>
+        <div class="mob-tab" id="mob-tab-crypto" onclick="nav('crypto')"><span class="mob-icon">🪙</span>CRYPTO</div>
         <div class="mob-tab" id="mob-tab-opinions" onclick="nav('opinions')"><span class="mob-icon">💬</span>OPINIONS
         </div>
         <div class="mob-tab" id="mob-tab-luxury" onclick="nav('luxury')"><span class="mob-icon">💎</span>LUXURY</div>
