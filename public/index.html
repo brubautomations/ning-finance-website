@@ -1148,7 +1148,6 @@
             background: var(--primary);
             color: #000;
         }
-
     </style>
 </head>
 
@@ -1395,14 +1394,15 @@
 
                 <!-- ── CRYPTO LOOKUP TAB ──────────────────────────────── -->
                 <div id="mkt-crypto" class="mkt-subpage" style="display:none;">
-                    <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">SEARCH ANY CRYPTOCURRENCY</div>
-                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Type a coin name or symbol — e.g. Bitcoin, PEPE, Solana, Dogecoin...</div>
+                    <div
+                        style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+                        SEARCH ANY CRYPTOCURRENCY</div>
+                    <div style="font-size:0.8rem;color:#aaa;margin-bottom:14px;">Type a coin name or symbol — e.g.
+                        Bitcoin, PEPE, Solana, Dogecoin...</div>
                     <div style="position:relative;max-width:480px;margin-bottom:24px;">
-                        <input type="text" id="crypto-lookup-input" autocomplete="off"
-                            placeholder="Search coins..."
+                        <input type="text" id="crypto-lookup-input" autocomplete="off" placeholder="Search coins..."
                             style="width:100%;box-sizing:border-box;padding:13px 18px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;outline:none;transition:border-color 0.2s;background:#fff;"
-                            oninput="cryptoLookupSearch(this.value)"
-                            onfocus="this.style.borderColor='var(--primary)'"
+                            oninput="cryptoLookupSearch(this.value)" onfocus="this.style.borderColor='var(--primary)'"
                             onblur="this.style.borderColor='var(--border)'">
                         <ul id="crypto-lookup-suggestions"
                             style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid var(--primary);border-top:none;z-index:1000;list-style:none;padding:0;margin:0;max-height:280px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.1);">
@@ -1499,7 +1499,7 @@
 
                     <div class="card price-card" style="border-top-color: var(--primary);">
                         <h3 style="color:var(--primary);">Tier 2</h3>
-                        <h2>$69 / mo</h2>
+                        <h2>$17 / mo</h2>
                         <ul>
                             <li>Everything in Free.</li>
                             <li><strong>Advanced AI Chatbot</strong> — Ask anything across equities, forex, crypto,
@@ -3427,7 +3427,7 @@
                     '<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#aaa;margin-top:4px;">' +
                     '<span>EXTREME FEAR</span><span>EXTREME GREED</span>' +
                     '</div>';
-            } catch(e) {
+            } catch (e) {
                 if (container) container.innerHTML = '<div style="font-size:0.8rem;color:#888;">Unable to load.</div>';
             }
         }
@@ -3457,32 +3457,32 @@
         // --- CRYPTO LOOKUP ---
         var cryptoLookupTimer = null;
 
-        window.cryptoLookupSearch = function(query) {
+        window.cryptoLookupSearch = function (query) {
             clearTimeout(cryptoLookupTimer);
             var suggestions = document.getElementById('crypto-lookup-suggestions');
             if (!query || query.length < 2) { suggestions.style.display = 'none'; return; }
-            cryptoLookupTimer = setTimeout(async function() {
+            cryptoLookupTimer = setTimeout(async function () {
                 try {
                     var res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(query));
                     var data = await res.json();
                     var coins = (data.coins || []).slice(0, 8);
                     if (!coins.length) { suggestions.style.display = 'none'; return; }
-                    suggestions.innerHTML = coins.map(function(c) {
-                        return '<li onclick="cryptoLookupSelect(\'' + c.id + '\',\'' + (c.name||'').replace(/'/g,"\\'") + '\',\'' + (c.symbol||'').toUpperCase() + '\')" ' +
+                    suggestions.innerHTML = coins.map(function (c) {
+                        return '<li onclick="cryptoLookupSelect(\'' + c.id + '\',\'' + (c.name || '').replace(/'/g, "\\'") + '\',\'' + (c.symbol || '').toUpperCase() + '\')" ' +
                             'style="padding:10px 16px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:10px;" ' +
                             'onmouseover="this.style.background=\'#fdf8f0\'" onmouseout="this.style.background=\'#fff\'">' +
                             (c.thumb ? '<img src="' + c.thumb + '" style="width:20px;height:20px;border-radius:50%;">' : '') +
-                            '<span>' + (c.name||'') + '</span>' +
-                            '<span style="color:#aaa;font-size:0.75rem;">' + (c.symbol||'').toUpperCase() + '</span>' +
-                            '<span style="margin-left:auto;font-size:0.7rem;color:#ccc;">RANK #' + (c.market_cap_rank||'—') + '</span>' +
+                            '<span>' + (c.name || '') + '</span>' +
+                            '<span style="color:#aaa;font-size:0.75rem;">' + (c.symbol || '').toUpperCase() + '</span>' +
+                            '<span style="margin-left:auto;font-size:0.7rem;color:#ccc;">RANK #' + (c.market_cap_rank || '—') + '</span>' +
                             '</li>';
                     }).join('');
                     suggestions.style.display = 'block';
-                } catch(e) { suggestions.style.display = 'none'; }
+                } catch (e) { suggestions.style.display = 'none'; }
             }, 1000);
         }
 
-        window.cryptoLookupSelect = async function(id, name, symbol) {
+        window.cryptoLookupSelect = async function (id, name, symbol) {
             document.getElementById('crypto-lookup-input').value = name + ' (' + symbol + ')';
             document.getElementById('crypto-lookup-suggestions').style.display = 'none';
             var result = document.getElementById('crypto-lookup-result');
@@ -3492,27 +3492,27 @@
                 var d = await res.json();
                 var m = d.market_data || {};
                 var comm = d.community_data || {};
-                var sym = (d.symbol||'').toUpperCase();
+                var sym = (d.symbol || '').toUpperCase();
 
                 function fmt(n) {
                     if (n == null) return '—';
-                    if (Math.abs(n) >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
-                    if (Math.abs(n) >= 1e9)  return '$' + (n/1e9).toFixed(2) + 'B';
-                    if (Math.abs(n) >= 1e6)  return '$' + (n/1e6).toFixed(2) + 'M';
-                    if (Math.abs(n) >= 1e3)  return '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+                    if (Math.abs(n) >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+                    if (Math.abs(n) >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+                    if (Math.abs(n) >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+                    if (Math.abs(n) >= 1e3) return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                     return '$' + n.toFixed(6);
                 }
                 function fmtNum(n) {
                     if (n == null) return '—';
-                    if (n >= 1e9) return (n/1e9).toFixed(2)+'B';
-                    if (n >= 1e6) return (n/1e6).toFixed(2)+'M';
-                    if (n >= 1e3) return (n/1e3).toFixed(2)+'K';
+                    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+                    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+                    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
                     return n.toLocaleString();
                 }
                 function pct(n) {
                     if (n == null) return '<span style="color:#aaa;">—</span>';
                     var color = n >= 0 ? 'var(--up)' : 'var(--down)';
-                    return '<span style="color:' + color + ';font-weight:900;">' + (n>=0?'+':'') + n.toFixed(2) + '%</span>';
+                    return '<span style="color:' + color + ';font-weight:900;">' + (n >= 0 ? '+' : '') + n.toFixed(2) + '%</span>';
                 }
                 function row(l, v, l2, v2) {
                     return '<tr style="border-bottom:1px solid var(--border);">' +
@@ -3525,43 +3525,43 @@
                     return '<tr style="background:var(--bg);"><td colspan="4" style="padding:7px 14px;font-size:0.62rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;">' + title + '</td></tr>';
                 }
 
-                var price     = m.current_price && m.current_price.usd;
-                var mcap      = m.market_cap && m.market_cap.usd;
-                var fdv       = m.fully_diluted_valuation && m.fully_diluted_valuation.usd;
-                var vol24h    = m.total_volume && m.total_volume.usd;
-                var volMcap   = (vol24h && mcap) ? (vol24h/mcap*100).toFixed(2)+'%' : '—';
-                var high24h   = m.high_24h && m.high_24h.usd;
-                var low24h    = m.low_24h && m.low_24h.usd;
-                var priceBtc  = m.current_price && m.current_price.btc;
-                var ath       = m.ath && m.ath.usd;
-                var athDate   = m.ath_date && m.ath_date.usd ? new Date(m.ath_date.usd).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
-                var athPct    = m.ath_change_percentage && m.ath_change_percentage.usd;
-                var atl       = m.atl && m.atl.usd;
-                var atlDate   = m.atl_date && m.atl_date.usd ? new Date(m.atl_date.usd).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
-                var atlPct    = m.atl_change_percentage && m.atl_change_percentage.usd;
-                var supply    = m.circulating_supply;
+                var price = m.current_price && m.current_price.usd;
+                var mcap = m.market_cap && m.market_cap.usd;
+                var fdv = m.fully_diluted_valuation && m.fully_diluted_valuation.usd;
+                var vol24h = m.total_volume && m.total_volume.usd;
+                var volMcap = (vol24h && mcap) ? (vol24h / mcap * 100).toFixed(2) + '%' : '—';
+                var high24h = m.high_24h && m.high_24h.usd;
+                var low24h = m.low_24h && m.low_24h.usd;
+                var priceBtc = m.current_price && m.current_price.btc;
+                var ath = m.ath && m.ath.usd;
+                var athDate = m.ath_date && m.ath_date.usd ? new Date(m.ath_date.usd).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+                var athPct = m.ath_change_percentage && m.ath_change_percentage.usd;
+                var atl = m.atl && m.atl.usd;
+                var atlDate = m.atl_date && m.atl_date.usd ? new Date(m.atl_date.usd).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+                var atlPct = m.atl_change_percentage && m.atl_change_percentage.usd;
+                var supply = m.circulating_supply;
                 var maxSupply = m.max_supply;
-                var totalSup  = m.total_supply;
-                var supplyPct = (supply && maxSupply) ? (supply/maxSupply*100).toFixed(1)+'%' : '—';
-                var fdvRatio  = (fdv && mcap) ? (fdv/mcap).toFixed(1)+'x' : '—';
-                var pct1h     = m.price_change_percentage_1h_in_currency && m.price_change_percentage_1h_in_currency.usd;
-                var pct24h    = m.price_change_percentage_24h;
-                var pct7d     = m.price_change_percentage_7d;
-                var pct14d    = m.price_change_percentage_14d;
-                var pct30d    = m.price_change_percentage_30d;
-                var pct60d    = m.price_change_percentage_60d;
-                var pct200d   = m.price_change_percentage_200d;
-                var pct1y     = m.price_change_percentage_1y;
-                var priceChg  = m.price_change_24h;
-                var categories = d.categories ? d.categories.filter(Boolean).slice(0,4) : [];
-                var contract   = d.platforms ? Object.entries(d.platforms).filter(function(e){return e[1];}) : [];
-                var tickers    = d.tickers ? d.tickers.slice(0,5) : [];
-                var mcapRank   = m.market_cap_rank || d.market_cap_rank;
-                var genesisDate = d.genesis_date ? new Date(d.genesis_date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : null;
+                var totalSup = m.total_supply;
+                var supplyPct = (supply && maxSupply) ? (supply / maxSupply * 100).toFixed(1) + '%' : '—';
+                var fdvRatio = (fdv && mcap) ? (fdv / mcap).toFixed(1) + 'x' : '—';
+                var pct1h = m.price_change_percentage_1h_in_currency && m.price_change_percentage_1h_in_currency.usd;
+                var pct24h = m.price_change_percentage_24h;
+                var pct7d = m.price_change_percentage_7d;
+                var pct14d = m.price_change_percentage_14d;
+                var pct30d = m.price_change_percentage_30d;
+                var pct60d = m.price_change_percentage_60d;
+                var pct200d = m.price_change_percentage_200d;
+                var pct1y = m.price_change_percentage_1y;
+                var priceChg = m.price_change_24h;
+                var categories = d.categories ? d.categories.filter(Boolean).slice(0, 4) : [];
+                var contract = d.platforms ? Object.entries(d.platforms).filter(function (e) { return e[1]; }) : [];
+                var tickers = d.tickers ? d.tickers.slice(0, 5) : [];
+                var mcapRank = m.market_cap_rank || d.market_cap_rank;
+                var genesisDate = d.genesis_date ? new Date(d.genesis_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
                 var twFollowers = comm.twitter_followers;
-                var redditSubs  = comm.reddit_subscribers;
+                var redditSubs = comm.reddit_subscribers;
                 var telegramUsers = comm.telegram_channel_user_count;
-                var numMarkets  = d.tickers ? d.tickers.length : null;
+                var numMarkets = d.tickers ? d.tickers.length : null;
 
                 var html = '';
 
@@ -3570,8 +3570,8 @@
                 html += '<div style="display:flex;align-items:center;gap:12px;">';
                 if (d.image && d.image.small) html += '<img src="' + d.image.small + '" style="width:30px;height:30px;border-radius:50%;">';
                 html += '<div>';
-                html += '<div style="font-family:Merriweather,serif;font-size:1.1rem;font-weight:900;text-transform:uppercase;">' + (d.name||'') + ' <span style="color:var(--primary);font-size:0.8rem;">(' + sym + ')</span></div>';
-                html += '<div style="font-size:0.62rem;color:#666;font-weight:700;letter-spacing:1px;margin-top:2px;">RANK #' + (mcapRank||'—') + (genesisDate ? ' · SINCE ' + genesisDate : '') + (categories.length ? ' · ' + categories[0].toUpperCase() : '') + '</div>';
+                html += '<div style="font-family:Merriweather,serif;font-size:1.1rem;font-weight:900;text-transform:uppercase;">' + (d.name || '') + ' <span style="color:var(--primary);font-size:0.8rem;">(' + sym + ')</span></div>';
+                html += '<div style="font-size:0.62rem;color:#666;font-weight:700;letter-spacing:1px;margin-top:2px;">RANK #' + (mcapRank || '—') + (genesisDate ? ' · SINCE ' + genesisDate : '') + (categories.length ? ' · ' + categories[0].toUpperCase() : '') + '</div>';
                 html += '</div></div>';
                 html += '<div style="text-align:right;">';
                 html += '<div style="font-size:1.6rem;font-weight:900;font-family:Courier New,monospace;">' + fmt(price) + '</div>';
@@ -3591,7 +3591,7 @@
                 html += row('Circulating', fmtNum(supply) + ' ' + sym, 'Max Supply', maxSupply ? fmtNum(maxSupply) + ' ' + sym : '\u221E Unlimited');
                 html += row('Total Supply', totalSup ? fmtNum(totalSup) + ' ' + sym : '—', '% Issued', supplyPct);
                 if (supply && maxSupply) {
-                    var pf = Math.min(supply/maxSupply*100, 100);
+                    var pf = Math.min(supply / maxSupply * 100, 100);
                     var bc = pf > 90 ? 'var(--up)' : pf > 50 ? 'var(--primary)' : 'var(--down)';
                     html += '<tr><td colspan="4" style="padding:6px 14px 12px;">' +
                         '<div style="background:#f0f0f0;border-radius:3px;height:6px;overflow:hidden;"><div style="background:' + bc + ';height:100%;width:' + pf.toFixed(1) + '%;"></div></div>' +
@@ -3612,8 +3612,8 @@
                     html += section('TOP EXCHANGES');
                     html += '<tr><td colspan="4" style="padding:0;"><table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.8rem;">';
                     html += '<tr style="background:var(--bg);"><th style="padding:7px 14px;text-align:left;font-size:0.62rem;color:#aaa;font-weight:900;">EXCHANGE</th><th style="padding:7px 14px;text-align:left;font-size:0.62rem;color:#aaa;font-weight:900;">PAIR</th><th style="padding:7px 14px;text-align:right;font-size:0.62rem;color:#aaa;font-weight:900;">PRICE</th><th style="padding:7px 14px;text-align:right;font-size:0.62rem;color:#aaa;font-weight:900;">24H VOL</th></tr>';
-                    tickers.forEach(function(t) {
-                        html += '<tr style="border-top:1px solid var(--border);"><td style="padding:8px 14px;font-weight:700;">' + (t.market&&t.market.name?t.market.name:'—') + '</td><td style="padding:8px 14px;color:#888;">' + (t.base||'') + '/' + (t.target||'') + '</td><td style="padding:8px 14px;text-align:right;font-weight:700;">' + (t.last?fmt(t.last):'—') + '</td><td style="padding:8px 14px;text-align:right;color:#888;">' + (t.converted_volume&&t.converted_volume.usd?fmt(t.converted_volume.usd):'—') + '</td></tr>';
+                    tickers.forEach(function (t) {
+                        html += '<tr style="border-top:1px solid var(--border);"><td style="padding:8px 14px;font-weight:700;">' + (t.market && t.market.name ? t.market.name : '—') + '</td><td style="padding:8px 14px;color:#888;">' + (t.base || '') + '/' + (t.target || '') + '</td><td style="padding:8px 14px;text-align:right;font-weight:700;">' + (t.last ? fmt(t.last) : '—') + '</td><td style="padding:8px 14px;text-align:right;color:#888;">' + (t.converted_volume && t.converted_volume.usd ? fmt(t.converted_volume.usd) : '—') + '</td></tr>';
                     });
                     html += '</table></td></tr>';
                 }
@@ -3628,14 +3628,14 @@
                 // Contracts
                 if (contract.length) {
                     html += section('CONTRACT ADDRESSES');
-                    contract.forEach(function(e) {
+                    contract.forEach(function (e) {
                         html += '<tr><td style="padding:7px 14px;font-size:0.62rem;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">' + e[0] + '</td><td colspan="3" style="padding:7px 14px;font-size:0.72rem;font-family:Courier New,monospace;word-break:break-all;color:var(--text-main);">' + e[1] + '</td></tr>';
                     });
                 }
 
                 html += '</table></div>';
                 result.innerHTML = html;
-            } catch(e) {
+            } catch (e) {
                 result.innerHTML = '<div class="card" style="border-top-color:#ccc;padding:30px;text-align:center;color:#dc2626;">Error loading data. Try again in a moment.</div>';
             }
         }
@@ -3711,12 +3711,12 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('ning_theme', theme);
             var light = document.getElementById('theme-light');
-            var dark  = document.getElementById('theme-dark');
+            var dark = document.getElementById('theme-dark');
             if (light) light.classList.toggle('active', theme === 'light');
-            if (dark)  dark.classList.toggle('active', theme === 'dark');
+            if (dark) dark.classList.toggle('active', theme === 'dark');
         }
         // Apply saved theme immediately on load
-        (function() {
+        (function () {
             var saved = localStorage.getItem('ning_theme') || 'light';
             setTheme(saved);
         })();
