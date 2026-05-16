@@ -1923,10 +1923,10 @@
                     return;
                 }
                 // Sort by date
-                ipos.sort(function(a,b){ return new Date(a.date||a.startDate||0) - new Date(b.date||b.startDate||0); });
+                ipos.sort(function(a,b){ return new Date(a.start_date||0) - new Date(b.start_date||0); });
                 var now    = new Date();
-                var upcoming = ipos.filter(function(i){ return new Date(i.date||i.startDate) >= now; });
-                var recent   = ipos.filter(function(i){ return new Date(i.date||i.startDate) <  now; }).reverse();
+                var upcoming = ipos.filter(function(i){ return new Date(i.start_date) >= now; });
+                var recent   = ipos.filter(function(i){ return new Date(i.start_date) <  now; }).reverse();
 
                 function renderTable(list, title) {
                     if (!list.length) return '';
@@ -1936,22 +1936,30 @@
                         '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
                         '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">COMPANY</th>' +
                         '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">EXCHANGE</th>' +
+                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TYPE</th>' +
                         '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">PRICE RANGE</th>' +
                         '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SHARES</th>' +
                         '</tr></thead><tbody>';
                     list.forEach(function(ipo) {
-                        var date    = ipo.date || ipo.startDate || '—';
-                        var name    = ipo.name || ipo.company || '—';
-                        var exch    = ipo.exchange || '—';
-                        var priceL  = ipo.priceLow  || ipo.price_low  || null;
-                        var priceH  = ipo.priceHigh || ipo.price_high || null;
-                        var shares  = ipo.shares || null;
-                        var priceStr = priceL && priceH ? '$' + priceL + ' – $' + priceH : priceL ? '$' + priceL : '—';
-                        var sharesStr = shares ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' : shares.toLocaleString()) : '—';
+                        var date     = ipo.start_date || '—';
+                        var name     = ipo.name || '—';
+                        var exch     = ipo.exchange || '—';
+                        var dealType = ipo.deal_type || '—';
+                        var priceL   = ipo.price_from || 0;
+                        var priceH   = ipo.price_to   || 0;
+                        var offerP   = ipo.offer_price || 0;
+                        var shares   = ipo.shares || 0;
+                        var priceStr = offerP > 0 ? '$' + offerP :
+                                       (priceL > 0 && priceH > 0) ? '$' + priceL + ' – $' + priceH :
+                                       priceL > 0 ? '$' + priceL + '+' : '—';
+                        var sharesStr = shares > 0 ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' :
+                                        shares >= 1e3 ? (shares/1e3).toFixed(0) + 'K' : shares.toLocaleString()) : '—';
+                        var dealColor = dealType === 'Priced' ? 'color:var(--up);font-weight:900;' : 'color:#888;';
                         html += '<tr style="border-bottom:1px solid var(--border);">' +
-                            '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);">' + date + '</td>' +
+                            '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);white-space:nowrap;">' + date + '</td>' +
                             '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
                             '<td style="padding:9px 14px;color:#888;">' + exch + '</td>' +
+                            '<td style="padding:9px 14px;' + dealColor + '">' + dealType + '</td>' +
                             '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;">' + priceStr + '</td>' +
                             '<td style="padding:9px 14px;text-align:right;color:#888;">' + sharesStr + '</td>' +
                             '</tr>';
@@ -1978,39 +1986,48 @@
             try {
                 var res  = await fetch('/.netlify/functions/eodhd?action=earnings&symbols=' + ticker);
                 var data = await res.json();
-                var earnings = data.earnings || [];
-                if (!earnings.length) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker.</div>';
+                // trends endpoint returns { trends: [[...periods for ticker1], [...periods for ticker2]] }
+                var trends = data.trends || [];
+                var tickerTrends = trends.length ? trends[0] : [];
+                if (!tickerTrends.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker. Try a major US stock like AAPL, MSFT, or NVDA.</div>';
                     return;
                 }
-                // Sort most recent first
-                earnings.sort(function(a,b){ return new Date(b.report_date||b.date||0) - new Date(a.report_date||a.date||0); });
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + ticker + ' — EARNINGS HISTORY & ESTIMATES</div>';
+                var sym = tickerTrends[0].code || ticker;
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — ANALYST EPS ESTIMATE TRENDS</div>';
                 html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
                 html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
-                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">REPORT DATE</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS ACTUAL</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS ESTIMATE</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BEAT/MISS</th>' +
                     '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">PERIOD</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS EST.</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">7D AGO</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">30D AGO</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">REVISIONS UP</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">REVISIONS DOWN</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">ANALYSTS</th>' +
                     '</tr></thead><tbody>';
-                earnings.slice(0,12).forEach(function(e) {
-                    var actual   = e.actual   != null ? parseFloat(e.actual)   : null;
-                    var estimate = e.estimate != null ? parseFloat(e.estimate) : null;
-                    var diff     = (actual != null && estimate != null) ? actual - estimate : null;
-                    var diffPct  = (diff != null && estimate !== 0) ? (diff / Math.abs(estimate) * 100) : null;
-                    var beatStr  = diff != null ? (diff >= 0 ?
-                        '<span style="color:var(--up);font-weight:900;">BEAT +' + (diffPct ? diffPct.toFixed(1) + '%' : diff.toFixed(2)) + '</span>' :
-                        '<span style="color:var(--down);font-weight:900;">MISS ' + (diffPct ? diffPct.toFixed(1) + '%' : diff.toFixed(2)) + '</span>') : '—';
+                tickerTrends.forEach(function(t) {
+                    var curr   = t.earningsEstimateAvg   ? parseFloat(t.earningsEstimateAvg).toFixed(2)   : '—';
+                    var ago7   = t.epsTrend7daysAgo      ? parseFloat(t.epsTrend7daysAgo).toFixed(2)      : '—';
+                    var ago30  = t.epsTrend30daysAgo     ? parseFloat(t.epsTrend30daysAgo).toFixed(2)     : '—';
+                    var revUp  = t.epsRevisionsUpLast30days   ? parseInt(t.epsRevisionsUpLast30days)   : 0;
+                    var revDn  = t.epsRevisionsDownLast30days ? parseInt(t.epsRevisionsDownLast30days) : 0;
+                    var analysts = t.earningsEstimateNumberOfAnalysts ? parseInt(t.earningsEstimateNumberOfAnalysts) : '—';
+                    // Trend vs 30d ago
+                    var trendVs30 = (curr !== '—' && ago30 !== '—') ? parseFloat(curr) - parseFloat(ago30) : null;
+                    var trendColor = trendVs30 > 0 ? 'color:var(--up);font-weight:900;' : trendVs30 < 0 ? 'color:var(--down);font-weight:900;' : '';
+                    var trendStr = trendVs30 != null ? (trendVs30 >= 0 ? '+' : '') + trendVs30.toFixed(2) : '—';
                     html += '<tr style="border-bottom:1px solid var(--border);">' +
-                        '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;">' + (e.report_date||e.date||'—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-weight:900;font-family:Courier New,monospace;">' + (actual != null ? actual.toFixed(2) : '—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;color:#888;font-family:Courier New,monospace;">' + (estimate != null ? estimate.toFixed(2) : '—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;">' + beatStr + '</td>' +
-                        '<td style="padding:9px 14px;color:#888;">' + (e.period||'—') + '</td>' +
+                        '<td style="padding:9px 14px;font-weight:900;color:var(--text-main);">' + (t.period||'—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:900;">' + curr + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;color:#888;">' + ago7 + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;color:#888;">' + ago30 + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;color:var(--up);font-weight:900;">' + (revUp || '—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;color:var(--down);font-weight:900;">' + (revDn || '—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;color:#888;">' + analysts + '</td>' +
                         '</tr>';
                 });
                 html += '</tbody></table></div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Revisions = analyst estimate changes in last 30 days · Period: +1q = next quarter, +1y = next year</div>';
                 result.innerHTML = html;
             } catch(e) {
                 result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading earnings data. Please try again.</div>';
@@ -2029,41 +2046,39 @@
                 var to   = new Date();
                 var from = new Date(); from.setDate(to.getDate() - 30);
                 var fmt  = function(d){ return d.toISOString().split('T')[0]; };
-                var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + ticker + '&from=' + fmt(from) + '&to=' + fmt(to));
+                var sentimentTicker = ticker.includes('.') ? ticker.split('.')[0] : ticker;
+                var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + sentimentTicker + '&from=' + fmt(from) + '&to=' + fmt(to));
                 var data = await res.json();
-                var entries = Array.isArray(data) ? data : (data[ticker] || []);
+                var entries = Array.isArray(data) ? data : (data[Object.keys(data)[0]] || []);
                 if (!entries.length) {
                     result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker in the last 30 days.</div>';
                     return;
                 }
-                // Aggregate
-                var totalPos = 0, totalNeg = 0, totalNeu = 0, totalCount = 0;
+                // EODHD sentiment: normalized (0-1, higher = more positive), count = articles
+                var totalWeighted = 0, totalCount = 0;
                 entries.forEach(function(e) {
-                    totalPos   += (e.positive   || 0) * (e.count || 1);
-                    totalNeg   += (e.negative   || 0) * (e.count || 1);
-                    totalNeu   += (e.neutral    || 0) * (e.count || 1);
-                    totalCount += (e.count || 1);
+                    totalWeighted += (e.normalized || 0) * (e.count || 1);
+                    totalCount    += (e.count || 1);
                 });
-                var avgPos = totalCount ? (totalPos / totalCount * 100) : 0;
-                var avgNeg = totalCount ? (totalNeg / totalCount * 100) : 0;
-                var avgNeu = totalCount ? (totalNeu / totalCount * 100) : 0;
-                var overall = avgPos > avgNeg + 10 ? 'BULLISH' : avgNeg > avgPos + 10 ? 'BEARISH' : 'NEUTRAL';
+                var avgNorm = totalCount ? totalWeighted / totalCount : 0.5;
+                // Convert normalized to positive/neutral/negative buckets
+                var avgPos = avgNorm > 0.6 ? (avgNorm - 0.6) / 0.4 * 100 : 0;
+                var avgNeg = avgNorm < 0.4 ? (0.4 - avgNorm) / 0.4 * 100 : 0;
+                var avgNeu = 100 - avgPos - avgNeg;
+                var overall = avgNorm >= 0.65 ? 'BULLISH' : avgNorm <= 0.35 ? 'BEARISH' : 'NEUTRAL';
                 var overallColor = overall === 'BULLISH' ? 'var(--up)' : overall === 'BEARISH' ? 'var(--down)' : '#888';
 
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + ticker + ' — 30-DAY NEWS SENTIMENT</div>';
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sentimentTicker + ' — 30-DAY NEWS SENTIMENT</div>';
                 html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:24px;margin-bottom:20px;">';
                 html += '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">';
                 html += '<div style="font-size:2rem;font-weight:900;color:' + overallColor + ';font-family:Merriweather,serif;">' + overall + '</div>';
-                html += '<div style="font-size:0.75rem;color:#888;">Based on ' + totalCount + ' news articles over the last 30 days</div>';
+                html += '<div><div style="font-size:0.75rem;color:#888;">Sentiment Score: <strong style="color:var(--text-main);">' + overallScore + '/100</strong></div>';
+                html += '<div style="font-size:0.75rem;color:#888;">Based on ' + totalCount + ' news articles · 30-day weighted average</div></div>';
                 html += '</div>';
-
-                // Bars
-                [['POSITIVE', avgPos, 'var(--up)'], ['NEUTRAL', avgNeu, '#888'], ['NEGATIVE', avgNeg, 'var(--down)']].forEach(function(row) {
-                    html += '<div style="margin-bottom:14px;">';
-                    html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:900;color:#aaa;margin-bottom:4px;"><span>' + row[0] + '</span><span>' + row[1].toFixed(1) + '%</span></div>';
-                    html += '<div style="background:#f0f0f0;border-radius:3px;height:8px;overflow:hidden;"><div style="background:' + row[2] + ';height:100%;width:' + Math.min(row[1],100).toFixed(1) + '%;transition:width 0.8s ease;border-radius:3px;"></div></div>';
-                    html += '</div>';
-                });
+                html += '<div style="margin-bottom:6px;font-size:0.7rem;font-weight:900;color:#aaa;display:flex;justify-content:space-between;"><span>BEARISH</span><span>NEUTRAL</span><span>BULLISH</span></div>';
+                html += '<div style="background:#f0f0f0;border-radius:3px;height:10px;overflow:hidden;margin-bottom:4px;position:relative;">';
+                html += '<div style="background:' + overallColor + ';height:100%;width:' + (avgNorm*100).toFixed(1) + '%;transition:width 0.8s ease;border-radius:3px;"></div>';
+                html += '</div>';
                 html += '</div>';
 
                 // Daily table
@@ -2071,22 +2086,21 @@
                 html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.8rem;">';
                 html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
                     '<th style="padding:8px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">POSITIVE</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">NEUTRAL</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">NEGATIVE</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SENTIMENT SCORE</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SIGNAL</th>' +
                     '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">ARTICLES</th>' +
                     '</tr></thead><tbody>';
                 entries.slice().reverse().slice(0,30).forEach(function(e) {
-                    var pos = e.positive != null ? (e.positive * 100).toFixed(1) + '%' : '—';
-                    var neu = e.neutral  != null ? (e.neutral  * 100).toFixed(1) + '%' : '—';
-                    var neg = e.negative != null ? (e.negative * 100).toFixed(1) + '%' : '—';
-                    var posColor = e.positive > 0.5 ? 'color:var(--up);font-weight:900;' : '';
-                    var negColor = e.negative > 0.5 ? 'color:var(--down);font-weight:900;' : '';
+                    var norm = e.normalized != null ? e.normalized : 0.5;
+                    var score = (norm * 100).toFixed(1);
+                    var signal = norm >= 0.65 ? '<span style="color:var(--up);font-weight:900;">BULLISH</span>' :
+                                 norm <= 0.35 ? '<span style="color:var(--down);font-weight:900;">BEARISH</span>' :
+                                 '<span style="color:#888;">NEUTRAL</span>';
+                    var scoreColor = norm >= 0.65 ? 'color:var(--up);font-weight:900;' : norm <= 0.35 ? 'color:var(--down);font-weight:900;' : '';
                     html += '<tr style="border-bottom:1px solid var(--border);">' +
                         '<td style="padding:8px 14px;font-family:Courier New,monospace;font-weight:700;">' + (e.date||'—') + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;' + posColor + '">' + pos + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;color:#888;">' + neu + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;' + negColor + '">' + neg + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;font-family:Courier New,monospace;' + scoreColor + '">' + score + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;">' + signal + '</td>' +
                         '<td style="padding:8px 14px;text-align:right;color:#aaa;">' + (e.count||'—') + '</td>' +
                         '</tr>';
                 });

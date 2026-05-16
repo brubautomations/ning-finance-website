@@ -22,7 +22,7 @@ exports.handler = async function(event) {
 
   } else if (action === 'earnings') {
     const symbols = params.symbols || '';
-    url = `https://eodhd.com/api/calendar/earnings?symbols=${symbols}&api_token=${key}&fmt=json`;
+    url = `https://eodhd.com/api/calendar/trends?symbols=${symbols}&api_token=${key}&fmt=json`;
 
   } else if (action === 'sentiment') {
     const s    = params.s    || '';
