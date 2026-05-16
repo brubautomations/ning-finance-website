@@ -1885,8 +1885,6 @@
         // ============================================================
         // MARKET CALENDAR
         // ============================================================
-        const EODHD_KEY = 'EODHD_API_KEY'; // set in Netlify env — replace via Netlify function or put key here
-
         // Sub-tab switcher
         function switchMktCalTab(tab) {
             ['ipo','earnings','sentiment'].forEach(function(t) {
@@ -1912,7 +1910,7 @@
                 var from  = new Date(today); from.setDate(today.getDate() - 30);
                 var to    = new Date(today); to.setDate(today.getDate() + 60);
                 var fmt   = function(d){ return d.toISOString().split('T')[0]; };
-                var url   = 'https://eodhd.com/api/calendar/ipos?api_token=' + EODHD_KEY + '&fmt=json&from=' + fmt(from) + '&to=' + fmt(to);
+                var url   = '/.netlify/functions/eodhd?action=ipo&from=' + fmt(from) + '&to=' + fmt(to);
                 var res   = await fetch(url);
                 var data  = await res.json();
                 var ipos  = data.ipos || data || [];
@@ -1979,7 +1977,7 @@
                 if (q.length < 2) { list.style.display='none'; return; }
                 timer = setTimeout(async function() {
                     try {
-                        var res  = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_KEY + '&limit=8&fmt=json');
+                        var res  = await fetch('/.netlify/functions/eodhd?action=search&q=' + encodeURIComponent(q) + '&limit=8');
                         var data = await res.json();
                         if (!data.length) { list.style.display='none'; return; }
                         list.innerHTML = data.map(function(s) {
@@ -2003,7 +2001,7 @@
             if (!ticker) { result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a company first.</div>'; return; }
             result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading earnings trends...</div>';
             try {
-                var res  = await fetch('https://eodhd.com/api/calendar/earnings?symbols=' + ticker + '&api_token=' + EODHD_KEY + '&fmt=json');
+                var res  = await fetch('/.netlify/functions/eodhd?action=earnings&symbols=' + ticker);
                 var data = await res.json();
                 var earnings = data.earnings || [];
                 if (!earnings.length) {
@@ -2057,7 +2055,7 @@
                 if (q.length < 2) { list.style.display='none'; return; }
                 timer = setTimeout(async function() {
                     try {
-                        var res  = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_KEY + '&limit=8&fmt=json');
+                        var res  = await fetch('/.netlify/functions/eodhd?action=search&q=' + encodeURIComponent(q) + '&limit=8');
                         var data = await res.json();
                         if (!data.length) { list.style.display='none'; return; }
                         list.innerHTML = data.map(function(s) {
@@ -2084,7 +2082,7 @@
                 var to   = new Date();
                 var from = new Date(); from.setDate(to.getDate() - 30);
                 var fmt  = function(d){ return d.toISOString().split('T')[0]; };
-                var res  = await fetch('https://eodhd.com/api/sentiments?s=' + ticker + '&from=' + fmt(from) + '&to=' + fmt(to) + '&api_token=' + EODHD_KEY + '&fmt=json');
+                var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + ticker + '&from=' + fmt(from) + '&to=' + fmt(to));
                 var data = await res.json();
                 var entries = Array.isArray(data) ? data : (data[ticker] || []);
                 if (!entries.length) {
