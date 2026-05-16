@@ -2194,7 +2194,7 @@
                 });
 
                 html += '</div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:6px;">Source: EODHD analyst consensus · Data updated daily · EPS = Earnings Per Share (profit per share of stock)</div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:6px;">Analyst consensus · Data updated daily</div>';
                 result.innerHTML = html;
             } catch(e) {
                 result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading earnings data. Please try again.</div>';
@@ -2234,14 +2234,12 @@
                     totalCount    += (e.count || 1);
                 });
                 var avgNorm = totalCount ? totalWeighted / totalCount : 0.5;
-                // Convert normalized to positive/neutral/negative buckets
-                var avgPos = avgNorm > 0.6 ? (avgNorm - 0.6) / 0.4 * 100 : 0;
-                var avgNeg = avgNorm < 0.4 ? (0.4 - avgNorm) / 0.4 * 100 : 0;
-                var avgNeu = 100 - avgPos - avgNeg;
+                var overallScore = (avgNorm * 100).toFixed(1);
                 var overall = avgNorm >= 0.65 ? 'BULLISH' : avgNorm <= 0.35 ? 'BEARISH' : 'NEUTRAL';
                 var overallColor = overall === 'BULLISH' ? 'var(--up)' : overall === 'BEARISH' ? 'var(--down)' : '#888';
 
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sentimentTicker + ' — 30-DAY NEWS SENTIMENT</div>';
+                var sym = sentimentTicker.split('.')[0];
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — 30-DAY NEWS SENTIMENT</div>';
                 html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:24px;margin-bottom:20px;">';
                 html += '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">';
                 html += '<div style="font-size:2rem;font-weight:900;color:' + overallColor + ';font-family:Merriweather,serif;">' + overall + '</div>';
