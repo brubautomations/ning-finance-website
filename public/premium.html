@@ -1352,9 +1352,43 @@
 
             <!-- IPO CALENDAR -->
             <div id="mktcal-sub-ipo">
-                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">UPCOMING & RECENT IPOs — GLOBAL</div>
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">IPO CALENDAR — GLOBAL</div>
                 <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Initial public offerings from major global exchanges. Updated daily.</div>
-                <div id="mktcal-ipo-result"><div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div></div>
+
+                <!-- UPCOMING -->
+                <div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">UPCOMING IPOs</div>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+                    <label style="font-weight:800;color:#333;font-size:0.85rem;">EXCHANGE:</label>
+                    <select id="ipo-upcoming-exchange" class="market-dropdown" onchange="renderIPOUpcoming()">
+                        <option value="ALL">All Exchanges</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="EUROPE">🇪🇺 Europe</option>
+                        <option value="ASIA">🌏 Asia</option>
+                        <option value="OTHER">🌍 Other</option>
+                    </select>
+                </div>
+                <div id="mktcal-ipo-upcoming"></div>
+
+                <!-- RECENT -->
+                <div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 10px 0;padding-top:20px;border-top:2px solid var(--border);">RECENT IPOs</div>
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+                    <label style="font-weight:800;color:#333;font-size:0.85rem;">EXCHANGE:</label>
+                    <select id="ipo-recent-exchange" class="market-dropdown" onchange="renderIPORecent()">
+                        <option value="ALL">All Exchanges</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="EUROPE">🇪🇺 Europe</option>
+                        <option value="ASIA">🌏 Asia</option>
+                        <option value="OTHER">🌍 Other</option>
+                    </select>
+                    <label style="font-weight:800;color:#333;font-size:0.85rem;margin-left:8px;">PERIOD:</label>
+                    <select id="ipo-recent-range" class="market-dropdown" onchange="renderIPORecent()">
+                        <option value="1">This Month</option>
+                        <option value="2">Last 2 Months</option>
+                        <option value="3">Last 3 Months</option>
+                        <option value="6">Last 6 Months</option>
+                    </select>
+                </div>
+                <div id="mktcal-ipo-recent"></div>
             </div>
 
             <!-- EARNINGS TRENDS -->
@@ -1900,78 +1934,117 @@
                     btn.style.color        = t === tab ? '#000' : '#888';
                 }
             });
-            if (tab === 'ipo' && !document.getElementById('mktcal-ipo-result').dataset.loaded) {
+            if (tab === 'ipo' && !window._ipoLoaded) {
                 loadIPOCalendar();
             }
         }
 
         // ── IPO CALENDAR ─────────────────────────────────────────────
+        var _ipoAll = []; // cached IPO data
+
+        var IPO_EXCHANGE_MAP = {
+            'US':     ['NYSE','NASDAQ','BATS','AMEX','OTCQB','OTCQX','PINK'],
+            'EUROPE': ['LSE','XETRA','PA','MCE','MI','AS','SW','ST','CO','OL','HE','WAR','PRG','BUD','BRU','LIS','ATH'],
+            'ASIA':   ['TSE','HK','SHG','SHE','KO','KQ','SGX','NSE','BSE','KLSE','BK','JK','VN','PSE','TW','ASX','NZE']
+        };
+
+        function getExchangeGroup(exch) {
+            if (!exch) return 'OTHER';
+            var e = exch.toUpperCase();
+            for (var grp in IPO_EXCHANGE_MAP) {
+                if (IPO_EXCHANGE_MAP[grp].some(function(x){ return e.includes(x); })) return grp;
+            }
+            return 'OTHER';
+        }
+
+        function filterIPOs(list, exchangeSel) {
+            if (exchangeSel === 'ALL') return list;
+            return list.filter(function(i){ return getExchangeGroup(i.exchange) === exchangeSel; });
+        }
+
+        function renderIPOTable(list) {
+            if (!list.length) return '<div style="padding:20px;text-align:center;color:#888;">No IPOs found for this selection.</div>';
+            // Group by date
+            var byDate = {};
+            list.forEach(function(ipo) {
+                var d = ipo.start_date || 'Unknown';
+                if (!byDate[d]) byDate[d] = [];
+                byDate[d].push(ipo);
+            });
+            var html = '';
+            Object.keys(byDate).sort().forEach(function(date) {
+                html += '<div style="font-size:0.72rem;font-weight:900;color:var(--text-main);background:var(--bg);padding:8px 14px;border:1px solid var(--border);border-bottom:none;letter-spacing:0.5px;">' + date + '</div>';
+                html += '<div style="overflow-x:auto;margin-bottom:0;">';
+                html += '<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">';
+                byDate[date].forEach(function(ipo) {
+                    var name     = ipo.name || '—';
+                    var exch     = ipo.exchange || '—';
+                    var dealType = ipo.deal_type || '—';
+                    var priceL   = ipo.price_from || 0;
+                    var priceH   = ipo.price_to   || 0;
+                    var offerP   = ipo.offer_price || 0;
+                    var shares   = ipo.shares || 0;
+                    var curr     = ipo.currency ? ipo.currency : '';
+                    var priceStr = offerP > 0 ? curr + offerP :
+                                   (priceL > 0 && priceH > 0) ? curr + priceL + ' – ' + curr + priceH :
+                                   priceL > 0 ? curr + priceL + '+' : '—';
+                    var sharesStr = shares > 0 ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' : shares >= 1e3 ? (shares/1e3).toFixed(0) + 'K' : shares.toLocaleString()) : '—';
+                    var dealColor = dealType === 'Priced' ? 'color:var(--up);font-weight:900;' : 'color:#888;';
+                    var grp = getExchangeGroup(exch);
+                    var grpFlag = grp === 'US' ? '🇺🇸' : grp === 'EUROPE' ? '🇪🇺' : grp === 'ASIA' ? '🌏' : '🌍';
+                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
+                        '<td style="padding:9px 14px;color:#888;white-space:nowrap;">' + grpFlag + ' ' + exch + '</td>' +
+                        '<td style="padding:9px 14px;' + dealColor + 'white-space:nowrap;">' + dealType + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;white-space:nowrap;">' + priceStr + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;color:#888;white-space:nowrap;">' + sharesStr + '</td>' +
+                        '</tr>';
+                });
+                html += '</table></div><div style="margin-bottom:12px;"></div>';
+            });
+            return html;
+        }
+
+        function renderIPOUpcoming() {
+            var exch = document.getElementById('ipo-upcoming-exchange').value;
+            var now  = new Date();
+            var list = _ipoAll.filter(function(i){ return new Date(i.start_date) >= now; });
+            list = filterIPOs(list, exch);
+            list.sort(function(a,b){ return new Date(a.start_date) - new Date(b.start_date); });
+            document.getElementById('mktcal-ipo-upcoming').innerHTML = renderIPOTable(list);
+        }
+
+        function renderIPORecent() {
+            var exch   = document.getElementById('ipo-recent-exchange').value;
+            var months = parseInt(document.getElementById('ipo-recent-range').value) || 1;
+            var now    = new Date();
+            var cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - months);
+            var list   = _ipoAll.filter(function(i){ var d = new Date(i.start_date); return d < now && d >= cutoff; });
+            list = filterIPOs(list, exch);
+            list.sort(function(a,b){ return new Date(b.start_date) - new Date(a.start_date); });
+            document.getElementById('mktcal-ipo-recent').innerHTML = renderIPOTable(list);
+        }
+
         async function loadIPOCalendar() {
-            var result = document.getElementById('mktcal-ipo-result');
-            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div>';
+            document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div>';
+            document.getElementById('mktcal-ipo-recent').innerHTML = '';
             try {
                 var today = new Date();
-                var from  = new Date(today); from.setDate(today.getDate() - 30);
-                var to    = new Date(today); to.setDate(today.getDate() + 60);
+                var from  = new Date(today); from.setMonth(today.getMonth() - 6); // 6 months back for recent
+                var to    = new Date(today); to.setDate(today.getDate() + 90);    // 90 days ahead for upcoming
                 var fmt   = function(d){ return d.toISOString().split('T')[0]; };
-                var url   = '/.netlify/functions/eodhd?action=ipo&from=' + fmt(from) + '&to=' + fmt(to);
-                var res   = await fetch(url);
+                var res   = await fetch('/.netlify/functions/eodhd?action=ipo&from=' + fmt(from) + '&to=' + fmt(to));
                 var data  = await res.json();
-                var ipos  = data.ipos || data || [];
-                if (!ipos.length) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No IPO data available for this period.</div>';
+                _ipoAll   = data.ipos || data || [];
+                if (!_ipoAll.length) {
+                    document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No IPO data available.</div>';
                     return;
                 }
-                // Sort by date
-                ipos.sort(function(a,b){ return new Date(a.start_date||0) - new Date(b.start_date||0); });
-                var now    = new Date();
-                var upcoming = ipos.filter(function(i){ return new Date(i.start_date) >= now; });
-                var recent   = ipos.filter(function(i){ return new Date(i.start_date) <  now; }).reverse();
-
-                function renderTable(list, title) {
-                    if (!list.length) return '';
-                    var html = '<div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin:20px 0 10px 0;">' + title + '</div>';
-                    html += '<div style="overflow-x:auto;margin-bottom:24px;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
-                    html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
-                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
-                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">COMPANY</th>' +
-                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">EXCHANGE</th>' +
-                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TYPE</th>' +
-                        '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">PRICE RANGE</th>' +
-                        '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SHARES</th>' +
-                        '</tr></thead><tbody>';
-                    list.forEach(function(ipo) {
-                        var date     = ipo.start_date || '—';
-                        var name     = ipo.name || '—';
-                        var exch     = ipo.exchange || '—';
-                        var dealType = ipo.deal_type || '—';
-                        var priceL   = ipo.price_from || 0;
-                        var priceH   = ipo.price_to   || 0;
-                        var offerP   = ipo.offer_price || 0;
-                        var shares   = ipo.shares || 0;
-                        var priceStr = offerP > 0 ? '$' + offerP :
-                                       (priceL > 0 && priceH > 0) ? '$' + priceL + ' – $' + priceH :
-                                       priceL > 0 ? '$' + priceL + '+' : '—';
-                        var sharesStr = shares > 0 ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' :
-                                        shares >= 1e3 ? (shares/1e3).toFixed(0) + 'K' : shares.toLocaleString()) : '—';
-                        var dealColor = dealType === 'Priced' ? 'color:var(--up);font-weight:900;' : 'color:#888;';
-                        html += '<tr style="border-bottom:1px solid var(--border);">' +
-                            '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);white-space:nowrap;">' + date + '</td>' +
-                            '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
-                            '<td style="padding:9px 14px;color:#888;">' + exch + '</td>' +
-                            '<td style="padding:9px 14px;' + dealColor + '">' + dealType + '</td>' +
-                            '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;">' + priceStr + '</td>' +
-                            '<td style="padding:9px 14px;text-align:right;color:#888;">' + sharesStr + '</td>' +
-                            '</tr>';
-                    });
-                    html += '</tbody></table></div>';
-                    return html;
-                }
-
-                result.innerHTML = renderTable(upcoming, 'UPCOMING IPOs') + renderTable(recent, 'RECENT IPOs');
-                result.dataset.loaded = '1';
+                window._ipoLoaded = true;
+                renderIPOUpcoming();
+                renderIPORecent();
             } catch(e) {
-                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading IPO data. Please try again.</div>';
+                document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading IPO data. Please try again.</div>';
             }
         }
 
@@ -1995,6 +2068,41 @@
                 }
                 var sym = tickerTrends[0].code || ticker;
                 var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — ANALYST EPS ESTIMATE TRENDS</div>';
+
+                // ── VISUAL SUMMARY ──
+                // Show only meaningful periods: 0q, +1q, 0y, +1y
+                var keyPeriods = tickerTrends.filter(function(t) { return ['0q','+1q','0y','+1y'].indexOf(t.period) > -1; }).slice(0,4);
+                if (keyPeriods.length) {
+                    html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:20px;margin-bottom:16px;">';
+                    html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;">EPS ESTIMATE MOVEMENT — CURRENT vs 30 DAYS AGO</div>';
+                    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">';
+                    keyPeriods.forEach(function(t) {
+                        var curr  = t.earningsEstimateAvg ? parseFloat(t.earningsEstimateAvg) : null;
+                        var ago30 = t.epsTrend30daysAgo   ? parseFloat(t.epsTrend30daysAgo)   : null;
+                        var revUp = parseInt(t.epsRevisionsUpLast30days||0);
+                        var revDn = parseInt(t.epsRevisionsDownLast30days||0);
+                        var diff  = (curr != null && ago30 != null) ? curr - ago30 : null;
+                        var pctChg = (diff != null && ago30 !== 0) ? (diff/Math.abs(ago30)*100) : null;
+                        var trend = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
+                        var trendColor = diff > 0 ? 'var(--up)' : diff < 0 ? 'var(--down)' : '#888';
+                        var periodLabel = t.period === '0q' ? 'THIS QUARTER' : t.period === '+1q' ? 'NEXT QUARTER' : t.period === '0y' ? 'THIS YEAR' : 'NEXT YEAR';
+                        html += '<div style="background:var(--bg);border:1px solid var(--border);padding:14px;">';
+                        html += '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:8px;">' + periodLabel + '</div>';
+                        html += '<div style="font-size:1.4rem;font-weight:900;color:var(--text-main);font-family:Courier New,monospace;">' + (curr != null ? '$'+curr.toFixed(2) : '—') + '</div>';
+                        html += '<div style="font-size:0.75rem;color:' + trendColor + ';font-weight:900;margin-top:4px;">' + trend + ' ' + (diff != null ? (diff>=0?'+':'') + diff.toFixed(2) : '') + (pctChg != null ? ' (' + (pctChg>=0?'+':'') + pctChg.toFixed(1) + '%)' : '') + ' vs 30d ago</div>';
+                        if (revUp || revDn) {
+                            html += '<div style="font-size:0.7rem;margin-top:8px;display:flex;gap:8px;">';
+                            if (revUp) html += '<span style="color:var(--up);font-weight:900;">▲ ' + revUp + ' raised</span>';
+                            if (revDn) html += '<span style="color:var(--down);font-weight:900;">▼ ' + revDn + ' cut</span>';
+                            html += '</div>';
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div></div>';
+                }
+
+                // ── FULL TABLE ──
+                html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">FULL BREAKDOWN — ALL PERIODS</div>';
                 html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
                 html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
                     '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">PERIOD</th>' +
@@ -2046,7 +2154,7 @@
                 var to   = new Date();
                 var from = new Date(); from.setDate(to.getDate() - 30);
                 var fmt  = function(d){ return d.toISOString().split('T')[0]; };
-                var sentimentTicker = ticker.includes('.') ? ticker.split('.')[0] : ticker;
+                var sentimentTicker = ticker; // pass full ticker e.g. MSTR.US — EODHD sentiment supports this
                 var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + sentimentTicker + '&from=' + fmt(from) + '&to=' + fmt(to));
                 var data = await res.json();
                 var entries = Array.isArray(data) ? data : (data[Object.keys(data)[0]] || []);
