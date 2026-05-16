@@ -1059,7 +1059,7 @@
                                 of global macro chaos that happened over the weekend into actionable local order
                                 flow.</em></p>
 
-                        <h3
+                        <h3 id="macro-section-1"
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
                             1. The Global Board (Risk, Rates & Softs)</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
@@ -1073,7 +1073,7 @@
                                     id="macro-ags">Loading...</span></li>
                         </ul>
 
-                        <h3
+                        <h3 id="macro-section-2"
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
                             2. Philippine Institutional Reality</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333; margin-bottom: 25px;">
@@ -1083,14 +1083,14 @@
                                     id="macro-fx">Loading...</span></li>
                         </ul>
 
-                        <h3
+                        <h3 id="macro-section-3"
                             style="color: #000; border-bottom: 1px solid #cba258; padding-bottom: 5px; font-size: 16px; text-transform: uppercase;">
                             3. Tactical Allocation</h3>
                         <ul style="font-size: 14px; line-height: 1.7; color: #333;">
                             <li style="margin-bottom: 12px;"><strong style="color: #16a34a;">OVERWEIGHT: <span
                                         id="macro-ow-name">...</span></strong><br><span id="macro-ow-rat">...</span>
                             </li>
-                            <li style="margin-bottom: 12px;"><strong style="color: #dc2626;">UNDERWEIGHT: <span
+                            <li style="margin-bottom: 12px;" id="macro-section-4"><strong style="color: #dc2626;">UNDERWEIGHT: <span
                                         id="macro-uw-name">...</span></strong><br><span id="macro-uw-rat">...</span>
                             </li>
                         </ul>
@@ -2687,6 +2687,28 @@
             }
         });
 
+        async function fetchPexelsImage(query) {
+            try {
+                const res = await fetch('/.netlify/functions/pexels?query=' + encodeURIComponent(query) + '&per_page=1');
+                const data = await res.json();
+                if (data.photos && data.photos.length > 0) {
+                    return data.photos[0].src.landscape || data.photos[0].src.large;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function insertSectionImage(elementId, url) {
+            if (!url) return;
+            var el = document.getElementById(elementId);
+            if (!el) return;
+            var img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.style.cssText = 'width:100%;height:180px;object-fit:cover;display:block;margin-bottom:16px;';
+            el.parentNode.insertBefore(img, el);
+        }
+
         async function fetchMacroData() {
             try {
                 const res = await fetch(`/.netlify/functions/airtable?type=macro&userToken=${token}`);
@@ -2713,6 +2735,20 @@
                     document.getElementById('macro-ow-rat').innerHTML = formatBold(payload.overweight_rationale);
                     document.getElementById('macro-uw-name').innerHTML = formatBold(payload.underweight_sector_name);
                     document.getElementById('macro-uw-rat').innerHTML = formatBold(payload.underweight_rationale);
+
+                    // Fetch section images in parallel
+                    const [img1, img2, img3, img4] = await Promise.all([
+                        fetchPexelsImage('stock market trading floor wall street'),
+                        fetchPexelsImage('geopolitics oil energy world'),
+                        fetchPexelsImage('Manila Philippines business finance'),
+                        fetchPexelsImage('investment portfolio strategy finance')
+                    ]);
+
+                    // Insert above each section heading
+                    insertSectionImage('macro-section-1', img1);
+                    insertSectionImage('macro-section-2', img2);
+                    insertSectionImage('macro-section-3', img3);
+                    insertSectionImage('macro-section-4', img4);
                 }
             } catch (e) { console.error("Macro fetch failed:", e); }
         }

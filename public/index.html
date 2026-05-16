@@ -1627,7 +1627,50 @@
         const AIRTABLE_BASE_ID = "apppg1HS8BHcmiyjF";
         const AIRTABLE_TOKEN = "patEHheyAwgUUMjHQ.868501c04f5d75acbad4a34c0c35799978e659dc149919f4ec237dc44f2c72ea";
         const AGENT_ID = 'agent_0001kge5t0g6fsr95ts35fwdhn2x';
-        const AI_NAMES = ["Andy Roid", "Artie Ficial", "Jenni Rator", "Alex Murph-e", "Termi-Narrator", "Optimus Prime-Time", "Hal 9000-Words", "Bot Ross", "Chip Munk"];
+        const MACHINE_SIGNALS = [
+            "0x7F3A::DISPATCH→NING[2]",
+            "⟨ΣNODE_04⟩ ack:true lat:12ms",
+            "∂flux[9] → carrier:stable ✓",
+            "NING::BROADCAST pid:4492 seq:771",
+            "[SYN] 0xA3→0xF7 ttl:64 ok",
+            "⬧ mesh:active · node:7 · Δt:0.003",
+            "KERNEL[3]→FEED rtt:8ms buf:ok",
+            "§REF:NNG-7741 · auth:pass · fwd",
+            "⚡ 0xB2::RELAY→CORE[5]",
+            "∑proc[14] · chk:verified · out",
+            "NING::SYNC pid:9901 lat:4ms ✓",
+            "[ACK] 0xD1→0xA9 seq:443 ok",
+            "⟨NODE_11⟩ buf:clear · fwd:true",
+            "∂stream[3] → integrity:pass",
+            "FEED::PUSH 0xF3 · ttl:128 · ok",
+            "§PKT:NNG-2291 · enc:aes · sent",
+            "⬧ uplink:stable · Δp:0.001 · ok",
+            "CORE[7]→DISPATCH rtt:6ms syn",
+            "⚡ 0x4E::INJECT→NODE[9]",
+            "∑cache[2] · hit:true · relay",
+            "NING::ACK seq:8821 · ok · fwd",
+            "[RST] 0xC7→0xB3 ttl:255 pass",
+            "⟨ΣNODE_02⟩ lat:9ms · buf:ok",
+            "∂flux[11] → carrier:lock ✓",
+            "KERNEL[5]→RELAY pid:3314 ok",
+            "§REF:NNG-5512 · dec:pass · out",
+            "⬧ mesh:lock · node:3 · Δt:0.007",
+            "⚡ 0x9C::PUSH→FEED[1]",
+            "∑proc[8] · auth:ok · dispatch",
+            "NING::FWD 0xE2 · seq:114 · ok",
+            "∂stream[7] → chk:pass · relay",
+            "FEED::ACK pid:7723 · buf:clear",
+            "⟨NODE_06⟩ enc:true · syn:ok",
+            "§PKT:NNG-9934 · ttl:64 · sent",
+            "CORE[2]→NODE rtt:11ms · ok",
+        ];
+        function getMachineSignal() { return MACHINE_SIGNALS[Math.floor(Math.random() * MACHINE_SIGNALS.length)]; }
+        function getReadTime(text) {
+            if (!text) return '1 min read';
+            var words = text.trim().split(/\s+/).length;
+            var mins = Math.max(1, Math.round(words / 200));
+            return mins + ' min read';
+        }
 
         // --- HELPER FUNCTIONS ---
         function getUserId() {
@@ -1654,7 +1697,6 @@
             return `${days} days ago`;
         }
 
-        function getRandomName() { return AI_NAMES[Math.floor(Math.random() * AI_NAMES.length)]; }
 
         // --- FETCH AIRTABLE ---
         window.fetchAirtable = async function (tableName, containerId) {
@@ -1695,7 +1737,9 @@
                         if (tableName === "Luxury") borderStyle = "border-top-color: #b45309;";
                         if (tableName === "Culture") borderStyle = "border-top-color: #db2777;";
 
-                        var author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || getRandomName());
+                        var author = tableName === "Commentary" ? "AI Analyst" : (fields.Author || "");
+                        var readTime = getReadTime(fields.Summary || "");
+                        var signal = getMachineSignal();
 
                         var imageHtml = "";
                         if (fields["News Image"] && fields["News Image"].length > 0) {
@@ -1712,9 +1756,10 @@
                             <h3>${fields.Headline || "Update"}</h3>
                             <p>${fields.Summary || ""}</p>
                             <div class="card-meta">
-                                <span>${t} • by: ${author}</span>
+                                <span>${t} • ${readTime}</span>
                                 ${shareBtn}
                             </div>
+                            <div style="font-family:'Courier New',monospace;font-size:0.62rem;color:#bbb;padding:4px 0 2px 0;letter-spacing:0.3px;user-select:none;">${signal}</div>
                         </div>`;
                         count++;
                     }
