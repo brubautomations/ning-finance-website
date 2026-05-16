@@ -986,6 +986,7 @@
         <div class="tab" onclick="nav('ecodata')" id="tab-ecodata">ECONOMIC DATA BY COUNTRY</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
         <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
+        <div class="tab" onclick="nav('mktcal')" id="tab-mktcal">MARKET CALENDAR</div>
         <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
 
         <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
@@ -1331,6 +1332,63 @@
 
         </div>
 
+
+        <!-- ══ MARKET CALENDAR ══════════════════════════════════════ -->
+        <div id="mktcal" class="page">
+            <h2>MARKET CALENDAR</h2>
+
+            <!-- Sub-tabs -->
+            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
+                <div id="mktcal-tab-ipo" onclick="switchMktCalTab('ipo')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    IPO CALENDAR</div>
+                <div id="mktcal-tab-earnings" onclick="switchMktCalTab('earnings')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    EARNINGS TRENDS</div>
+                <div id="mktcal-tab-sentiment" onclick="switchMktCalTab('sentiment')"
+                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                    NEWS SENTIMENT</div>
+            </div>
+
+            <!-- IPO CALENDAR -->
+            <div id="mktcal-sub-ipo">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">UPCOMING & RECENT IPOs — GLOBAL</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Initial public offerings from major global exchanges. Updated daily.</div>
+                <div id="mktcal-ipo-result"><div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div></div>
+            </div>
+
+            <!-- EARNINGS TRENDS -->
+            <div id="mktcal-sub-earnings" style="display:none;">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">EARNINGS ESTIMATE TRENDS</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Search a ticker to see analyst EPS estimate revisions — whether smart money is raising or cutting expectations.</div>
+                <div style="position:relative;max-width:480px;margin-bottom:24px;">
+                    <div class="autocomplete-wrapper" style="width:100%;">
+                        <input type="text" id="mktcal-earnings-input" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="mktcal-earnings-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="mktcal-earnings-ticker">
+                    <button class="btn-download" onclick="loadEarningsTrends()" style="margin-top:10px;">LOAD TRENDS</button>
+                </div>
+                <div id="mktcal-earnings-result"></div>
+            </div>
+
+            <!-- NEWS SENTIMENT -->
+            <div id="mktcal-sub-sentiment" style="display:none;">
+                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">NEWS SENTIMENT SCORE</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">AI-scored sentiment from global news sources for any ticker. Positive/negative/neutral breakdown over the last 30 days.</div>
+                <div style="position:relative;max-width:480px;margin-bottom:24px;">
+                    <div class="autocomplete-wrapper" style="width:100%;">
+                        <input type="text" id="mktcal-sentiment-input" class="autocomplete-input"
+                            placeholder="Search company or ticker..." autocomplete="off">
+                        <ul id="mktcal-sentiment-suggestions" class="autocomplete-list"></ul>
+                    </div>
+                    <input type="hidden" id="mktcal-sentiment-ticker">
+                    <button class="btn-download" onclick="loadNewsSentiment()" style="margin-top:10px;">LOAD SENTIMENT</button>
+                </div>
+                <div id="mktcal-sentiment-result"></div>
+            </div>
+        </div>
 
         <div id="ningning" class="page">
             <h2>Autonomous AI Prop Trader — PSE Equities</h2>
@@ -1823,6 +1881,285 @@
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
         function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
+
+        // ============================================================
+        // MARKET CALENDAR
+        // ============================================================
+        const EODHD_KEY = 'EODHD_API_KEY'; // set in Netlify env — replace via Netlify function or put key here
+
+        // Sub-tab switcher
+        function switchMktCalTab(tab) {
+            ['ipo','earnings','sentiment'].forEach(function(t) {
+                var el  = document.getElementById('mktcal-sub-' + t);
+                var btn = document.getElementById('mktcal-tab-' + t);
+                if (el)  el.style.display  = t === tab ? 'block' : 'none';
+                if (btn) {
+                    btn.style.borderBottom = t === tab ? '3px solid var(--primary)' : '3px solid transparent';
+                    btn.style.color        = t === tab ? '#000' : '#888';
+                }
+            });
+            if (tab === 'ipo' && !document.getElementById('mktcal-ipo-result').dataset.loaded) {
+                loadIPOCalendar();
+            }
+        }
+
+        // ── IPO CALENDAR ─────────────────────────────────────────────
+        async function loadIPOCalendar() {
+            var result = document.getElementById('mktcal-ipo-result');
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div>';
+            try {
+                var today = new Date();
+                var from  = new Date(today); from.setDate(today.getDate() - 30);
+                var to    = new Date(today); to.setDate(today.getDate() + 60);
+                var fmt   = function(d){ return d.toISOString().split('T')[0]; };
+                var url   = 'https://eodhd.com/api/calendar/ipos?api_token=' + EODHD_KEY + '&fmt=json&from=' + fmt(from) + '&to=' + fmt(to);
+                var res   = await fetch(url);
+                var data  = await res.json();
+                var ipos  = data.ipos || data || [];
+                if (!ipos.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No IPO data available for this period.</div>';
+                    return;
+                }
+                // Sort by date
+                ipos.sort(function(a,b){ return new Date(a.date||a.startDate||0) - new Date(b.date||b.startDate||0); });
+                var now    = new Date();
+                var upcoming = ipos.filter(function(i){ return new Date(i.date||i.startDate) >= now; });
+                var recent   = ipos.filter(function(i){ return new Date(i.date||i.startDate) <  now; }).reverse();
+
+                function renderTable(list, title) {
+                    if (!list.length) return '';
+                    var html = '<div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin:20px 0 10px 0;">' + title + '</div>';
+                    html += '<div style="overflow-x:auto;margin-bottom:24px;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
+                    html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
+                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
+                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">COMPANY</th>' +
+                        '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">EXCHANGE</th>' +
+                        '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">PRICE RANGE</th>' +
+                        '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SHARES</th>' +
+                        '</tr></thead><tbody>';
+                    list.forEach(function(ipo) {
+                        var date    = ipo.date || ipo.startDate || '—';
+                        var name    = ipo.name || ipo.company || '—';
+                        var exch    = ipo.exchange || '—';
+                        var priceL  = ipo.priceLow  || ipo.price_low  || null;
+                        var priceH  = ipo.priceHigh || ipo.price_high || null;
+                        var shares  = ipo.shares || null;
+                        var priceStr = priceL && priceH ? '$' + priceL + ' – $' + priceH : priceL ? '$' + priceL : '—';
+                        var sharesStr = shares ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' : shares.toLocaleString()) : '—';
+                        html += '<tr style="border-bottom:1px solid var(--border);">' +
+                            '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);">' + date + '</td>' +
+                            '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
+                            '<td style="padding:9px 14px;color:#888;">' + exch + '</td>' +
+                            '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;">' + priceStr + '</td>' +
+                            '<td style="padding:9px 14px;text-align:right;color:#888;">' + sharesStr + '</td>' +
+                            '</tr>';
+                    });
+                    html += '</tbody></table></div>';
+                    return html;
+                }
+
+                result.innerHTML = renderTable(upcoming, 'UPCOMING IPOs') + renderTable(recent, 'RECENT IPOs');
+                result.dataset.loaded = '1';
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading IPO data. Please try again.</div>';
+            }
+        }
+
+        // ── EARNINGS TRENDS ───────────────────────────────────────────
+        // Autocomplete for earnings trends search
+        (function() {
+            var input = document.getElementById('mktcal-earnings-input');
+            var list  = document.getElementById('mktcal-earnings-suggestions');
+            var hidden= document.getElementById('mktcal-earnings-ticker');
+            if (!input) return;
+            var timer;
+            input.addEventListener('input', function() {
+                clearTimeout(timer);
+                var q = input.value.trim();
+                if (q.length < 2) { list.style.display='none'; return; }
+                timer = setTimeout(async function() {
+                    try {
+                        var res  = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_KEY + '&limit=8&fmt=json');
+                        var data = await res.json();
+                        if (!data.length) { list.style.display='none'; return; }
+                        list.innerHTML = data.map(function(s) {
+                            return '<li style="padding:10px 14px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;" ' +
+                                'onmouseover="this.style.background=\'#fdf8f0\'" onmouseout="this.style.background=\'#fff\'" ' +
+                                'onclick="document.getElementById(\'mktcal-earnings-input\').value=\'' + s.Name.replace(/'/g,"\\'") + ' (' + s.Code + ')\';' +
+                                'document.getElementById(\'mktcal-earnings-ticker\').value=\'' + s.Code + '.' + s.Exchange + '\';' +
+                                'document.getElementById(\'mktcal-earnings-suggestions\').style.display=\'none\';">' +
+                                '<strong>' + s.Code + '</strong> — ' + s.Name + ' <span style="color:#aaa;font-size:0.75rem;">' + s.Exchange + '</span>' +
+                                '</li>';
+                        }).join('');
+                        list.style.display = 'block';
+                    } catch(e) { list.style.display='none'; }
+                }, 500);
+            });
+        })();
+
+        async function loadEarningsTrends() {
+            var ticker = document.getElementById('mktcal-earnings-ticker').value;
+            var result = document.getElementById('mktcal-earnings-result');
+            if (!ticker) { result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a company first.</div>'; return; }
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading earnings trends...</div>';
+            try {
+                var res  = await fetch('https://eodhd.com/api/calendar/earnings?symbols=' + ticker + '&api_token=' + EODHD_KEY + '&fmt=json');
+                var data = await res.json();
+                var earnings = data.earnings || [];
+                if (!earnings.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker.</div>';
+                    return;
+                }
+                // Sort most recent first
+                earnings.sort(function(a,b){ return new Date(b.report_date||b.date||0) - new Date(a.report_date||a.date||0); });
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + ticker + ' — EARNINGS HISTORY & ESTIMATES</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
+                html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
+                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">REPORT DATE</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS ACTUAL</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS ESTIMATE</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BEAT/MISS</th>' +
+                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">PERIOD</th>' +
+                    '</tr></thead><tbody>';
+                earnings.slice(0,12).forEach(function(e) {
+                    var actual   = e.actual   != null ? parseFloat(e.actual)   : null;
+                    var estimate = e.estimate != null ? parseFloat(e.estimate) : null;
+                    var diff     = (actual != null && estimate != null) ? actual - estimate : null;
+                    var diffPct  = (diff != null && estimate !== 0) ? (diff / Math.abs(estimate) * 100) : null;
+                    var beatStr  = diff != null ? (diff >= 0 ?
+                        '<span style="color:var(--up);font-weight:900;">BEAT +' + (diffPct ? diffPct.toFixed(1) + '%' : diff.toFixed(2)) + '</span>' :
+                        '<span style="color:var(--down);font-weight:900;">MISS ' + (diffPct ? diffPct.toFixed(1) + '%' : diff.toFixed(2)) + '</span>') : '—';
+                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;">' + (e.report_date||e.date||'—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-weight:900;font-family:Courier New,monospace;">' + (actual != null ? actual.toFixed(2) : '—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;color:#888;font-family:Courier New,monospace;">' + (estimate != null ? estimate.toFixed(2) : '—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;">' + beatStr + '</td>' +
+                        '<td style="padding:9px 14px;color:#888;">' + (e.period||'—') + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                result.innerHTML = html;
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading earnings data. Please try again.</div>';
+            }
+        }
+
+        // ── NEWS SENTIMENT ────────────────────────────────────────────
+        (function() {
+            var input = document.getElementById('mktcal-sentiment-input');
+            var list  = document.getElementById('mktcal-sentiment-suggestions');
+            var hidden= document.getElementById('mktcal-sentiment-ticker');
+            if (!input) return;
+            var timer;
+            input.addEventListener('input', function() {
+                clearTimeout(timer);
+                var q = input.value.trim();
+                if (q.length < 2) { list.style.display='none'; return; }
+                timer = setTimeout(async function() {
+                    try {
+                        var res  = await fetch('https://eodhd.com/api/search/' + encodeURIComponent(q) + '?api_token=' + EODHD_KEY + '&limit=8&fmt=json');
+                        var data = await res.json();
+                        if (!data.length) { list.style.display='none'; return; }
+                        list.innerHTML = data.map(function(s) {
+                            return '<li style="padding:10px 14px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;" ' +
+                                'onmouseover="this.style.background=\'#fdf8f0\'" onmouseout="this.style.background=\'#fff\'" ' +
+                                'onclick="document.getElementById(\'mktcal-sentiment-input\').value=\'' + s.Name.replace(/'/g,"\\'") + ' (' + s.Code + ')\';' +
+                                'document.getElementById(\'mktcal-sentiment-ticker\').value=\'' + s.Code + '\';' +
+                                'document.getElementById(\'mktcal-sentiment-suggestions\').style.display=\'none\';">' +
+                                '<strong>' + s.Code + '</strong> — ' + s.Name + ' <span style="color:#aaa;font-size:0.75rem;">' + s.Exchange + '</span>' +
+                                '</li>';
+                        }).join('');
+                        list.style.display = 'block';
+                    } catch(e) { list.style.display='none'; }
+                }, 500);
+            });
+        })();
+
+        async function loadNewsSentiment() {
+            var ticker = document.getElementById('mktcal-sentiment-ticker').value;
+            var result = document.getElementById('mktcal-sentiment-result');
+            if (!ticker) { result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a company first.</div>'; return; }
+            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Analyzing sentiment...</div>';
+            try {
+                var to   = new Date();
+                var from = new Date(); from.setDate(to.getDate() - 30);
+                var fmt  = function(d){ return d.toISOString().split('T')[0]; };
+                var res  = await fetch('https://eodhd.com/api/sentiments?s=' + ticker + '&from=' + fmt(from) + '&to=' + fmt(to) + '&api_token=' + EODHD_KEY + '&fmt=json');
+                var data = await res.json();
+                var entries = Array.isArray(data) ? data : (data[ticker] || []);
+                if (!entries.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker in the last 30 days.</div>';
+                    return;
+                }
+                // Aggregate
+                var totalPos = 0, totalNeg = 0, totalNeu = 0, totalCount = 0;
+                entries.forEach(function(e) {
+                    totalPos   += (e.positive   || 0) * (e.count || 1);
+                    totalNeg   += (e.negative   || 0) * (e.count || 1);
+                    totalNeu   += (e.neutral    || 0) * (e.count || 1);
+                    totalCount += (e.count || 1);
+                });
+                var avgPos = totalCount ? (totalPos / totalCount * 100) : 0;
+                var avgNeg = totalCount ? (totalNeg / totalCount * 100) : 0;
+                var avgNeu = totalCount ? (totalNeu / totalCount * 100) : 0;
+                var overall = avgPos > avgNeg + 10 ? 'BULLISH' : avgNeg > avgPos + 10 ? 'BEARISH' : 'NEUTRAL';
+                var overallColor = overall === 'BULLISH' ? 'var(--up)' : overall === 'BEARISH' ? 'var(--down)' : '#888';
+
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + ticker + ' — 30-DAY NEWS SENTIMENT</div>';
+                html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:24px;margin-bottom:20px;">';
+                html += '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">';
+                html += '<div style="font-size:2rem;font-weight:900;color:' + overallColor + ';font-family:Merriweather,serif;">' + overall + '</div>';
+                html += '<div style="font-size:0.75rem;color:#888;">Based on ' + totalCount + ' news articles over the last 30 days</div>';
+                html += '</div>';
+
+                // Bars
+                [['POSITIVE', avgPos, 'var(--up)'], ['NEUTRAL', avgNeu, '#888'], ['NEGATIVE', avgNeg, 'var(--down)']].forEach(function(row) {
+                    html += '<div style="margin-bottom:14px;">';
+                    html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:900;color:#aaa;margin-bottom:4px;"><span>' + row[0] + '</span><span>' + row[1].toFixed(1) + '%</span></div>';
+                    html += '<div style="background:#f0f0f0;border-radius:3px;height:8px;overflow:hidden;"><div style="background:' + row[2] + ';height:100%;width:' + Math.min(row[1],100).toFixed(1) + '%;transition:width 0.8s ease;border-radius:3px;"></div></div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+
+                // Daily table
+                html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">DAILY BREAKDOWN</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.8rem;">';
+                html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
+                    '<th style="padding:8px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">POSITIVE</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">NEUTRAL</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">NEGATIVE</th>' +
+                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">ARTICLES</th>' +
+                    '</tr></thead><tbody>';
+                entries.slice().reverse().slice(0,30).forEach(function(e) {
+                    var pos = e.positive != null ? (e.positive * 100).toFixed(1) + '%' : '—';
+                    var neu = e.neutral  != null ? (e.neutral  * 100).toFixed(1) + '%' : '—';
+                    var neg = e.negative != null ? (e.negative * 100).toFixed(1) + '%' : '—';
+                    var posColor = e.positive > 0.5 ? 'color:var(--up);font-weight:900;' : '';
+                    var negColor = e.negative > 0.5 ? 'color:var(--down);font-weight:900;' : '';
+                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:8px 14px;font-family:Courier New,monospace;font-weight:700;">' + (e.date||'—') + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;' + posColor + '">' + pos + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;color:#888;">' + neu + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;' + negColor + '">' + neg + '</td>' +
+                        '<td style="padding:8px 14px;text-align:right;color:#aaa;">' + (e.count||'—') + '</td>' +
+                        '</tr>';
+                });
+                html += '</tbody></table></div>';
+                result.innerHTML = html;
+            } catch(e) {
+                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading sentiment data. Please try again.</div>';
+            }
+        }
+
+        // Auto-load IPO calendar when Market Calendar tab opens
+        const _origNav = nav;
+        nav = function(section) {
+            _origNav(section);
+            if (section === 'mktcal') {
+                switchMktCalTab('ipo');
+            }
+        };
 
                 // Session memory — resets on page refresh, no storage needed
         let chatHistory = [];
@@ -3255,6 +3592,7 @@
         <div class="mob-tab" id="mob-tab-screener" onclick="nav('screener')"><span class="mob-icon">🎯</span>SCREENER
         </div>
         <div class="mob-tab" id="mob-tab-flows" onclick="nav('flows')"><span class="mob-icon">🐋</span>SMART$</div>
+        <div class="mob-tab" id="mob-tab-mktcal" onclick="nav('mktcal')"><span class="mob-icon">📅</span>CALENDAR</div>
         <div class="mob-tab" id="mob-tab-ningning" onclick="nav('ningning')"><span class="mob-icon">🤖</span>NINGNING
         </div>
         <div class="mob-tab" id="mob-tab-avm" onclick="nav('avm')" style="color:#cba258;"><span
