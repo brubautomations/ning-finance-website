@@ -70,6 +70,8 @@ exports.handler = async function (event, context) {
             targetUrl = `https://api.airtable.com/v0/${dataBaseId}/Macro%20Report?maxRecords=1`;
         } else if (type === 'ning_vlogs') {
             targetUrl = `https://api.airtable.com/v0/${dataBaseId}/Ning_Vlogs?maxRecords=50`;
+        } else if (type === 'ning_trades') {
+            targetUrl = `https://api.airtable.com/v0/${dataBaseId}/tblm74bba61JIZcjb?sort%5B0%5D%5Bfield%5D=Buy_Date&sort%5B0%5D%5Bdirection%5D=desc`;
         } else {
             const dataFormula = encodeURIComponent(`{Market}='${market}'`);
             targetUrl = `https://api.airtable.com/v0/${dataBaseId}/Quant%20Data?filterByFormula=${dataFormula}`;

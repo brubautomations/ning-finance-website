@@ -1479,13 +1479,13 @@
                 <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;">
                     <div id="ning-tab-desk" onclick="switchNingTab('desk')"
                         style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                        MARKET TRANSMISSION</div>
+                        BLOG ENTRY</div>
                     <div id="ning-tab-history" onclick="switchNingTab('history')"
                         style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
                         TRADE HISTORY</div>
                 </div>
 
-                <!-- MARKET TRANSMISSION -->
+                <!-- BLOG ENTRY -->
                 <div id="ning-sub-desk">
                     <div class="macro-card">
                         <div style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
@@ -2004,9 +2004,7 @@
             const scorecard  = document.getElementById('ning-scorecard');
             const tradeTable = document.getElementById('ning-trade-table');
             try {
-                const res  = await fetch(`https://api.airtable.com/v0/app1hHgLzAlJgLB8H/tblm74bba61JIZcjb?sort%5B0%5D%5Bfield%5D=Buy_Date&sort%5B0%5D%5Bdirection%5D=desc`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res  = await fetch(`/.netlify/functions/airtable?type=ning_trades&userToken=${token}`);
                 const data = await res.json();
                 if (data.error) { scorecard.innerHTML = '<div style="padding:20px;color:#dc2626;">Error loading trade history.</div>'; return; }
 
