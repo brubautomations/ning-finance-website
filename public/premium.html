@@ -1361,14 +1361,16 @@
             <div id="mktcal-sub-earnings" style="display:none;">
                 <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">EARNINGS ESTIMATE TRENDS</div>
                 <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Search a ticker to see analyst EPS estimate revisions — whether smart money is raising or cutting expectations.</div>
-                <div style="position:relative;max-width:480px;margin-bottom:24px;">
-                    <div class="autocomplete-wrapper" style="width:100%;">
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px;">
+                    <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
+                    <div class="autocomplete-wrapper">
                         <input type="text" id="mktcal-earnings-input" class="autocomplete-input"
                             placeholder="Search company or ticker..." autocomplete="off">
                         <ul id="mktcal-earnings-suggestions" class="autocomplete-list"></ul>
                     </div>
                     <input type="hidden" id="mktcal-earnings-ticker">
-                    <button class="btn-download" onclick="loadEarningsTrends()" style="margin-top:10px;">LOAD TRENDS</button>
+                    <input type="hidden" id="mktcal-earnings-name">
+                    <button class="btn-download" onclick="loadEarningsTrends()" style="margin:0;">LOAD TRENDS</button>
                 </div>
                 <div id="mktcal-earnings-result"></div>
             </div>
@@ -1377,14 +1379,16 @@
             <div id="mktcal-sub-sentiment" style="display:none;">
                 <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">NEWS SENTIMENT SCORE</div>
                 <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">AI-scored sentiment from global news sources for any ticker. Positive/negative/neutral breakdown over the last 30 days.</div>
-                <div style="position:relative;max-width:480px;margin-bottom:24px;">
-                    <div class="autocomplete-wrapper" style="width:100%;">
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px;">
+                    <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
+                    <div class="autocomplete-wrapper">
                         <input type="text" id="mktcal-sentiment-input" class="autocomplete-input"
                             placeholder="Search company or ticker..." autocomplete="off">
                         <ul id="mktcal-sentiment-suggestions" class="autocomplete-list"></ul>
                     </div>
                     <input type="hidden" id="mktcal-sentiment-ticker">
-                    <button class="btn-download" onclick="loadNewsSentiment()" style="margin-top:10px;">LOAD SENTIMENT</button>
+                    <input type="hidden" id="mktcal-sentiment-name">
+                    <button class="btn-download" onclick="loadNewsSentiment()" style="margin:0;">LOAD SENTIMENT</button>
                 </div>
                 <div id="mktcal-sentiment-result"></div>
             </div>
@@ -1964,36 +1968,7 @@
         }
 
         // ── EARNINGS TRENDS ───────────────────────────────────────────
-        // Autocomplete for earnings trends search
-        (function() {
-            var input = document.getElementById('mktcal-earnings-input');
-            var list  = document.getElementById('mktcal-earnings-suggestions');
-            var hidden= document.getElementById('mktcal-earnings-ticker');
-            if (!input) return;
-            var timer;
-            input.addEventListener('input', function() {
-                clearTimeout(timer);
-                var q = input.value.trim();
-                if (q.length < 2) { list.style.display='none'; return; }
-                timer = setTimeout(async function() {
-                    try {
-                        var res  = await fetch('/.netlify/functions/eodhd?action=search&q=' + encodeURIComponent(q) + '&limit=8');
-                        var data = await res.json();
-                        if (!data.length) { list.style.display='none'; return; }
-                        list.innerHTML = data.map(function(s) {
-                            return '<li style="padding:10px 14px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;" ' +
-                                'onmouseover="this.style.background=\'#fdf8f0\'" onmouseout="this.style.background=\'#fff\'" ' +
-                                'onclick="document.getElementById(\'mktcal-earnings-input\').value=\'' + s.Name.replace(/'/g,"\\'") + ' (' + s.Code + ')\';' +
-                                'document.getElementById(\'mktcal-earnings-ticker\').value=\'' + s.Code + '.' + s.Exchange + '\';' +
-                                'document.getElementById(\'mktcal-earnings-suggestions\').style.display=\'none\';">' +
-                                '<strong>' + s.Code + '</strong> — ' + s.Name + ' <span style="color:#aaa;font-size:0.75rem;">' + s.Exchange + '</span>' +
-                                '</li>';
-                        }).join('');
-                        list.style.display = 'block';
-                    } catch(e) { list.style.display='none'; }
-                }, 500);
-            });
-        })();
+        // Uses existing setupAutocomplete (Finnhub → EODHD format, wired in DOMContentLoaded)
 
         async function loadEarningsTrends() {
             var ticker = document.getElementById('mktcal-earnings-ticker').value;
@@ -2043,35 +2018,7 @@
         }
 
         // ── NEWS SENTIMENT ────────────────────────────────────────────
-        (function() {
-            var input = document.getElementById('mktcal-sentiment-input');
-            var list  = document.getElementById('mktcal-sentiment-suggestions');
-            var hidden= document.getElementById('mktcal-sentiment-ticker');
-            if (!input) return;
-            var timer;
-            input.addEventListener('input', function() {
-                clearTimeout(timer);
-                var q = input.value.trim();
-                if (q.length < 2) { list.style.display='none'; return; }
-                timer = setTimeout(async function() {
-                    try {
-                        var res  = await fetch('/.netlify/functions/eodhd?action=search&q=' + encodeURIComponent(q) + '&limit=8');
-                        var data = await res.json();
-                        if (!data.length) { list.style.display='none'; return; }
-                        list.innerHTML = data.map(function(s) {
-                            return '<li style="padding:10px 14px;cursor:pointer;font-size:0.85rem;font-weight:600;border-bottom:1px solid #f5f5f5;" ' +
-                                'onmouseover="this.style.background=\'#fdf8f0\'" onmouseout="this.style.background=\'#fff\'" ' +
-                                'onclick="document.getElementById(\'mktcal-sentiment-input\').value=\'' + s.Name.replace(/'/g,"\\'") + ' (' + s.Code + ')\';' +
-                                'document.getElementById(\'mktcal-sentiment-ticker\').value=\'' + s.Code + '\';' +
-                                'document.getElementById(\'mktcal-sentiment-suggestions\').style.display=\'none\';">' +
-                                '<strong>' + s.Code + '</strong> — ' + s.Name + ' <span style="color:#aaa;font-size:0.75rem;">' + s.Exchange + '</span>' +
-                                '</li>';
-                        }).join('');
-                        list.style.display = 'block';
-                    } catch(e) { list.style.display='none'; }
-                }, 500);
-            });
-        })();
+        // Uses existing setupAutocomplete (Finnhub → EODHD format, wired in DOMContentLoaded)
 
         async function loadNewsSentiment() {
             var ticker = document.getElementById('mktcal-sentiment-ticker').value;
@@ -3571,6 +3518,8 @@
             nav(savedTab);
 
             setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
+            setupAutocomplete('mktcal-earnings-input', 'mktcal-earnings-suggestions', 'mktcal-earnings-ticker', 'mktcal-earnings-name');
+            setupAutocomplete('mktcal-sentiment-input', 'mktcal-sentiment-suggestions', 'mktcal-sentiment-ticker', 'mktcal-sentiment-name');
             setupSmartMoneyAutocomplete('insider-search-input', 'insider-suggestions', 'insider-selected-ticker', 'insider-selected-name');
             setupSmartMoneyAutocomplete('institutional-search-input', 'institutional-suggestions', 'institutional-selected-ticker', 'institutional-selected-name');
             setupEcosystemAutocomplete();
