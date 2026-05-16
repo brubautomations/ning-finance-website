@@ -1474,24 +1474,44 @@
         <div id="ningning" class="page">
             <h2>Autonomous AI Prop Trader — PSE Equities</h2>
             <div id="ningning-wrapper">
-                <div class="macro-card">
-                    <div
-                        style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
-                        <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
-                            alt="Ningning AI" style="border-radius: 50%;">
-                        <div>
-                            <h3
-                                style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">
-                                Ningning</h3>
-                            <p
-                                style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">
-                                LEAD AI PORTFOLIO MANAGER</p>
+
+                <!-- SUB-TABS -->
+                <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;">
+                    <div id="ning-tab-desk" onclick="switchNingTab('desk')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        MARKET TRANSMISSION</div>
+                    <div id="ning-tab-history" onclick="switchNingTab('history')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        TRADE HISTORY</div>
+                </div>
+
+                <!-- MARKET TRANSMISSION -->
+                <div id="ning-sub-desk">
+                    <div class="macro-card">
+                        <div style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 25px;">
+                            <img src="https://ui-avatars.com/api/?name=Ningning&background=cba258&color=000&rounded=true&bold=true&size=80"
+                                alt="Ningning AI" style="border-radius: 50%;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.5rem; font-family: 'Merriweather', serif; text-transform: uppercase;">Ningning</h3>
+                                <p style="margin: 5px 0 0 0; color: #666; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px;">LEAD AI PORTFOLIO MANAGER</p>
+                            </div>
+                        </div>
+                        <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
+                            <p>Loading market transmission...</p>
                         </div>
                     </div>
-                    <div id="ningning-vlog-content" style="line-height: 1.8; font-size: 1.05rem; color: #333;">
-                        <p>Loading market transmission...</p>
-                    </div>
                 </div>
+
+                <!-- TRADE HISTORY -->
+                <div id="ning-sub-history" style="display:none;">
+                    <!-- SCORECARD -->
+                    <div id="ning-scorecard" style="margin-bottom:24px;">
+                        <div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading trade history...</div>
+                    </div>
+                    <!-- TRADE TABLE -->
+                    <div id="ning-trade-table"></div>
+                </div>
+
             </div>
         </div>
 
@@ -1962,6 +1982,109 @@
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
         function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
+
+        // ── NINGNING SUB-TABS ─────────────────────────────────────────
+        function switchNingTab(tab) {
+            ['desk','history'].forEach(function(t) {
+                var sub = document.getElementById('ning-sub-' + t);
+                var btn = document.getElementById('ning-tab-' + t);
+                if (sub) sub.style.display = t === tab ? 'block' : 'none';
+                if (btn) {
+                    btn.style.borderBottom = t === tab ? '3px solid var(--primary)' : '3px solid transparent';
+                    btn.style.color        = t === tab ? '#000' : '#888';
+                }
+            });
+            if (tab === 'history' && !window._ningTradeLoaded) {
+                loadNingTradeHistory();
+            }
+        }
+
+        // ── NINGNING TRADE HISTORY ────────────────────────────────────
+        async function loadNingTradeHistory() {
+            const scorecard  = document.getElementById('ning-scorecard');
+            const tradeTable = document.getElementById('ning-trade-table');
+            try {
+                const res  = await fetch(`https://api.airtable.com/v0/app1hHgLzAlJgLB8H/tblm74bba61JIZcjb?sort%5B0%5D%5Bfield%5D=Buy_Date&sort%5B0%5D%5Bdirection%5D=desc`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.error) { scorecard.innerHTML = '<div style="padding:20px;color:#dc2626;">Error loading trade history.</div>'; return; }
+
+                const trades = (data.records || []).map(r => r.fields).filter(f => f.Ticker && f.Sell_Date);
+                if (!trades.length) { scorecard.innerHTML = '<div style="padding:20px;color:#888;">No trade history yet.</div>'; return; }
+
+                // ── COMPUTE STATS ──
+                const closed  = trades.filter(t => t.Realized_PNL != null);
+                const wins    = closed.filter(t => parseFloat(t.Realized_PNL) > 0);
+                const losses  = closed.filter(t => parseFloat(t.Realized_PNL) < 0);
+                const flats   = closed.filter(t => parseFloat(t.Realized_PNL) === 0);
+
+                const avgWin  = wins.length   ? wins.reduce((s,t)   => s + parseFloat(t.Realized_PNL), 0) / wins.length   : 0;
+                const avgLoss = losses.length ? losses.reduce((s,t) => s + parseFloat(t.Realized_PNL), 0) / losses.length : 0;
+
+                const bestTrade  = closed.reduce((a,b) => parseFloat(a.Realized_PNL) > parseFloat(b.Realized_PNL) ? a : b, closed[0]);
+                const worstTrade = closed.reduce((a,b) => parseFloat(a.Realized_PNL) < parseFloat(b.Realized_PNL) ? a : b, closed[0]);
+
+                const totalGains  = wins.reduce((s,t)   => s + parseFloat(t.Realized_PNL), 0);
+                const totalLosses = Math.abs(losses.reduce((s,t) => s + parseFloat(t.Realized_PNL), 0));
+                const profitFactor = totalLosses > 0 ? (totalGains / totalLosses).toFixed(1) + 'x' : '∞';
+                const winRate = closed.length ? ((wins.length / closed.length) * 100).toFixed(0) + '%' : '—';
+
+                // ── SCORECARD ──
+                const stats = [
+                    { label: 'WIN / LOSS',          value: wins.length + 'W · ' + losses.length + 'L · ' + flats.length + 'B' },
+                    { label: 'BEST TRADE',           value: bestTrade  ? bestTrade.Ticker  + ' ' + (parseFloat(bestTrade.Realized_PNL)  >= 0 ? '+' : '') + parseFloat(bestTrade.Realized_PNL).toFixed(2)  + '%' : '—', color: 'var(--up)' },
+                    { label: 'WORST TRADE',          value: worstTrade ? worstTrade.Ticker + ' ' + parseFloat(worstTrade.Realized_PNL).toFixed(2) + '%' : '—', color: 'var(--down)' },
+                    { label: 'AVG WINNING TRADE',    value: wins.length   ? '+' + avgWin.toFixed(2)  + '%' : '—', color: 'var(--up)' },
+                    { label: 'AVG LOSING TRADE',     value: losses.length ? avgLoss.toFixed(2) + '%' : '—', color: 'var(--down)' },
+                    { label: 'WIN RATE',             value: winRate },
+                    { label: 'PROFIT FACTOR',        value: profitFactor, color: 'var(--primary)' },
+                ];
+
+                scorecard.innerHTML = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">NINGNING — PERFORMANCE SCORECARD</div>' +
+                    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border:1px solid var(--border);border-top:none;margin-bottom:24px;">' +
+                    stats.map(function(s, i) {
+                        var borderRight = (i < stats.length - 1) ? 'border-right:1px solid var(--border);' : '';
+                        return '<div style="padding:18px 20px;border-bottom:1px solid var(--border);' + borderRight + '">' +
+                            '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">' + s.label + '</div>' +
+                            '<div style="font-size:1.1rem;font-weight:900;font-family:Courier New,monospace;color:' + (s.color || 'var(--text-main)') + ';">' + s.value + '</div>' +
+                            '</div>';
+                    }).join('') + '</div>';
+
+                // ── TRADE TABLE ──
+                var html = '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">ALL CLOSED TRADES</div>';
+                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
+                html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
+                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">TICKER</th>' +
+                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">BUY DATE</th>' +
+                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">SELL DATE</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">BUY PRICE</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SELL PRICE</th>' +
+                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">REALIZED P&L</th>' +
+                    '</tr></thead><tbody>';
+
+                trades.forEach(function(t) {
+                    var pnl     = t.Realized_PNL != null ? parseFloat(t.Realized_PNL) : null;
+                    var pnlStr  = pnl != null ? (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%' : 'OPEN';
+                    var pnlColor = pnl == null ? '#888' : pnl > 0 ? 'var(--up)' : pnl < 0 ? 'var(--down)' : '#888';
+                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:9px 14px;font-weight:900;color:var(--text-main);">' + (t.Ticker||'—') + '</td>' +
+                        '<td style="padding:9px 14px;font-family:Courier New,monospace;color:#888;">' + (t.Buy_Date||'—') + '</td>' +
+                        '<td style="padding:9px 14px;font-family:Courier New,monospace;color:#888;">' + (t.Sell_Date||'—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;">₱' + (t.Buy_Price||'—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;">₱' + (t.Sell_Price||'—') + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-weight:900;color:' + pnlColor + ';">' + pnlStr + '</td>' +
+                        '</tr>';
+                });
+
+                html += '</tbody></table></div>';
+                tradeTable.innerHTML = html;
+                window._ningTradeLoaded = true;
+
+            } catch(e) {
+                scorecard.innerHTML = '<div style="padding:20px;color:#dc2626;">Error loading trade history. Please try again.</div>';
+            }
+        }
 
         // ============================================================
         // MARKET CALENDAR
