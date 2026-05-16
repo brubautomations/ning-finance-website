@@ -2012,40 +2012,42 @@
                 if (!trades.length) { scorecard.innerHTML = '<div style="padding:20px;color:#888;">No trade history yet.</div>'; return; }
 
                 // ── COMPUTE STATS ──
+                // Realized_PNL from Airtable is a decimal e.g. 0.2015 = 20.15%
                 const closed  = trades.filter(t => t.Realized_PNL != null);
                 const wins    = closed.filter(t => parseFloat(t.Realized_PNL) > 0);
                 const losses  = closed.filter(t => parseFloat(t.Realized_PNL) < 0);
-                const flats   = closed.filter(t => parseFloat(t.Realized_PNL) === 0);
 
                 const avgWin  = wins.length   ? wins.reduce((s,t)   => s + parseFloat(t.Realized_PNL), 0) / wins.length   : 0;
                 const avgLoss = losses.length ? losses.reduce((s,t) => s + parseFloat(t.Realized_PNL), 0) / losses.length : 0;
 
-                const bestTrade  = closed.reduce((a,b) => parseFloat(a.Realized_PNL) > parseFloat(b.Realized_PNL) ? a : b, closed[0]);
-                const worstTrade = closed.reduce((a,b) => parseFloat(a.Realized_PNL) < parseFloat(b.Realized_PNL) ? a : b, closed[0]);
+                const bestTrade  = closed.length ? closed.reduce((a,b) => parseFloat(a.Realized_PNL) > parseFloat(b.Realized_PNL) ? a : b) : null;
+                const worstTrade = closed.length ? closed.reduce((a,b) => parseFloat(a.Realized_PNL) < parseFloat(b.Realized_PNL) ? a : b) : null;
 
-                const totalGains  = wins.reduce((s,t)   => s + parseFloat(t.Realized_PNL), 0);
+                const totalGains  = wins.reduce((s,t) => s + parseFloat(t.Realized_PNL), 0);
                 const totalLosses = Math.abs(losses.reduce((s,t) => s + parseFloat(t.Realized_PNL), 0));
                 const profitFactor = totalLosses > 0 ? (totalGains / totalLosses).toFixed(1) + 'x' : '∞';
                 const winRate = closed.length ? ((wins.length / closed.length) * 100).toFixed(0) + '%' : '—';
 
+                // Helper: format PNL as percentage
+                const fmtPNL = (v) => (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%';
+
                 // ── SCORECARD ──
                 const stats = [
-                    { label: 'WIN / LOSS',          value: wins.length + 'W · ' + losses.length + 'L · ' + flats.length + 'B' },
-                    { label: 'BEST TRADE',           value: bestTrade  ? bestTrade.Ticker  + ' ' + (parseFloat(bestTrade.Realized_PNL)  >= 0 ? '+' : '') + parseFloat(bestTrade.Realized_PNL).toFixed(2)  + '%' : '—', color: 'var(--up)' },
-                    { label: 'WORST TRADE',          value: worstTrade ? worstTrade.Ticker + ' ' + parseFloat(worstTrade.Realized_PNL).toFixed(2) + '%' : '—', color: 'var(--down)' },
-                    { label: 'AVG WINNING TRADE',    value: wins.length   ? '+' + avgWin.toFixed(2)  + '%' : '—', color: 'var(--up)' },
-                    { label: 'AVG LOSING TRADE',     value: losses.length ? avgLoss.toFixed(2) + '%' : '—', color: 'var(--down)' },
-                    { label: 'WIN RATE',             value: winRate },
-                    { label: 'PROFIT FACTOR',        value: profitFactor, color: 'var(--primary)' },
+                    { label: 'WIN / LOSS',        value: wins.length + 'W · ' + losses.length + 'L', color: 'var(--text-main)' },
+                    { label: 'BEST TRADE',         value: bestTrade  ? bestTrade.Ticker  + ' ' + fmtPNL(parseFloat(bestTrade.Realized_PNL))  : '—', color: '#16a34a' },
+                    { label: 'WORST TRADE',        value: worstTrade ? worstTrade.Ticker + ' ' + fmtPNL(parseFloat(worstTrade.Realized_PNL)) : '—', color: '#dc2626' },
+                    { label: 'AVG WINNING TRADE',  value: wins.length   ? fmtPNL(avgWin)  : '—', color: '#16a34a' },
+                    { label: 'AVG LOSING TRADE',   value: losses.length ? fmtPNL(avgLoss) : '—', color: '#dc2626' },
+                    { label: 'WIN RATE',           value: winRate, color: 'var(--text-main)' },
+                    { label: 'PROFIT FACTOR',      value: profitFactor, color: 'var(--text-main)' },
                 ];
 
-                scorecard.innerHTML = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">NINGNING — PERFORMANCE SCORECARD</div>' +
-                    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;border:1px solid var(--border);border-top:none;margin-bottom:24px;">' +
-                    stats.map(function(s, i) {
-                        var borderRight = (i < stats.length - 1) ? 'border-right:1px solid var(--border);' : '';
-                        return '<div style="padding:18px 20px;border-bottom:1px solid var(--border);' + borderRight + '">' +
-                            '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">' + s.label + '</div>' +
-                            '<div style="font-size:1.1rem;font-weight:900;font-family:Courier New,monospace;color:' + (s.color || 'var(--text-main)') + ';">' + s.value + '</div>' +
+                scorecard.innerHTML = '<div style="background:#000;color:#fff;padding:14px 24px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:0;">NINGNING — PERFORMANCE SCORECARD</div>' +
+                    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border:1px solid var(--border);border-top:none;margin-bottom:28px;">' +
+                    stats.map(function(s) {
+                        return '<div style="padding:20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+                            '<div style="font-size:0.6rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">' + s.label + '</div>' +
+                            '<div style="font-size:1.15rem;font-weight:900;font-family:Courier New,monospace;color:' + s.color + ';">' + s.value + '</div>' +
                             '</div>';
                     }).join('') + '</div>';
 
@@ -2062,16 +2064,17 @@
                     '</tr></thead><tbody>';
 
                 trades.forEach(function(t) {
-                    var pnl     = t.Realized_PNL != null ? parseFloat(t.Realized_PNL) : null;
-                    var pnlStr  = pnl != null ? (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%' : 'OPEN';
-                    var pnlColor = pnl == null ? '#888' : pnl > 0 ? 'var(--up)' : pnl < 0 ? 'var(--down)' : '#888';
-                    html += '<tr style="border-bottom:1px solid var(--border);">' +
+                    var pnl      = t.Realized_PNL != null ? parseFloat(t.Realized_PNL) : null;
+                    var pnlStr   = pnl != null ? fmtPNL(pnl) : '—';
+                    var pnlColor = pnl == null ? '#888' : pnl > 0 ? '#16a34a' : pnl < 0 ? '#dc2626' : '#888';
+                    var rowBg    = pnl > 0 ? 'background:rgba(22,163,74,0.04);' : pnl < 0 ? 'background:rgba(220,38,38,0.04);' : '';
+                    html += '<tr style="border-bottom:1px solid var(--border);' + rowBg + '">' +
                         '<td style="padding:9px 14px;font-weight:900;color:var(--text-main);">' + (t.Ticker||'—') + '</td>' +
                         '<td style="padding:9px 14px;font-family:Courier New,monospace;color:#888;">' + (t.Buy_Date||'—') + '</td>' +
                         '<td style="padding:9px 14px;font-family:Courier New,monospace;color:#888;">' + (t.Sell_Date||'—') + '</td>' +
                         '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;">₱' + (t.Buy_Price||'—') + '</td>' +
                         '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;">₱' + (t.Sell_Price||'—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-weight:900;color:' + pnlColor + ';">' + pnlStr + '</td>' +
+                        '<td style="padding:9px 14px;text-align:right;font-weight:900;font-size:0.95rem;color:' + pnlColor + ';">' + pnlStr + '</td>' +
                         '</tr>';
                 });
 
