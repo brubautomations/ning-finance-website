@@ -957,6 +957,43 @@
             margin-bottom: 1px;
             line-height: 1;
         }
+        /* ── DARK MODE ────────────────────────────────── */
+        [data-theme="dark"] {
+            --bg: #0d0d0d;
+            --card-bg: #1a1a1a;
+            --text-main: #e8e8e8;
+            --border: #2e2e2e;
+        }
+        [data-theme="dark"] body { background-color: var(--bg); color: var(--text-main); }
+        [data-theme="dark"] header { background: #111; border-bottom-color: var(--primary); }
+        [data-theme="dark"] .nav-tabs { background: #111; border-bottom-color: #2e2e2e; }
+        [data-theme="dark"] .tab { color: #888; }
+        [data-theme="dark"] .tab.active { color: #fff; }
+        [data-theme="dark"] .page { background: var(--bg); }
+        [data-theme="dark"] #content-area { background: var(--bg); }
+        [data-theme="dark"] .macro-card { background: var(--card-bg); border-color: #2e2e2e; color: var(--text-main); }
+        [data-theme="dark"] h2 { color: #f0f0f0; }
+        [data-theme="dark"] h3 { color: #e0e0e0; }
+        [data-theme="dark"] input[type="text"], [data-theme="dark"] .autocomplete-input { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] select, [data-theme="dark"] .market-dropdown { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] table { color: #e8e8e8; }
+        [data-theme="dark"] th { background: #1a1a1a; color: #aaa; }
+        [data-theme="dark"] td { color: #e8e8e8; }
+        [data-theme="dark"] tr:hover td { background: #222 !important; }
+        [data-theme="dark"] .autocomplete-list { background: #1a1a1a; border-color: var(--primary); }
+        [data-theme="dark"] .autocomplete-list li { color: #e8e8e8; border-bottom-color: #2e2e2e; }
+        [data-theme="dark"] .autocomplete-list li:hover { background: #2a2a2a !important; }
+        [data-theme="dark"] .mob-nav { background: #111; border-top-color: #2e2e2e; }
+        [data-theme="dark"] .mob-tab { color: #888; }
+        [data-theme="dark"] .mob-tab.active { color: var(--primary); }
+        [data-theme="dark"] footer { background: #111; border-top-color: #2e2e2e; color: #666; }
+        /* THEME TOGGLE */
+        .theme-toggle { display:flex;align-items:center;gap:0;border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:0.7rem;font-weight:700;letter-spacing:0.5px;cursor:pointer;margin-right:12px;flex-shrink:0; }
+        .theme-toggle-option { padding:8px 14px;background:#f5f5f5;color:#aaa;transition:0.2s;cursor:pointer;user-select:none; }
+        .theme-toggle-option.active { background:#000;color:#fff; }
+        [data-theme="dark"] .theme-toggle { border-color:#333; }
+        [data-theme="dark"] .theme-toggle-option { background:#222;color:#555; }
+        [data-theme="dark"] .theme-toggle-option.active { background:var(--primary);color:#000; }
     </style>
 </head>
 
@@ -976,8 +1013,14 @@
         <div class="logo">NING <span>FINANCE</span>
             <div class="logo-tag">PRO TIER</div>
         </div>
-        <div class="user-status" id="header-status">
-            <div class="status-dot"></div>SECURE CONNECTION ACTIVE
+        <div style="display:flex;align-items:center;gap:0;">
+            <div class="theme-toggle">
+                <div class="theme-toggle-option active" id="theme-light" onclick="setTheme('light')">LIGHT</div>
+                <div class="theme-toggle-option" id="theme-dark" onclick="setTheme('dark')">DARK</div>
+            </div>
+            <div class="user-status" id="header-status">
+                <div class="status-dot"></div>SECURE CONNECTION ACTIVE
+            </div>
         </div>
     </header>
 
@@ -1971,11 +2014,17 @@
                 if (!byDate[d]) byDate[d] = [];
                 byDate[d].push(ipo);
             });
-            var html = '';
+            var html = '<div style="overflow-x:auto;">';
+            html += '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
+            html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
+                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
+                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">COMPANY</th>' +
+                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">EXCHANGE</th>' +
+                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">STATUS</th>' +
+                '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">OFFER PRICE</th>' +
+                '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SHARES OFFERED</th>' +
+                '</tr></thead><tbody>';
             Object.keys(byDate).sort().forEach(function(date) {
-                html += '<div style="font-size:0.72rem;font-weight:900;color:var(--text-main);background:var(--bg);padding:8px 14px;border:1px solid var(--border);border-bottom:none;letter-spacing:0.5px;">' + date + '</div>';
-                html += '<div style="overflow-x:auto;margin-bottom:0;">';
-                html += '<table style="width:100%;border-collapse:collapse;font-size:0.8rem;">';
                 byDate[date].forEach(function(ipo) {
                     var name     = ipo.name || '—';
                     var exch     = ipo.exchange || '—';
@@ -1984,24 +2033,23 @@
                     var priceH   = ipo.price_to   || 0;
                     var offerP   = ipo.offer_price || 0;
                     var shares   = ipo.shares || 0;
-                    var curr     = ipo.currency ? ipo.currency : '';
+                    var curr     = ipo.currency ? ipo.currency + ' ' : '';
                     var priceStr = offerP > 0 ? curr + offerP :
                                    (priceL > 0 && priceH > 0) ? curr + priceL + ' – ' + curr + priceH :
-                                   priceL > 0 ? curr + priceL + '+' : '—';
+                                   priceL > 0 ? curr + priceL + '+' : 'TBD';
                     var sharesStr = shares > 0 ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' : shares >= 1e3 ? (shares/1e3).toFixed(0) + 'K' : shares.toLocaleString()) : '—';
                     var dealColor = dealType === 'Priced' ? 'color:var(--up);font-weight:900;' : 'color:#888;';
-                    var grp = getExchangeGroup(exch);
-                    var grpFlag = grp === 'US' ? '🇺🇸' : grp === 'EUROPE' ? '🇪🇺' : grp === 'ASIA' ? '🌏' : '🌍';
                     html += '<tr style="border-bottom:1px solid var(--border);">' +
+                        '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);white-space:nowrap;">' + date + '</td>' +
                         '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
-                        '<td style="padding:9px 14px;color:#888;white-space:nowrap;">' + grpFlag + ' ' + exch + '</td>' +
+                        '<td style="padding:9px 14px;color:#888;white-space:nowrap;">' + exch + '</td>' +
                         '<td style="padding:9px 14px;' + dealColor + 'white-space:nowrap;">' + dealType + '</td>' +
                         '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;white-space:nowrap;">' + priceStr + '</td>' +
                         '<td style="padding:9px 14px;text-align:right;color:#888;white-space:nowrap;">' + sharesStr + '</td>' +
                         '</tr>';
                 });
-                html += '</table></div><div style="margin-bottom:12px;"></div>';
             });
+            html += '</tbody></table></div>';
             return html;
         }
 
@@ -2059,7 +2107,6 @@
             try {
                 var res  = await fetch('/.netlify/functions/eodhd?action=earnings&symbols=' + ticker);
                 var data = await res.json();
-                // trends endpoint returns { trends: [[...periods for ticker1], [...periods for ticker2]] }
                 var trends = data.trends || [];
                 var tickerTrends = trends.length ? trends[0] : [];
                 if (!tickerTrends.length) {
@@ -2067,75 +2114,87 @@
                     return;
                 }
                 var sym = tickerTrends[0].code || ticker;
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — ANALYST EPS ESTIMATE TRENDS</div>';
 
-                // ── VISUAL SUMMARY ──
-                // Show only meaningful periods: 0q, +1q, 0y, +1y
-                var keyPeriods = tickerTrends.filter(function(t) { return ['0q','+1q','0y','+1y'].indexOf(t.period) > -1; }).slice(0,4);
-                if (keyPeriods.length) {
-                    html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:20px;margin-bottom:16px;">';
-                    html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;">EPS ESTIMATE MOVEMENT — CURRENT vs 30 DAYS AGO</div>';
-                    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">';
-                    keyPeriods.forEach(function(t) {
-                        var curr  = t.earningsEstimateAvg ? parseFloat(t.earningsEstimateAvg) : null;
-                        var ago30 = t.epsTrend30daysAgo   ? parseFloat(t.epsTrend30daysAgo)   : null;
-                        var revUp = parseInt(t.epsRevisionsUpLast30days||0);
-                        var revDn = parseInt(t.epsRevisionsDownLast30days||0);
-                        var diff  = (curr != null && ago30 != null) ? curr - ago30 : null;
-                        var pctChg = (diff != null && ago30 !== 0) ? (diff/Math.abs(ago30)*100) : null;
-                        var trend = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
-                        var trendColor = diff > 0 ? 'var(--up)' : diff < 0 ? 'var(--down)' : '#888';
-                        var periodLabel = t.period === '0q' ? 'THIS QUARTER' : t.period === '+1q' ? 'NEXT QUARTER' : t.period === '0y' ? 'THIS YEAR' : 'NEXT YEAR';
-                        html += '<div style="background:var(--bg);border:1px solid var(--border);padding:14px;">';
-                        html += '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1px;margin-bottom:8px;">' + periodLabel + '</div>';
-                        html += '<div style="font-size:1.4rem;font-weight:900;color:var(--text-main);font-family:Courier New,monospace;">' + (curr != null ? '$'+curr.toFixed(2) : '—') + '</div>';
-                        html += '<div style="font-size:0.75rem;color:' + trendColor + ';font-weight:900;margin-top:4px;">' + trend + ' ' + (diff != null ? (diff>=0?'+':'') + diff.toFixed(2) : '') + (pctChg != null ? ' (' + (pctChg>=0?'+':'') + pctChg.toFixed(1) + '%)' : '') + ' vs 30d ago</div>';
-                        if (revUp || revDn) {
-                            html += '<div style="font-size:0.7rem;margin-top:8px;display:flex;gap:8px;">';
-                            if (revUp) html += '<span style="color:var(--up);font-weight:900;">▲ ' + revUp + ' raised</span>';
-                            if (revDn) html += '<span style="color:var(--down);font-weight:900;">▼ ' + revDn + ' cut</span>';
-                            html += '</div>';
-                        }
-                        html += '</div>';
-                    });
-                    html += '</div></div>';
+                // Pick the best single entry per period — most recent date per period code
+                var byPeriod = {};
+                tickerTrends.forEach(function(t) {
+                    var p = t.period;
+                    if (!byPeriod[p] || new Date(t.date) > new Date(byPeriod[p].date)) {
+                        byPeriod[p] = t;
+                    }
+                });
+
+                var periodOrder = ['0q', '+1q', '0y', '+1y'];
+                var periodLabels = { '0q': 'THIS QUARTER', '+1q': 'NEXT QUARTER', '0y': 'THIS YEAR', '+1y': 'NEXT YEAR' };
+                var cards = periodOrder.map(function(p) { return byPeriod[p]; }).filter(Boolean).slice(0, 4);
+
+                if (!cards.length) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker.</div>';
+                    return;
                 }
 
-                // ── FULL TABLE ──
-                html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">FULL BREAKDOWN — ALL PERIODS</div>';
-                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
-                html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
-                    '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">PERIOD</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">EPS EST.</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">7D AGO</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">30D AGO</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">REVISIONS UP</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">REVISIONS DOWN</th>' +
-                    '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">ANALYSTS</th>' +
-                    '</tr></thead><tbody>';
-                tickerTrends.forEach(function(t) {
-                    var curr   = t.earningsEstimateAvg   ? parseFloat(t.earningsEstimateAvg).toFixed(2)   : '—';
-                    var ago7   = t.epsTrend7daysAgo      ? parseFloat(t.epsTrend7daysAgo).toFixed(2)      : '—';
-                    var ago30  = t.epsTrend30daysAgo     ? parseFloat(t.epsTrend30daysAgo).toFixed(2)     : '—';
-                    var revUp  = t.epsRevisionsUpLast30days   ? parseInt(t.epsRevisionsUpLast30days)   : 0;
-                    var revDn  = t.epsRevisionsDownLast30days ? parseInt(t.epsRevisionsDownLast30days) : 0;
-                    var analysts = t.earningsEstimateNumberOfAnalysts ? parseInt(t.earningsEstimateNumberOfAnalysts) : '—';
-                    // Trend vs 30d ago
-                    var trendVs30 = (curr !== '—' && ago30 !== '—') ? parseFloat(curr) - parseFloat(ago30) : null;
-                    var trendColor = trendVs30 > 0 ? 'color:var(--up);font-weight:900;' : trendVs30 < 0 ? 'color:var(--down);font-weight:900;' : '';
-                    var trendStr = trendVs30 != null ? (trendVs30 >= 0 ? '+' : '') + trendVs30.toFixed(2) : '—';
-                    html += '<tr style="border-bottom:1px solid var(--border);">' +
-                        '<td style="padding:9px 14px;font-weight:900;color:var(--text-main);">' + (t.period||'—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:900;">' + curr + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;color:#888;">' + ago7 + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;color:#888;">' + ago30 + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;color:var(--up);font-weight:900;">' + (revUp || '—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;color:var(--down);font-weight:900;">' + (revDn || '—') + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;color:#888;">' + analysts + '</td>' +
-                        '</tr>';
+                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — WHAT ANALYSTS EXPECT</div>';
+                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border:1px solid var(--border);border-top:none;margin-bottom:8px;">';
+
+                cards.forEach(function(t, idx) {
+                    var curr    = t.earningsEstimateAvg  ? parseFloat(t.earningsEstimateAvg)  : null;
+                    var ago30   = t.epsTrend30daysAgo    ? parseFloat(t.epsTrend30daysAgo)    : null;
+                    var low     = t.earningsEstimateLow  ? parseFloat(t.earningsEstimateLow)  : null;
+                    var high    = t.earningsEstimateHigh ? parseFloat(t.earningsEstimateHigh) : null;
+                    var revUp   = parseInt(t.epsRevisionsUpLast30days   || 0);
+                    var revDn   = parseInt(t.epsRevisionsDownLast30days || 0);
+                    var analysts= t.earningsEstimateNumberOfAnalysts ? parseInt(t.earningsEstimateNumberOfAnalysts) : null;
+                    var diff    = (curr != null && ago30 != null) ? curr - ago30 : null;
+                    var pctChg  = (diff != null && ago30 !== 0)   ? (diff / Math.abs(ago30) * 100) : null;
+                    var label   = periodLabels[t.period] || t.period;
+
+                    // Determine overall signal
+                    var signal, signalColor, signalBg;
+                    if (revUp > revDn * 2 && (diff == null || diff >= 0)) {
+                        signal = 'ANALYSTS ARE BULLISH'; signalColor = 'var(--up)'; signalBg = '#f0fdf4';
+                    } else if (revDn > revUp * 2 || (diff != null && diff < 0)) {
+                        signal = 'ANALYSTS ARE CAUTIOUS'; signalColor = 'var(--down)'; signalBg = '#fef2f2';
+                    } else {
+                        signal = 'MIXED SIGNALS'; signalColor = '#888'; signalBg = 'var(--bg)';
+                    }
+
+                    // Plain English summary
+                    var summary = '';
+                    if (curr != null) {
+                        summary += 'Analysts expect <strong>' + sym.split('.')[0] + '</strong> to earn <strong>$' + curr.toFixed(2) + ' per share</strong>';
+                        if (low != null && high != null) summary += ' (range: $' + low.toFixed(2) + '–$' + high.toFixed(2) + ')';
+                        summary += '. ';
+                    }
+                    if (diff != null && pctChg != null && Math.abs(diff) > 0.001) {
+                        summary += 'That estimate has <strong>' + (diff > 0 ? 'gone up' : 'gone down') + ' ' + (diff > 0 ? '+' : '') + diff.toFixed(2) + ' (' + (pctChg >= 0 ? '+' : '') + pctChg.toFixed(1) + '%)</strong> vs 30 days ago. ';
+                    } else if (diff != null) {
+                        summary += 'The estimate has <strong>not changed</strong> in the last 30 days. ';
+                    }
+                    if (revUp || revDn) {
+                        if (revUp && !revDn) summary += '<strong>' + revUp + ' analyst' + (revUp > 1 ? 's' : '') + ' raised</strong> their estimate — no one cut.';
+                        else if (revDn && !revUp) summary += '<strong>' + revDn + ' analyst' + (revDn > 1 ? 's' : '') + ' cut</strong> their estimate — no one raised.';
+                        else summary += '<strong>' + revUp + ' raised</strong> vs <strong>' + revDn + ' cut</strong> in the last 30 days.';
+                    }
+                    if (analysts) summary += ' (' + analysts + ' analysts covering)';
+
+                    var borderRight = idx < cards.length - 1 ? 'border-right:1px solid var(--border);' : '';
+                    html += '<div style="padding:22px;' + borderRight + 'border-bottom:1px solid var(--border);">';
+                    html += '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">' + label + '</div>';
+                    html += '<div style="font-size:2rem;font-weight:900;color:var(--text-main);font-family:Courier New,monospace;margin-bottom:6px;">' + (curr != null ? '$' + curr.toFixed(2) : '—') + '</div>';
+                    if (diff != null && Math.abs(diff) > 0.001) {
+                        html += '<div style="font-size:0.8rem;font-weight:900;color:' + (diff > 0 ? 'var(--up)' : 'var(--down)') + ';margin-bottom:12px;">' + (diff > 0 ? '▲' : '▼') + ' ' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' vs last month</div>';
+                    } else {
+                        html += '<div style="font-size:0.8rem;color:#aaa;margin-bottom:12px;">Unchanged vs last month</div>';
+                    }
+                    html += '<div style="background:' + signalBg + ';border:1px solid var(--border);padding:8px 12px;margin-bottom:12px;">';
+                    html += '<div style="font-size:0.7rem;font-weight:900;color:' + signalColor + ';">' + signal + '</div>';
+                    html += '</div>';
+                    html += '<div style="font-size:0.78rem;color:#555;line-height:1.6;">' + summary + '</div>';
+                    html += '</div>';
                 });
-                html += '</tbody></table></div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:10px;">Revisions = analyst estimate changes in last 30 days · Period: +1q = next quarter, +1y = next year</div>';
+
+                html += '</div>';
+                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:6px;">Source: EODHD analyst consensus · Data updated daily · EPS = Earnings Per Share (profit per share of stock)</div>';
                 result.innerHTML = html;
             } catch(e) {
                 result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading earnings data. Please try again.</div>';
@@ -2157,7 +2216,13 @@
                 var sentimentTicker = ticker; // pass full ticker e.g. MSTR.US — EODHD sentiment supports this
                 var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + sentimentTicker + '&from=' + fmt(from) + '&to=' + fmt(to));
                 var data = await res.json();
-                var entries = Array.isArray(data) ? data : (data[Object.keys(data)[0]] || []);
+                // EODHD returns { "MSTR.US": [...] } or { error: "..." }
+                if (data.error) {
+                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker.</div>';
+                    return;
+                }
+                var firstKey = Object.keys(data)[0];
+                var entries = Array.isArray(data) ? data : (firstKey && Array.isArray(data[firstKey]) ? data[firstKey] : []);
                 if (!entries.length) {
                     result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker in the last 30 days.</div>';
                     return;
@@ -3651,6 +3716,19 @@
             fetchSmartMoneyWhales();
             fetchNingningVlogs();
         });
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('ning_theme', theme);
+            var light = document.getElementById('theme-light');
+            var dark  = document.getElementById('theme-dark');
+            if (light) light.classList.toggle('active', theme === 'light');
+            if (dark)  dark.classList.toggle('active', theme === 'dark');
+        }
+        (function() {
+            var saved = localStorage.getItem('ning_theme') || 'light';
+            setTheme(saved);
+        })();
     </script>
 
     <!-- ── MOBILE BOTTOM TAB BAR ── -->
