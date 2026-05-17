@@ -1516,56 +1516,18 @@
             </div>
         </div>
 
-        <!-- ══ CHARTING ═══════════════════════════════════════════════ -->
+        <!-- ══ CHARTING ════════════════════════════════════════════ -->
         <div id="charting" class="page">
             <h2>CHARTING</h2>
-
-            <!-- Sub-tabs -->
-            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
-                <div id="chart-tab-ew" onclick="switchChartTab('ew')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    ELLIOTT WAVE</div>
-                <div id="chart-tab-ichi" onclick="switchChartTab('ichi')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    ICHIMOKU CLOUD</div>
-                <div id="chart-tab-wyck" onclick="switchChartTab('wyck')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    WYCKOFF METHOD</div>
-                <div id="chart-tab-harm" onclick="switchChartTab('harm')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    HARMONIC PATTERNS</div>
-                <div id="chart-tab-mkt" onclick="switchChartTab('mkt')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    MARKET PROFILE (TPO)</div>
-                <div id="chart-tab-td" onclick="switchChartTab('td')"
-                    style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    TOM DEMARK INDICATORS</div>
+            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                <div id="chart-tab-ew"   onclick="switchChartTab('ew')"   style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;margin-bottom:-2px;">ELLIOTT WAVE</div>
+                <div id="chart-tab-ichi" onclick="switchChartTab('ichi')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">ICHIMOKU CLOUD</div>
+                <div id="chart-tab-wyck" onclick="switchChartTab('wyck')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">WYCKOFF METHOD</div>
+                <div id="chart-tab-harm" onclick="switchChartTab('harm')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">HARMONIC PATTERNS</div>
+                <div id="chart-tab-mkt"  onclick="switchChartTab('mkt')"  style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">MARKET PROFILE (TPO)</div>
+                <div id="chart-tab-td"   onclick="switchChartTab('td')"   style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">TOM DEMARK INDICATORS</div>
             </div>
-
-            <!-- ELLIOTT WAVE -->
-            <div id="chart-sub-ew">
-                <div style="font-size:0.75rem;color:#aaa;margin-bottom:20px;">Enter any ticker — stocks, crypto, forex. Gemini will identify the Elliott Wave count and explain the structure.</div>
-                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px;">
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="ew-search-input" class="autocomplete-input" placeholder="Search ticker..." autocomplete="off">
-                        <ul id="ew-search-suggestions" class="autocomplete-list"></ul>
-                    </div>
-                    <input type="hidden" id="ew-selected-ticker">
-                    <select id="ew-timeframe" class="market-dropdown">
-                        <option value="1week">1 Week</option>
-                        <option value="1month" selected>1 Month</option>
-                        <option value="3month">3 Months</option>
-                        <option value="6month">6 Months</option>
-                        <option value="1year">1 Year</option>
-                    </select>
-                    <button class="btn-download" onclick="runElliottWave()">ANALYZE</button>
-                </div>
-                <div id="ew-result"></div>
-                <canvas id="ew-canvas" style="display:none;width:100%;margin-bottom:24px;"></canvas>
-                <div id="ew-analysis"></div>
-            </div>
-
-            <!-- COMING SOON TABS -->
+            <div id="chart-sub-ew"></div>
             <div id="chart-sub-ichi" style="display:none;"></div>
             <div id="chart-sub-wyck" style="display:none;"></div>
             <div id="chart-sub-harm" style="display:none;"></div>
@@ -2038,239 +2000,41 @@
             localStorage.setItem('activeNingTab', section);
         }
 
-        function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
-        function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
 
-        // ============================================================
-        // CHARTING — Elliott Wave
-        // ============================================================
-        const COMING_SOON_TABS = ['ichi','wyck','harm','mkt','td'];
-
+        // ── CHARTING TAB SWITCHER ─────────────────────────────────────
+        var _chartTabsInit = false;
         function switchChartTab(tab) {
-            ['ew','ichi','wyck','harm','mkt','td'].forEach(function(t) {
+            var allTabs = ['ew','ichi','wyck','harm','mkt','td'];
+            allTabs.forEach(function(t) {
                 var sub = document.getElementById('chart-sub-' + t);
                 var btn = document.getElementById('chart-tab-' + t);
                 if (sub) sub.style.display = t === tab ? 'block' : 'none';
                 if (btn) {
-                    var isActive = t === tab;
-                    var isCS     = COMING_SOON_TABS.includes(t);
-                    btn.style.borderBottom = isActive ? '3px solid var(--primary)' : '3px solid transparent';
-                    btn.style.color        = isActive ? '#000' : isCS ? '#aaa' : '#888';
+                    btn.style.borderBottom = t === tab ? '3px solid var(--primary)' : '3px solid transparent';
+                    btn.style.color        = t === tab ? '#000' : '#aaa';
+                }
+                // Render coming soon for all tabs
+                if (t === tab) {
+                    var el = document.getElementById('chart-sub-' + t);
+                    if (el && !el.dataset.rendered) {
+                        el.innerHTML =
+                            '<div style="text-align:center;padding:80px 20px;">' +
+                            '<div style="font-size:2.5rem;margin-bottom:20px;">🔒</div>' +
+                            '<div style="font-size:1.2rem;font-weight:900;font-family:Merriweather,serif;text-transform:uppercase;color:var(--text-main);margin-bottom:10px;">AVAILABLE SOON</div>' +
+                            '<div style="font-size:0.85rem;color:#888;max-width:400px;margin:0 auto;line-height:1.6;">This charting feature is currently in development and will be available exclusively on Ning Finance PRO.</div>' +
+                            '</div>';
+                        el.dataset.rendered = '1';
+                    }
                 }
             });
-            // Render coming soon message
-            if (COMING_SOON_TABS.includes(tab)) {
-                var sub = document.getElementById('chart-sub-' + tab);
-                if (sub && !sub.dataset.rendered) {
-                    sub.innerHTML = '<div style="text-align:center;padding:80px 20px;">' +
-                        '<div style="font-size:2rem;font-weight:900;color:var(--border);margin-bottom:16px;">🔒</div>' +
-                        '<div style="font-size:1.1rem;font-weight:900;color:var(--text-main);margin-bottom:8px;">AVAILABLE SOON</div>' +
-                        '<div style="font-size:0.85rem;color:#888;">This feature is currently in development and will be available exclusively on Ning Finance PRO.</div>' +
-                        '</div>';
-                    sub.dataset.rendered = '1';
-                }
-            }
         }
-
-        // Autocomplete for Elliott Wave ticker search (reuse setupAutocomplete)
+        // Init first tab on page load
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof setupAutocomplete === 'function') {
-                setupAutocomplete('ew-search-input', 'ew-search-suggestions', 'ew-selected-ticker', 'ew-selected-name');
-            }
+            switchChartTab('ew');
         });
 
-        async function runElliottWave() {
-            var ticker   = document.getElementById('ew-selected-ticker').value;
-            var tf       = document.getElementById('ew-timeframe').value;
-            var result   = document.getElementById('ew-result');
-            var canvas   = document.getElementById('ew-canvas');
-            var analysis = document.getElementById('ew-analysis');
-
-            if (!ticker) {
-                result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a ticker first.</div>';
-                return;
-            }
-
-            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Fetching price data...</div>';
-            canvas.style.display = 'none';
-            analysis.innerHTML  = '';
-
-            try {
-                // 1 — Fetch OHLCV from Netlify function
-                var res  = await fetch('/.netlify/functions/twelvedata?ticker=' + encodeURIComponent(ticker) + '&timeframe=' + tf);
-                var data = await res.json();
-
-                if (data.error || !data.candles || !data.candles.length) {
-                    result.innerHTML = '<div style="padding:20px;color:#dc2626;">Could not fetch price data for ' + ticker + '. Try a different ticker.</div>';
-                    return;
-                }
-
-                var candles = data.candles; // [{date, open, high, low, close, volume}]
-                result.innerHTML = '<div style="padding:10px 0;font-size:0.75rem;color:#888;">Loaded ' + candles.length + ' candles · Running Elliott Wave analysis...</div>';
-
-                // 2 — Draw candlestick chart on canvas
-                drawCandlestickChart(canvas, candles, ticker);
-                canvas.style.display = 'block';
-
-                // 3 — Send to Gemini for Elliott Wave analysis
-                var geminiRes = await fetch('/.netlify/functions/elliottwave', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker, timeframe: tf, candles })
-                });
-                var geminiData = await geminiRes.json();
-
-                if (geminiData.error) {
-                    analysis.innerHTML = '<div style="color:#dc2626;">Analysis failed: ' + geminiData.error + '</div>';
-                    return;
-                }
-
-                // 4 — Draw wave points on canvas
-                if (geminiData.waves && geminiData.waves.length) {
-                    drawElliottWaves(canvas, candles, geminiData.waves);
-                }
-
-                // 5 — Render written analysis
-                analysis.innerHTML =
-                    '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-top:16px;">' +
-                    ticker + ' — ELLIOTT WAVE ANALYSIS</div>' +
-                    '<div style="border:1px solid var(--border);border-top:none;padding:24px;">' +
-                    '<div style="font-size:0.95rem;line-height:1.8;color:var(--text-main);">' + (geminiData.analysis || '') + '</div>' +
-                    '<div style="margin-top:16px;font-size:0.65rem;color:#aaa;">AI-generated technical analysis. Not financial advice.</div>' +
-                    '</div>';
-
-                result.innerHTML = '';
-
-            } catch(e) {
-                result.innerHTML = '<div style="padding:20px;color:#dc2626;">Error: ' + e.message + '</div>';
-            }
-        }
-
-        // ── CANDLESTICK CHART RENDERER ────────────────────────────────
-        function drawCandlestickChart(canvas, candles, ticker) {
-            var dpr = window.devicePixelRatio || 1;
-            var W   = canvas.parentElement.offsetWidth || 800;
-            var H   = 420;
-            canvas.width  = W * dpr;
-            canvas.height = H * dpr;
-            canvas.style.width  = W + 'px';
-            canvas.style.height = H + 'px';
-            var ctx = canvas.getContext('2d');
-            ctx.scale(dpr, dpr);
-
-            var isDark  = document.documentElement.getAttribute('data-theme') === 'dark';
-            var bgColor = isDark ? '#0d0d0d' : '#fff';
-            var gridC   = isDark ? '#2e2e2e' : '#f0f0f0';
-            var textC   = isDark ? '#888' : '#aaa';
-            var upC     = '#16a34a';
-            var downC   = '#dc2626';
-
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, W, H);
-
-            var pad    = { top: 30, right: 20, bottom: 40, left: 60 };
-            var cW     = W - pad.left - pad.right;
-            var cH     = H - pad.top  - pad.bottom;
-            var n      = candles.length;
-            var prices = candles.map(c => [c.low, c.high]).flat();
-            var minP   = Math.min(...prices);
-            var maxP   = Math.max(...prices);
-            var range  = maxP - minP || 1;
-            var candW  = Math.max(2, (cW / n) * 0.7);
-
-            // Store positions for wave drawing
-            canvas._chartMeta = { pad, cW, cH, n, minP, maxP, range, candW, W, H };
-
-            // Grid lines
-            ctx.strokeStyle = gridC;
-            ctx.lineWidth   = 1;
-            for (var i = 0; i <= 5; i++) {
-                var y = pad.top + (cH / 5) * i;
-                ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
-                var price = maxP - (range / 5) * i;
-                ctx.fillStyle = textC;
-                ctx.font = '10px Courier New';
-                ctx.textAlign = 'right';
-                ctx.fillText(price.toFixed(2), pad.left - 5, y + 4);
-            }
-
-            // Candles
-            candles.forEach(function(c, i) {
-                var x    = pad.left + (i / n) * cW + (cW / n) * 0.15;
-                var yH   = pad.top + ((maxP - c.high) / range) * cH;
-                var yL   = pad.top + ((maxP - c.low)  / range) * cH;
-                var yO   = pad.top + ((maxP - c.open)  / range) * cH;
-                var yC   = pad.top + ((maxP - c.close) / range) * cH;
-                var bull = c.close >= c.open;
-                var col  = bull ? upC : downC;
-
-                // Wick
-                ctx.strokeStyle = col;
-                ctx.lineWidth   = 1;
-                ctx.beginPath();
-                ctx.moveTo(x + candW / 2, yH);
-                ctx.lineTo(x + candW / 2, yL);
-                ctx.stroke();
-
-                // Body
-                ctx.fillStyle = col;
-                var bodyTop = Math.min(yO, yC);
-                var bodyH   = Math.max(Math.abs(yC - yO), 1);
-                ctx.fillRect(x, bodyTop, candW, bodyH);
-            });
-
-            // X-axis dates (every ~10 candles)
-            ctx.fillStyle  = textC;
-            ctx.font       = '10px Courier New';
-            ctx.textAlign  = 'center';
-            var step = Math.max(1, Math.floor(n / 8));
-            for (var j = 0; j < n; j += step) {
-                var xPos = pad.left + (j / n) * cW + candW / 2;
-                ctx.fillText(candles[j].date.substring(0, 10), xPos, H - pad.bottom + 15);
-            }
-        }
-
-        // ── ELLIOTT WAVE OVERLAY ─────────────────────────────────────
-        function drawElliottWaves(canvas, candles, waves) {
-            var meta = canvas._chartMeta;
-            if (!meta) return;
-            var ctx  = canvas.getContext('2d');
-            var dpr  = window.devicePixelRatio || 1;
-            ctx.scale(1/dpr, 1/dpr); // reset scale to draw in CSS pixels via meta
-            ctx.scale(dpr, dpr);
-
-            var { pad, cW, cH, n, minP, maxP, range, candW } = meta;
-
-            function xPos(idx) { return pad.left + (idx / n) * cW + candW / 2; }
-            function yPos(price) { return pad.top + ((maxP - price) / range) * cH; }
-
-            // Draw wave lines
-            ctx.strokeStyle = '#cba258';
-            ctx.lineWidth   = 2;
-            ctx.setLineDash([]);
-
-            for (var i = 0; i < waves.length - 1; i++) {
-                var a = waves[i], b = waves[i+1];
-                ctx.beginPath();
-                ctx.moveTo(xPos(a.index), yPos(a.price));
-                ctx.lineTo(xPos(b.index), yPos(b.price));
-                ctx.stroke();
-            }
-
-            // Draw wave labels
-            waves.forEach(function(w) {
-                var x = xPos(w.index);
-                var y = yPos(w.price);
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(x, y, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#cba258';
-                ctx.font = 'bold 10px Courier New';
-                ctx.textAlign = 'center';
-                ctx.fillText(w.label, x, y + 4);
-            });
-        }
+        function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
+        function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
 
         // ── NINGNING SUB-TABS ─────────────────────────────────────────
         function switchNingTab(tab) {
