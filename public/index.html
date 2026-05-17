@@ -940,7 +940,71 @@
                 padding: 12px 16px;
                 font-size: 0.7rem;
             }
-        }
+
+            /* News cards full width */
+            .news-card, .card {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            /* Article image full width on mobile */
+            .news-image {
+                width: 100% !important;
+                height: 180px !important;
+                object-fit: cover;
+            }
+
+            /* Subscription page stacks */
+            #subs .pricing-container {
+                flex-direction: column !important;
+                padding: 0 8px;
+            }
+
+            #subs .pricing-card {
+                width: 100% !important;
+                box-sizing: border-box;
+            }
+
+            /* Subscription feature list readable */
+            #subs li {
+                font-size: 0.85rem;
+                line-height: 1.5;
+            }
+
+            /* Market data sub-tabs scroll */
+            #market-tabs-row {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap !important;
+            }
+
+            /* Breadth sub-tab bar scroll */
+            #breadth-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap !important;
+            }
+
+            /* Article detail view */
+            .article-detail-header {
+                font-size: 1.1rem !important;
+                line-height: 1.4 !important;
+            }
+
+            /* Dark mode mob bar */
+            [data-theme="dark"] #mobile-bottom-bar {
+                background: #111;
+                border-top-color: var(--primary);
+            }
+
+            [data-theme="dark"] .mob-tab {
+                color: #666;
+            }
+
+            [data-theme="dark"] .mob-tab.active {
+                color: #fff;
+            }
 
         #mobile-bottom-bar {
             display: none;
@@ -1921,10 +1985,13 @@
         window.nav = function (section, pushToHistory = true) {
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mob-tab').forEach(el => el.classList.remove('active'));
             var p = document.getElementById(section);
             var t = document.getElementById('tab-' + section);
+            var m = document.getElementById('mob-tab-' + section);
             if (p) p.classList.add('active');
             if (t) t.classList.add('active');
+            if (m) m.classList.add('active');
 
             if (pushToHistory) {
                 var url = new URL(window.location);
@@ -3703,6 +3770,7 @@
         </div>
         <div class="mob-tab" id="mob-tab-luxury" onclick="nav('luxury')"><span class="mob-icon">💎</span>LUXURY</div>
         <div class="mob-tab" id="mob-tab-culture" onclick="nav('culture')"><span class="mob-icon">🎭</span>CULTURE</div>
+        <div class="mob-tab" id="mob-tab-subs" onclick="nav('subs')"><span class="mob-icon">⭐</span>SUBSCRIBE</div>
     </div>
 
 

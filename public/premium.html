@@ -905,6 +905,85 @@
                 bottom: 132px;
                 height: 68vh;
             }
+
+            /* macro card full width */
+            .macro-card {
+                width: 100% !important;
+                box-sizing: border-box;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                border-radius: 0;
+            }
+
+            /* all inner flex rows stack on mobile */
+            .macro-card > div[style*="display:flex"],
+            .macro-card > div[style*="display: flex"] {
+                flex-direction: column !important;
+            }
+
+            /* min-width overrides that break mobile layout */
+            .macro-card [style*="min-width"] {
+                min-width: unset !important;
+                width: 100% !important;
+            }
+
+            /* AVM results panel full width */
+            #avm-results {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            /* Screener table scrollable */
+            #screener-results {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #screener-results table {
+                min-width: 600px;
+            }
+
+            /* Smart money / flows table scrollable */
+            #insider-table-wrap,
+            #institutional-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Ningning chat full width */
+            #ningning-chat-container {
+                width: 100% !important;
+                height: 60vh !important;
+                box-sizing: border-box;
+            }
+
+            /* Macro sub-tabs scrollable */
+            #macro-subtabs,
+            #screener-subtabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap !important;
+            }
+
+            /* Calendar table scrollable */
+            #ecocal-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Dark mode mob bar */
+            [data-theme="dark"] #mobile-bottom-bar {
+                background: #111;
+                border-top-color: var(--primary);
+            }
+
+            [data-theme="dark"] .mob-tab {
+                color: #666;
+            }
+
+            [data-theme="dark"] .mob-tab.active {
+                color: #fff;
+            }
         }
 
         /* ── BOTTOM TAB BAR (hidden on desktop) ── */
