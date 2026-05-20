@@ -1173,6 +1173,69 @@
         [data-theme="dark"] .theme-toggle { border-color:#333; }
         [data-theme="dark"] .theme-toggle-option { background:#222;color:#555; }
         [data-theme="dark"] .theme-toggle-option.active { background:var(--primary);color:#000; }
+
+        /* ── TARGETED DARK MODE FIXES based on screenshot issues ── */
+
+        /* Fix invisible tab text */
+        [data-theme="dark"] .tab { color: #bbb !important; }
+        [data-theme="dark"] .mob-tab { color: #bbb !important; }
+        [data-theme="dark"] footer { background: #111; border-top-color: #2e2e2e; color: #999 !important; }
+        [data-theme="dark"] .theme-toggle-option { background:#222; color:#aaa !important; }
+
+        /* Macro context — body text */
+        [data-theme="dark"] .macro-card p,
+        [data-theme="dark"] .macro-card li,
+        [data-theme="dark"] .macro-card div,
+        [data-theme="dark"] .macro-card span { color: #ddd !important; }
+
+        /* Sub-tabs inside sections (IPO Calendar, Ningning desk tabs) */
+        [data-theme="dark"] .ua-tab { color: #bbb !important; }
+        [data-theme="dark"] .ua-tab.active { color: #fff !important; }
+        [data-theme="dark"] .sub-tab { color: #bbb !important; }
+        [data-theme="dark"] .sub-tab.active { color: #fff !important; }
+        [data-theme="dark"] [class*="inner-tab"] { color: #bbb !important; }
+        [data-theme="dark"] [class*="inner-tab"].active { color: #fff !important; }
+
+        /* Ningning desk body text */
+        [data-theme="dark"] #ningning p,
+        [data-theme="dark"] #ningning div,
+        [data-theme="dark"] #ningning span { color: #ddd !important; }
+        [data-theme="dark"] #ningning h3 { color: #f0f0f0 !important; }
+
+        /* AVM — fundamental metrics + computation logic */
+        [data-theme="dark"] #avm p,
+        [data-theme="dark"] #avm div,
+        [data-theme="dark"] #avm span { color: #ddd !important; }
+        [data-theme="dark"] #avm h3 { color: #f0f0f0 !important; }
+
+        /* Table year column and muted text */
+        [data-theme="dark"] td { color: #e8e8e8 !important; }
+        [data-theme="dark"] th { color: #ccc !important; }
+
+        /* Ecosystem analytics — section labels + body */
+        [data-theme="dark"] #ecosystem p,
+        [data-theme="dark"] #ecosystem div,
+        [data-theme="dark"] #ecosystem span { color: #ddd !important; }
+        [data-theme="dark"] #ecosystem h3,
+        [data-theme="dark"] #ecosystem h4 { color: #f0f0f0 !important; }
+
+        /* SWOT boxes on light background — keep their colors */
+        [data-theme="dark"] .swot-grid .strengths,
+        [data-theme="dark"] .swot-grid .weaknesses,
+        [data-theme="dark"] .swot-grid .opportunities,
+        [data-theme="dark"] .swot-grid .threats { color: inherit !important; }
+
+        /* Market calendar sub-tabs */
+        [data-theme="dark"] #mktcal .ua-tab,
+        [data-theme="dark"] #mktcal [class*="tab"] { color: #bbb !important; }
+        [data-theme="dark"] #mktcal p,
+        [data-theme="dark"] #mktcal div,
+        [data-theme="dark"] #mktcal span { color: #ddd !important; }
+        [data-theme="dark"] #mktcal h3 { color: #f0f0f0 !important; }
+
+        /* Global fallback for all dynamically rendered section content */
+        [data-theme="dark"] .page > div > p,
+        [data-theme="dark"] .page > div > div > p { color: #ddd !important; }
     </style>
 </head>
 
