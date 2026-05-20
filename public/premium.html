@@ -1293,6 +1293,38 @@
         /* Global fallback for all dynamically rendered section content */
         [data-theme="dark"] .page > div > p,
         [data-theme="dark"] .page > div > div > p { color: #ddd !important; }
+
+        /* Core class background overrides */
+        [data-theme="dark"] .nav-tabs { background: #111 !important; }
+        [data-theme="dark"] .macro-card { background: #1a1a1a !important; }
+        [data-theme="dark"] .autocomplete-input { background: #1a1a1a !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] .expired-banner { background: #1a1a1a !important; }
+        [data-theme="dark"] .chat-input-area { background: #111 !important; }
+        [data-theme="dark"] .chat-window { background: #111 !important; }
+        [data-theme="dark"] .chat-message { background: #1a1a1a !important; color: #e8e8e8 !important; }
+
+        /* Fix all select dropdowns with inline background:#fff */
+        [data-theme="dark"] select[style*="background:#fff"],
+        [data-theme="dark"] select[style*="background: #fff"] {
+            background: #1a1a1a !important;
+            color: #e8e8e8 !important;
+            border-color: #2e2e2e !important;
+        }
+        /* Autocomplete list containers */
+        [data-theme="dark"] .autocomplete-list,
+        [data-theme="dark"] [id*="autocomplete"],
+        [data-theme="dark"] [id*="-list"] {
+            background: #1a1a1a !important;
+            border-color: #2e2e2e !important;
+        }
+        [data-theme="dark"] [id*="-list"] li {
+            background: #1a1a1a !important;
+            color: #e8e8e8 !important;
+            border-bottom-color: #2e2e2e !important;
+        }
+        [data-theme="dark"] [id*="-list"] li:hover {
+            background: #2a2a2a !important;
+        }
     </style>
 </head>
 
@@ -2899,7 +2931,7 @@
                             const eodhd = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
 
                             const li = document.createElement('li');
-                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
+                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
                             li.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + eodhd + '</span></div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
                             li.onmouseover = function () { this.style.background = '#fdf8ee'; };
                             li.onmouseout = function () { this.style.background = '#fff'; };
@@ -3502,7 +3534,7 @@
 
                 debounceTimer = setTimeout(async () => {
                     try {
-                        list.innerHTML = '<li style="color:#888;padding:8px 12px;font-style:italic;background:#fff;">Searching...</li>';
+                        list.innerHTML = '<li style="color:#888;padding:8px 12px;font-style:italic;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">Searching...</li>';
                         list.style.display = 'block';
 
                         const res = await fetch(
@@ -3515,7 +3547,7 @@
                         list.innerHTML = '';
 
                         if (results.length === 0) {
-                            list.innerHTML = '<li style="color:#888;padding:8px 12px;background:#fff;">No results found</li>';
+                            list.innerHTML = '<li style="color:#888;padding:8px 12px;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">No results found</li>';
                             list.style.display = 'block';
                             return;
                         }
@@ -3607,7 +3639,7 @@
                             const eodhTicker = toEODHD(item.symbol);
                             if (!eodhTicker) return;
                             const li = document.createElement('li');
-                            li.style.cssText = 'padding:8px 12px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
+                            li.style.cssText = 'padding:8px 12px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
                             li.innerHTML = `
                                 <div style="display:flex;justify-content:space-between;align-items:center;">
                                     <span style="font-weight:900;font-family:'Courier New',monospace;color:#1a1a1a;font-size:0.9rem;">${eodhTicker}</span>
@@ -3629,7 +3661,7 @@
 
                     } catch (e) {
                         console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:#fff;">Search error — try typing the exact ticker</li>';
+                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">Search error — try typing the exact ticker</li>';
                         list.style.display = 'block';
                     }
                 }, 400);
@@ -4196,7 +4228,7 @@
                             var dot = sym.lastIndexOf('.');
                             var ticker = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
                             var li = document.createElement('li');
-                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #e8e8e8;background:#fff;';
+                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
                             li.innerHTML = '<div style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + ticker + '</div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
                             li.onmouseover = function () { this.style.background = '#fdf8ee'; };
                             li.onmouseout = function () { this.style.background = '#fff'; };

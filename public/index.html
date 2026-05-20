@@ -1214,6 +1214,141 @@
             background: var(--primary);
             color: #000;
         }
+
+        /* ============================================================
+           INDEX.HTML — COMPREHENSIVE DARK MODE FIX
+           ============================================================ */
+
+        /* Core white backgrounds */
+        [data-theme="dark"] .card { background: #1a1a1a; border-color: #2e2e2e; }
+        [data-theme="dark"] .sidebar { background: #111; border-color: #2e2e2e; }
+        [data-theme="dark"] .sidebar-widget { background: #111; border-color: #2e2e2e; }
+        [data-theme="dark"] .nav-tabs { background: #111; }
+        [data-theme="dark"] header { background: #000; }
+
+        /* Subscribe widget in sidebar */
+        [data-theme="dark"] .subscribe-widget,
+        [data-theme="dark"] [class*="subscribe"],
+        [data-theme="dark"] .sidebar-cta { background: #1a1a1a !important; border-color: #2e2e2e !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] .sidebar-cta h3,
+        [data-theme="dark"] .sidebar-cta p,
+        [data-theme="dark"] .sidebar-cta span { color: #e8e8e8 !important; }
+
+        /* Subscription pricing cards */
+        [data-theme="dark"] .pricing-card { background: #1a1a1a !important; border-color: #2e2e2e !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] .pricing-card h2,
+        [data-theme="dark"] .pricing-card h3,
+        [data-theme="dark"] .pricing-card p,
+        [data-theme="dark"] .pricing-card li,
+        [data-theme="dark"] .pricing-card span { color: #e8e8e8 !important; }
+
+        /* World clock */
+        [data-theme="dark"] .world-clock { color: #e8e8e8; }
+        [data-theme="dark"] .city-label { color: #bbb; }
+        [data-theme="dark"] .continent-label { color: #bbb; }
+        [data-theme="dark"] .time-display { color: #fff; }
+        [data-theme="dark"] .sec-display { color: #888; }
+
+        /* Consumer mood widget */
+        [data-theme="dark"] #consumer-mood-container { color: #e8e8e8; }
+        [data-theme="dark"] #consumer-mood-container div { color: #e8e8e8; }
+        [data-theme="dark"] #consumer-mood-container span { color: #e8e8e8; }
+        [data-theme="dark"] #consumer-mood-container p { color: #ccc; }
+        [data-theme="dark"] .mood-item { color: #e8e8e8 !important; }
+        [data-theme="dark"] .mood-price { color: #fff !important; }
+        [data-theme="dark"] .mood-label { color: #bbb !important; }
+
+        /* Market breadth boxes */
+        [data-theme="dark"] .longed-box,
+        [data-theme="dark"] .shorted-box,
+        [data-theme="dark"] #most-longed,
+        [data-theme="dark"] #most-shorted,
+        [data-theme="dark"] [class*="breadth"] { background: #1a1a1a !important; border-color: #2e2e2e !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] [class*="breadth"] div,
+        [data-theme="dark"] [class*="breadth"] span { color: #e8e8e8 !important; }
+
+        /* Market data table rows */
+        [data-theme="dark"] tr { background: transparent !important; }
+        [data-theme="dark"] tr:nth-child(even) { background: #1a1a1a !important; }
+        [data-theme="dark"] tr:nth-child(odd) { background: #111 !important; }
+        [data-theme="dark"] td { color: #e8e8e8 !important; background: transparent !important; }
+        [data-theme="dark"] th { color: #ccc !important; background: #1a1a1a !important; }
+
+        /* Company news articles */
+        [data-theme="dark"] .article-card,
+        [data-theme="dark"] .news-item { background: #1a1a1a !important; border-color: #2e2e2e !important; }
+        [data-theme="dark"] .article-card h3,
+        [data-theme="dark"] .article-card p,
+        [data-theme="dark"] .news-item h3,
+        [data-theme="dark"] .news-item p { color: #e8e8e8 !important; }
+        [data-theme="dark"] .article-summary { color: #ccc !important; }
+        [data-theme="dark"] .article-meta { color: #aaa !important; }
+        [data-theme="dark"] .article-tags span { background: #2a2a2a !important; color: #bbb !important; }
+
+        /* Crypto/stock search dropdowns — inline style background:#fff */
+        [data-theme="dark"] ul[style*="background:#fff"],
+        [data-theme="dark"] ul[style*="background: #fff"] { background: #1a1a1a !important; border-color: var(--primary) !important; }
+        [data-theme="dark"] ul[style*="background:#fff"] li,
+        [data-theme="dark"] ul[style*="background: #fff"] li { background: #1a1a1a !important; color: #e8e8e8 !important; border-bottom-color: #2e2e2e !important; }
+        [data-theme="dark"] ul[style*="background:#fff"] li:hover,
+        [data-theme="dark"] ul[style*="background: #fff"] li:hover { background: #2a2a2a !important; }
+
+        /* Inline style white bg containers (tables injected via JS) */
+        [data-theme="dark"] div[style*="background:#fff"],
+        [data-theme="dark"] div[style*="background: #fff"] { background: #1a1a1a !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] div[style*="background:#fff"] td,
+        [data-theme="dark"] div[style*="background: #fff"] td { color: #e8e8e8 !important; }
+        [data-theme="dark"] div[style*="background:#fff"] th,
+        [data-theme="dark"] div[style*="background: #fff"] th { background: #222 !important; color: #ccc !important; }
+
+        /* Inputs */
+        [data-theme="dark"] input[style*="background:#fff"],
+        [data-theme="dark"] input[style*="background: #fff"] { background: #1a1a1a !important; color: #e8e8e8 !important; }
+
+        /* Subscribe to Ning Finance sidebar box */
+        [data-theme="dark"] div[style*="background:#fff"][style*="padding"] { background: #1a1a1a !important; }
+
+        /* Tabs */
+        [data-theme="dark"] .tab { color: #bbb; }
+        [data-theme="dark"] .tab.active { color: #fff; }
+        [data-theme="dark"] .mob-tab { color: #aaa; }
+        [data-theme="dark"] .mob-tab.active { color: #fff; }
+
+        /* Footer */
+        [data-theme="dark"] footer { color: #999 !important; }
+        [data-theme="dark"] .footer-stat-num { color: #ccc !important; }
+
+        /* All hardcoded dark text colors in any element */
+        [data-theme="dark"] p[style*="color:#333"],
+        [data-theme="dark"] p[style*="color: #333"],
+        [data-theme="dark"] div[style*="color:#333"],
+        [data-theme="dark"] div[style*="color: #333"],
+        [data-theme="dark"] span[style*="color:#333"],
+        [data-theme="dark"] span[style*="color: #333"] { color: #ddd !important; }
+        [data-theme="dark"] p[style*="color:#555"],
+        [data-theme="dark"] p[style*="color: #555"],
+        [data-theme="dark"] div[style*="color:#555"],
+        [data-theme="dark"] div[style*="color: #555"],
+        [data-theme="dark"] span[style*="color:#555"],
+        [data-theme="dark"] span[style*="color: #555"] { color: #ccc !important; }
+        [data-theme="dark"] p[style*="color:#666"],
+        [data-theme="dark"] p[style*="color: #666"],
+        [data-theme="dark"] div[style*="color:#666"],
+        [data-theme="dark"] div[style*="color: #666"],
+        [data-theme="dark"] span[style*="color:#666"],
+        [data-theme="dark"] span[style*="color: #666"] { color: #bbb !important; }
+        [data-theme="dark"] p[style*="color:#888"],
+        [data-theme="dark"] p[style*="color: #888"],
+        [data-theme="dark"] div[style*="color:#888"],
+        [data-theme="dark"] div[style*="color: #888"],
+        [data-theme="dark"] span[style*="color:#888"],
+        [data-theme="dark"] span[style*="color: #888"] { color: #bbb !important; }
+        [data-theme="dark"] p[style*="color:#000"],
+        [data-theme="dark"] p[style*="color: #000"],
+        [data-theme="dark"] div[style*="color:#000"],
+        [data-theme="dark"] div[style*="color: #000"],
+        [data-theme="dark"] span[style*="color:#000"],
+        [data-theme="dark"] span[style*="color: #000"] { color: #e8e8e8 !important; }
     </style>
 </head>
 
@@ -2568,7 +2703,7 @@
                             var eodhd = toEodhdTicker(item.symbol);
                             var flag = getMarketFlag(item.symbol);
                             var li = document.createElement('li');
-                            li.style.cssText = 'padding:11px 16px; cursor:pointer; border-bottom:1px solid #f0f0f0; background:#fff; transition:background 0.15s;';
+                            li.style.cssText = 'padding:11px 16px; cursor:pointer; border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#f0f0f0') + '; background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + '; color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + '; transition:background 0.15s;';
                             li.innerHTML =
                                 '<div style="display:flex; justify-content:space-between; align-items:center;">' +
                                 '<span style="font-weight:900; font-family:Courier New,monospace; color:#000; font-size:0.9rem;">' + eodhd + '</span>' +
@@ -2773,7 +2908,7 @@
             var past = sorted.filter(function (e) { return new Date(e.report_date || e.date) < today; });
 
             function thead() {
-                return '<div style="background:#fff; border:1px solid var(--border); overflow:auto; margin-bottom:20px;">' +
+                return '<div style="background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + '; border:1px solid var(--border); overflow:auto; margin-bottom:20px;">' +
                     '<table style="width:100%; border-collapse:collapse; font-family:Courier New,monospace; font-size:0.85rem;">' +
                     '<thead><tr style="background:#000;">' +
                     '<th style="padding:11px 16px; text-align:left; color:var(--primary);">DATE</th>' +
@@ -3047,7 +3182,7 @@
 
             if (holdArr.length) {
                 html += '<div style="font-size:0.78rem;font-weight:900;text-transform:uppercase;color:#000;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--primary);">TOP HOLDINGS (' + holdArr.length + ')</div>';
-                html += '<div style="background:#fff;border:1px solid var(--border);overflow:auto;margin-bottom:24px;">' +
+                html += '<div style="background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';border:1px solid var(--border);overflow:auto;margin-bottom:24px;">' +
                     '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.85rem;">' +
                     '<thead><tr style="background:#000;">' +
                     '<th style="padding:10px 16px;text-align:left;color:var(--primary);">HOLDING</th>' +
@@ -3648,7 +3783,7 @@
                 html += '</div></div>';
 
                 // Data table
-                html += '<div style="background:#fff;border:1px solid var(--border);border-top:none;margin-bottom:20px;">';
+                html += '<div style="background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';border:1px solid var(--border);border-top:none;margin-bottom:20px;">';
                 html += '<table style="width:100%;border-collapse:collapse;">';
                 html += section('MARKET');
                 html += row('Market Cap', fmt(mcap), 'Fully Diluted Val.', fmt(fdv));
