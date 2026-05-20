@@ -1349,6 +1349,14 @@
         [data-theme="dark"] div[style*="color: #000"],
         [data-theme="dark"] span[style*="color:#000"],
         [data-theme="dark"] span[style*="color: #000"] { color: #e8e8e8 !important; }
+
+        [data-theme="dark"] .subscribe-label { color: #bbb !important; }
+        [data-theme="dark"] .subscribe-sublabel { color: #999 !important; }
+        [data-theme="dark"] .price-card { background: #1a1a1a !important; border-color: #2e2e2e !important; }
+        [data-theme="dark"] .price-card h3 { color: #f0f0f0 !important; }
+        [data-theme="dark"] .price-card h2 { color: #fff !important; }
+        [data-theme="dark"] .price-card li { color: #ccc !important; }
+        [data-theme="dark"] .price-card p { color: #ccc !important; }
     </style>
 </head>
 
@@ -1434,10 +1442,10 @@
 
             <div class="sidebar-widget"
                 style="border: 1px solid #000; padding: 20px; text-align: center; border-radius: 4px; background:#f9f9f9;">
-                <div style="font-size: 0.65rem; font-weight: 700; margin-bottom: 5px; color:#666;">SUBSCRIBE TO</div>
+                <div style="font-size: 0.65rem; font-weight: 700; margin-bottom: 5px; color:#666;" class="subscribe-label">SUBSCRIBE TO</div>
                 <div style="font-family: 'Merriweather'; font-size: 1.2rem; font-weight: 900; margin-bottom: 5px;">NING
                     FINANCE</div>
-                <div style="font-size: 0.65rem; color:#444; margin-bottom: 15px;">ADVANCED AI INTELLIGENCE ACCESS</div>
+                <div style="font-size: 0.65rem; color:#444; margin-bottom: 15px;" class="subscribe-sublabel">ADVANCED AI INTELLIGENCE ACCESS</div>
                 <button onclick="nav('subs')"
                     style="background:#000; color:#fff; border:none; padding:10px 20px; font-size:0.7rem; font-weight:bold; cursor:pointer; width:100%;">UPGRADE</button>
             </div>
@@ -3506,7 +3514,7 @@
                     '<div style="font-size:0.65rem;color:#aaa;margin-top:4px;">Based on PSA retail prices · ' + dateStr + '</div>' +
                     '</div>';
 
-                html += '<div style="border-top:1px solid #eee;padding-top:10px;">';
+                html += '<div style="border-top:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#eee') + ';padding-top:10px;">';
                 records.forEach(function (f) {
                     if (!f.Item || !f.Price) return;
                     var emoji = ITEM_EMOJI[f.Item] || '📦';
@@ -3519,14 +3527,15 @@
                     var arrowColor = isFishball ? '#888' : (isUp ? '#dc2626' : isDown ? '#16a34a' : '#888');
                     var priceStr = f.Price < 10 ? '₱' + f.Price.toFixed(2) : '₱' + f.Price.toFixed(2);
 
-                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;">' +
+                    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid ' + (isDark?'#2e2e2e':'#f5f5f5') + ';">' +
                         '<div>' +
                         '<span style="font-size:0.9rem;">' + emoji + '</span>' +
-                        '<span style="font-size:0.72rem;font-weight:700;color:#1a1a1a;margin-left:5px;">' + f.Item + '</span>' +
+                        '<span style="font-size:0.72rem;font-weight:700;color:' + (isDark?'#e8e8e8':'#1a1a1a') + ';margin-left:5px;">' + f.Item + '</span>' +
                         '<div style="font-size:0.65rem;color:#aaa;margin-left:22px;">' + (f.Unit || '') + '</div>' +
                         '</div>' +
                         '<div style="text-align:right;flex-shrink:0;">' +
-                        '<div style="font-size:0.82rem;font-weight:900;color:#000;">' + priceStr + '</div>' +
+                        '<div style="font-size:0.82rem;font-weight:900;color:' + (isDark?'#fff':'#000') + ';">' + priceStr + '</div>' +
                         '<div style="font-size:0.65rem;font-weight:700;color:' + arrowColor + ';">' + arrow + '</div>' +
                         '</div>' +
                         '</div>';
