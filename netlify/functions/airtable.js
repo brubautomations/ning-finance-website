@@ -20,7 +20,8 @@ function fetchAirtable(url, token) {
 exports.handler = async function (event, context) {
     const type = event.queryStringParameters.type;
     const market = event.queryStringParameters.market || 'ph';
-    const userToken = event.queryStringParameters.userToken; // THE BOUNCER LOOKS FOR THIS
+    const userToken = event.queryStringParameters.userToken;
+    const userEmail = event.queryStringParameters.userEmail;
 
     // The two different Airtable Base IDs
     const dataBaseId = 'app1hHgLzAlJgLB8H';
@@ -59,6 +60,18 @@ exports.handler = async function (event, context) {
         const userStatus = authData.records[0].fields.Status;
         if (userStatus !== 'Active') {
             return { statusCode: 403, headers, body: JSON.stringify({ error: "Access Denied: Subscription Inactive or Expired." }) };
+        }
+
+        // ==========================================
+        // EMAIL CHECK (skip for Lifetime members)
+        // ==========================================
+        const tier = authData.records[0].fields.Tier;
+        const recordEmail = authData.records[0].fields.Email;
+
+        if (tier !== 'Lifetime' && userEmail && recordEmail) {
+            if (recordEmail.toLowerCase() !== userEmail.toLowerCase()) {
+                return { statusCode: 403, headers, body: JSON.stringify({ error: "Access Denied: Email mismatch." }) };
+            }
         }
 
         // ==========================================
