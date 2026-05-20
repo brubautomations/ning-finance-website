@@ -1176,6 +1176,63 @@
 
         /* ── TARGETED DARK MODE FIXES based on screenshot issues ── */
 
+        /* Table rows — remove white background, force readable text */
+        [data-theme="dark"] tr { background: transparent !important; }
+        [data-theme="dark"] tr:nth-child(even) { background: #1a1a1a !important; }
+        [data-theme="dark"] tr:nth-child(odd) { background: #111 !important; }
+        [data-theme="dark"] td { color: #e8e8e8 !important; background: transparent !important; }
+        [data-theme="dark"] th { color: #ccc !important; background: #1a1a1a !important; }
+
+        /* Country dropdown list */
+        [data-theme="dark"] .country-list,
+        [data-theme="dark"] .country-dropdown,
+        [data-theme="dark"] .dropdown-list { background: #1a1a1a !important; color: #e8e8e8 !important; }
+        [data-theme="dark"] .country-list li,
+        [data-theme="dark"] .country-list div,
+        [data-theme="dark"] .dropdown-list li { color: #e8e8e8 !important; }
+        [data-theme="dark"] .country-list .group-label,
+        [data-theme="dark"] .dropdown-list .group-label { color: #aaa !important; }
+        [data-theme="dark"] .country-list li:hover,
+        [data-theme="dark"] .dropdown-list li:hover { background: #2a2a2a !important; }
+        [data-theme="dark"] .country-list li.selected,
+        [data-theme="dark"] .dropdown-list li.selected { background: var(--primary) !important; color: #000 !important; }
+
+        /* Section headers — hardcoded inline color:#000 and color:#333 */
+        [data-theme="dark"] h3[style*="color: #000"],
+        [data-theme="dark"] h3[style*="color:#000"] { color: #f0f0f0 !important; }
+        [data-theme="dark"] h4[style*="color: #000"],
+        [data-theme="dark"] h4[style*="color:#000"] { color: #f0f0f0 !important; }
+        [data-theme="dark"] ul[style*="color: #333"],
+        [data-theme="dark"] ul[style*="color:#333"] { color: #ddd !important; }
+        [data-theme="dark"] li[style*="color: #333"],
+        [data-theme="dark"] li[style*="color:#333"] { color: #ddd !important; }
+        [data-theme="dark"] p[style*="color: #333"],
+        [data-theme="dark"] p[style*="color:#333"] { color: #ddd !important; }
+        [data-theme="dark"] div[style*="color: #333"],
+        [data-theme="dark"] div[style*="color:#333"] { color: #ddd !important; }
+        [data-theme="dark"] span[style*="color: #333"],
+        [data-theme="dark"] span[style*="color:#333"] { color: #ddd !important; }
+        [data-theme="dark"] div[style*="color: #000"],
+        [data-theme="dark"] div[style*="color:#000"] { color: #ddd !important; }
+        [data-theme="dark"] span[style*="color: #000"],
+        [data-theme="dark"] span[style*="color:#000"] { color: #ddd !important; }
+        [data-theme="dark"] p[style*="color: #000"],
+        [data-theme="dark"] p[style*="color:#000"] { color: #ddd !important; }
+
+        /* ecodata country dropdown */
+        [data-theme="dark"] #ecodata-country { background: #1a1a1a !important; color: #e8e8e8 !important; border-color: #2e2e2e !important; }
+        [data-theme="dark"] #ecodata-country option { background: #1a1a1a !important; color: #e8e8e8 !important; }
+
+        /* Section headers like "1. THE GLOBAL BOARD" */
+        [data-theme="dark"] .section-header,
+        [data-theme="dark"] .macro-section-title,
+        [data-theme="dark"] h4 { color: #f0f0f0 !important; }
+
+        /* Bullet point text in macro content */
+        [data-theme="dark"] .macro-card ul li,
+        [data-theme="dark"] .macro-card ol li { color: #ddd !important; }
+        [data-theme="dark"] .macro-card ul li * { color: inherit !important; }
+
         /* Fix invisible tab text */
         [data-theme="dark"] .tab { color: #bbb !important; }
         [data-theme="dark"] .mob-tab { color: #bbb !important; }
