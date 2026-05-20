@@ -995,134 +995,225 @@
         }
 
         /* Dark mode mob bar */
-/* ============================================================
-           DARK MODE — COMPREHENSIVE FIX
-           Overrides ALL hardcoded inline grays (#888, #666, #aaa etc)
-           Uses filter:invert trick on specific containers + direct overrides
-           ============================================================ */
+        [data-theme="dark"] #mobile-bottom-bar {
+            background: #111;
+            border-top-color: var(--primary);
+        }
 
-        /* CSS variables update for dark mode */
+        [data-theme="dark"] .mob-tab {
+            color: #666;
+        }
+
+        [data-theme="dark"] .mob-tab.active {
+            color: #fff;
+        }
+
+        #mobile-bottom-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 3px solid var(--primary);
+            z-index: 500;
+            height: 58px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #mobile-bottom-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mob-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 12px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            min-width: 55px;
+            height: 100%;
+            border-top: 3px solid transparent;
+            margin-top: -3px;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mob-tab.active {
+            color: #000;
+            border-top-color: var(--primary);
+        }
+
+        .mob-tab .mob-icon {
+            font-size: 1.05rem;
+            margin-bottom: 1px;
+            line-height: 1;
+        }
+
         [data-theme="dark"] {
-            --text-secondary: #bbb;
-            --text-muted: #999;
+            --bg: #0d0d0d;
+            --card-bg: #1a1a1a;
+            --text-main: #e8e8e8;
+            --border: #2e2e2e;
         }
 
-        /* Force all text in main content area to be readable */
-        [data-theme="dark"] #content-area * {
-            color: inherit;
+        [data-theme="dark"] body {
+            background-color: var(--bg);
+            color: var(--text-main);
         }
 
-        /* Cards */
+        [data-theme="dark"] header {
+            background: #111;
+            border-bottom-color: var(--primary);
+        }
+
+        [data-theme="dark"] .nav-tabs {
+            background: #111;
+            border-bottom-color: #2e2e2e;
+        }
+
+        [data-theme="dark"] .tab {
+            color: #888;
+        }
+
+        [data-theme="dark"] .tab.active {
+            color: #fff;
+        }
+
         [data-theme="dark"] .card {
-            background: #1a1a1a;
+            background: var(--card-bg);
             border-color: #2e2e2e;
+        }
+
+        [data-theme="dark"] .card h3 {
+            color: #f0f0f0;
+        }
+
+        [data-theme="dark"] .card p {
+            color: #aaa;
+        }
+
+        [data-theme="dark"] .card-meta {
+            color: #666;
+            border-top-color: #2e2e2e;
+        }
+
+        [data-theme="dark"] .sidebar {
+            background: #111;
+            border-color: #2e2e2e;
+        }
+
+        [data-theme="dark"] .sidebar-title {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .city-label {
+            color: #666;
+        }
+
+        [data-theme="dark"] .time-display {
             color: #e8e8e8;
         }
-        [data-theme="dark"] .card h3 { color: #f0f0f0; }
-        [data-theme="dark"] .card p { color: #ccc; }
-        [data-theme="dark"] .card-meta { color: #aaa; border-top-color: #2e2e2e; }
-        [data-theme="dark"] .card-meta span { color: #aaa; }
 
-        /* Tabs */
-        [data-theme="dark"] .tab { color: #bbb; }
-        [data-theme="dark"] .tab.active { color: #fff; }
-
-        /* Nav tabs bar */
-        [data-theme="dark"] .nav-tabs { background: #111; border-bottom-color: #2e2e2e; }
-
-        /* Sidebar */
-        [data-theme="dark"] .sidebar { background: #111; border-color: #2e2e2e; }
-        [data-theme="dark"] .sidebar-title { color: #f0f0f0; }
-        [data-theme="dark"] .sidebar-widget { background: #111; border-color: #2e2e2e; }
-        [data-theme="dark"] .city-label { color: #bbb; }
-        [data-theme="dark"] .continent-label { color: #bbb; }
-        [data-theme="dark"] .time-display { color: #fff; }
-        [data-theme="dark"] .sec-display { color: #aaa; }
-        [data-theme="dark"] .world-clock { color: #e8e8e8; border-bottom-color: #2e2e2e; }
-
-        /* Subscription page */
-        [data-theme="dark"] #subs { color: #e8e8e8; }
-        [data-theme="dark"] #subs h2,
-        [data-theme="dark"] #subs h3 { color: #f0f0f0; }
-        [data-theme="dark"] #subs p,
-        [data-theme="dark"] #subs li,
-        [data-theme="dark"] #subs span { color: #ccc; }
-        [data-theme="dark"] #subs div { color: #ccc; }
-
-        /* Pricing cards */
-        [data-theme="dark"] .pricing-card,
-        [data-theme="dark"] [class*="pricing"] {
-            background: #1a1a1a !important;
-            border-color: #2e2e2e !important;
-            color: #e8e8e8 !important;
+        [data-theme="dark"] #content-area {
+            background: #0d0d0d;
         }
 
-        /* Market data section */
-        [data-theme="dark"] #market { color: #e8e8e8; }
-        [data-theme="dark"] #market h2,
-        [data-theme="dark"] #market h3 { color: #f0f0f0; }
-        [data-theme="dark"] #market p,
-        [data-theme="dark"] #market span,
-        [data-theme="dark"] #market div { color: #ccc; }
-        [data-theme="dark"] #market td { color: #e8e8e8; }
-        [data-theme="dark"] #market th { color: #ccc; background: #1a1a1a; }
+        [data-theme="dark"] h2 {
+            color: #f0f0f0;
+        }
 
-        /* Market sub-tabs */
-        [data-theme="dark"] #breadth-tabs span,
-        [data-theme="dark"] #market-tabs-row span { color: #bbb; }
+        [data-theme="dark"] footer {
+            background: #111;
+            border-top-color: #2e2e2e;
+            color: #666;
+        }
 
-        /* Most longed/shorted boxes */
-        [data-theme="dark"] #market-breadth-inner { color: #e8e8e8; }
-        [data-theme="dark"] #market-breadth-inner div { color: #e8e8e8; }
-        [data-theme="dark"] #market-breadth-inner span { color: #e8e8e8; }
+        [data-theme="dark"] .fx-pair {
+            color: #888;
+        }
 
-        /* FX */
-        [data-theme="dark"] .fx-pair { color: #ccc; }
-        [data-theme="dark"] .fx-price { color: #fff; }
+        [data-theme="dark"] .fx-price {
+            color: #e8e8e8;
+        }
 
-        /* Consumer mood */
-        [data-theme="dark"] #consumer-mood-container { color: #e8e8e8; }
-        [data-theme="dark"] #consumer-mood-container div { color: #e8e8e8; }
-        [data-theme="dark"] #consumer-mood-container span { color: #ccc; }
+        [data-theme="dark"] input[type="text"] {
+            background: #1a1a1a;
+            color: #e8e8e8;
+            border-color: #2e2e2e;
+        }
 
-        /* Footer */
-        [data-theme="dark"] footer { background: #111; border-top-color: #2e2e2e; color: #999; }
-        [data-theme="dark"] .footer-stat-num { color: #ccc !important; }
-        [data-theme="dark"] footer span { color: #999; }
+        [data-theme="dark"] table {
+            color: #e8e8e8;
+        }
 
-        /* Mobile bottom bar */
-        [data-theme="dark"] #mobile-bottom-bar { background: #111; border-top-color: var(--primary); }
-        [data-theme="dark"] .mob-tab { color: #aaa; }
-        [data-theme="dark"] .mob-tab.active { color: #fff; border-top-color: var(--primary); }
+        [data-theme="dark"] th {
+            background: #1a1a1a;
+        }
 
-        /* Theme toggle */
-        [data-theme="dark"] .theme-toggle { border-color: #333; }
-        [data-theme="dark"] .theme-toggle-option { background: #222; color: #aaa; }
-        [data-theme="dark"] .theme-toggle-option.active { background: var(--primary); color: #000; }
+        [data-theme="dark"] tr:hover td {
+            background: #222 !important;
+        }
 
-        /* Tables */
-        [data-theme="dark"] table { color: #e8e8e8; }
-        [data-theme="dark"] th { background: #1a1a1a; color: #ccc; }
-        [data-theme="dark"] td { color: #e8e8e8; }
-        [data-theme="dark"] tr:hover td { background: #222 !important; }
+        [data-theme="dark"] .world-clock {
+            border-bottom-color: #2e2e2e;
+        }
 
-        /* Inputs */
-        [data-theme="dark"] input[type="text"] { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] .sidebar-widget {
+            border-color: #2e2e2e;
+        }
 
-        /* h2 section headers */
-        [data-theme="dark"] h2 { color: #f0f0f0; }
-        [data-theme="dark"] h3 { color: #e8e8e8; }
+        /* THEME TOGGLE */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
 
-        /* Header */
-        [data-theme="dark"] header { background: #000; border-bottom-color: var(--primary); }
+        .theme-toggle-option {
+            padding: 8px 14px;
+            background: #f5f5f5;
+            color: #aaa;
+            transition: 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
 
-        /* Content area background */
-        [data-theme="dark"] #content-area { background: var(--bg); }
+        .theme-toggle-option.active {
+            background: #000;
+            color: #fff;
+        }
 
-        /* Article detail */
-        [data-theme="dark"] .article-detail h2,
-        [data-theme="dark"] .article-detail h3 { color: #f0f0f0; }
-        [data-theme="dark"] .article-detail p { color: #ccc; }
+        [data-theme="dark"] .theme-toggle {
+            border-color: #333;
+        }
+
+        [data-theme="dark"] .theme-toggle-option {
+            background: #222;
+            color: #555;
+        }
+
+        [data-theme="dark"] .theme-toggle-option.active {
+            background: var(--primary);
+            color: #000;
+        }
     </style>
 </head>
 

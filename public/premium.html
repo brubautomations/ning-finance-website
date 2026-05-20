@@ -1072,9 +1072,71 @@
             }
 
             /* Dark mode mob bar */
-        /* ============================================================
-           DARK MODE — COMPREHENSIVE FIX
-           ============================================================ */
+            [data-theme="dark"] #mobile-bottom-bar {
+                background: #111;
+                border-top-color: var(--primary);
+            }
+
+            [data-theme="dark"] .mob-tab {
+                color: #666;
+            }
+
+            [data-theme="dark"] .mob-tab.active {
+                color: #fff;
+            }
+        }
+
+        /* ── BOTTOM TAB BAR (hidden on desktop) ── */
+        #mobile-bottom-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            border-top: 2px solid var(--primary);
+            z-index: 500;
+            height: 60px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #mobile-bottom-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mob-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #555;
+            font-size: 0.48rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            min-width: 52px;
+            height: 100%;
+            border-top: 2px solid transparent;
+            margin-top: -2px;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mob-tab.active {
+            color: var(--primary);
+            border-top-color: var(--primary);
+        }
+
+        .mob-tab .mob-icon {
+            font-size: 1rem;
+            margin-bottom: 1px;
+            line-height: 1;
+        }
+        /* ── DARK MODE ────────────────────────────────── */
         [data-theme="dark"] {
             --bg: #0d0d0d;
             --card-bg: #1a1a1a;
@@ -1084,88 +1146,33 @@
         [data-theme="dark"] body { background-color: var(--bg); color: var(--text-main); }
         [data-theme="dark"] header { background: #111; border-bottom-color: var(--primary); }
         [data-theme="dark"] .nav-tabs { background: #111; border-bottom-color: #2e2e2e; }
-        [data-theme="dark"] .tab { color: #bbb; }
+        [data-theme="dark"] .tab { color: #888; }
         [data-theme="dark"] .tab.active { color: #fff; }
         [data-theme="dark"] .page { background: var(--bg); }
         [data-theme="dark"] #content-area { background: var(--bg); }
-
-        /* Macro cards */
-        [data-theme="dark"] .macro-card { background: var(--card-bg); border-color: #2e2e2e; color: #e8e8e8; }
-        [data-theme="dark"] .macro-card h2,
-        [data-theme="dark"] .macro-card h3 { color: #f0f0f0; }
-        [data-theme="dark"] .macro-card p,
-        [data-theme="dark"] .macro-card li,
-        [data-theme="dark"] .macro-card span { color: #ddd; }
-        [data-theme="dark"] .macro-card div { color: #ddd; }
-
-        /* ALL section headers and text */
+        [data-theme="dark"] .macro-card { background: var(--card-bg); border-color: #2e2e2e; color: var(--text-main); }
         [data-theme="dark"] h2 { color: #f0f0f0; }
-        [data-theme="dark"] h3 { color: #e8e8e8; }
-        [data-theme="dark"] p { color: #ccc; }
-
-        /* Inputs and selects */
-        [data-theme="dark"] input[type="text"],
-        [data-theme="dark"] .autocomplete-input { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
-        [data-theme="dark"] select,
-        [data-theme="dark"] .market-dropdown { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
-
-        /* Tables */
+        [data-theme="dark"] h3 { color: #e0e0e0; }
+        [data-theme="dark"] input[type="text"], [data-theme="dark"] .autocomplete-input { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] select, [data-theme="dark"] .market-dropdown { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
         [data-theme="dark"] table { color: #e8e8e8; }
-        [data-theme="dark"] th { background: #1a1a1a; color: #ccc; }
+        [data-theme="dark"] th { background: #1a1a1a; color: #aaa; }
         [data-theme="dark"] td { color: #e8e8e8; }
         [data-theme="dark"] tr:hover td { background: #222 !important; }
-
-        /* Autocomplete */
         [data-theme="dark"] .autocomplete-list { background: #1a1a1a; border-color: var(--primary); }
         [data-theme="dark"] .autocomplete-list li { color: #e8e8e8; border-bottom-color: #2e2e2e; }
         [data-theme="dark"] .autocomplete-list li:hover { background: #2a2a2a !important; }
-
-        /* Mobile bar */
         [data-theme="dark"] .mob-nav { background: #111; border-top-color: #2e2e2e; }
-        [data-theme="dark"] #mobile-bottom-bar { background: #111; border-top-color: var(--primary); }
-        [data-theme="dark"] .mob-tab { color: #bbb; }
+        [data-theme="dark"] .mob-tab { color: #888; }
         [data-theme="dark"] .mob-tab.active { color: var(--primary); }
-
-        /* Footer */
-        [data-theme="dark"] footer { background: #111; border-top-color: #2e2e2e; color: #999; }
-
-        /* Theme toggle */
+        [data-theme="dark"] footer { background: #111; border-top-color: #2e2e2e; color: #666; }
+        /* THEME TOGGLE */
+        .theme-toggle { display:flex;align-items:center;gap:0;border:1px solid #ddd;border-radius:4px;overflow:hidden;font-size:0.7rem;font-weight:700;letter-spacing:0.5px;cursor:pointer;margin-right:12px;flex-shrink:0; }
+        .theme-toggle-option { padding:8px 14px;background:#f5f5f5;color:#aaa;transition:0.2s;cursor:pointer;user-select:none; }
+        .theme-toggle-option.active { background:#000;color:#fff; }
         [data-theme="dark"] .theme-toggle { border-color:#333; }
-        [data-theme="dark"] .theme-toggle-option { background:#222; color:#aaa; }
-        [data-theme="dark"] .theme-toggle-option.active { background:var(--primary); color:#000; }
-
-        /* Inline hardcoded gray overrides — catches dynamically rendered content */
-        [data-theme="dark"] #macro > *,
-        [data-theme="dark"] #ecodata > *,
-        [data-theme="dark"] #screener > *,
-        [data-theme="dark"] #flows > *,
-        [data-theme="dark"] #mktcal > *,
-        [data-theme="dark"] #ningning > *,
-        [data-theme="dark"] #charting > * {
-            color: #e8e8e8;
-        }
-
-        /* Labels */
-        [data-theme="dark"] label { color: #bbb !important; }
-
-        /* Screener/flows section specific */
-        [data-theme="dark"] .ua-tab { color: #bbb; }
-        [data-theme="dark"] .filter-row label { color: #bbb !important; }
-
-        /* SWOT grid */
-        [data-theme="dark"] .swot-grid > div { background: #1a1a1a; border-color: #2e2e2e; color: #e8e8e8; }
-
-        /* Expired banner */
-        [data-theme="dark"] .expired-banner { background: #1a1a1a; border-color: #dc2626; }
-        [data-theme="dark"] .expired-banner h3,
-        [data-theme="dark"] .expired-banner p { color: #e8e8e8 !important; }
-
-        /* User status */
-        [data-theme="dark"] .user-status { color: #aaa; }
-
-        /* Any remaining inline grays — nuclear option for deeply nested dynamic content */
-        [data-theme="dark"] #content-area { color: #e8e8e8; }
-        [data-theme="dark"] #content-area div:not([style*="color:#"]):not([style*="color: #"]) { color: inherit; }
+        [data-theme="dark"] .theme-toggle-option { background:#222;color:#555; }
+        [data-theme="dark"] .theme-toggle-option.active { background:var(--primary);color:#000; }
     </style>
 </head>
 
