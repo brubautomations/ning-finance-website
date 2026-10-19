@@ -90,6 +90,20 @@ exports.handler = async function (event, context) {
             targetUrl = `https://api.airtable.com/v0/${dataBaseId}/Quant%20Data?filterByFormula=${dataFormula}`;
         }
 
+        // COMSAT tables are bigger than one page, so pull every page
+        if (type === 'comsat_companies' || type === 'comsat_brokers') {
+            const table = type === 'comsat_companies' ? 'CompanyFinancials' : 'BrokerFinancials';
+            let records = [];
+            let offset = '';
+            do {
+                const pageUrl = `https://api.airtable.com/v0/${dataBaseId}/${table}?pageSize=100` + (offset ? `&offset=${encodeURIComponent(offset)}` : '');
+                const page = await fetchAirtable(pageUrl, airtableToken);
+                records = records.concat(page.records || []);
+                offset = page.offset || '';
+            } while (offset);
+            return { statusCode: 200, headers, body: JSON.stringify({ records }) };
+        }
+
         // Fetch the actual Wagyu beef
         const payloadData = await fetchAirtable(targetUrl, airtableToken);
 

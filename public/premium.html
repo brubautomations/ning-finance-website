@@ -886,9 +886,7 @@
 
             /* all tables scroll horizontally */
             .macro-card [style*="overflow:auto"],
-            .macro-card [style*="overflow: auto"],
-            #insider-content>div,
-            #institutional-content>div {
+            .macro-card [style*="overflow: auto"] {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch;
             }
@@ -966,25 +964,6 @@
                 height: 320px !important;
             }
 
-            /* Ecodata side-by-side → stacked */
-            #ecodata-results>div[style*="grid"] {
-                display: block !important;
-            }
-
-            #ecodata-results>div>div:last-child {
-                margin-top: 16px;
-            }
-
-            #ecodata-chart {
-                height: 260px !important;
-            }
-
-            #ecodata-country,
-            #ecodata-indicator {
-                min-width: unset !important;
-                width: 100% !important;
-            }
-
             /* lockdown overlay text */
             #lockdown-title {
                 font-size: 1.2rem !important;
@@ -1041,13 +1020,6 @@
 
             #screener-results table {
                 min-width: 600px;
-            }
-
-            /* Smart money / flows table scrollable */
-            #insider-table-wrap,
-            #institutional-table-wrap {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
             }
 
             /* Ningning chat full width */
@@ -1219,9 +1191,6 @@
         [data-theme="dark"] p[style*="color: #000"],
         [data-theme="dark"] p[style*="color:#000"] { color: #ddd !important; }
 
-        /* ecodata country dropdown */
-        [data-theme="dark"] #ecodata-country { background: #1a1a1a !important; color: #e8e8e8 !important; border-color: #2e2e2e !important; }
-        [data-theme="dark"] #ecodata-country option { background: #1a1a1a !important; color: #e8e8e8 !important; }
 
         /* Section headers like "1. THE GLOBAL BOARD" */
         [data-theme="dark"] .section-header,
@@ -1282,14 +1251,6 @@
         [data-theme="dark"] .swot-grid .opportunities,
         [data-theme="dark"] .swot-grid .threats { color: inherit !important; }
 
-        /* Market calendar sub-tabs */
-        [data-theme="dark"] #mktcal .ua-tab,
-        [data-theme="dark"] #mktcal [class*="tab"] { color: #bbb !important; }
-        [data-theme="dark"] #mktcal p,
-        [data-theme="dark"] #mktcal div,
-        [data-theme="dark"] #mktcal span { color: #ddd !important; }
-        [data-theme="dark"] #mktcal h3 { color: #f0f0f0 !important; }
-
         /* Global fallback for all dynamically rendered section content */
         [data-theme="dark"] .page > div > p,
         [data-theme="dark"] .page > div > div > p { color: #ddd !important; }
@@ -1325,6 +1286,107 @@
         [data-theme="dark"] [id*="-list"] li:hover {
             background: #2a2a2a !important;
         }
+    </style>
+    <style>
+        /* ============================================================
+           COMSAT · COMPANIES / COMSAT · BROKERS
+           ============================================================ */
+        .cs-subtabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 25px; overflow-x: auto; flex-shrink: 0; }
+        .cs-subtab { padding: 10px 22px; cursor: pointer; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 3px solid transparent; color: #888; white-space: nowrap; transition: 0.2s; margin-bottom: -2px; }
+        .cs-subtab:hover { color: #000; }
+        .cs-subtab.active { color: #000; border-bottom-color: var(--primary); }
+
+        .cs-label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 6px; }
+        .cs-ctrl-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+        .cs-field { display: flex; flex-direction: column; min-width: 180px; }
+        .cs-field .market-dropdown { min-width: 200px; max-width: 100%; }
+        .cs-field .market-dropdown:disabled { opacity: 0.4; cursor: not-allowed; }
+        .cs-search { margin-bottom: 25px; }
+        .cs-search .autocomplete-wrapper { width: 420px; max-width: 100%; }
+        .cs-search .autocomplete-input { text-transform: none; }
+        .autocomplete-list li.cs-hl { background: #222; }
+
+        .cs-panel { background: #fff; border: 1px solid var(--border); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); margin-bottom: 25px; }
+        .cs-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding: 22px 25px; border-bottom: 2px solid var(--primary); }
+        .cs-name { font-family: 'Merriweather', serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; color: var(--text-main); line-height: 1.3; }
+        .cs-tag { font-family: 'Courier New', monospace; font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-top: 6px; }
+        .cs-badge { background: #000; color: var(--primary); font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 6px 10px; white-space: nowrap; }
+
+        .cs-scroll { overflow-x: auto; }
+        table.cs-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .cs-table th { padding: 10px 16px; text-align: right; font-size: 0.68rem; font-weight: 900; color: #888; letter-spacing: 1px; border-bottom: 2px solid var(--border); background: var(--bg); white-space: nowrap; text-transform: uppercase; }
+        .cs-table th:first-child, .cs-table td:first-child { text-align: left; }
+        .cs-table td { padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        .cs-table td.cs-num { text-align: right; font-family: 'Courier New', monospace; font-weight: 800; white-space: nowrap; }
+        .cs-table tr.cs-sec td { background: #000; color: var(--primary); font-size: 0.7rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; padding: 9px 16px; }
+
+        .cs-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); border-bottom: 1px solid var(--border); }
+        .cs-stat { padding: 18px 20px; border-right: 1px solid var(--border); }
+        .cs-stat-k { font-size: 0.6rem; font-weight: 900; color: #aaa; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+        .cs-stat-v { font-size: 1.15rem; font-weight: 900; font-family: 'Courier New', monospace; color: var(--text-main); }
+        .cs-yoy { font-size: 0.72rem; font-weight: 800; margin-top: 4px; font-family: 'Courier New', monospace; }
+        .cs-yoy.up { color: #16a34a; }
+        .cs-yoy.down { color: #dc2626; }
+
+        .cs-cmp-head, .cs-cmp-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr; }
+        .cs-cmp-head > div { padding: 16px 20px; background: #000; }
+        .cs-cmp-head .cs-metric-col { color: #888; font-size: 0.68rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: flex-end; }
+        .cs-cn { font-family: 'Merriweather', serif; font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: #fff; text-align: right; line-height: 1.35; }
+        .cs-cc { font-family: 'Courier New', monospace; color: var(--primary); font-size: 0.78rem; font-weight: 800; margin-top: 4px; text-align: right; }
+        .cs-cmp-sec { background: var(--bg); font-size: 0.68rem; font-weight: 900; color: #888; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+        .cs-cmp-row > div { padding: 9px 20px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-main); }
+        .cs-cmp-row .cs-cell { text-align: right; font-family: 'Courier New', monospace; font-weight: 800; color: #888; }
+        .cs-cmp-row .cs-cell.lead { color: var(--text-main); font-weight: 900; }
+        .cs-cmp-row .cs-cell.lead::before { content: "• "; color: var(--primary); }
+        .cs-note { color: #888; font-size: 0.75rem; margin-top: -12px; margin-bottom: 25px; }
+
+        .cs-seg { display: flex; border: 1px solid var(--primary); }
+        .cs-seg button { background: #fff; color: #888; border: none; padding: 10px 16px; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        .cs-seg button.active { background: #000; color: var(--primary); }
+
+        .cs-rank-meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 14px 20px; background: #000; color: #ccc; font-size: 0.8rem; }
+        .cs-rank-meta b { color: var(--primary); }
+        .cs-rrow { display: grid; grid-template-columns: 56px 1fr minmax(200px, 40%); align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+        .cs-rhd { font-size: 0.65rem; font-weight: 900; color: #aaa; letter-spacing: 1.5px; text-transform: uppercase; background: var(--bg); }
+        .cs-rhd > div:last-child { text-align: right; }
+        .cs-rk { font-family: 'Courier New', monospace; font-weight: 900; color: #888; }
+        .cs-rnm { min-width: 0; color: var(--text-main); font-weight: 700; font-size: 0.88rem; }
+        .cs-sym { font-family: 'Courier New', monospace; font-weight: 900; color: var(--primary); margin-right: 10px; }
+        .cs-rval { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
+        .cs-bar-wrap { flex: 1; height: 6px; background: var(--border); }
+        .cs-bar { height: 100%; background: var(--primary); }
+        .cs-rval .cs-v { font-family: 'Courier New', monospace; font-weight: 900; min-width: 90px; text-align: right; color: var(--text-main); }
+        .cs-rrow.marked { background: rgba(203, 162, 88, 0.15); box-shadow: inset 4px 0 0 var(--primary); }
+
+        .cs-empty { background: #fff; border: 1px solid var(--border); padding: 50px 20px; text-align: center; color: #888; font-size: 0.9rem; }
+        .cs-empty-big { font-family: 'Merriweather', serif; font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: var(--text-main); margin-bottom: 8px; }
+
+        @media (max-width: 768px) {
+            .cs-head { flex-direction: column; padding: 18px; }
+            .cs-name { font-size: 1.1rem; }
+            .cs-field { min-width: 0; flex: 1 1 100%; }
+            .cs-field .market-dropdown { min-width: 0; width: 100%; }
+            .cs-cmp-head, .cs-cmp-row { grid-template-columns: 1.1fr 1fr 1fr; }
+            .cs-cmp-head > div, .cs-cmp-row > div { padding: 9px 10px; font-size: 0.78rem; }
+            .cs-cn { font-size: 0.75rem; }
+            .cs-rrow { grid-template-columns: 34px 1fr auto; padding: 10px 12px; }
+            .cs-bar-wrap { display: none; }
+            .cs-rval .cs-v { min-width: 0; }
+            .cs-table th, .cs-table td { padding: 8px 10px; font-size: 0.78rem; }
+            .cs-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        [data-theme="dark"] .cs-subtab { color: #888; }
+        [data-theme="dark"] .cs-subtab.active, [data-theme="dark"] .cs-subtab:hover { color: #fff; }
+        [data-theme="dark"] .cs-panel, [data-theme="dark"] .cs-empty { background: var(--card-bg); border-color: #2e2e2e; }
+        [data-theme="dark"] .cs-name, [data-theme="dark"] .cs-empty-big { color: #f0f0f0; }
+        [data-theme="dark"] .cs-table tr.cs-sec td { background: #000 !important; color: var(--primary) !important; }
+        [data-theme="dark"] .cs-table td.cs-num { color: #e8e8e8 !important; }
+        [data-theme="dark"] .cs-seg button { background: #1a1a1a; color: #888; }
+        [data-theme="dark"] .cs-seg button.active { background: var(--primary); color: #000; }
+        [data-theme="dark"] .cs-cmp-row .cs-cell { color: #777; }
+        [data-theme="dark"] .cs-cmp-row .cs-cell.lead { color: #f0f0f0; }
+        [data-theme="dark"] .cs-rrow.marked { background: rgba(203, 162, 88, 0.18); }
     </style>
 </head>
 
@@ -1366,12 +1428,11 @@
 
     <div class="nav-tabs">
         <div class="tab active" onclick="nav('macro')" id="tab-macro">MACRO CONTEXT</div>
-        <div class="tab" onclick="nav('ecodata')" id="tab-ecodata">ECONOMIC DATA BY COUNTRY</div>
         <div class="tab" onclick="nav('screener')" id="tab-screener">QUANT SCREENER</div>
-        <div class="tab" onclick="nav('flows')" id="tab-flows">UNFAIR ADVANTAGE</div>
-        <div class="tab" onclick="nav('mktcal')" id="tab-mktcal">MARKET CALENDAR</div>
+        <div class="tab" onclick="nav('comsat-companies')" id="tab-comsat-companies">COMSAT · COMPANIES</div>
+        <div class="tab" onclick="nav('comsat-brokers')" id="tab-comsat-brokers">COMSAT · BROKERS</div>
+        <div class="tab" onclick="nav('flows')" id="tab-flows">WHALE WATCH</div>
         <div class="tab" onclick="nav('ningning')" id="tab-ningning">NINGNING'S DESK</div>
-        <div class="tab" onclick="nav('charting')" id="tab-charting">CHARTING</div>
 
         <div class="tab" onclick="nav('avm')" id="tab-avm" style="color: #cba258; font-weight: 900;">AVM</div>
         <div class="tab" onclick="nav('ecosystem')" id="tab-ecosystem" style="color: #cba258; font-weight: 900;">
@@ -1440,126 +1501,6 @@
             </div>
         </div>
 
-        <!-- ── ECONOMIC DATA BY COUNTRY ─────────────────────────── -->
-        <div id="ecodata" class="page">
-            <h2>60-Year Macroeconomic Data by Countries</h2>
-
-            <!-- Controls row -->
-            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:24px;">
-                <div>
-                    <label
-                        style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">COUNTRY</label>
-                    <select id="ecodata-country"
-                        style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:700;background:#fff;cursor:pointer;outline:none;min-width:220px;">
-                        <optgroup label="Asia Pacific">
-                            <option value="PHL">🇵🇭 Philippines</option>
-                            <option value="JPN">🇯🇵 Japan</option>
-                            <option value="CHN">🇨🇳 China</option>
-                            <option value="KOR">🇰🇷 South Korea</option>
-                            <option value="IND">🇮🇳 India</option>
-                            <option value="AUS">🇦🇺 Australia</option>
-                            <option value="SGP">🇸🇬 Singapore</option>
-                            <option value="IDN">🇮🇩 Indonesia</option>
-                            <option value="THA">🇹🇭 Thailand</option>
-                            <option value="VNM">🇻🇳 Vietnam</option>
-                            <option value="MYS">🇲🇾 Malaysia</option>
-                            <option value="NZL">🇳🇿 New Zealand</option>
-                            <option value="HKG">🇭🇰 Hong Kong</option>
-                            <option value="TWN">🇹🇼 Taiwan</option>
-                        </optgroup>
-                        <optgroup label="Europe">
-                            <option value="DEU">🇩🇪 Germany</option>
-                            <option value="GBR">🇬🇧 United Kingdom</option>
-                            <option value="FRA">🇫🇷 France</option>
-                            <option value="ITA">🇮🇹 Italy</option>
-                            <option value="ESP">🇪🇸 Spain</option>
-                            <option value="NLD">🇳🇱 Netherlands</option>
-                            <option value="CHE">🇨🇭 Switzerland</option>
-                            <option value="SWE">🇸🇪 Sweden</option>
-                            <option value="NOR">🇳🇴 Norway</option>
-                            <option value="POL">🇵🇱 Poland</option>
-                            <option value="BEL">🇧🇪 Belgium</option>
-                            <option value="AUT">🇦🇹 Austria</option>
-                            <option value="DNK">🇩🇰 Denmark</option>
-                            <option value="FIN">🇫🇮 Finland</option>
-                            <option value="PRT">🇵🇹 Portugal</option>
-                            <option value="GRC">🇬🇷 Greece</option>
-                            <option value="RUS">🇷🇺 Russia</option>
-                            <option value="TUR">🇹🇷 Turkey</option>
-                        </optgroup>
-                        <optgroup label="Americas">
-                            <option value="USA">🇺🇸 United States</option>
-                            <option value="CAN">🇨🇦 Canada</option>
-                            <option value="BRA">🇧🇷 Brazil</option>
-                            <option value="MEX">🇲🇽 Mexico</option>
-                            <option value="ARG">🇦🇷 Argentina</option>
-                            <option value="CHL">🇨🇱 Chile</option>
-                            <option value="COL">🇨🇴 Colombia</option>
-                        </optgroup>
-                        <optgroup label="Middle East & Africa">
-                            <option value="SAU">🇸🇦 Saudi Arabia</option>
-                            <option value="ARE">🇦🇪 UAE</option>
-                            <option value="ISR">🇮🇱 Israel</option>
-                            <option value="ZAF">🇿🇦 South Africa</option>
-                            <option value="EGY">🇪🇬 Egypt</option>
-                            <option value="NGA">🇳🇬 Nigeria</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div>
-                    <label
-                        style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">INDICATOR</label>
-                    <select id="ecodata-indicator"
-                        style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:700;background:#fff;cursor:pointer;outline:none;min-width:260px;">
-                        <option value="gdp_current_usd">GDP (Current USD)</option>
-                        <option value="inflation_consumer_prices_annual">Inflation Rate (%)</option>
-                        <option value="real_interest_rate">Real Interest Rate (%)</option>
-                        <option value="unemployment_total_percent">Unemployment Rate (%)</option>
-                        <option value="total_debt_percent_gdp">Government Debt (% of GDP)</option>
-                        <option value="current_account_balance_percent_gdp">Current Account (% of GDP)</option>
-                        <option value="industrial_production">Industrial Production</option>
-                        <option value="retail_sales_qoq">Retail Sales (QoQ %)</option>
-                    </select>
-                </div>
-                <div>
-                    <label
-                        style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;display:block;margin-bottom:6px;">RANGE</label>
-                    <select id="ecodata-range"
-                        style="padding:10px 14px;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:700;background:#fff;cursor:pointer;outline:none;">
-                        <option value="10">Last 10 Years</option>
-                        <option value="20">Last 20 Years</option>
-                        <option value="30">Last 30 Years</option>
-                        <option value="0">All Time</option>
-                    </select>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <button onclick="loadEcoData()"
-                        style="padding:10px 22px;background:#000;color:#fff;border:none;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:800;text-transform:uppercase;cursor:pointer;letter-spacing:0.5px;">LOAD</button>
-                    <button id="ecodata-theme-btn" onclick="toggleEcoTheme()"
-                        style="padding:10px 16px;background:#f5f5f5;color:#333;border:2px solid var(--border);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:800;cursor:pointer;letter-spacing:0.5px;">DARK</button>
-                </div>
-            </div>
-
-            <!-- Side by side: table left, chart right -->
-            <div id="ecodata-results" style="display:none;">
-                <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;">
-                    <div id="ecodata-container"></div>
-                    <div>
-                        <div id="ecodata-chart-label"
-                            style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:#888;margin-bottom:8px;">
-                        </div>
-                        <div id="ecodata-chart" style="width:100%;height:420px;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Initial empty state -->
-            <div id="ecodata-empty" class="macro-card"
-                style="text-align:center;padding:40px;color:#888;font-style:italic;">
-                Select a country and indicator above, then click LOAD.
-            </div>
-        </div>
-
         <div id="screener" class="page">
             <h2>Algorithmic Momentum & Anomaly Alerts</h2>
             <div id="screener-wrapper">
@@ -1597,6 +1538,32 @@
             </div>
         </div>
 
+        <!-- ══ COMSAT · COMPANIES ══════════════════════════════════ -->
+        <div id="comsat-companies" class="page">
+            <h2>COMSAT · COMPANIES</h2>
+            <button class="btn-download" id="co-export" onclick="coExport()">⬇ Download Excel</button>
+            <div class="feed-definition" id="co-source">Audited annual financial statements filed with the exchange.</div>
+            <div class="cs-subtabs" id="co-modes">
+                <div class="cs-subtab active" data-mode="lookup">COMPANY LOOKUP</div>
+                <div class="cs-subtab" data-mode="compare">COMPARE</div>
+                <div class="cs-subtab" data-mode="rankings">RANKINGS</div>
+            </div>
+            <div id="co-view"></div>
+        </div>
+
+        <!-- ══ COMSAT · BROKERS ════════════════════════════════════ -->
+        <div id="comsat-brokers" class="page">
+            <h2>COMSAT · BROKERS</h2>
+            <button class="btn-download" id="bk-export" onclick="bkExport()">⬇ Download Excel</button>
+            <div class="feed-definition" id="bk-source">Audited annual financial statements filed with the exchange.</div>
+            <div class="cs-subtabs" id="bk-modes">
+                <div class="cs-subtab active" data-mode="lookup">LOOKUP</div>
+                <div class="cs-subtab" data-mode="compare">COMPARE</div>
+                <div class="cs-subtab" data-mode="rankings">RANKINGS</div>
+            </div>
+            <div id="bk-view"></div>
+        </div>
+
         <div id="flows" class="page">
             <h2>SMART MONEY MOVEMENT TRACKER</h2>
 
@@ -1604,9 +1571,6 @@
                 style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:25px;overflow-x:auto;flex-shrink:0;">
                 <div class="ua-tab active" id="ua-tab-congressional" onclick="switchUATab('congressional')">
                     CONGRESSIONAL TRACKER</div>
-                <div class="ua-tab" id="ua-tab-insider" onclick="switchUATab('insider')">INSIDER TRANSACTIONS</div>
-                <div class="ua-tab" id="ua-tab-institutional" onclick="switchUATab('institutional')">INSTITUTIONAL
-                    HOLDERS</div>
             </div>
 
             <div id="ua-congressional" class="ua-subpage active">
@@ -1658,159 +1622,8 @@
                 <div id="whale-raw-data" style="display: none;"></div>
             </div>
 
-            <div id="ua-insider" class="ua-subpage">
-                <div class="feed-definition">Officer and director stock transactions globally. Search any ticker across
-                    any market.</div>
-                <div style="margin-bottom:25px;">
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="text" id="insider-search-input" class="autocomplete-input"
-                                placeholder="Search company or ticker..." autocomplete="off">
-                            <ul id="insider-suggestions" class="autocomplete-list"></ul>
-                        </div>
-                        <input type="hidden" id="insider-selected-ticker">
-                        <input type="hidden" id="insider-selected-name">
-                        <button class="btn-download" id="insider-btn" onclick="loadSmartMoney('insider')"
-                            style="margin:0;">LOAD</button>
-                    </div>
-                </div>
-                <div id="insider-loading"
-                    style="display:none;padding:30px;text-align:center;color:var(--primary);font-weight:bold;background:#000;border-radius:4px;margin-bottom:20px;border:1px solid var(--primary);">
-                    Loading insider transactions...</div>
-                <div id="insider-results" style="display:none;">
-                    <div id="insider-company-header"
-                        style="font-family:'Merriweather',serif;font-size:1.3rem;font-weight:900;margin-bottom:20px;color:#1a1a1a;text-transform:uppercase;border-bottom:2px solid var(--primary);padding-bottom:10px;">
-                    </div>
-                    <div id="insider-content"></div>
-                </div>
-            </div>
-
-            <div id="ua-institutional" class="ua-subpage">
-                <div class="feed-definition">Fund and institutional ownership, position sizes, and quarter-over-quarter
-                    changes.</div>
-                <div style="margin-bottom:25px;">
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="text" id="institutional-search-input" class="autocomplete-input"
-                                placeholder="Search company or ticker..." autocomplete="off">
-                            <ul id="institutional-suggestions" class="autocomplete-list"></ul>
-                        </div>
-                        <input type="hidden" id="institutional-selected-ticker">
-                        <input type="hidden" id="institutional-selected-name">
-                        <button class="btn-download" id="institutional-btn" onclick="loadSmartMoney('institutional')"
-                            style="margin:0;">LOAD</button>
-                    </div>
-                </div>
-                <div id="institutional-loading"
-                    style="display:none;padding:30px;text-align:center;color:var(--primary);font-weight:bold;background:#000;border-radius:4px;margin-bottom:20px;border:1px solid var(--primary);">
-                    Loading institutional holders...</div>
-                <div id="institutional-results" style="display:none;">
-                    <div id="institutional-company-header"
-                        style="font-family:'Merriweather',serif;font-size:1.3rem;font-weight:900;margin-bottom:20px;color:#1a1a1a;text-transform:uppercase;border-bottom:2px solid var(--primary);padding-bottom:10px;">
-                    </div>
-                    <div id="institutional-content"></div>
-                </div>
-            </div>
-
         </div>
 
-
-        <!-- ══ MARKET CALENDAR ══════════════════════════════════════ -->
-        <div id="mktcal" class="page">
-            <h2>MARKET CALENDAR</h2>
-
-            <!-- Sub-tabs -->
-            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0;">
-                <div id="mktcal-tab-ipo" onclick="switchMktCalTab('ipo')"
-                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    IPO CALENDAR</div>
-                <div id="mktcal-tab-earnings" onclick="switchMktCalTab('earnings')"
-                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    EARNINGS TRENDS</div>
-                <div id="mktcal-tab-sentiment" onclick="switchMktCalTab('sentiment')"
-                    style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
-                    NEWS SENTIMENT</div>
-            </div>
-
-            <!-- IPO CALENDAR -->
-            <div id="mktcal-sub-ipo">
-                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">IPO CALENDAR — GLOBAL</div>
-                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Initial public offerings from major global exchanges. Updated daily.</div>
-
-                <!-- UPCOMING -->
-                <div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">UPCOMING IPOs</div>
-                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
-                    <label style="font-weight:800;color:#333;font-size:0.85rem;">EXCHANGE:</label>
-                    <select id="ipo-upcoming-exchange" class="market-dropdown" onchange="renderIPOUpcoming()">
-                        <option value="ALL">All Exchanges</option>
-                        <option value="US">🇺🇸 United States</option>
-                        <option value="EUROPE">🇪🇺 Europe</option>
-                        <option value="ASIA">🌏 Asia</option>
-                        <option value="OTHER">🌍 Other</option>
-                    </select>
-                </div>
-                <div id="mktcal-ipo-upcoming"></div>
-
-                <!-- RECENT -->
-                <div style="font-size:0.65rem;font-weight:900;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin:28px 0 10px 0;padding-top:20px;border-top:2px solid var(--border);">RECENT IPOs</div>
-                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
-                    <label style="font-weight:800;color:#333;font-size:0.85rem;">EXCHANGE:</label>
-                    <select id="ipo-recent-exchange" class="market-dropdown" onchange="renderIPORecent()">
-                        <option value="ALL">All Exchanges</option>
-                        <option value="US">🇺🇸 United States</option>
-                        <option value="EUROPE">🇪🇺 Europe</option>
-                        <option value="ASIA">🌏 Asia</option>
-                        <option value="OTHER">🌍 Other</option>
-                    </select>
-                    <label style="font-weight:800;color:#333;font-size:0.85rem;margin-left:8px;">PERIOD:</label>
-                    <select id="ipo-recent-range" class="market-dropdown" onchange="renderIPORecent()">
-                        <option value="1">This Month</option>
-                        <option value="2">Last 2 Months</option>
-                        <option value="3">Last 3 Months</option>
-                        <option value="6">Last 6 Months</option>
-                    </select>
-                </div>
-                <div id="mktcal-ipo-recent"></div>
-            </div>
-
-            <!-- EARNINGS TRENDS -->
-            <div id="mktcal-sub-earnings" style="display:none;">
-                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">EARNINGS ESTIMATE TRENDS</div>
-                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">Search a ticker to see analyst EPS estimate revisions — whether smart money is raising or cutting expectations.</div>
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px;">
-                    <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="mktcal-earnings-input" class="autocomplete-input"
-                            placeholder="Search company or ticker..." autocomplete="off">
-                        <ul id="mktcal-earnings-suggestions" class="autocomplete-list"></ul>
-                    </div>
-                    <input type="hidden" id="mktcal-earnings-ticker">
-                    <input type="hidden" id="mktcal-earnings-name">
-                    <button class="btn-download" onclick="loadEarningsTrends()" style="margin:0;">LOAD TRENDS</button>
-                </div>
-                <div id="mktcal-earnings-result"></div>
-            </div>
-
-            <!-- NEWS SENTIMENT -->
-            <div id="mktcal-sub-sentiment" style="display:none;">
-                <div style="font-size:0.75rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">NEWS SENTIMENT SCORE</div>
-                <div style="font-size:0.8rem;color:#aaa;margin-bottom:20px;">AI-scored sentiment from global news sources for any ticker. Positive/negative/neutral breakdown over the last 30 days.</div>
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px;">
-                    <label style="font-weight:800;color:#333;font-size:0.9rem;">SEARCH ASSET:</label>
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="mktcal-sentiment-input" class="autocomplete-input"
-                            placeholder="Search company or ticker..." autocomplete="off">
-                        <ul id="mktcal-sentiment-suggestions" class="autocomplete-list"></ul>
-                    </div>
-                    <input type="hidden" id="mktcal-sentiment-ticker">
-                    <input type="hidden" id="mktcal-sentiment-name">
-                    <button class="btn-download" onclick="loadNewsSentiment()" style="margin:0;">LOAD SENTIMENT</button>
-                </div>
-                <div id="mktcal-sentiment-result"></div>
-            </div>
-        </div>
 
         <div id="ningning" class="page">
             <h2>Autonomous AI Prop Trader — PSE Equities</h2>
@@ -1854,25 +1667,6 @@
                 </div>
 
             </div>
-        </div>
-
-        <!-- ══ CHARTING ════════════════════════════════════════════ -->
-        <div id="charting" class="page">
-            <h2>CHARTING</h2>
-            <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch;">
-                <div id="chart-tab-ew"   onclick="switchChartTab('ew')"   style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid var(--primary);color:#000;white-space:nowrap;margin-bottom:-2px;">ELLIOTT WAVE</div>
-                <div id="chart-tab-ichi" onclick="switchChartTab('ichi')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">ICHIMOKU CLOUD</div>
-                <div id="chart-tab-wyck" onclick="switchChartTab('wyck')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">WYCKOFF METHOD</div>
-                <div id="chart-tab-harm" onclick="switchChartTab('harm')" style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">HARMONIC PATTERNS</div>
-                <div id="chart-tab-mkt"  onclick="switchChartTab('mkt')"  style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">MARKET PROFILE (TPO)</div>
-                <div id="chart-tab-td"   onclick="switchChartTab('td')"   style="padding:12px 18px;cursor:pointer;font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#aaa;white-space:nowrap;margin-bottom:-2px;">TOM DEMARK INDICATORS</div>
-            </div>
-            <div id="chart-sub-ew"></div>
-            <div id="chart-sub-ichi" style="display:none;"></div>
-            <div id="chart-sub-wyck" style="display:none;"></div>
-            <div id="chart-sub-harm" style="display:none;"></div>
-            <div id="chart-sub-mkt"  style="display:none;"></div>
-            <div id="chart-sub-td"   style="display:none;"></div>
         </div>
 
         <div id="avm" class="page">
@@ -2099,232 +1893,6 @@
             statusIndicator.style.color = '#dc2626';
         }
 
-        // ============================================================
-        // ECONOMIC DATA BY COUNTRY
-        // ============================================================
-        const ECODATA_WEBHOOK = 'https://hook.us2.make.com/apmw71d47b2m44ihjo1p8b27xur7zboc';
-        const ECODATA_TABLE = 'tblo78iKtSt99cmzM';
-        const ECODATA_BASE = 'app1hHgLzAlJgLB8H';
-        const ECODATA_PAT = 'patEHheyAwgUUMjHQ.868501c04f5d75acbad4a34c0c35799978e659dc149919f4ec237dc44f2c72ea';
-
-        var ecodataChart = null;
-        var ecodataDark = false;
-
-        const INDICATOR_LABELS = {
-            'gdp_current_usd': 'GDP (Current USD)',
-            'inflation_consumer_prices_annual': 'Inflation Rate (%)',
-            'real_interest_rate': 'Real Interest Rate (%)',
-            'unemployment_total_percent': 'Unemployment Rate (%)',
-            'total_debt_percent_gdp': 'Government Debt (% of GDP)',
-            'current_account_balance_percent_gdp': 'Current Account (% of GDP)',
-            'industrial_production': 'Industrial Production',
-            'retail_sales_qoq': 'Retail Sales (QoQ %)',
-        };
-
-        const COUNTRY_LABELS = {
-            'USA': 'United States', 'PHL': 'Philippines', 'JPN': 'Japan', 'CHN': 'China',
-            'DEU': 'Germany', 'GBR': 'United Kingdom', 'EMU': 'Eurozone',
-            'SGP': 'Singapore', 'AUS': 'Australia', 'KOR': 'South Korea', 'IND': 'India',
-        };
-
-        window.toggleEcoTheme = function () {
-            ecodataDark = !ecodataDark;
-            var btn = document.getElementById('ecodata-theme-btn');
-            btn.textContent = ecodataDark ? 'LIGHT' : 'DARK';
-            btn.style.background = ecodataDark ? '#000' : '#f5f5f5';
-            btn.style.color = ecodataDark ? '#fff' : '#333';
-            var results = document.getElementById('ecodata-results');
-            if (results && results.style.display !== 'none' && window._ecodataLastData) {
-                var country = document.getElementById('ecodata-country').value;
-                var indicator = document.getElementById('ecodata-indicator').value;
-                var range = parseInt(document.getElementById('ecodata-range').value);
-                var container = document.getElementById('ecodata-container');
-                if (ecodataChart) { ecodataChart.dispose(); ecodataChart = null; }
-                renderEcoData(window._ecodataLastData, indicator, country, range, container);
-            }
-        };
-
-        window.loadEcoData = async function () {
-            var country = document.getElementById('ecodata-country').value;
-            var indicator = document.getElementById('ecodata-indicator').value;
-            var range = parseInt(document.getElementById('ecodata-range').value);
-            var container = document.getElementById('ecodata-container');
-            var key = country + '_' + indicator;
-
-            document.getElementById('ecodata-results').style.display = 'none';
-            document.getElementById('ecodata-empty').style.display = 'block';
-            document.getElementById('ecodata-empty').innerHTML = '<div style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;">FETCHING DATA FOR ' + (document.getElementById('ecodata-country').options[document.getElementById('ecodata-country').selectedIndex].text.replace(/[\uD800-\uDFFF]./g, '').trim()) + '...</div>';
-
-            // Step 1 — check Airtable cache (7 day TTL)
-            try {
-                var formula = encodeURIComponent("{Key}='" + key + "'");
-                var url = 'https://api.airtable.com/v0/' + ECODATA_BASE + '/' + ECODATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
-                var res = await fetch(url, { headers: { Authorization: 'Bearer ' + ECODATA_PAT } });
-                var data = await res.json();
-                if (data.records && data.records.length > 0 && data.records[0].fields.Data) {
-                    var fields = data.records[0].fields;
-                    var updated = fields.Last_Updated ? new Date(fields.Last_Updated) : new Date(data.records[0].createdTime);
-                    var ageHours = (new Date() - updated) / 3600000;
-                    if (ageHours < 168) {
-                        document.getElementById('ecodata-empty').style.display = 'none';
-                        document.getElementById('ecodata-results').style.display = 'block';
-                        renderEcoData(fields.Data, indicator, country, range, container);
-                        return;
-                    }
-                }
-            } catch (e) { console.warn('Ecodata cache check failed', e); }
-
-            // Step 2 — fire Make webhook
-            document.getElementById('ecodata-empty').innerHTML = '<div style="padding:30px;text-align:center;color:var(--primary);font-weight:700;font-family:Courier New,monospace;font-size:0.85rem;letter-spacing:1px;">DISPATCHING REQUEST...<br><span style="color:#888;font-size:0.75rem;font-weight:400;">This may take 15-20 seconds</span></div>';
-            try { await fetch(ECODATA_WEBHOOK + '?country=' + country + '&indicator=' + indicator, { mode: 'no-cors' }); } catch (e) { }
-
-            // Step 3 — poll Airtable
-            var attempts = 0;
-            var poll = setInterval(async function () {
-                attempts++;
-                if (attempts > 15) {
-                    clearInterval(poll);
-                    document.getElementById('ecodata-empty').innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;font-weight:700;">Data fetch timed out. Please try again.</div>';
-                    return;
-                }
-                try {
-                    var formula = encodeURIComponent("{Key}='" + key + "'");
-                    var url = 'https://api.airtable.com/v0/' + ECODATA_BASE + '/' + ECODATA_TABLE + '?filterByFormula=' + formula + '&maxRecords=1';
-                    var res = await fetch(url, { headers: { Authorization: 'Bearer ' + ECODATA_PAT } });
-                    var data = await res.json();
-                    if (data.records && data.records.length > 0 && data.records[0].fields.Data) {
-                        clearInterval(poll);
-                        document.getElementById('ecodata-empty').style.display = 'none';
-                        document.getElementById('ecodata-results').style.display = 'block';
-                        renderEcoData(data.records[0].fields.Data, indicator, country, range, container);
-                    }
-                } catch (e) { }
-            }, 4000);
-        };
-
-        function renderEcoData(rawStr, indicator, country, range, container) {
-            var all;
-            try { all = typeof rawStr === 'string' ? JSON.parse(rawStr) : rawStr; } catch (e) { all = []; }
-            if (!Array.isArray(all) || !all.length) {
-                document.getElementById('ecodata-empty').style.display = 'block';
-                document.getElementById('ecodata-results').style.display = 'none';
-                document.getElementById('ecodata-empty').innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No data available for this indicator and country.</div>';
-                return;
-            }
-
-            all.sort(function (a, b) { return new Date(a.Date || a.date) - new Date(b.Date || b.date); });
-
-            var filtered = all;
-            if (range > 0) {
-                var cutoff = new Date();
-                cutoff.setFullYear(cutoff.getFullYear() - range);
-                filtered = all.filter(function (d) { return new Date(d.Date || d.date) >= cutoff; });
-            }
-
-            var label = INDICATOR_LABELS[indicator] || indicator;
-            var countryName = (filtered[0] && filtered[0].CountryName) ? filtered[0].CountryName : (COUNTRY_LABELS[country] || country);
-
-            window._ecodataLastData = rawStr;
-
-            document.getElementById('ecodata-empty').style.display = 'none';
-            document.getElementById('ecodata-results').style.display = 'block';
-
-            var isDark = ecodataDark;
-            var bg0 = isDark ? '#2a2a2a' : '#fff';
-            var bg1 = isDark ? '#222' : '#fafafa';
-            var hdBg = isDark ? '#111' : '#000';
-            var txt = isDark ? '#ddd' : '#1a1a1a';
-            var border = isDark ? '#333' : '#f0f0f0';
-            var wrapBg = isDark ? '#1a1a1a' : '#fff';
-            var wrapBdr = isDark ? '#333' : '#000';
-
-            var tableData = filtered.slice().reverse();
-            var html = '<div style="background:' + wrapBg + ';border:2px solid ' + wrapBdr + ';overflow:auto;">' +
-                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.88rem;">' +
-                '<thead><tr style="background:' + hdBg + ';">' +
-                '<th style="padding:10px 16px;text-align:left;color:var(--primary);">YEAR</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);">' + label.toUpperCase() + '</th>' +
-                '<th style="padding:10px 16px;text-align:right;color:var(--primary);">YOY CHANGE</th>' +
-                '</tr></thead><tbody>';
-
-            tableData.forEach(function (d, i) {
-                var bg = i % 2 === 0 ? bg0 : bg1;
-                var rawDate = d.Date || d.date || '';
-                var yr = rawDate ? rawDate.substring(0, 4) : '—';
-                var rawVal = d.Value != null ? d.Value : (d.value != null ? d.value : null);
-                var val = rawVal != null ? parseFloat(rawVal) : null;
-                var valStr = '—';
-                if (val != null) {
-                    if (indicator === 'gdp_current_usd') {
-                        if (val >= 1e12) valStr = '$' + (val / 1e12).toFixed(2) + 'T';
-                        else if (val >= 1e9) valStr = '$' + (val / 1e9).toFixed(2) + 'B';
-                        else valStr = '$' + val.toLocaleString(undefined, { maximumFractionDigits: 0 });
-                    } else {
-                        valStr = val.toFixed(2) + (label.includes('%') ? '%' : '');
-                    }
-                }
-                var prevIdx = filtered.length - 1 - i - 1;
-                var chgStr = '—';
-                var chgColor = txt;
-                if (prevIdx >= 0) {
-                    var prevRaw = filtered[prevIdx].Value != null ? filtered[prevIdx].Value : (filtered[prevIdx].value != null ? filtered[prevIdx].value : null);
-                    if (prevRaw != null && val != null) {
-                        var prev = parseFloat(prevRaw);
-                        var chg = val - prev;
-                        if (indicator === 'gdp_current_usd') {
-                            chgStr = (chg >= 0 ? '+' : '') + (chg >= 1e9 ? '$' + (chg / 1e9).toFixed(1) + 'B' : '$' + chg.toLocaleString(undefined, { maximumFractionDigits: 0 }));
-                        } else {
-                            chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2);
-                        }
-                        chgColor = chg >= 0 ? '#16a34a' : '#dc2626';
-                    }
-                }
-                html += '<tr style="background:' + bg + ';border-bottom:1px solid ' + border + ';">' +
-                    '<td style="padding:9px 16px;color:' + txt + ';font-weight:700;">' + yr + '</td>' +
-                    '<td style="padding:9px 16px;text-align:right;color:' + txt + ';font-weight:900;">' + valStr + '</td>' +
-                    '<td style="padding:9px 16px;text-align:right;color:' + chgColor + ';font-weight:700;">' + chgStr + '</td>' +
-                    '</tr>';
-            });
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-
-            // Chart (right side)
-            document.getElementById('ecodata-chart-label').textContent = countryName.toUpperCase() + ' — ' + label.toUpperCase();
-            var bgColor = isDark ? '#1a1a1a' : '#fff';
-            var txtColor = isDark ? '#ccc' : '#555';
-            var gridColor = isDark ? '#2a2a2a' : '#f0f0f0';
-            var years = filtered.map(function (d) { return (d.Date || d.date || '').substring(0, 4); });
-            var vals = filtered.map(function (d) {
-                var v = d.Value != null ? d.Value : (d.value != null ? d.value : null);
-                return v != null ? parseFloat(v) : null;
-            });
-            if (!ecodataChart) {
-                ecodataChart = echarts.init(document.getElementById('ecodata-chart'));
-            }
-            ecodataChart.setOption({
-                backgroundColor: bgColor,
-                tooltip: {
-                    trigger: 'axis',
-                    formatter: function (params) {
-                        var p = params[0];
-                        var v = p.value;
-                        var vStr = v != null ? (indicator === 'gdp_current_usd' ? '$' + (v >= 1e12 ? (v / 1e12).toFixed(2) + 'T' : (v / 1e9).toFixed(2) + 'B') : v.toFixed(2)) : 'N/A';
-                        return '<strong>' + p.name + '</strong><br>' + vStr;
-                    }
-                },
-                grid: { left: 55, right: 12, top: 16, bottom: 36 },
-                xAxis: { type: 'category', data: years, axisLabel: { color: txtColor, fontSize: 10, interval: 'auto' }, splitLine: { show: false }, axisLine: { lineStyle: { color: gridColor } } },
-                yAxis: { type: 'value', axisLabel: { color: txtColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
-                series: [{
-                    type: 'line', data: vals, smooth: true,
-                    lineStyle: { color: '#cba258', width: 2 },
-                    itemStyle: { color: '#cba258' },
-                    areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: isDark ? 'rgba(203,162,88,0.3)' : 'rgba(203,162,88,0.2)' }, { offset: 1, color: 'rgba(203,162,88,0)' }] } },
-                    symbol: 'none',
-                }],
-            });
-        }
-
         function nav(section) {
             document.querySelectorAll('.page, .tab').forEach(el => el.classList.remove('active'));
             var p = document.getElementById(section);
@@ -2338,40 +1906,9 @@
             var ca = document.getElementById('content-area');
             if (ca && window.innerWidth <= 768) ca.scrollTop = 0;
             localStorage.setItem('activeNingTab', section);
+            if (section === 'comsat-companies' || section === 'comsat-brokers') openComsat(section);
         }
 
-
-        // ── CHARTING TAB SWITCHER ─────────────────────────────────────
-        var _chartTabsInit = false;
-        function switchChartTab(tab) {
-            var allTabs = ['ew','ichi','wyck','harm','mkt','td'];
-            allTabs.forEach(function(t) {
-                var sub = document.getElementById('chart-sub-' + t);
-                var btn = document.getElementById('chart-tab-' + t);
-                if (sub) sub.style.display = t === tab ? 'block' : 'none';
-                if (btn) {
-                    btn.style.borderBottom = t === tab ? '3px solid var(--primary)' : '3px solid transparent';
-                    btn.style.color        = t === tab ? '#000' : '#aaa';
-                }
-                // Render coming soon for all tabs
-                if (t === tab) {
-                    var el = document.getElementById('chart-sub-' + t);
-                    if (el && !el.dataset.rendered) {
-                        el.innerHTML =
-                            '<div style="text-align:center;padding:80px 20px;">' +
-                            '<div style="font-size:2.5rem;margin-bottom:20px;">🔒</div>' +
-                            '<div style="font-size:1.2rem;font-weight:900;font-family:Merriweather,serif;text-transform:uppercase;color:var(--text-main);margin-bottom:10px;">AVAILABLE SOON</div>' +
-                            '<div style="font-size:0.85rem;color:#888;max-width:400px;margin:0 auto;line-height:1.6;">This charting feature is currently in development and will be available exclusively on Ning Finance PRO.</div>' +
-                            '</div>';
-                        el.dataset.rendered = '1';
-                    }
-                }
-            });
-        }
-        // Init first tab on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            switchChartTab('ew');
-        });
 
         function changeMarket() { fetchQuantData(document.getElementById('market-select').value); }
         function toggleChat() { document.getElementById('ai-chat').classList.toggle('open'); }
@@ -2480,334 +2017,6 @@
             }
         }
 
-        // ============================================================
-        // MARKET CALENDAR
-        // ============================================================
-        // Sub-tab switcher
-        function switchMktCalTab(tab) {
-            ['ipo','earnings','sentiment'].forEach(function(t) {
-                var el  = document.getElementById('mktcal-sub-' + t);
-                var btn = document.getElementById('mktcal-tab-' + t);
-                if (el)  el.style.display  = t === tab ? 'block' : 'none';
-                if (btn) {
-                    btn.style.borderBottom = t === tab ? '3px solid var(--primary)' : '3px solid transparent';
-                    btn.style.color        = t === tab ? '#000' : '#888';
-                }
-            });
-            if (tab === 'ipo' && !window._ipoLoaded) {
-                loadIPOCalendar();
-            }
-        }
-
-        // ── IPO CALENDAR ─────────────────────────────────────────────
-        var _ipoAll = []; // cached IPO data
-
-        var IPO_EXCHANGE_MAP = {
-            'US':     ['NYSE','NASDAQ','BATS','AMEX','OTCQB','OTCQX','PINK'],
-            'EUROPE': ['LSE','XETRA','PA','MCE','MI','AS','SW','ST','CO','OL','HE','WAR','PRG','BUD','BRU','LIS','ATH'],
-            'ASIA':   ['TSE','HK','SHG','SHE','KO','KQ','SGX','NSE','BSE','KLSE','BK','JK','VN','PSE','TW','ASX','NZE']
-        };
-
-        function getExchangeGroup(exch) {
-            if (!exch) return 'OTHER';
-            var e = exch.toUpperCase();
-            for (var grp in IPO_EXCHANGE_MAP) {
-                if (IPO_EXCHANGE_MAP[grp].some(function(x){ return e.includes(x); })) return grp;
-            }
-            return 'OTHER';
-        }
-
-        function filterIPOs(list, exchangeSel) {
-            if (exchangeSel === 'ALL') return list;
-            return list.filter(function(i){ return getExchangeGroup(i.exchange) === exchangeSel; });
-        }
-
-        function renderIPOTable(list) {
-            if (!list.length) return '<div style="padding:20px;text-align:center;color:#888;">No IPOs found for this selection.</div>';
-            // Group by date
-            var byDate = {};
-            list.forEach(function(ipo) {
-                var d = ipo.start_date || 'Unknown';
-                if (!byDate[d]) byDate[d] = [];
-                byDate[d].push(ipo);
-            });
-            var html = '<div style="overflow-x:auto;">';
-            html += '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
-            html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
-                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
-                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">COMPANY</th>' +
-                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">EXCHANGE</th>' +
-                '<th style="padding:9px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">STATUS</th>' +
-                '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">OFFER PRICE</th>' +
-                '<th style="padding:9px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SHARES OFFERED</th>' +
-                '</tr></thead><tbody>';
-            Object.keys(byDate).sort().forEach(function(date) {
-                byDate[date].forEach(function(ipo) {
-                    var name     = ipo.name || '—';
-                    var exch     = ipo.exchange || '—';
-                    var dealType = ipo.deal_type || '—';
-                    var priceL   = ipo.price_from || 0;
-                    var priceH   = ipo.price_to   || 0;
-                    var offerP   = ipo.offer_price || 0;
-                    var shares   = ipo.shares || 0;
-                    var curr     = ipo.currency ? ipo.currency + ' ' : '';
-                    var priceStr = offerP > 0 ? curr + offerP :
-                                   (priceL > 0 && priceH > 0) ? curr + priceL + ' – ' + curr + priceH :
-                                   priceL > 0 ? curr + priceL + '+' : 'TBD';
-                    var sharesStr = shares > 0 ? (shares >= 1e6 ? (shares/1e6).toFixed(1) + 'M' : shares >= 1e3 ? (shares/1e3).toFixed(0) + 'K' : shares.toLocaleString()) : '—';
-                    var dealColor = dealType === 'Priced' ? 'color:var(--up);font-weight:900;' : 'color:#888;';
-                    html += '<tr style="border-bottom:1px solid var(--border);">' +
-                        '<td style="padding:9px 14px;font-family:Courier New,monospace;font-weight:700;color:var(--text-main);white-space:nowrap;">' + date + '</td>' +
-                        '<td style="padding:9px 14px;font-weight:700;color:var(--text-main);">' + name + '</td>' +
-                        '<td style="padding:9px 14px;color:#888;white-space:nowrap;">' + exch + '</td>' +
-                        '<td style="padding:9px 14px;' + dealColor + 'white-space:nowrap;">' + dealType + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;font-family:Courier New,monospace;font-weight:700;white-space:nowrap;">' + priceStr + '</td>' +
-                        '<td style="padding:9px 14px;text-align:right;color:#888;white-space:nowrap;">' + sharesStr + '</td>' +
-                        '</tr>';
-                });
-            });
-            html += '</tbody></table></div>';
-            return html;
-        }
-
-        function renderIPOUpcoming() {
-            var exch = document.getElementById('ipo-upcoming-exchange').value;
-            var now  = new Date();
-            var list = _ipoAll.filter(function(i){ return new Date(i.start_date) >= now; });
-            list = filterIPOs(list, exch);
-            list.sort(function(a,b){ return new Date(a.start_date) - new Date(b.start_date); });
-            document.getElementById('mktcal-ipo-upcoming').innerHTML = renderIPOTable(list);
-        }
-
-        function renderIPORecent() {
-            var exch   = document.getElementById('ipo-recent-exchange').value;
-            var months = parseInt(document.getElementById('ipo-recent-range').value) || 1;
-            var now    = new Date();
-            var cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - months);
-            var list   = _ipoAll.filter(function(i){ var d = new Date(i.start_date); return d < now && d >= cutoff; });
-            list = filterIPOs(list, exch);
-            list.sort(function(a,b){ return new Date(b.start_date) - new Date(a.start_date); });
-            document.getElementById('mktcal-ipo-recent').innerHTML = renderIPOTable(list);
-        }
-
-        async function loadIPOCalendar() {
-            document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading IPO calendar...</div>';
-            document.getElementById('mktcal-ipo-recent').innerHTML = '';
-            try {
-                var today = new Date();
-                var from  = new Date(today); from.setMonth(today.getMonth() - 6); // 6 months back for recent
-                var to    = new Date(today); to.setDate(today.getDate() + 90);    // 90 days ahead for upcoming
-                var fmt   = function(d){ return d.toISOString().split('T')[0]; };
-                var res   = await fetch('/.netlify/functions/eodhd?action=ipo&from=' + fmt(from) + '&to=' + fmt(to));
-                var data  = await res.json();
-                _ipoAll   = data.ipos || data || [];
-                if (!_ipoAll.length) {
-                    document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No IPO data available.</div>';
-                    return;
-                }
-                window._ipoLoaded = true;
-                renderIPOUpcoming();
-                renderIPORecent();
-            } catch(e) {
-                document.getElementById('mktcal-ipo-upcoming').innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading IPO data. Please try again.</div>';
-            }
-        }
-
-        // ── EARNINGS TRENDS ───────────────────────────────────────────
-        // Uses existing setupAutocomplete (Finnhub → EODHD format, wired in DOMContentLoaded)
-
-        async function loadEarningsTrends() {
-            var ticker = document.getElementById('mktcal-earnings-ticker').value;
-            var result = document.getElementById('mktcal-earnings-result');
-            if (!ticker) { result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a company first.</div>'; return; }
-            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Loading earnings trends...</div>';
-            try {
-                var res  = await fetch('/.netlify/functions/eodhd?action=earnings&symbols=' + ticker);
-                var data = await res.json();
-                var trends = data.trends || [];
-                var tickerTrends = trends.length ? trends[0] : [];
-                if (!tickerTrends.length) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker. Try a major US stock like AAPL, MSFT, or NVDA.</div>';
-                    return;
-                }
-                var sym = tickerTrends[0].code || ticker;
-
-                // Pick the best single entry per period — most recent date per period code
-                var byPeriod = {};
-                tickerTrends.forEach(function(t) {
-                    var p = t.period;
-                    if (!byPeriod[p] || new Date(t.date) > new Date(byPeriod[p].date)) {
-                        byPeriod[p] = t;
-                    }
-                });
-
-                var periodOrder = ['0q', '+1q', '0y', '+1y'];
-                var periodLabels = { '0q': 'THIS QUARTER', '+1q': 'NEXT QUARTER', '0y': 'THIS YEAR', '+1y': 'NEXT YEAR' };
-                var cards = periodOrder.map(function(p) { return byPeriod[p]; }).filter(Boolean).slice(0, 4);
-
-                if (!cards.length) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No earnings trend data available for this ticker.</div>';
-                    return;
-                }
-
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — WHAT ANALYSTS EXPECT</div>';
-                html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border:1px solid var(--border);border-top:none;margin-bottom:8px;">';
-
-                cards.forEach(function(t, idx) {
-                    var curr    = t.earningsEstimateAvg  ? parseFloat(t.earningsEstimateAvg)  : null;
-                    var ago30   = t.epsTrend30daysAgo    ? parseFloat(t.epsTrend30daysAgo)    : null;
-                    var low     = t.earningsEstimateLow  ? parseFloat(t.earningsEstimateLow)  : null;
-                    var high    = t.earningsEstimateHigh ? parseFloat(t.earningsEstimateHigh) : null;
-                    var revUp   = parseInt(t.epsRevisionsUpLast30days   || 0);
-                    var revDn   = parseInt(t.epsRevisionsDownLast30days || 0);
-                    var analysts= t.earningsEstimateNumberOfAnalysts ? parseInt(t.earningsEstimateNumberOfAnalysts) : null;
-                    var diff    = (curr != null && ago30 != null) ? curr - ago30 : null;
-                    var pctChg  = (diff != null && ago30 !== 0)   ? (diff / Math.abs(ago30) * 100) : null;
-                    var label   = periodLabels[t.period] || t.period;
-
-                    // Determine overall signal
-                    var signal, signalColor, signalBg;
-                    if (revUp > revDn * 2 && (diff == null || diff >= 0)) {
-                        signal = 'ANALYSTS ARE BULLISH'; signalColor = 'var(--up)'; signalBg = '#f0fdf4';
-                    } else if (revDn > revUp * 2 || (diff != null && diff < 0)) {
-                        signal = 'ANALYSTS ARE CAUTIOUS'; signalColor = 'var(--down)'; signalBg = '#fef2f2';
-                    } else {
-                        signal = 'MIXED SIGNALS'; signalColor = '#888'; signalBg = 'var(--bg)';
-                    }
-
-                    // Plain English summary
-                    var summary = '';
-                    if (curr != null) {
-                        summary += 'Analysts expect <strong>' + sym.split('.')[0] + '</strong> to earn <strong>$' + curr.toFixed(2) + ' per share</strong>';
-                        if (low != null && high != null) summary += ' (range: $' + low.toFixed(2) + '–$' + high.toFixed(2) + ')';
-                        summary += '. ';
-                    }
-                    if (diff != null && pctChg != null && Math.abs(diff) > 0.001) {
-                        summary += 'That estimate has <strong>' + (diff > 0 ? 'gone up' : 'gone down') + ' ' + (diff > 0 ? '+' : '') + diff.toFixed(2) + ' (' + (pctChg >= 0 ? '+' : '') + pctChg.toFixed(1) + '%)</strong> vs 30 days ago. ';
-                    } else if (diff != null) {
-                        summary += 'The estimate has <strong>not changed</strong> in the last 30 days. ';
-                    }
-                    if (revUp || revDn) {
-                        if (revUp && !revDn) summary += '<strong>' + revUp + ' analyst' + (revUp > 1 ? 's' : '') + ' raised</strong> their estimate — no one cut.';
-                        else if (revDn && !revUp) summary += '<strong>' + revDn + ' analyst' + (revDn > 1 ? 's' : '') + ' cut</strong> their estimate — no one raised.';
-                        else summary += '<strong>' + revUp + ' raised</strong> vs <strong>' + revDn + ' cut</strong> in the last 30 days.';
-                    }
-                    if (analysts) summary += ' (' + analysts + ' analysts covering)';
-
-                    var borderRight = idx < cards.length - 1 ? 'border-right:1px solid var(--border);' : '';
-                    html += '<div style="padding:22px;' + borderRight + 'border-bottom:1px solid var(--border);">';
-                    html += '<div style="font-size:0.62rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">' + label + '</div>';
-                    html += '<div style="font-size:2rem;font-weight:900;color:var(--text-main);font-family:Courier New,monospace;margin-bottom:6px;">' + (curr != null ? '$' + curr.toFixed(2) : '—') + '</div>';
-                    if (diff != null && Math.abs(diff) > 0.001) {
-                        html += '<div style="font-size:0.8rem;font-weight:900;color:' + (diff > 0 ? 'var(--up)' : 'var(--down)') + ';margin-bottom:12px;">' + (diff > 0 ? '▲' : '▼') + ' ' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + ' vs last month</div>';
-                    } else {
-                        html += '<div style="font-size:0.8rem;color:#aaa;margin-bottom:12px;">Unchanged vs last month</div>';
-                    }
-                    html += '<div style="background:' + signalBg + ';border:1px solid var(--border);padding:8px 12px;margin-bottom:12px;">';
-                    html += '<div style="font-size:0.7rem;font-weight:900;color:' + signalColor + ';">' + signal + '</div>';
-                    html += '</div>';
-                    html += '<div style="font-size:0.78rem;color:#555;line-height:1.6;">' + summary + '</div>';
-                    html += '</div>';
-                });
-
-                html += '</div>';
-                html += '<div style="font-size:0.65rem;color:#aaa;margin-top:6px;">Analyst consensus · Data updated daily</div>';
-                result.innerHTML = html;
-            } catch(e) {
-                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading earnings data. Please try again.</div>';
-            }
-        }
-
-        // ── NEWS SENTIMENT ────────────────────────────────────────────
-        // Uses existing setupAutocomplete (Finnhub → EODHD format, wired in DOMContentLoaded)
-
-        async function loadNewsSentiment() {
-            var ticker = document.getElementById('mktcal-sentiment-ticker').value;
-            var result = document.getElementById('mktcal-sentiment-result');
-            if (!ticker) { result.innerHTML = '<div style="color:#dc2626;font-size:0.85rem;">Please search and select a company first.</div>'; return; }
-            result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;font-style:italic;">Analyzing sentiment...</div>';
-            try {
-                var to   = new Date();
-                var from = new Date(); from.setDate(to.getDate() - 30);
-                var fmt  = function(d){ return d.toISOString().split('T')[0]; };
-                var sentimentTicker = ticker; // pass full ticker e.g. MSTR.US — EODHD sentiment supports this
-                var res  = await fetch('/.netlify/functions/eodhd?action=sentiment&s=' + sentimentTicker + '&from=' + fmt(from) + '&to=' + fmt(to));
-                var data = await res.json();
-                // EODHD returns { "MSTR.US": [...] } or { error: "..." }
-                if (data.error) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker.</div>';
-                    return;
-                }
-                var firstKey = Object.keys(data)[0];
-                var entries = Array.isArray(data) ? data : (firstKey && Array.isArray(data[firstKey]) ? data[firstKey] : []);
-                if (!entries.length) {
-                    result.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">No sentiment data available for this ticker in the last 30 days.</div>';
-                    return;
-                }
-                // EODHD sentiment: normalized (0-1, higher = more positive), count = articles
-                var totalWeighted = 0, totalCount = 0;
-                entries.forEach(function(e) {
-                    totalWeighted += (e.normalized || 0) * (e.count || 1);
-                    totalCount    += (e.count || 1);
-                });
-                var avgNorm = totalCount ? totalWeighted / totalCount : 0.5;
-                var overallScore = (avgNorm * 100).toFixed(1);
-                var overall = avgNorm >= 0.65 ? 'BULLISH' : avgNorm <= 0.35 ? 'BEARISH' : 'NEUTRAL';
-                var overallColor = overall === 'BULLISH' ? 'var(--up)' : overall === 'BEARISH' ? 'var(--down)' : '#888';
-
-                var sym = sentimentTicker.split('.')[0];
-                var html = '<div style="background:#000;color:#fff;padding:12px 20px;font-family:Merriweather,serif;font-size:1rem;font-weight:900;text-transform:uppercase;margin-bottom:0;">' + sym + ' — 30-DAY NEWS SENTIMENT</div>';
-                html += '<div style="background:var(--card-bg);border:1px solid var(--border);border-top:none;padding:24px;margin-bottom:20px;">';
-                html += '<div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;">';
-                html += '<div style="font-size:2rem;font-weight:900;color:' + overallColor + ';font-family:Merriweather,serif;">' + overall + '</div>';
-                html += '<div><div style="font-size:0.75rem;color:#888;">Sentiment Score: <strong style="color:var(--text-main);">' + overallScore + '/100</strong></div>';
-                html += '<div style="font-size:0.75rem;color:#888;">Based on ' + totalCount + ' news articles · 30-day weighted average</div></div>';
-                html += '</div>';
-                html += '<div style="margin-bottom:6px;font-size:0.7rem;font-weight:900;color:#aaa;display:flex;justify-content:space-between;"><span>BEARISH</span><span>NEUTRAL</span><span>BULLISH</span></div>';
-                html += '<div style="background:#f0f0f0;border-radius:3px;height:10px;overflow:hidden;margin-bottom:4px;position:relative;">';
-                html += '<div style="background:' + overallColor + ';height:100%;width:' + (avgNorm*100).toFixed(1) + '%;transition:width 0.8s ease;border-radius:3px;"></div>';
-                html += '</div>';
-                html += '</div>';
-
-                // Daily table
-                html += '<div style="font-size:0.65rem;font-weight:900;color:#aaa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">DAILY BREAKDOWN</div>';
-                html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.8rem;">';
-                html += '<thead><tr style="background:var(--bg);border-bottom:2px solid var(--border);">' +
-                    '<th style="padding:8px 14px;text-align:left;font-size:0.65rem;color:#aaa;font-weight:900;">DATE</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SENTIMENT SCORE</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">SIGNAL</th>' +
-                    '<th style="padding:8px 14px;text-align:right;font-size:0.65rem;color:#aaa;font-weight:900;">ARTICLES</th>' +
-                    '</tr></thead><tbody>';
-                entries.slice().reverse().slice(0,30).forEach(function(e) {
-                    var norm = e.normalized != null ? e.normalized : 0.5;
-                    var score = (norm * 100).toFixed(1);
-                    var signal = norm >= 0.65 ? '<span style="color:var(--up);font-weight:900;">BULLISH</span>' :
-                                 norm <= 0.35 ? '<span style="color:var(--down);font-weight:900;">BEARISH</span>' :
-                                 '<span style="color:#888;">NEUTRAL</span>';
-                    var scoreColor = norm >= 0.65 ? 'color:var(--up);font-weight:900;' : norm <= 0.35 ? 'color:var(--down);font-weight:900;' : '';
-                    html += '<tr style="border-bottom:1px solid var(--border);">' +
-                        '<td style="padding:8px 14px;font-family:Courier New,monospace;font-weight:700;">' + (e.date||'—') + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;font-family:Courier New,monospace;' + scoreColor + '">' + score + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;">' + signal + '</td>' +
-                        '<td style="padding:8px 14px;text-align:right;color:#aaa;">' + (e.count||'—') + '</td>' +
-                        '</tr>';
-                });
-                html += '</tbody></table></div>';
-                result.innerHTML = html;
-            } catch(e) {
-                result.innerHTML = '<div style="padding:30px;text-align:center;color:#dc2626;">Error loading sentiment data. Please try again.</div>';
-            }
-        }
-
-        // Auto-load IPO calendar when Market Calendar tab opens
-        const _origNav = nav;
-        nav = function(section) {
-            _origNav(section);
-            if (section === 'mktcal') {
-                switchMktCalTab('ipo');
-            }
-        };
-
                 // Session memory — resets on page refresh, no storage needed
         let chatHistory = [];
 
@@ -2870,17 +2079,6 @@
         // ============================================================
         // UNFAIR ADVANTAGE SUB-TABS
         // ============================================================
-        const SMART_MONEY_BASE_ID = 'app1hHgLzAlJgLB8H';
-        const SMART_MONEY_PAT = 'patEHheyAwgUUMjHQ.868501c04f5d75acbad4a34c0c35799978e659dc149919f4ec237dc44f2c72ea';
-        const SMART_MONEY_WEBHOOK = 'https://hook.us2.make.com/etaefd2od2n1min3cstw0b5pmket9ou2';
-
-        function getNingLogoUrl(eodhd_ticker) {
-            const parts = (eodhd_ticker || '').split('.');
-            const code = parts[0];
-            const exchange = parts[1] || 'US';
-            return 'https://eodhd.com/img/logos/' + exchange + '/' + code + '.png';
-        }
-
         function switchUATab(tab) {
             document.querySelectorAll('.ua-tab').forEach(function (el) {
                 el.classList.remove('active');
@@ -2890,305 +2088,6 @@
             });
             document.getElementById('ua-tab-' + tab).classList.add('active');
             document.getElementById('ua-' + tab).classList.add('active');
-        }
-
-        // Setup autocomplete for insider + institutional (reuses same Finnhub logic as AVM)
-        function setupSmartMoneyAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
-            const input = document.getElementById(inputId);
-            const list = document.getElementById(listId);
-            const hiddenTick = document.getElementById(hiddenTickerId);
-            const hiddenName = document.getElementById(hiddenNameId);
-            if (!input) return;
-            let debounce;
-
-            input.addEventListener('input', function () {
-                clearTimeout(debounce);
-                const q = this.value.trim();
-                if (q.length < 2) { list.style.display = 'none'; return; }
-
-                debounce = setTimeout(async function () {
-                    try {
-                        list.innerHTML = '<li style="padding:10px 14px;color:#888;font-style:italic;font-size:0.85rem;">Searching...</li>';
-                        list.style.display = 'block';
-
-                        const res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0');
-                        const data = await res.json();
-                        const results = (data.result || []).filter(function (r) {
-                            return r.type === 'Common Stock' || r.type === 'EQS' || r.type === 'DR' || r.type === '';
-                        }).slice(0, 10);
-
-                        if (!results.length) {
-                            list.innerHTML = '<li style="padding:10px 14px;color:#888;font-size:0.85rem;">No results.</li>';
-                            return;
-                        }
-
-                        list.innerHTML = '';
-                        results.forEach(function (item) {
-                            // reuse existing toEODHD + getFlag from AVM section
-                            const SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.HK': '.HK', '.SS': '.SHG', '.SZ': '.SHE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.BK': '.BK', '.JK': '.JK', '.VN': '.VN', '.TW': '.TW', '.L': '.LSE', '.DE': '.XETRA', '.F': '.F', '.PA': '.PA', '.AS': '.AS', '.MI': '.MI', '.MC': '.MC', '.SW': '.SW', '.OL': '.OL', '.ST': '.ST', '.CO': '.CO', '.HE': '.HE', '.TO': '.TO', '.V': '.V', '.MX': '.MX', '.SA': '.SA' };
-                            const sym = item.symbol || '';
-                            const dot = sym.lastIndexOf('.');
-                            const eodhd = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
-
-                            const li = document.createElement('li');
-                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
-                            li.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + eodhd + '</span></div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
-                            li.onmouseover = function () { this.style.background = '#fdf8ee'; };
-                            li.onmouseout = function () { this.style.background = '#fff'; };
-                            li.onclick = function () {
-                                input.value = (item.description || eodhd) + ' (' + eodhd + ')';
-                                hiddenTick.value = eodhd;
-                                hiddenName.value = item.description || eodhd;
-                                list.style.display = 'none';
-                            };
-                            list.appendChild(li);
-                        });
-                        list.style.display = 'block';
-                    } catch (e) {
-                        list.innerHTML = '<li style="padding:10px 14px;color:#dc2626;font-size:0.85rem;">Search error.</li>';
-                    }
-                }, 400);
-            });
-
-            document.addEventListener('click', function (e) {
-                if (e.target !== input) list.style.display = 'none';
-            });
-
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    list.style.display = 'none';
-                    document.getElementById(inputId.replace('search-input', 'btn')).click();
-                }
-            });
-        }
-
-        // Load Smart Money data — AVM pattern: check Airtable first, fire webhook if not found
-        async function loadSmartMoney(type) {
-            const tickerRaw = document.getElementById(type + '-selected-ticker').value;
-            const nameRaw = document.getElementById(type + '-selected-name').value;
-            const inputVal = document.getElementById(type + '-search-input').value.trim();
-            const ticker = (tickerRaw || inputVal.split('(').pop().replace(')', '').trim()).toUpperCase();
-            const company = nameRaw || ticker;
-            if (!ticker) return;
-
-            const loadingEl = document.getElementById(type + '-loading');
-            const resultsEl = document.getElementById(type + '-results');
-            const headerEl = document.getElementById(type + '-company-header');
-            const contentEl = document.getElementById(type + '-content');
-
-            resultsEl.style.display = 'none';
-            loadingEl.style.display = 'block';
-            loadingEl.innerHTML = 'Scanning intelligence database for ' + ticker + '...';
-            if (headerEl) headerEl.innerText = company + ' | ' + ticker;
-
-            try {
-                const formula = encodeURIComponent("{Ticker}='" + ticker + "'");
-                const url = 'https://api.airtable.com/v0/' + SMART_MONEY_BASE_ID + '/Smart_Money_Data?filterByFormula=' + formula + '&maxRecords=1&sort%5B0%5D%5Bfield%5D=Last_Updated&sort%5B0%5D%5Bdirection%5D=desc';
-                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SMART_MONEY_PAT } });
-                const data = await res.json();
-                const record = data.records && data.records.length > 0 ? data.records[0] : null;
-
-                if (record && record.fields.Insiders) {
-                    loadingEl.style.display = 'none';
-                    resultsEl.style.display = 'block';
-                    if (type === 'insider') renderInsiders(record.fields.Insiders, contentEl);
-                    if (type === 'institutional') renderInstitutions(record.fields.Institutions, contentEl);
-                    return;
-                }
-
-                // No record — show dispatch button using DOM (avoids ALL quote escaping issues)
-                loadingEl.innerHTML = '';
-                var msg = document.createElement('div');
-                msg.innerHTML = 'No data found for <strong>' + ticker + '</strong>.<br><br>';
-                var btn = document.createElement('button');
-                btn.id = 'dispatch-sm-btn';
-                btn.style.cssText = 'background:#cba258;color:#000;border:none;padding:10px 20px;font-weight:900;cursor:pointer;margin-top:15px;border-radius:3px;text-transform:uppercase;letter-spacing:1px;';
-                btn.textContent = '⚡ FETCH LIVE DATA';
-                btn.onclick = function () { dispatchSmartMoney(ticker, company, type); };
-                loadingEl.appendChild(msg);
-                loadingEl.appendChild(btn);
-
-            } catch (e) {
-                loadingEl.innerHTML = '<span style="color:#dc2626;">Error connecting to database.</span>';
-            }
-        }
-
-        async function dispatchSmartMoney(ticker, company, type) {
-            const btn = document.getElementById('dispatch-sm-btn');
-            const loadingEl = document.getElementById(type + '-loading');
-            const resultsEl = document.getElementById(type + '-results');
-            const contentEl = document.getElementById(type + '-content');
-
-            if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.innerText = 'FETCHING...'; }
-            showLockdown('Fetching Smart Money Data');
-            loadingEl.innerHTML = 'Dispatching intelligence sweep for ' + ticker + '...<br>This takes about 15 seconds.';
-
-            // Safety unlock after 60s
-            setTimeout(function () { hideLockdown(); }, 60000);
-
-            try {
-                await fetch(SMART_MONEY_WEBHOOK + '?ticker=' + encodeURIComponent(ticker), { mode: 'no-cors' });
-
-                // Poll Airtable until record appears
-                let attempts = 0;
-                const poll = setInterval(async function () {
-                    attempts++;
-                    try {
-                        const formula = encodeURIComponent("{Ticker}='" + ticker + "'");
-                        const url = 'https://api.airtable.com/v0/' + SMART_MONEY_BASE_ID + '/Smart_Money_Data?filterByFormula=' + formula + '&maxRecords=1&sort%5B0%5D%5Bfield%5D=Last_Updated&sort%5B0%5D%5Bdirection%5D=desc';
-                        const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SMART_MONEY_PAT } });
-                        const data = await res.json();
-                        const record = data.records && data.records.length > 0 ? data.records[0] : null;
-
-                        if ((record && record.fields.Insiders) || attempts > 12) {
-                            clearInterval(poll);
-                            hideLockdown();
-                            if (record && record.fields.Insiders) {
-                                loadingEl.style.display = 'none';
-                                resultsEl.style.display = 'block';
-                                if (type === 'insider') renderInsiders(record.fields.Insiders, contentEl);
-                                if (type === 'institutional') renderInstitutions(record.fields.Institutions, contentEl);
-                            } else {
-                                loadingEl.innerHTML = '<span style="color:#dc2626;">Data fetch timed out. Please try again.</span>';
-                            }
-                        }
-                    } catch (e) { console.warn('Poll error', e); }
-                }, 5000);
-
-            } catch (e) {
-                hideLockdown();
-                loadingEl.innerHTML = '<span style="color:#dc2626;">Failed to trigger data fetch. Please try again.</span>';
-            }
-        }
-
-        // ---- RENDER INSIDER TRANSACTIONS ----
-        function renderInsiders(dataStr, container) {
-            let txns;
-            try {
-                txns = JSON.parse(dataStr);
-                if (typeof txns === 'string') txns = JSON.parse(txns);
-            } catch (e) { txns = []; }
-
-            if (!Array.isArray(txns) || !txns.length) {
-                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:30px;color:#888;">No insider transaction data found.</div>';
-                return;
-            }
-
-            const sorted = txns.slice().sort(function (a, b) { return new Date(b.transactionDate || b.date) - new Date(a.transactionDate || a.date); });
-            // EODHD uses 'Buy'/'Sell' in transactionCode, or transactionAmount positive/negative
-            const isBuyTxn = function (t) {
-                var code = (t.transactionCode || t.transaction_code || '').toLowerCase();
-                return code === 'buy' || code === 'p' || parseFloat(t.transactionAmount || t.shares || 0) > 0;
-            };
-            const buys = sorted.filter(isBuyTxn);
-            const sells = sorted.filter(function (t) { return !isBuyTxn(t); });
-
-            let html = '<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">' +
-                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;border:1px solid #16a34a;">' +
-                '<div class="screener-header" style="color:#16a34a;font-size:0.85rem;">BUYS</div>' +
-                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + buys.length + '</div>' +
-                '</div>' +
-                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;border:1px solid #dc2626;">' +
-                '<div class="screener-header" style="color:#dc2626;font-size:0.85rem;">SELLS</div>' +
-                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sells.length + '</div>' +
-                '</div>' +
-                '<div class="screener-module" style="flex:1;min-width:120px;padding:20px;">' +
-                '<div class="screener-header" style="font-size:0.85rem;">TOTAL FILINGS</div>' +
-                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sorted.length + '</div>' +
-                '</div></div>';
-
-            html += '<div style="background:#000;border:1px solid var(--primary);overflow:auto;">' +
-                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.82rem;">' +
-                '<thead><tr style="border-bottom:1px solid #333;">' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">DATE</th>' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">INSIDER</th>' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">ROLE</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">TYPE</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">SHARES</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">VALUE</th>' +
-                '</tr></thead><tbody>';
-
-            sorted.slice(0, 50).forEach(function (t, i) {
-                const isBuy = isBuyTxn(t);
-                const tc = isBuy ? '#16a34a' : '#dc2626';
-                const tl = isBuy ? 'BUY' : 'SELL';
-                const bg = i % 2 === 0 ? '#0a0a0a' : '#000';
-                const shares = t.transactionAmount || t.shares || null;
-                const price = t.transactionPrice || null;
-                const val = t.transactionValue || t.value || (shares && price ? (parseFloat(shares) * parseFloat(price)).toFixed(0) : null);
-                html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
-                    '<td style="padding:10px 14px;color:#aaa;">' + (t.transactionDate || t.date || '—') + '</td>' +
-                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (t.ownerName || t.owner_name || t.name || '—') + '</td>' +
-                    '<td style="padding:10px 14px;color:#888;">' + (t.ownerType || t.ownerRelationship || t.title || '—') + '</td>' +
-                    '<td style="padding:10px 14px;text-align:right;"><span style="background:' + tc + ';color:#fff;font-size:0.68rem;padding:2px 7px;border-radius:2px;font-weight:800;">' + tl + '</span></td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (shares ? Number(shares).toLocaleString() : '—') + '</td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + (val ? '$' + Number(val).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '—') + '</td>' +
-                    '</tr>';
-            });
-
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
-        }
-
-        // ---- RENDER INSTITUTIONAL HOLDERS ----
-        function renderInstitutions(dataStr, container) {
-            let raw;
-            try {
-                raw = JSON.parse(dataStr);
-                if (typeof raw === 'string') raw = JSON.parse(raw);
-            } catch (e) { raw = {}; }
-
-            // EODHD returns { Institutions: { "0": {...}, "1": {...} } }
-            const instObj = raw.Institutions || raw;
-            const holders = Object.values(instObj).filter(function (h) { return h && h.name; });
-
-            if (!holders.length) {
-                container.innerHTML = '<div class="macro-card" style="text-align:center;padding:30px;color:#888;">No institutional holder data found.</div>';
-                return;
-            }
-
-            const sorted = holders.slice().sort(function (a, b) { return (parseFloat(b.totalShares) || 0) - (parseFloat(a.totalShares) || 0); });
-            const totalSh = sorted.reduce(function (s, h) { return s + (parseFloat(h.totalShares) || 0); }, 0);
-
-            let html = '<div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;">' +
-                '<div class="screener-module" style="flex:1;min-width:140px;padding:20px;">' +
-                '<div class="screener-header" style="font-size:0.85rem;">INSTITUTIONS</div>' +
-                '<div style="font-size:2rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + sorted.length + '</div>' +
-                '</div>' +
-                '<div class="screener-module" style="flex:1;min-width:140px;padding:20px;border:1px solid var(--primary);">' +
-                '<div class="screener-header" style="font-size:0.85rem;">TOTAL SHARES HELD</div>' +
-                '<div style="font-size:1.5rem;font-family:Merriweather,serif;font-weight:900;color:#fff;">' + (totalSh >= 1000 ? (totalSh / 1000).toFixed(1) + 'B' : totalSh.toFixed(1) + 'M') + ' shares</div>' +
-                '</div></div>';
-
-            html += '<div style="background:#000;border:1px solid var(--primary);overflow:auto;">' +
-                '<table style="width:100%;border-collapse:collapse;font-family:Courier New,monospace;font-size:0.82rem;">' +
-                '<thead><tr style="border-bottom:1px solid #333;">' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">#</th>' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">INSTITUTION</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">SHARES</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">% HELD</th>' +
-                '<th style="padding:10px 14px;text-align:right;color:var(--primary);">CHANGE</th>' +
-                '<th style="padding:10px 14px;text-align:left;color:var(--primary);">AS OF</th>' +
-                '</tr></thead><tbody>';
-
-            sorted.slice(0, 50).forEach(function (h, i) {
-                const pct = totalSh > 0 ? ((parseFloat(h.totalShares) || 0) / totalSh * 100).toFixed(2) : '—';
-                const chg = h.change != null ? parseFloat(h.change) : null;
-                const cc = chg > 0 ? '#16a34a' : chg < 0 ? '#dc2626' : '#888';
-                const cl = chg != null ? (chg > 0 ? '+' : '') + Number(chg).toLocaleString() : '—';
-                const bg = i % 2 === 0 ? '#0a0a0a' : '#000';
-                html += '<tr style="background:' + bg + ';border-bottom:1px solid #1a1a1a;">' +
-                    '<td style="padding:10px 14px;color:#555;">' + (i + 1) + '</td>' +
-                    '<td style="padding:10px 14px;color:#fff;font-weight:900;">' + (h.name || '—') + '</td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:#fff;">' + (h.totalShares ? (parseFloat(h.totalShares) >= 1000 ? (parseFloat(h.totalShares) / 1000).toFixed(2) + 'B' : parseFloat(h.totalShares).toFixed(3) + 'M') : '—') + '</td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:var(--primary);font-weight:800;">' + pct + '%</td>' +
-                    '<td style="padding:10px 14px;text-align:right;color:' + cc + ';font-weight:800;">' + cl + '</td>' +
-                    '<td style="padding:10px 14px;color:#888;">' + (h.date || h.reportDate || '—') + '</td>' +
-                    '</tr>';
-            });
-
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
         }
 
         // ============================================================
@@ -3314,12 +2213,6 @@
                     const val = parseFloat(change);
                     const color = val > 0 ? '#16a34a' : (val < 0 ? '#dc2626' : '#888888');
                     return ` <span class="sep">|</span> <span style="color: ${color}; font-weight: 800;">${change}%</span>`;
-                });
-
-                // Inject logo before each ticker in <strong> tags
-                dataList = dataList.replace(/<strong>([A-Z0-9.]+)<\/strong>/g, (match, ticker) => {
-                    const logoUrl = getNingLogoUrl(ticker);
-                    return `<img src="${logoUrl}" onerror="this.style.display='none'" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;border-radius:3px;"><strong>${ticker}</strong>`;
                 });
 
                 container.innerHTML = `
@@ -3513,158 +2406,56 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // --- SMART SEARCH BAR LOGIC ---
-        const RAPID_API_KEY = '2f5dcbce4dmshb006bd68b766612p1b7a94jsn4331c7925f7a';
+        // --- SMART SEARCH BAR LOGIC (PSE listed companies) ---
+        function pseMatches(companies, q) {
+            q = q.toLowerCase();
+            var exact = [], starts = [], rest = [];
+            companies.forEach(function (c) {
+                var sym = c.symbol.toLowerCase(), nm = c.name.toLowerCase();
+                if (sym === q) exact.push(c);
+                else if (sym.indexOf(q) === 0) starts.push(c);
+                else if (sym.indexOf(q) >= 0 || nm.indexOf(q) >= 0) rest.push(c);
+            });
+            return exact.concat(starts, rest).slice(0, 10);
+        }
 
         function setupAutocomplete(inputId, listId, hiddenTickerId, hiddenNameId) {
             const input = document.getElementById(inputId);
             const list = document.getElementById(listId);
             const hiddenTicker = document.getElementById(hiddenTickerId);
             const hiddenName = document.getElementById(hiddenNameId);
-            let debounceTimer;
+            if (!input) return;
 
-            input.addEventListener('input', function () {
-                clearTimeout(debounceTimer);
+            input.addEventListener('input', async function () {
                 const query = this.value.trim();
-
-                if (query.length < 2) {
-                    list.style.display = 'none';
+                if (query.length < 1) { list.style.display = 'none'; return; }
+                let companies;
+                try { companies = await loadPSECompanies(); }
+                catch (e) {
+                    list.innerHTML = '<li><span class="name">Search unavailable. Please refresh.</span></li>';
+                    list.style.display = 'block';
                     return;
                 }
-
-                debounceTimer = setTimeout(async () => {
-                    try {
-                        list.innerHTML = '<li style="color:#888;padding:8px 12px;font-style:italic;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">Searching...</li>';
-                        list.style.display = 'block';
-
-                        const res = await fetch(
-                            `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0`
-                        );
-                        const data = await res.json();
-                        const results = (data.result || []).filter(r =>
-                            r.type === 'Common Stock' || r.type === 'EQS' || r.type === 'DR' || r.type === ''
-                        );
-                        list.innerHTML = '';
-
-                        if (results.length === 0) {
-                            list.innerHTML = '<li style="color:#888;padding:8px 12px;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">No results found</li>';
-                            list.style.display = 'block';
-                            return;
-                        }
-
-                        // ─────────────────────────────────────────────────
-                        // FINNHUB SUFFIX → EODHD EXCHANGE CODE TRANSLATION
-                        // Verified against EODHD exchange list
-                        // ─────────────────────────────────────────────────
-                        const SUFFIX_MAP = {
-                            // Asia Pacific
-                            '.PM': '.PSE',   // 🇵🇭 Philippines (Finnhub .PM → EODHD .PSE)
-                            '.KS': '.KO',    // 🇰🇷 Korea KRX (Finnhub .KS → EODHD .KO)
-                            '.KQ': '.KQ',    // 🇰🇷 Korea KOSDAQ (same)
-                            '.T': '.TSE',   // 🇯🇵 Japan Tokyo (Finnhub .T → EODHD .TSE)
-                            '.HK': '.HK',    // 🇭🇰 Hong Kong (same)
-                            '.SS': '.SHG',   // 🇨🇳 China Shanghai (Finnhub .SS → EODHD .SHG)
-                            '.SZ': '.SHE',   // 🇨🇳 China Shenzhen (Finnhub .SZ → EODHD .SHE)
-                            '.AX': '.AU',    // 🇦🇺 Australia (Finnhub .AX → EODHD .AU)
-                            '.SI': '.SGX',   // 🇸🇬 Singapore (Finnhub .SI → EODHD .SGX)
-                            '.NS': '.NSE',   // 🇮🇳 India NSE (Finnhub .NS → EODHD .NSE)
-                            '.BO': '.BSE',   // 🇮🇳 India BSE (Finnhub .BO → EODHD .BSE)
-                            '.KL': '.KLSE',  // 🇲🇾 Malaysia (Finnhub .KL → EODHD .KLSE)
-                            '.BK': '.BK',    // 🇹🇭 Thailand (same)
-                            '.JK': '.JK',    // 🇮🇩 Indonesia (same)
-                            '.VN': '.VN',    // 🇻🇳 Vietnam (same)
-                            '.TW': '.TW',    // 🇹🇼 Taiwan (same)
-                            // Europe
-                            '.L': '.LSE',   // 🇬🇧 London (Finnhub .L → EODHD .LSE)
-                            '.DE': '.XETRA', // 🇩🇪 Germany XETRA (Finnhub .DE → EODHD .XETRA)
-                            '.F': '.F',     // 🇩🇪 Frankfurt (same)
-                            '.PA': '.PA',    // 🇫🇷 France Paris (same)
-                            '.AS': '.AS',    // 🇳🇱 Netherlands (same)
-                            '.MI': '.MI',    // 🇮🇹 Italy (same)
-                            '.MC': '.MC',    // 🇪🇸 Spain (same)
-                            '.SW': '.SW',    // 🇨🇭 Switzerland (same)
-                            '.OL': '.OL',    // 🇳🇴 Norway (same)
-                            '.ST': '.ST',    // 🇸🇪 Sweden (same)
-                            '.CO': '.CO',    // 🇩🇰 Denmark (same)
-                            '.HE': '.HE',    // 🇫🇮 Finland (same)
-                            // Americas
-                            '.TO': '.TO',    // 🇨🇦 Canada Toronto (same)
-                            '.V': '.V',     // 🇨🇦 Canada Venture (same)
-                            '.MX': '.MX',    // 🇲🇽 Mexico (same)
-                            '.SA': '.SA',    // 🇧🇷 Brazil (same)
-                        };
-
-                        function toEODHD(sym) {
-                            if (!sym) return null;
-                            const dotIdx = sym.lastIndexOf('.');
-                            if (dotIdx > 0) {
-                                const suf = sym.substring(dotIdx);
-                                const base = sym.substring(0, dotIdx);
-                                return base + (SUFFIX_MAP[suf] || suf); // use map or keep original
-                            }
-                            return sym + '.US'; // no dot = US stock
-                        }
-
-                        function getFlag(finnhubSym) {
-                            if (!finnhubSym) return '🌍';
-                            const s = finnhubSym.toUpperCase();
-                            if (s.includes('.PM')) return '🇵🇭 Philippines';
-                            if (s.includes('.KS') || s.includes('.KQ')) return '🇰🇷 Korea';
-                            if (s.includes('.T') && !s.includes('.TO')) return '🇯🇵 Japan';
-                            if (s.includes('.HK')) return '🇭🇰 Hong Kong';
-                            if (s.includes('.SS') || s.includes('.SZ')) return '🇨🇳 China';
-                            if (s.includes('.AX')) return '🇦🇺 Australia';
-                            if (s.includes('.SI')) return '🇸🇬 Singapore';
-                            if (s.includes('.NS') || s.includes('.BO')) return '🇮🇳 India';
-                            if (s.includes('.KL')) return '🇲🇾 Malaysia';
-                            if (s.includes('.BK')) return '🇹🇭 Thailand';
-                            if (s.includes('.JK')) return '🇮🇩 Indonesia';
-                            if (s.includes('.VN')) return '🇻🇳 Vietnam';
-                            if (s.includes('.TW')) return '🇹🇼 Taiwan';
-                            if (s.includes('.L')) return '🇬🇧 London';
-                            if (s.includes('.DE') || s.includes('.F') || s.includes('.XETRA')) return '🇩🇪 Germany';
-                            if (s.includes('.PA')) return '🇫🇷 France';
-                            if (s.includes('.SW')) return '🇨🇭 Switzerland';
-                            if (s.includes('.AS')) return '🇳🇱 Netherlands';
-                            if (s.includes('.MI')) return '🇮🇹 Italy';
-                            if (s.includes('.MC')) return '🇪🇸 Spain';
-                            if (s.includes('.TO') || s.includes('.V')) return '🇨🇦 Canada';
-                            if (s.includes('.SA')) return '🇧🇷 Brazil';
-                            if (s.includes('.MX')) return '🇲🇽 Mexico';
-                            if (!s.includes('.')) return '🇺🇸 US';
-                            return '🌍 Global';
-                        }
-
-                        results.slice(0, 10).forEach(item => {
-                            const eodhTicker = toEODHD(item.symbol);
-                            if (!eodhTicker) return;
-                            const li = document.createElement('li');
-                            li.style.cssText = 'padding:8px 12px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
-                            li.innerHTML = `
-                                <div style="display:flex;justify-content:space-between;align-items:center;">
-                                    <span style="font-weight:900;font-family:'Courier New',monospace;color:#1a1a1a;font-size:0.9rem;">${eodhTicker}</span>
-                                    <span style="font-size:0.75rem;color:#666;background:#f0f0f0;padding:2px 8px;border-radius:3px;">${getFlag(item.symbol)}</span>
-                                </div>
-                                <div style="font-size:0.82rem;color:#555;margin-top:2px;">${item.description || ''}</div>
-                            `;
-                            li.onmouseover = () => li.style.background = '#fdf8ee';
-                            li.onmouseout = () => li.style.background = '#fff';
-                            li.onclick = () => {
-                                input.value = `${item.description} (${eodhTicker})`;
-                                hiddenTicker.value = eodhTicker;
-                                hiddenName.value = item.description || eodhTicker;
-                                list.style.display = 'none';
-                            };
-                            list.appendChild(li);
-                        });
-                        list.style.display = 'block';
-
-                    } catch (e) {
-                        console.error('Search failed', e);
-                        list.innerHTML = '<li style="color:#dc2626;padding:8px 12px;background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';">Search error — try typing the exact ticker</li>';
-                        list.style.display = 'block';
-                    }
-                }, 400);
+                const results = pseMatches(companies, query);
+                if (!results.length) {
+                    list.innerHTML = '<li><span class="name">No PSE company found</span></li>';
+                    list.style.display = 'block';
+                    return;
+                }
+                list.innerHTML = '';
+                results.forEach(function (c) {
+                    const ticker = c.symbol + '.PSE';
+                    const li = document.createElement('li');
+                    li.innerHTML = '<span class="tick">' + csEsc(c.symbol) + '</span><span class="name">' + csEsc(c.name) + '</span>';
+                    li.onclick = function () {
+                        input.value = c.name + ' (' + ticker + ')';
+                        hiddenTicker.value = ticker;
+                        hiddenName.value = c.name;
+                        list.style.display = 'none';
+                    };
+                    list.appendChild(li);
+                });
+                list.style.display = 'block';
             });
 
             // Close list when clicking outside
@@ -3689,11 +2480,7 @@
             const selectedTicker = document.getElementById('avm-selected-ticker').value;
             const selectedName = document.getElementById('avm-selected-name').value;
 
-            // Translate Finnhub suffix → EODHD format before sending to webhook
-            const rawTicker = (selectedTicker || rawInput.split('(').pop().replace(')', '').trim() || rawInput.split('-')[0].trim()).toUpperCase();
-            const _SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.L': '.LSE', '.DE': '.XETRA', '.SS': '.SHG', '.SZ': '.SHE' };
-            const _d = rawTicker.lastIndexOf('.');
-            const tickerInput = (_d > 0 && _SMAP[rawTicker.substring(_d)]) ? rawTicker.substring(0, _d) + _SMAP[rawTicker.substring(_d)] : rawTicker;
+            const tickerInput = (selectedTicker || rawInput.split('(').pop().replace(')', '').trim() || rawInput.split('-')[0].trim()).toUpperCase();
             const companyName = selectedName ? selectedName : tickerInput;
 
             if (!tickerInput) return;
@@ -3707,8 +2494,7 @@
             const loadingMsg = document.getElementById('avm-loading');
 
             // Set Dynamic Header immediately
-            const avmLogoHtml = '<img src="' + getNingLogoUrl(tickerInput) + '" onerror="this.style.display=\'none\'" style="width:32px;height:32px;object-fit:contain;margin-right:12px;vertical-align:middle;border-radius:4px;">';
-            document.getElementById('avm-company-header').innerHTML = avmLogoHtml + `${companyName} | ${tickerInput}`;
+            document.getElementById('avm-company-header').innerHTML = `${companyName} | ${tickerInput}`;
 
             resultsDiv.style.display = 'none';
             loadingMsg.style.display = 'block';
@@ -3892,8 +2678,7 @@
 
                 // --- 1. POPULATE THE WRITE-UP FIRST (SO IT ALWAYS SHOWS) ---
                 intelSection.style.display = 'block';
-                const ecoLogoHtml = '<img src="' + getNingLogoUrl(tickerInput) + '" onerror="this.style.display=\'none\'" style="width:32px;height:32px;object-fit:contain;margin-right:12px;vertical-align:middle;border-radius:4px;">';
-                document.getElementById('intel-ticker').innerHTML = ecoLogoHtml + `${tickerInput} | CORPORATE AND INDUSTRY ANALYSIS`;
+                document.getElementById('intel-ticker').innerHTML = `${tickerInput} | CORPORATE AND INDUSTRY ANALYSIS`;
                 document.getElementById('intel-description').innerText = recordFields['Description'] || "Pending analysis...";
                 document.getElementById('intel-logic').innerText = recordFields['Ecosystem_Logic'] || "Pending mapping narrative...";
 
@@ -4206,44 +2991,31 @@
             var list = document.getElementById('ecosystem-suggestions');
             var hidden = document.getElementById('ecosystem-selected-ticker');
             if (!input) return;
-            var debounce;
-            input.addEventListener('input', function () {
-                clearTimeout(debounce);
+            input.addEventListener('input', async function () {
                 var q = this.value.trim();
-                if (q.length < 2) { list.style.display = 'none'; return; }
-                debounce = setTimeout(async function () {
-                    try {
-                        list.innerHTML = '<li style="padding:10px 14px;color:#888;font-style:italic;font-size:0.85rem;">Searching...</li>';
-                        list.style.display = 'block';
-                        var res = await fetch('https://finnhub.io/api/v1/search?q=' + encodeURIComponent(q) + '&token=d77sidhr01qsamsi1magd77sidhr01qsamsi1mb0');
-                        var data = await res.json();
-                        var results = (data.result || []).filter(function (r) {
-                            return r.type === 'Common Stock' || r.type === 'EQS' || r.type === '';
-                        }).slice(0, 10);
-                        if (!results.length) { list.innerHTML = '<li style="padding:10px 14px;color:#888;font-size:0.85rem;">No results.</li>'; return; }
-                        list.innerHTML = '';
-                        var SMAP = { '.PM': '.PSE', '.KS': '.KO', '.KQ': '.KQ', '.T': '.TSE', '.HK': '.HK', '.SS': '.SHG', '.SZ': '.SHE', '.AX': '.AU', '.SI': '.SGX', '.NS': '.NSE', '.BO': '.BSE', '.KL': '.KLSE', '.BK': '.BK', '.JK': '.JK', '.VN': '.VN', '.TW': '.TW', '.L': '.LSE', '.DE': '.XETRA', '.F': '.F', '.PA': '.PA', '.AS': '.AS', '.MI': '.MI', '.MC': '.MC', '.SW': '.SW', '.OL': '.OL', '.ST': '.ST', '.CO': '.CO', '.HE': '.HE', '.TO': '.TO', '.V': '.V', '.MX': '.MX', '.SA': '.SA' };
-                        results.forEach(function (item) {
-                            var sym = item.symbol || '';
-                            var dot = sym.lastIndexOf('.');
-                            var ticker = dot > 0 ? sym.substring(0, dot) + (SMAP[sym.substring(dot)] || sym.substring(dot)) : sym + '.US';
-                            var li = document.createElement('li');
-                            li.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid ' + (document.documentElement.getAttribute('data-theme')==='dark'?'#2e2e2e':'#e8e8e8') + ';background:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#1a1a1a':'#fff') + ';color:' + (document.documentElement.getAttribute('data-theme')==='dark'?'#e8e8e8':'#333') + ';';
-                            li.innerHTML = '<div style="font-weight:900;font-family:Courier New,monospace;color:#1a1a1a;font-size:0.9rem;">' + ticker + '</div><div style="font-size:0.82rem;color:#555;margin-top:2px;">' + (item.description || '') + '</div>';
-                            li.onmouseover = function () { this.style.background = '#fdf8ee'; };
-                            li.onmouseout = function () { this.style.background = '#fff'; };
-                            li.onclick = function () {
-                                input.value = ticker;
-                                if (hidden) hidden.value = ticker;
-                                list.style.display = 'none';
-                            };
-                            list.appendChild(li);
-                        });
-                        list.style.display = 'block';
-                    } catch (e) {
-                        list.innerHTML = '<li style="padding:10px 14px;color:#dc2626;font-size:0.85rem;">Search error.</li>';
-                    }
-                }, 400);
+                if (q.length < 1) { list.style.display = 'none'; return; }
+                var companies;
+                try { companies = await loadPSECompanies(); }
+                catch (e) {
+                    list.innerHTML = '<li><span class="name">Search unavailable. Please refresh.</span></li>';
+                    list.style.display = 'block';
+                    return;
+                }
+                var results = pseMatches(companies, q);
+                if (!results.length) { list.innerHTML = '<li><span class="name">No PSE company found</span></li>'; list.style.display = 'block'; return; }
+                list.innerHTML = '';
+                results.forEach(function (c) {
+                    var ticker = c.symbol + '.PSE';
+                    var li = document.createElement('li');
+                    li.innerHTML = '<span class="tick">' + csEsc(c.symbol) + '</span><span class="name">' + csEsc(c.name) + '</span>';
+                    li.onclick = function () {
+                        input.value = ticker;
+                        if (hidden) hidden.value = ticker;
+                        list.style.display = 'none';
+                    };
+                    list.appendChild(li);
+                });
+                list.style.display = 'block';
             });
             document.addEventListener('click', function (e) { if (e.target !== input) list.style.display = 'none'; });
             input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { list.style.display = 'none'; loadEcosystem(); } });
@@ -4252,14 +3024,11 @@
         window.addEventListener('resize', () => { if (ecosystemChart) ecosystemChart.resize(); });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedTab = localStorage.getItem('activeNingTab') || 'macro';
+            let savedTab = localStorage.getItem('activeNingTab') || 'macro';
+            if (!document.getElementById(savedTab)) savedTab = 'macro';
             nav(savedTab);
 
             setupAutocomplete('avm-search-input', 'avm-suggestions', 'avm-selected-ticker', 'avm-selected-name');
-            setupAutocomplete('mktcal-earnings-input', 'mktcal-earnings-suggestions', 'mktcal-earnings-ticker', 'mktcal-earnings-name');
-            setupAutocomplete('mktcal-sentiment-input', 'mktcal-sentiment-suggestions', 'mktcal-sentiment-ticker', 'mktcal-sentiment-name');
-            setupSmartMoneyAutocomplete('insider-search-input', 'insider-suggestions', 'insider-selected-ticker', 'insider-selected-name');
-            setupSmartMoneyAutocomplete('institutional-search-input', 'institutional-suggestions', 'institutional-selected-ticker', 'institutional-selected-name');
             setupEcosystemAutocomplete();
 
             fetchMacroData();
@@ -4282,18 +3051,516 @@
         })();
     </script>
 
+    <script>
+        // ============================================================
+        // COMSAT · COMPANIES and COMSAT · BROKERS
+        // ============================================================
+        function comsatUrl(type) {
+            return '/.netlify/functions/airtable?type=' + type + '&userToken=' + token +
+                '&userEmail=' + encodeURIComponent(localStorage.getItem('ning_verified_email_' + token) || '');
+        }
+        function csNum(v) {
+            if (v == null || v === '') return null;
+            if (typeof v === 'number') return isNaN(v) ? null : v;
+            var n = parseFloat(String(v).replace(/[,₱\s%]/g, ''));
+            return isNaN(n) ? null : n;
+        }
+        function csEsc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function csPeso(n) {
+            if (n == null) return '—';
+            var a = Math.abs(n), s;
+            if (a >= 1e12) s = (n / 1e12).toFixed(2) + 'T';
+            else if (a >= 1e9) s = (n / 1e9).toFixed(2) + 'B';
+            else if (a >= 1e6) s = (n / 1e6).toFixed(1) + 'M';
+            else if (a >= 1e3) s = (n / 1e3).toFixed(0) + 'K';
+            else s = n.toFixed(0);
+            return '₱' + s;
+        }
+        function csEmpty(big, small) {
+            return '<div class="cs-empty"><div class="cs-empty-big">' + big + '</div>' + small + '</div>';
+        }
+        function csYearsLabel(years) {
+            if (!years.length) return '';
+            return years.length > 1 ? 'FY' + years[0] + '–' + years[years.length - 1] : 'FY' + years[0];
+        }
+        function csDefaultYear(years, countOf) {
+            var counts = years.map(countOf), top = Math.max.apply(null, counts.concat([0]));
+            for (var i = years.length - 1; i >= 0; i--) { if (counts[i] >= top / 2) return years[i]; }
+            return years[years.length - 1];
+        }
+        function csFail(viewId, e) {
+            var msg = String(e && e.message || '');
+            if (msg.indexOf('Access Denied') >= 0) { showExpiredState(viewId); return; }
+            document.getElementById(viewId).innerHTML = csEmpty('Data feed unavailable', "Couldn't load the data. Please refresh in a moment.");
+        }
+        function csModes(barId, onPick) {
+            document.getElementById(barId).addEventListener('click', function (e) {
+                var b = e.target.closest('.cs-subtab'); if (!b) return;
+                document.querySelectorAll('#' + barId + ' .cs-subtab').forEach(function (m) { m.classList.toggle('active', m === b); });
+                onPick(b.dataset.mode);
+            });
+        }
+        // Search box with keyboard support, shared by both lookups
+        function csSearch(input, list, getItems, pick) {
+            var hl = -1, items = [];
+            function show() {
+                items = getItems(input.value.trim().toLowerCase());
+                if (!items.length) { list.style.display = 'none'; return; }
+                list.innerHTML = items.map(function (it, i) {
+                    return '<li class="' + (i === hl ? 'cs-hl' : '') + '" data-i="' + i + '"><span class="tick">' + csEsc(it.code) + '</span><span class="name">' + csEsc(it.name) + '</span></li>';
+                }).join('');
+                list.style.display = 'block';
+                list.querySelectorAll('li').forEach(function (li) { li.onclick = function () { list.style.display = 'none'; pick(items[+li.dataset.i]); }; });
+            }
+            input.addEventListener('input', function () { hl = -1; show(); });
+            input.addEventListener('focus', show);
+            input.addEventListener('keydown', function (e) {
+                if (list.style.display === 'none') return;
+                if (e.key === 'ArrowDown') { hl = Math.min(hl + 1, items.length - 1); show(); e.preventDefault(); }
+                else if (e.key === 'ArrowUp') { hl = Math.max(hl - 1, 0); show(); e.preventDefault(); }
+                else if (e.key === 'Enter' && hl >= 0) { list.style.display = 'none'; pick(items[hl]); }
+                else if (e.key === 'Escape') list.style.display = 'none';
+            });
+            document.addEventListener('click', function (e) { if (!e.target.closest('.autocomplete-wrapper')) list.style.display = 'none'; });
+        }
+        function csLoadXlsx(cb) {
+            if (window.XLSX) return cb();
+            var sc = document.createElement('script');
+            sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+            sc.onload = cb;
+            document.head.appendChild(sc);
+        }
+
+        function openComsat(section) {
+            if (section === 'comsat-companies') coOpen();
+            if (section === 'comsat-brokers') bkOpen();
+        }
+
+        // ------------------------------------------------------------
+        // COMPANIES
+        // ------------------------------------------------------------
+        var CO_PESO = 'peso', CO_SHARE = 'share', CO_RATIO = 'ratio', CO_PCT = 'pct';
+        var CO_BALANCE = [
+            ['Current Assets', CO_PESO], ['Total Assets', CO_PESO], ['Current Liabilities', CO_PESO], ['Total Liabilities', CO_PESO],
+            ['Retained Earnings', CO_PESO], ['Stockholders Equity', CO_PESO], ['Stockholders Equity Parent', CO_PESO], ['Book Value Per Share', CO_SHARE],
+        ];
+        var CO_INCOME = [
+            ['Gross Revenue', CO_PESO], ['Gross Expense', CO_PESO], ['Non-Operating Income', CO_PESO], ['Non-Operating Expense', CO_PESO],
+            ['Income Before Tax', CO_PESO], ['Income Tax Expense', CO_PESO], ['Net Income After Tax', CO_PESO], ['Net Income Parent', CO_PESO],
+            ['EPS Basic', CO_SHARE], ['EPS Diluted', CO_SHARE],
+        ];
+        var CO_RATIOS = [
+            ['Current Ratio', CO_RATIO], ['Quick Ratio', CO_RATIO], ['Solvency Ratio', CO_RATIO], ['Debt Ratio', CO_RATIO],
+            ['Debt to Equity', CO_RATIO], ['Interest Coverage', CO_RATIO], ['Asset to Equity', CO_RATIO],
+            ['Gross Profit Margin', CO_PCT], ['Net Profit Margin', CO_PCT], ['Return on Assets', CO_PCT], ['Return on Equity', CO_PCT], ['Price Earnings Ratio', CO_RATIO],
+        ];
+        var CO_SECTIONS = [['Balance Sheet', CO_BALANCE], ['Income Statement', CO_INCOME], ['Financial Ratios', CO_RATIOS]];
+        var CO_ALL = CO_BALANCE.concat(CO_INCOME, CO_RATIOS);
+        var CO_TYPE = {}; CO_ALL.forEach(function (m) { CO_TYPE[m[0]] = m[1]; });
+
+        var CO = {
+            raw: [], list: [], bySym: {}, sectors: [], subs: {}, years: [], promise: null, ready: false, wired: false, mode: 'lookup',
+            lookupSel: null, cSector: '', cSub: '', cA: null, cB: null, cYear: null,
+            rMetric: 'Total Assets', rYear: null, rDir: 'desc', rSector: '', rMark: ''
+        };
+
+        function coFmt(v, t) {
+            if (v == null) return '—';
+            if (t === CO_PESO) return csPeso(v);
+            if (t === CO_SHARE) return '₱' + v.toFixed(2);
+            if (t === CO_PCT) return (v * 100).toFixed(1) + '%';
+            return v.toFixed(2);
+        }
+        function coFull(v, t) {
+            if (v == null) return '—';
+            if (t === CO_PESO) return '₱' + v.toLocaleString('en-PH');
+            if (t === CO_PCT) return (v * 100).toFixed(2) + '%';
+            return String(v);
+        }
+
+        // One shared load: feeds this tab and the PSE search boxes on AVM and Ecosystem
+        function loadPSECompanies() {
+            if (!CO.promise) {
+                CO.promise = fetch(comsatUrl('comsat_companies')).then(function (r) { return r.json(); }).then(function (d) {
+                    if (d.error) throw new Error(d.error);
+                    CO.raw = (d.records || []).map(function (r) { return r.fields || {}; }).filter(function (f) { return f['Company Name'] && f['Fiscal Year']; });
+                    CO.raw.forEach(function (r) {
+                        r['Fiscal Year'] = String(parseInt(r['Fiscal Year'], 10));
+                        CO_ALL.forEach(function (m) { r[m[0]] = csNum(r[m[0]]); });
+                    });
+                    var m = new Map();
+                    CO.raw.forEach(function (r) {
+                        var sym = String(r['Symbol'] || r['Company Name']).trim();
+                        if (!m.has(sym)) m.set(sym, { symbol: sym, name: r['Company Name'], sector: r['Sector'] || '—', subsector: r['Sub-Sector'] || '—', rows: {} });
+                        m.get(sym).rows[r['Fiscal Year']] = r;
+                    });
+                    CO.list = Array.from(m.values()).sort(function (a, b) { return a.name.localeCompare(b.name); });
+                    CO.bySym = {}; CO.list.forEach(function (c) { CO.bySym[c.symbol] = c; });
+                    CO.years = Array.from(new Set(CO.raw.map(function (r) { return r['Fiscal Year']; }))).sort();
+                    CO.sectors = Array.from(new Set(CO.list.map(function (c) { return c.sector; }))).filter(Boolean).sort();
+                    CO.subs = {};
+                    CO.sectors.forEach(function (s) {
+                        CO.subs[s] = Array.from(new Set(CO.list.filter(function (c) { return c.sector === s; }).map(function (c) { return c.subsector; }))).filter(Boolean).sort();
+                    });
+                    CO.cYear = CO.rYear = csDefaultYear(CO.years, function (y) { return CO.raw.filter(function (r) { return r['Fiscal Year'] === y; }).length; });
+                    CO.ready = true;
+                    return CO.list;
+                }).catch(function (e) { CO.promise = null; throw e; });
+            }
+            return CO.promise;
+        }
+
+        function coOpen() {
+            if (!CO.wired) { CO.wired = true; csModes('co-modes', function (mode) { CO.mode = mode; coRender(); }); }
+            if (CO.ready) { coRender(); return; }
+            document.getElementById('co-view').innerHTML = csEmpty('Loading the exchange…', 'Pulling company fundamentals.');
+            loadPSECompanies().then(function () {
+                if (!CO.list.length) { document.getElementById('co-view').innerHTML = csEmpty('No data yet', 'No company data loaded yet. Refresh in a moment.'); return; }
+                document.getElementById('co-source').textContent = 'Audited annual financial statements filed with the exchange · ' + csYearsLabel(CO.years) + ' · ' + CO.list.length + ' listed companies';
+                coRender();
+            }).catch(function (e) { csFail('co-view', e); });
+        }
+        function coRender() {
+            if (!CO.ready) return;
+            if (CO.mode === 'compare') coRenderCompare();
+            else if (CO.mode === 'rankings') coRenderRankings();
+            else coRenderLookup();
+        }
+
+        // ===== LOOKUP =====
+        function coRenderLookup() {
+            var view = document.getElementById('co-view');
+            view.innerHTML =
+                '<div class="cs-search"><label class="cs-label">Find a listed company</label>' +
+                '<div class="autocomplete-wrapper"><input type="text" id="co-search" class="autocomplete-input" placeholder="Type a company name or ticker…" autocomplete="off">' +
+                '<ul id="co-results" class="autocomplete-list"></ul></div></div><div id="co-card"></div>';
+            var input = document.getElementById('co-search');
+            csSearch(input, document.getElementById('co-results'), function (q) {
+                var list = !q ? CO.list.slice(0, 8) : CO.list.filter(function (c) { return c.name.toLowerCase().indexOf(q) >= 0 || c.symbol.toLowerCase().indexOf(q) >= 0; }).slice(0, 12);
+                return list.map(function (c) { return { code: c.symbol, name: c.name }; });
+            }, function (it) { CO.lookupSel = it.code; input.value = CO.bySym[it.code].name; coDrawCard(it.code); });
+            if (CO.lookupSel) { input.value = CO.bySym[CO.lookupSel].name; coDrawCard(CO.lookupSel); }
+            else document.getElementById('co-card').innerHTML = csEmpty('Search the exchange', 'Look up any listed company to see its balance sheet, income statement and ratios.');
+        }
+        function coDrawCard(sym) {
+            var c = CO.bySym[sym];
+            var years = Object.keys(c.rows).sort();
+            var body = '';
+            CO_SECTIONS.forEach(function (sec) {
+                body += '<tr class="cs-sec"><td colspan="' + (years.length + 1) + '">' + sec[0] + '</td></tr>';
+                sec[1].forEach(function (m) {
+                    body += '<tr><td>' + m[0] + '</td>' + years.map(function (y) {
+                        var v = c.rows[y] ? c.rows[y][m[0]] : null;
+                        return '<td class="cs-num" title="' + coFull(v, m[1]) + '">' + coFmt(v, m[1]) + '</td>';
+                    }).join('') + '</tr>';
+                });
+            });
+            document.getElementById('co-card').innerHTML =
+                '<div class="cs-panel"><div class="cs-head"><div><div class="cs-name">' + csEsc(c.name) + '</div>' +
+                '<div class="cs-tag">' + csEsc(c.symbol) + ' · ' + csEsc(c.subsector) + '</div></div><span class="cs-badge">' + csEsc(c.sector) + '</span></div>' +
+                '<div class="cs-scroll"><table class="cs-table"><thead><tr><th>Line Item</th>' + years.map(function (y) { return '<th>FY' + y + '</th>'; }).join('') +
+                '</tr></thead><tbody>' + body + '</tbody></table></div></div>';
+        }
+
+        // ===== COMPARE =====
+        function coPool(sector, sub) {
+            return CO.list.filter(function (c) { return (!sector || c.sector === sector) && (!sub || c.subsector === sub); });
+        }
+        function coRenderCompare() {
+            var subs = CO.cSector ? (CO.subs[CO.cSector] || []) : [];
+            var pool = coPool(CO.cSector, CO.cSub);
+            if (!pool.find(function (c) { return c.symbol === CO.cA; })) CO.cA = pool[0] ? pool[0].symbol : null;
+            if (!pool.find(function (c) { return c.symbol === CO.cB; })) CO.cB = pool[1] ? pool[1].symbol : (pool[0] ? pool[0].symbol : null);
+            var opts = function (sel) { return pool.map(function (c) { return '<option value="' + csEsc(c.symbol) + '"' + (c.symbol === sel ? ' selected' : '') + '>' + csEsc(c.name) + '</option>'; }).join(''); };
+            document.getElementById('co-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Sector (peer group)</label><select id="co-csec" class="market-dropdown"><option value="">All sectors</option>' +
+                CO.sectors.map(function (s) { return '<option' + (s === CO.cSector ? ' selected' : '') + '>' + csEsc(s) + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Sub-sector</label><select id="co-csub" class="market-dropdown"' + (CO.cSector ? '' : ' disabled') + '><option value="">All</option>' +
+                subs.map(function (s) { return '<option' + (s === CO.cSub ? ' selected' : '') + '>' + csEsc(s) + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="co-cy" class="market-dropdown">' +
+                CO.years.map(function (y) { return '<option' + (y === CO.cYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '</div><div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Company A</label><select id="co-ca" class="market-dropdown">' + opts(CO.cA) + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Company B</label><select id="co-cb" class="market-dropdown">' + opts(CO.cB) + '</select></div>' +
+                '</div><div id="co-cout"></div>';
+            document.getElementById('co-csec').onchange = function (e) { CO.cSector = e.target.value; CO.cSub = ''; coRenderCompare(); };
+            document.getElementById('co-csub').onchange = function (e) { CO.cSub = e.target.value; coRenderCompare(); };
+            document.getElementById('co-ca').onchange = function (e) { CO.cA = e.target.value; coDrawCompare(); };
+            document.getElementById('co-cb').onchange = function (e) { CO.cB = e.target.value; coDrawCompare(); };
+            document.getElementById('co-cy').onchange = function (e) { CO.cYear = e.target.value; coDrawCompare(); };
+            coDrawCompare();
+        }
+        function coDrawCompare() {
+            var A = CO.bySym[CO.cA], B = CO.bySym[CO.cB], out = document.getElementById('co-cout');
+            if (!A || !B) { out.innerHTML = csEmpty('Pick two companies', 'Choose a sector to narrow to peers, then select A and B.'); return; }
+            var ra = A.rows[CO.cYear], rb = B.rows[CO.cYear];
+            var head = function (c, r) { return '<div><div class="cs-cn">' + csEsc(c.name) + '</div><div class="cs-cc">' + csEsc(c.symbol) + ' · ' + (r ? 'FY' + CO.cYear : 'no FY' + CO.cYear) + '</div></div>'; };
+            var rows = '';
+            CO_SECTIONS.forEach(function (sec) {
+                rows += '<div class="cs-cmp-sec">' + sec[0] + '</div>';
+                sec[1].forEach(function (m) {
+                    var va = ra ? ra[m[0]] : null, vb = rb ? rb[m[0]] : null, ca = '', cb = '';
+                    if (va != null && vb != null) { if (va > vb) ca = 'lead'; else if (vb > va) cb = 'lead'; }
+                    rows += '<div class="cs-cmp-row"><div>' + m[0] + '</div><div class="cs-cell ' + ca + '">' + coFmt(va, m[1]) + '</div><div class="cs-cell ' + cb + '">' + coFmt(vb, m[1]) + '</div></div>';
+                });
+            });
+            out.innerHTML = '<div class="cs-panel"><div class="cs-cmp-head"><div class="cs-metric-col">Metric</div>' + head(A, ra) + head(B, rb) + '</div>' + rows + '</div>' +
+                '<div class="cs-note">• marks the higher figure on each line.</div>';
+        }
+
+        // ===== RANKINGS =====
+        function coRenderRankings() {
+            var groups = CO_SECTIONS.map(function (sec) {
+                return '<optgroup label="' + sec[0] + '">' + sec[1].map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === CO.rMetric ? ' selected' : '') + '>' + m[0] + '</option>'; }).join('') + '</optgroup>';
+            }).join('');
+            var pool = CO.rSector ? CO.list.filter(function (c) { return c.sector === CO.rSector; }) : CO.list;
+            document.getElementById('co-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Rank by</label><select id="co-rm" class="market-dropdown">' + groups + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="co-ry" class="market-dropdown">' + CO.years.map(function (y) { return '<option' + (y === CO.rYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Sector</label><select id="co-rsec" class="market-dropdown"><option value="">All sectors</option>' + CO.sectors.map(function (s) { return '<option' + (s === CO.rSector ? ' selected' : '') + '>' + csEsc(s) + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Order</label><div class="cs-seg" id="co-rdir"><button data-d="desc" class="' + (CO.rDir === 'desc' ? 'active' : '') + '">Highest</button><button data-d="asc" class="' + (CO.rDir === 'asc' ? 'active' : '') + '">Lowest</button></div></div>' +
+                '<div class="cs-field"><label class="cs-label">Mark company</label><select id="co-rmk" class="market-dropdown"><option value="">— none —</option>' + pool.map(function (c) { return '<option value="' + csEsc(c.symbol) + '"' + (c.symbol === CO.rMark ? ' selected' : '') + '>' + csEsc(c.name) + '</option>'; }).join('') + '</select></div>' +
+                '</div><div id="co-rout"></div>';
+            document.getElementById('co-rm').onchange = function (e) { CO.rMetric = e.target.value; coDrawRankings(); };
+            document.getElementById('co-ry').onchange = function (e) { CO.rYear = e.target.value; coDrawRankings(); };
+            document.getElementById('co-rsec').onchange = function (e) { CO.rSector = e.target.value; CO.rMark = ''; coRenderRankings(); };
+            document.getElementById('co-rdir').onclick = function (e) { var b = e.target.closest('button'); if (b) { CO.rDir = b.dataset.d; coRenderRankings(); } };
+            document.getElementById('co-rmk').onchange = function (e) { CO.rMark = e.target.value; coDrawRankings(); };
+            coDrawRankings();
+        }
+        function coDrawRankings() {
+            var t = CO_TYPE[CO.rMetric], out = document.getElementById('co-rout');
+            var pool = CO.rSector ? CO.list.filter(function (c) { return c.sector === CO.rSector; }) : CO.list;
+            var data = pool.map(function (c) { return { c: c, v: c.rows[CO.rYear] ? c.rows[CO.rYear][CO.rMetric] : null }; }).filter(function (x) { return x.v != null && !isNaN(x.v); });
+            data.sort(function (a, b) { return CO.rDir === 'desc' ? b.v - a.v : a.v - b.v; });
+            if (!data.length) { out.innerHTML = csEmpty('No data', 'No company reports ' + CO.rMetric + ' for FY' + CO.rYear + (CO.rSector ? ' in ' + csEsc(CO.rSector) : '') + '.'); return; }
+            var max = Math.max.apply(null, data.map(function (x) { return Math.abs(x.v); }).concat([1e-9]));
+            var rows = data.map(function (x, i) {
+                var w = Math.max(2, Math.abs(x.v) / max * 100);
+                return '<div class="cs-rrow' + (x.c.symbol === CO.rMark ? ' marked' : '') + '"><div class="cs-rk">' + (i + 1) + '</div>' +
+                    '<div class="cs-rnm"><span class="cs-sym">' + csEsc(x.c.symbol) + '</span>' + csEsc(x.c.name) + '</div>' +
+                    '<div class="cs-rval"><div class="cs-bar-wrap"><div class="cs-bar" style="width:' + w + '%"></div></div><span class="cs-v">' + coFmt(x.v, t) + '</span></div></div>';
+            }).join('');
+            out.innerHTML = '<div class="cs-panel"><div class="cs-rank-meta"><span>Ranked by <b>' + CO.rMetric + '</b> · FY' + CO.rYear + (CO.rSector ? ' · ' + csEsc(CO.rSector) : '') + '</span><span>' + data.length + ' companies</span></div>' +
+                '<div class="cs-rrow cs-rhd"><div>Rank</div><div>Company</div><div>' + CO.rMetric + '</div></div>' + rows + '</div>';
+        }
+
+        // ===== EXPORT =====
+        function coExport() {
+            if (!CO.ready) return;
+            csLoadXlsx(function () {
+                var cols = ['Company Name', 'Symbol', 'Sector', 'Sub-Sector', 'Fiscal Year'].concat(CO_ALL.map(function (m) { return m[0]; }));
+                var body = CO.raw.slice().sort(function (a, b) { return (a['Company Name'] || '').localeCompare(b['Company Name'] || '') || String(a['Fiscal Year']).localeCompare(String(b['Fiscal Year'])); })
+                    .map(function (r) { return cols.map(function (c) { return r[c] == null ? '' : r[c]; }); });
+                var ws = XLSX.utils.aoa_to_sheet([cols].concat(body));
+                ws['!cols'] = cols.map(function (c, i) { return { wch: i === 0 ? 34 : i < 5 ? 14 : 16 }; });
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'PSE Fundamentals');
+                XLSX.writeFile(wb, 'PSE_Company_Fundamentals.xlsx');
+            });
+        }
+
+        // ------------------------------------------------------------
+        // BROKERS
+        // ------------------------------------------------------------
+        var BK_FIELDS = {
+            'Broker Name': 'name', 'Broker Code': 'code', 'Year': 'year', 'Total Assets': 'assets', 'Total Liabilities': 'liabilities',
+            'Total Equity': 'equity', 'Cash': 'cash', 'Receivables': 'receivables', 'Total Revenue': 'revenue', 'Commission Income': 'commission',
+            'Trading Gains': 'trading', 'Operating Expenses': 'opex', 'Net Income': 'netIncome', 'Retained Earnings': 'retained', 'RBCA Ratio': 'rbca'
+        };
+        var BK_METRICS = [
+            { key: 'assets', label: 'Total Assets', type: 'peso' }, { key: 'liabilities', label: 'Total Liabilities', type: 'peso' },
+            { key: 'equity', label: 'Total Equity', type: 'peso' }, { key: 'cash', label: 'Cash', type: 'peso' },
+            { key: 'receivables', label: 'Receivables', type: 'peso' }, { key: 'revenue', label: 'Total Revenue', type: 'peso' },
+            { key: 'commission', label: 'Commission Income', type: 'peso' }, { key: 'trading', label: 'Trading Gains', type: 'peso' },
+            { key: 'opex', label: 'Operating Expenses', type: 'peso' }, { key: 'netIncome', label: 'Net Income', type: 'peso' },
+            { key: 'retained', label: 'Retained Earnings', type: 'peso' }, { key: 'rbca', label: 'RBCA Ratio', type: 'pct' },
+        ];
+        var BK_BY_KEY = {}; BK_METRICS.forEach(function (m) { BK_BY_KEY[m.key] = m; });
+        var BK_DEFAULT_B = '224';
+
+        var BK = {
+            raw: [], list: [], byCode: {}, years: [], ready: false, loading: false, wired: false, mode: 'lookup',
+            lookupSel: null, cA: null, cB: null, cYear: null, rMetric: 'assets', rYear: null, rDir: 'desc', rMark: ''
+        };
+        function bkFmt(v, type) { if (v == null) return '—'; return type === 'pct' ? v.toFixed(0) + '%' : csPeso(v); }
+        function bkFull(n) { return n == null ? '—' : '₱' + n.toLocaleString('en-PH'); }
+
+        function bkOpen() {
+            if (!BK.wired) { BK.wired = true; csModes('bk-modes', function (mode) { BK.mode = mode; bkRender(); }); }
+            if (BK.ready) { bkRender(); return; }
+            if (BK.loading) return;
+            BK.loading = true;
+            document.getElementById('bk-view').innerHTML = csEmpty('Loading the exchange…', 'Pulling the latest broker filings.');
+            fetch(comsatUrl('comsat_brokers')).then(function (r) { return r.json(); }).then(function (d) {
+                if (d.error) throw new Error(d.error);
+                BK.raw = (d.records || []).map(function (rec) {
+                    var f = rec.fields || {}, o = {};
+                    Object.keys(BK_FIELDS).forEach(function (src) {
+                        var dst = BK_FIELDS[src], v = f[src];
+                        if (dst === 'name') o[dst] = v == null ? '' : String(v).trim();
+                        else if (dst === 'code') o[dst] = v == null ? '' : String(v).trim();
+                        else if (dst === 'year') o[dst] = v == null ? null : parseInt(v, 10);
+                        else o[dst] = csNum(v);
+                    });
+                    return o;
+                }).filter(function (o) { return o.code && o.year; });
+                if (!BK.raw.length) { document.getElementById('bk-view').innerHTML = csEmpty('No filings yet', 'No broker filings have loaded yet. Refresh in a moment.'); BK.loading = false; return; }
+                BK.years = Array.from(new Set(BK.raw.map(function (r) { return r.year; }))).sort();
+                var m = new Map();
+                BK.raw.forEach(function (r) {
+                    if (!m.has(r.code)) m.set(r.code, { code: r.code, name: r.name, rows: {}, latest: 0 });
+                    var b = m.get(r.code);
+                    b.rows[r.year] = r;
+                    if (r.year >= b.latest) { b.latest = r.year; b.name = r.name; }
+                });
+                BK.list = Array.from(m.values()).sort(function (a, b) { return a.name.localeCompare(b.name); });
+                BK.byCode = {}; BK.list.forEach(function (b) { BK.byCode[b.code] = b; });
+                BK.cA = BK.list[0].code;
+                BK.cB = BK.byCode[BK_DEFAULT_B] ? BK_DEFAULT_B : (BK.list[1] ? BK.list[1].code : BK.list[0].code);
+                BK.cYear = BK.rYear = csDefaultYear(BK.years, function (y) { return BK.raw.filter(function (r) { return r.year === y; }).length; });
+                BK.ready = true; BK.loading = false;
+                document.getElementById('bk-source').textContent = 'Audited annual financial statements filed with the exchange · ' + csYearsLabel(BK.years) + ' · ' + BK.list.length + ' trading participants';
+                bkRender();
+            }).catch(function (e) { BK.loading = false; csFail('bk-view', e); });
+        }
+        function bkRender() {
+            if (!BK.ready) return;
+            if (BK.mode === 'compare') bkRenderCompare();
+            else if (BK.mode === 'rankings') bkRenderRankings();
+            else bkRenderLookup();
+        }
+
+        // ===== LOOKUP =====
+        function bkRenderLookup() {
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-search"><label class="cs-label">Find a broker</label>' +
+                '<div class="autocomplete-wrapper"><input type="text" id="bk-search" class="autocomplete-input" placeholder="Type a broker name or code…" autocomplete="off">' +
+                '<ul id="bk-results" class="autocomplete-list"></ul></div></div><div id="bk-card"></div>';
+            var input = document.getElementById('bk-search');
+            csSearch(input, document.getElementById('bk-results'), function (q) {
+                var list = !q ? BK.list.slice(0, 8) : BK.list.filter(function (b) { return b.name.toLowerCase().indexOf(q) >= 0 || b.code.indexOf(q) >= 0; }).slice(0, 10);
+                return list.map(function (b) { return { code: b.code, name: b.name }; });
+            }, function (it) { BK.lookupSel = it.code; input.value = BK.byCode[it.code].name; bkDrawCard(it.code); });
+            if (BK.lookupSel) { input.value = BK.byCode[BK.lookupSel].name; bkDrawCard(BK.lookupSel); }
+            else document.getElementById('bk-card').innerHTML = csEmpty('Search the exchange', 'Look up any trading participant to see its audited financials.');
+        }
+        function bkDrawCard(code) {
+            var b = BK.byCode[code];
+            var years = Object.keys(b.rows).map(Number).sort();
+            var latest = b.rows[years[years.length - 1]];
+            var prev = years.length > 1 ? b.rows[years[years.length - 2]] : null;
+            var yoy = function (k) {
+                if (!prev || latest[k] == null || prev[k] == null || prev[k] === 0) return '';
+                var d = (latest[k] - prev[k]) / Math.abs(prev[k]) * 100;
+                return '<div class="cs-yoy ' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(1) + '% YoY</div>';
+            };
+            var stat = function (k, lbl, type) { return '<div class="cs-stat"><div class="cs-stat-k">' + lbl + '</div><div class="cs-stat-v">' + bkFmt(latest[k], type || 'peso') + '</div>' + yoy(k) + '</div>'; };
+            var rows = BK_METRICS.map(function (m) {
+                return '<tr><td>' + m.label + '</td>' + years.map(function (y) {
+                    var r = b.rows[y], v = r ? r[m.key] : null;
+                    var t = v != null ? (m.type === 'pct' ? v + '%' : bkFull(v)) : '—';
+                    return '<td class="cs-num" title="' + t + '">' + (r ? bkFmt(v, m.type) : '—') + '</td>';
+                }).join('') + '</tr>';
+            }).join('');
+            document.getElementById('bk-card').innerHTML =
+                '<div class="cs-panel"><div class="cs-head"><div><div class="cs-name">' + csEsc(b.name) + '</div><div class="cs-tag">Trading Participant · Code ' + csEsc(b.code) + '</div></div></div>' +
+                '<div class="cs-stats">' + stat('assets', 'Total Assets') + stat('equity', 'Total Equity') + stat('netIncome', 'Net Income') + stat('rbca', 'RBCA Ratio', 'pct') + '</div>' +
+                '<div class="cs-scroll"><table class="cs-table"><thead><tr><th>Line Item</th>' + years.map(function (y) { return '<th>FY' + y + '</th>'; }).join('') +
+                '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+        }
+
+        // ===== COMPARE =====
+        function bkRenderCompare() {
+            var opts = function (sel) { return BK.list.map(function (x) { return '<option value="' + csEsc(x.code) + '"' + (x.code === sel ? ' selected' : '') + '>' + csEsc(x.name) + '</option>'; }).join(''); };
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Broker A</label><select id="bk-ca" class="market-dropdown">' + opts(BK.cA) + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Broker B</label><select id="bk-cb" class="market-dropdown">' + opts(BK.cB) + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="bk-cy" class="market-dropdown">' + BK.years.map(function (y) { return '<option' + (y === BK.cYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '</div><div id="bk-cout"></div>';
+            document.getElementById('bk-ca').onchange = function (e) { BK.cA = e.target.value; bkDrawCompare(); };
+            document.getElementById('bk-cb').onchange = function (e) { BK.cB = e.target.value; bkDrawCompare(); };
+            document.getElementById('bk-cy').onchange = function (e) { BK.cYear = +e.target.value; bkDrawCompare(); };
+            bkDrawCompare();
+        }
+        function bkDrawCompare() {
+            var A = BK.byCode[BK.cA], B = BK.byCode[BK.cB];
+            var ra = A.rows[BK.cYear], rb = B.rows[BK.cYear];
+            var head = function (b, r) { return '<div><div class="cs-cn">' + csEsc(b.name) + '</div><div class="cs-cc">Code ' + csEsc(b.code) + ' · ' + (r ? 'FY' + BK.cYear : 'no FY' + BK.cYear + ' filing') + '</div></div>'; };
+            var rows = BK_METRICS.map(function (m) {
+                var va = ra ? ra[m.key] : null, vb = rb ? rb[m.key] : null, ca = '', cb = '';
+                if (va != null && vb != null) { if (va > vb) ca = 'lead'; else if (vb > va) cb = 'lead'; }
+                return '<div class="cs-cmp-row"><div>' + m.label + '</div><div class="cs-cell ' + ca + '">' + bkFmt(va, m.type) + '</div><div class="cs-cell ' + cb + '">' + bkFmt(vb, m.type) + '</div></div>';
+            }).join('');
+            document.getElementById('bk-cout').innerHTML = '<div class="cs-panel"><div class="cs-cmp-head"><div class="cs-metric-col">Metric</div>' + head(A, ra) + head(B, rb) + '</div>' + rows + '</div>' +
+                '<div class="cs-note">• marks the higher figure on each line.</div>';
+        }
+
+        // ===== RANKINGS =====
+        function bkRenderRankings() {
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Rank by</label><select id="bk-rm" class="market-dropdown">' + BK_METRICS.map(function (m) { return '<option value="' + m.key + '"' + (m.key === BK.rMetric ? ' selected' : '') + '>' + m.label + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="bk-ry" class="market-dropdown">' + BK.years.map(function (y) { return '<option' + (y === BK.rYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Order</label><div class="cs-seg" id="bk-rdir"><button data-d="desc" class="' + (BK.rDir === 'desc' ? 'active' : '') + '">Highest first</button><button data-d="asc" class="' + (BK.rDir === 'asc' ? 'active' : '') + '">Lowest first</button></div></div>' +
+                '<div class="cs-field"><label class="cs-label">Mark broker</label><select id="bk-rmk" class="market-dropdown"><option value="">— none —</option>' + BK.list.map(function (b) { return '<option value="' + csEsc(b.code) + '"' + (b.code === BK.rMark ? ' selected' : '') + '>' + csEsc(b.name) + '</option>'; }).join('') + '</select></div>' +
+                '</div><div id="bk-rout"></div>';
+            document.getElementById('bk-rm').onchange = function (e) { BK.rMetric = e.target.value; bkDrawRankings(); };
+            document.getElementById('bk-ry').onchange = function (e) { BK.rYear = +e.target.value; bkDrawRankings(); };
+            document.getElementById('bk-rdir').onclick = function (e) { var b = e.target.closest('button'); if (b) { BK.rDir = b.dataset.d; bkRenderRankings(); } };
+            document.getElementById('bk-rmk').onchange = function (e) { BK.rMark = e.target.value; bkDrawRankings(); };
+            bkDrawRankings();
+        }
+        function bkDrawRankings() {
+            var m = BK_BY_KEY[BK.rMetric], out = document.getElementById('bk-rout');
+            var data = BK.list.map(function (b) { return { b: b, v: b.rows[BK.rYear] ? b.rows[BK.rYear][BK.rMetric] : null }; }).filter(function (x) { return x.v != null; });
+            data.sort(function (a, b) { return BK.rDir === 'desc' ? b.v - a.v : a.v - b.v; });
+            if (!data.length) { out.innerHTML = csEmpty('No filings yet', 'No broker reports ' + m.label + ' for FY' + BK.rYear + ' in this set.'); return; }
+            var max = Math.max.apply(null, data.map(function (x) { return Math.abs(x.v); }).concat([1]));
+            var rows = data.map(function (x, i) {
+                var w = Math.max(2, Math.abs(x.v) / max * 100);
+                return '<div class="cs-rrow' + (x.b.code === BK.rMark ? ' marked' : '') + '"><div class="cs-rk">' + (i + 1) + '</div>' +
+                    '<div class="cs-rnm">' + csEsc(x.b.name) + '</div>' +
+                    '<div class="cs-rval"><div class="cs-bar-wrap"><div class="cs-bar" style="width:' + w + '%"></div></div><span class="cs-v">' + bkFmt(x.v, m.type) + '</span></div></div>';
+            }).join('');
+            out.innerHTML = '<div class="cs-panel"><div class="cs-rank-meta"><span>Ranked by <b>' + m.label + '</b> · FY' + BK.rYear + '</span><span>' + data.length + ' brokers</span></div>' +
+                '<div class="cs-rrow cs-rhd"><div>Rank</div><div>Trading Participant</div><div>' + m.label + '</div></div>' + rows + '</div>';
+        }
+
+        // ===== EXPORT =====
+        function bkExport() {
+            if (!BK.ready) return;
+            csLoadXlsx(function () {
+                var header = ['Broker Name', 'Code', 'Year'].concat(BK_METRICS.map(function (m) { return m.label; }));
+                var body = BK.raw.slice().sort(function (a, b) { return a.name.localeCompare(b.name) || a.year - b.year; })
+                    .map(function (r) { return [r.name, r.code, r.year].concat(BK_METRICS.map(function (m) { return m.key === 'rbca' ? (r[m.key] == null ? '' : r[m.key] + '%') : (r[m.key] == null ? '' : r[m.key]); })); });
+                var ws = XLSX.utils.aoa_to_sheet([header].concat(body));
+                ws['!cols'] = [{ wch: 34 }, { wch: 7 }, { wch: 7 }].concat(BK_METRICS.map(function () { return { wch: 16 }; }));
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Broker Financials');
+                XLSX.writeFile(wb, 'PSE_Broker_Financials.xlsx');
+            });
+        }
+    </script>
+
     <!-- ── MOBILE BOTTOM TAB BAR ── -->
     <div id="mobile-bottom-bar">
         <div class="mob-tab active" id="mob-tab-macro" onclick="nav('macro')"><span class="mob-icon">🌐</span>MACRO
         </div>
-        <div class="mob-tab" id="mob-tab-ecodata" onclick="nav('ecodata')"><span class="mob-icon">📊</span>ECO</div>
         <div class="mob-tab" id="mob-tab-screener" onclick="nav('screener')"><span class="mob-icon">🎯</span>SCREENER
         </div>
-        <div class="mob-tab" id="mob-tab-flows" onclick="nav('flows')"><span class="mob-icon">🐋</span>SMART$</div>
-        <div class="mob-tab" id="mob-tab-mktcal" onclick="nav('mktcal')"><span class="mob-icon">📅</span>CALENDAR</div>
+        <div class="mob-tab" id="mob-tab-comsat-companies" onclick="nav('comsat-companies')"><span class="mob-icon">🏢</span>COMPANIES</div>
+        <div class="mob-tab" id="mob-tab-comsat-brokers" onclick="nav('comsat-brokers')"><span class="mob-icon">🏦</span>BROKERS</div>
+        <div class="mob-tab" id="mob-tab-flows" onclick="nav('flows')"><span class="mob-icon">🐋</span>WHALES</div>
         <div class="mob-tab" id="mob-tab-ningning" onclick="nav('ningning')"><span class="mob-icon">🤖</span>NINGNING
         </div>
-        <div class="mob-tab" id="mob-tab-charting" onclick="nav('charting')"><span class="mob-icon">📊</span>CHARTING</div>
         <div class="mob-tab" id="mob-tab-avm" onclick="nav('avm')" style="color:#cba258;"><span
                 class="mob-icon">⚡</span>AVM</div>
         <div class="mob-tab" id="mob-tab-ecosystem" onclick="nav('ecosystem')" style="color:#cba258;"><span
