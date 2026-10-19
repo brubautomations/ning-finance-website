@@ -17,6 +17,19 @@ function fetchAirtable(url, token) {
     });
 }
 
+// Pulls every record of a table, 100 at a time
+async function fetchAllPages(baseId, table, token) {
+    let records = [];
+    let offset = '';
+    do {
+        const pageUrl = `https://api.airtable.com/v0/${baseId}/${table}?pageSize=100` + (offset ? `&offset=${encodeURIComponent(offset)}` : '');
+        const page = await fetchAirtable(pageUrl, token);
+        records = records.concat(page.records || []);
+        offset = page.offset || '';
+    } while (offset);
+    return records;
+}
+
 exports.handler = async function (event, context) {
     const type = event.queryStringParameters.type;
     const market = event.queryStringParameters.market || 'ph';
@@ -36,6 +49,27 @@ exports.handler = async function (event, context) {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'
     };
+
+    // ==========================================
+    // PUBLIC: broker financials for the free site (no login needed).
+    // Served from the CDN cache for an hour so traffic spikes don't hit the database.
+    // ==========================================
+    if (type === 'public_brokers') {
+        try {
+            const records = await fetchAllPages(dataBaseId, 'BrokerFinancials', airtableToken);
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Cache-Control': 'public, max-age=300',
+                    'Netlify-CDN-Cache-Control': 'public, s-maxage=3600, durable'
+                },
+                body: JSON.stringify({ records })
+            };
+        } catch (error) {
+            return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+        }
+    }
 
     // ==========================================
     // STEP 1: THE BOUNCER (Verify the Token)
@@ -90,17 +124,9 @@ exports.handler = async function (event, context) {
             targetUrl = `https://api.airtable.com/v0/${dataBaseId}/Quant%20Data?filterByFormula=${dataFormula}`;
         }
 
-        // COMSAT tables are bigger than one page, so pull every page
-        if (type === 'comsat_companies' || type === 'comsat_brokers') {
-            const table = type === 'comsat_companies' ? 'CompanyFinancials' : 'BrokerFinancials';
-            let records = [];
-            let offset = '';
-            do {
-                const pageUrl = `https://api.airtable.com/v0/${dataBaseId}/${table}?pageSize=100` + (offset ? `&offset=${encodeURIComponent(offset)}` : '');
-                const page = await fetchAirtable(pageUrl, airtableToken);
-                records = records.concat(page.records || []);
-                offset = page.offset || '';
-            } while (offset);
+        // COMSAT companies table is bigger than one page, so pull every page
+        if (type === 'comsat_companies') {
+            const records = await fetchAllPages(dataBaseId, 'CompanyFinancials', airtableToken);
             return { statusCode: 200, headers, body: JSON.stringify({ records }) };
         }
 

@@ -1359,6 +1359,109 @@
         [data-theme="dark"] .price-card li { color: #ccc !important; }
         [data-theme="dark"] .price-card p { color: #ccc !important; }
     </style>
+    <style>
+        /* ============================================================
+           COMSAT · BROKERS (Market Data)
+           ============================================================ */
+        #mkt-brokers .cs-source { font-size: 0.85rem; color: #666; margin: -10px 0 22px; font-style: italic; border-left: 3px solid #eee; padding-left: 15px; }
+        .cs-subtabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 25px; overflow-x: auto; flex-shrink: 0; }
+        .cs-subtab { padding: 9px 18px; cursor: pointer; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 3px solid transparent; color: #888; white-space: nowrap; transition: 0.2s; margin-bottom: -2px; }
+        .cs-subtab:hover { color: #000; }
+        .cs-subtab.active { color: #000; border-bottom-color: var(--primary); }
+
+        .cs-label { display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 6px; }
+        .cs-ctrl-row { display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+        .cs-field { display: flex; flex-direction: column; min-width: 160px; }
+        #mkt-brokers .market-dropdown { background: #000; color: var(--primary); border: 1px solid var(--primary); padding: 10px 15px; font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: bold; outline: none; cursor: pointer; min-width: 200px; max-width: 100%; }
+        .cs-search { margin-bottom: 25px; }
+        #mkt-brokers .autocomplete-wrapper { position: relative; width: 420px; max-width: 100%; }
+        #mkt-brokers .autocomplete-input { width: 100%; box-sizing: border-box; padding: 13px 18px; border: 2px solid var(--border); font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; outline: none; background: #fff; color: #000; }
+        #mkt-brokers .autocomplete-input:focus { border-color: var(--primary); }
+        #mkt-brokers .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #000; border: 1px solid var(--primary); z-index: 1000; list-style: none; padding: 0; margin: 0; max-height: 280px; overflow-y: auto; display: none; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+        #mkt-brokers .autocomplete-list li { padding: 11px 15px; cursor: pointer; border-bottom: 1px solid #222; color: #fff; display: flex; flex-direction: column; }
+        #mkt-brokers .autocomplete-list li span.tick { font-weight: 900; color: var(--primary); font-family: 'Courier New', monospace; }
+        #mkt-brokers .autocomplete-list li span.name { font-size: 0.8rem; color: #ccc; margin-top: 3px; }
+        #mkt-brokers .autocomplete-list li:hover, #mkt-brokers .autocomplete-list li.cs-hl { background: #222; }
+
+        .cs-panel { background: var(--card-bg); border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); margin-bottom: 25px; }
+        .cs-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding: 20px 22px; border-bottom: 2px solid var(--primary); }
+        .cs-name { font-family: 'Merriweather', serif; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; color: var(--text-main); line-height: 1.3; }
+        .cs-tag { font-family: 'Courier New', monospace; font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-top: 6px; }
+
+        .cs-scroll { overflow-x: auto; }
+        table.cs-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .cs-table th { padding: 10px 14px; text-align: right; font-size: 0.68rem; font-weight: 900; color: #888; letter-spacing: 1px; border-bottom: 2px solid var(--border); background: var(--bg); white-space: nowrap; text-transform: uppercase; }
+        .cs-table th:first-child, .cs-table td:first-child { text-align: left; }
+        .cs-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        .cs-table td.cs-num { text-align: right; font-family: 'Courier New', monospace; font-weight: 800; white-space: nowrap; }
+
+        .cs-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); border-bottom: 1px solid var(--border); }
+        .cs-stat { padding: 16px 18px; border-right: 1px solid var(--border); }
+        .cs-stat-k { font-size: 0.6rem; font-weight: 900; color: #aaa; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+        .cs-stat-v { font-size: 1.1rem; font-weight: 900; font-family: 'Courier New', monospace; color: var(--text-main); }
+        .cs-yoy { font-size: 0.72rem; font-weight: 800; margin-top: 4px; font-family: 'Courier New', monospace; }
+        .cs-yoy.up { color: #16a34a; }
+        .cs-yoy.down { color: #dc2626; }
+
+        .cs-cmp-head, .cs-cmp-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr; }
+        .cs-cmp-head > div { padding: 14px 16px; background: #000; }
+        .cs-cmp-head .cs-metric-col { color: #888; font-size: 0.68rem; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: flex-end; }
+        .cs-cn { font-family: 'Merriweather', serif; font-weight: 900; text-transform: uppercase; font-size: 0.85rem; color: #fff; text-align: right; line-height: 1.35; }
+        .cs-cc { font-family: 'Courier New', monospace; color: var(--primary); font-size: 0.76rem; font-weight: 800; margin-top: 4px; text-align: right; }
+        .cs-cmp-row > div { padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-main); }
+        .cs-cmp-row .cs-cell { text-align: right; font-family: 'Courier New', monospace; font-weight: 800; color: #888; }
+        .cs-cmp-row .cs-cell.lead { color: var(--text-main); font-weight: 900; }
+        .cs-cmp-row .cs-cell.lead::before { content: "• "; color: var(--primary); }
+        .cs-note { color: #888; font-size: 0.75rem; margin-top: -12px; margin-bottom: 25px; }
+
+        .cs-seg { display: flex; border: 1px solid var(--primary); }
+        .cs-seg button { background: #fff; color: #888; border: none; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        .cs-seg button.active { background: #000; color: var(--primary); }
+
+        .cs-rank-meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 13px 16px; background: #000; color: #ccc; font-size: 0.8rem; }
+        .cs-rank-meta b { color: var(--primary); }
+        .cs-rrow { display: grid; grid-template-columns: 44px 1fr minmax(170px, 40%); align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+        .cs-rhd { font-size: 0.65rem; font-weight: 900; color: #aaa; letter-spacing: 1.5px; text-transform: uppercase; background: var(--bg); }
+        .cs-rhd > div:last-child { text-align: right; }
+        .cs-rk { font-family: 'Courier New', monospace; font-weight: 900; color: #888; }
+        .cs-rnm { min-width: 0; color: var(--text-main); font-weight: 700; font-size: 0.86rem; }
+        .cs-rval { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
+        .cs-bar-wrap { flex: 1; height: 6px; background: var(--border); }
+        .cs-bar { height: 100%; background: var(--primary); }
+        .cs-rval .cs-v { font-family: 'Courier New', monospace; font-weight: 900; min-width: 80px; text-align: right; color: var(--text-main); }
+        .cs-rrow.marked { background: rgba(203, 162, 88, 0.15); box-shadow: inset 4px 0 0 var(--primary); }
+
+        .cs-empty { background: var(--card-bg); border: 1px solid var(--border); padding: 45px 20px; text-align: center; color: #888; font-size: 0.9rem; }
+        .cs-empty-big { font-family: 'Merriweather', serif; font-size: 1.05rem; font-weight: 900; text-transform: uppercase; color: var(--text-main); margin-bottom: 8px; }
+
+        @media (max-width: 768px) {
+            .cs-head { flex-direction: column; padding: 16px; }
+            .cs-name { font-size: 1.05rem; }
+            .cs-field { min-width: 0; flex: 1 1 100%; }
+            #mkt-brokers .market-dropdown { min-width: 0; width: 100%; }
+            .cs-cmp-head, .cs-cmp-row { grid-template-columns: 1.1fr 1fr 1fr; }
+            .cs-cmp-head > div, .cs-cmp-row > div { padding: 9px 10px; font-size: 0.78rem; }
+            .cs-cn { font-size: 0.72rem; }
+            .cs-rrow { grid-template-columns: 34px 1fr auto; padding: 10px 12px; }
+            .cs-bar-wrap { display: none; }
+            .cs-rval .cs-v { min-width: 0; }
+            .cs-table th, .cs-table td { padding: 8px 10px; font-size: 0.78rem; }
+            .cs-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        [data-theme="dark"] #mkt-brokers .cs-source { color: #aaa; border-left-color: #333; }
+        [data-theme="dark"] .cs-subtab { color: #888; }
+        [data-theme="dark"] .cs-subtab.active, [data-theme="dark"] .cs-subtab:hover { color: #fff; }
+        [data-theme="dark"] #mkt-brokers .autocomplete-input { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] #mkt-brokers .market-dropdown { background: #1a1a1a; color: #e8e8e8; border-color: #2e2e2e; }
+        [data-theme="dark"] .cs-name, [data-theme="dark"] .cs-empty-big { color: #f0f0f0; }
+        [data-theme="dark"] .cs-table td.cs-num { color: #e8e8e8 !important; }
+        [data-theme="dark"] .cs-seg button { background: #1a1a1a; color: #888; }
+        [data-theme="dark"] .cs-seg button.active { background: var(--primary); color: #000; }
+        [data-theme="dark"] .cs-cmp-row .cs-cell { color: #777; }
+        [data-theme="dark"] .cs-cmp-row .cs-cell.lead { color: #f0f0f0; }
+        [data-theme="dark"] .cs-rrow.marked { background: rgba(203, 162, 88, 0.18); }
+    </style>
 </head>
 
 <body>
@@ -1498,6 +1601,9 @@
                     <div id="mkt-tab-crypto" onclick="switchMarketTab('crypto')"
                         style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
                         CRYPTOCURRENCY</div>
+                    <div id="mkt-tab-brokers" onclick="switchMarketTab('brokers')"
+                        style="padding:12px 22px;cursor:pointer;font-size:0.8rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;border-bottom:3px solid transparent;color:#888;white-space:nowrap;transition:0.2s;margin-bottom:-2px;">
+                        COMSAT · BROKERS</div>
                 </div>
                 <div id="mkt-breadth" class="mkt-subpage">
                     <!-- MOST LONGED / MOST SHORTED — always visible -->
@@ -1522,6 +1628,18 @@
                             EQUITIES</div>
                     </div>
                     <div id="market-breadth-inner"></div>
+                </div>
+
+                <!-- ── COMSAT · BROKERS TAB ──────────────────────────── -->
+                <div id="mkt-brokers" class="mkt-subpage" style="display:none;">
+                    <h2>PSE BROKER HEALTH CHECK</h2>
+                    <div class="cs-source" id="bk-source">Audited annual financial statements filed with the exchange.</div>
+                    <div class="cs-subtabs" id="bk-modes">
+                        <div class="cs-subtab active" data-mode="lookup">LOOKUP</div>
+                        <div class="cs-subtab" data-mode="compare">COMPARE</div>
+                        <div class="cs-subtab" data-mode="rankings">RANKINGS</div>
+                    </div>
+                    <div id="bk-view"></div>
                 </div>
 
                 <!-- ── CRYPTO LOOKUP TAB ──────────────────────────────── -->
@@ -2552,15 +2670,16 @@
         // MARKET DATA SUB-TABS
         // ============================================================
         window.switchMarketTab = function (tab) {
-            ['breadth', 'crypto'].forEach(function (t) {
+            ['breadth', 'crypto', 'brokers'].forEach(function (t) {
                 var el = document.getElementById('mkt-tab-' + t);
                 if (!el) return;
                 el.style.borderBottomColor = (t === tab) ? 'var(--primary)' : 'transparent';
-                el.style.color = (t === tab) ? '#000' : '#888';
+                el.style.color = (t === tab) ? 'var(--text-main)' : '#888';
             });
             document.querySelectorAll('.mkt-subpage').forEach(function (el) { el.style.display = 'none'; });
             var page = document.getElementById('mkt-' + tab);
             if (page) page.style.display = 'block';
+            if (tab === 'brokers' && window.bkOpen) window.bkOpen();
             // lazy-load breadth only when tab is opened, with 60s refresh
             if (tab === 'breadth') {
                 window.fetchMarketData();
@@ -3072,6 +3191,242 @@
             var saved = localStorage.getItem('ning_theme') || 'light';
             setTheme(saved);
         })();
+    </script>
+    <script>
+        // ============================================================
+        // COMSAT · BROKERS (Market Data)
+        // ============================================================
+        function csNum(v) {
+            if (v == null || v === '') return null;
+            if (typeof v === 'number') return isNaN(v) ? null : v;
+            var n = parseFloat(String(v).replace(/[,₱\s%]/g, ''));
+            return isNaN(n) ? null : n;
+        }
+        function csEsc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function csPeso(n) {
+            if (n == null) return '—';
+            var a = Math.abs(n), s;
+            if (a >= 1e12) s = (n / 1e12).toFixed(2) + 'T';
+            else if (a >= 1e9) s = (n / 1e9).toFixed(2) + 'B';
+            else if (a >= 1e6) s = (n / 1e6).toFixed(1) + 'M';
+            else if (a >= 1e3) s = (n / 1e3).toFixed(0) + 'K';
+            else s = n.toFixed(0);
+            return '₱' + s;
+        }
+        function csEmpty(big, small) {
+            return '<div class="cs-empty"><div class="cs-empty-big">' + big + '</div>' + small + '</div>';
+        }
+        function csYearsLabel(years) {
+            if (!years.length) return '';
+            return years.length > 1 ? 'FY' + years[0] + '–' + years[years.length - 1] : 'FY' + years[0];
+        }
+        function csDefaultYear(years, countOf) {
+            var counts = years.map(countOf), top = Math.max.apply(null, counts.concat([0]));
+            for (var i = years.length - 1; i >= 0; i--) { if (counts[i] >= top / 2) return years[i]; }
+            return years[years.length - 1];
+        }
+        function csModes(barId, onPick) {
+            document.getElementById(barId).addEventListener('click', function (e) {
+                var b = e.target.closest('.cs-subtab'); if (!b) return;
+                document.querySelectorAll('#' + barId + ' .cs-subtab').forEach(function (m) { m.classList.toggle('active', m === b); });
+                onPick(b.dataset.mode);
+            });
+        }
+        // Search box with keyboard support, shared by both lookups
+        function csSearch(input, list, getItems, pick) {
+            var hl = -1, items = [];
+            function show() {
+                items = getItems(input.value.trim().toLowerCase());
+                if (!items.length) { list.style.display = 'none'; return; }
+                list.innerHTML = items.map(function (it, i) {
+                    return '<li class="' + (i === hl ? 'cs-hl' : '') + '" data-i="' + i + '"><span class="tick">' + csEsc(it.code) + '</span><span class="name">' + csEsc(it.name) + '</span></li>';
+                }).join('');
+                list.style.display = 'block';
+                list.querySelectorAll('li').forEach(function (li) { li.onclick = function () { list.style.display = 'none'; pick(items[+li.dataset.i]); }; });
+            }
+            input.addEventListener('input', function () { hl = -1; show(); });
+            input.addEventListener('focus', show);
+            input.addEventListener('keydown', function (e) {
+                if (list.style.display === 'none') return;
+                if (e.key === 'ArrowDown') { hl = Math.min(hl + 1, items.length - 1); show(); e.preventDefault(); }
+                else if (e.key === 'ArrowUp') { hl = Math.max(hl - 1, 0); show(); e.preventDefault(); }
+                else if (e.key === 'Enter' && hl >= 0) { list.style.display = 'none'; pick(items[hl]); }
+                else if (e.key === 'Escape') list.style.display = 'none';
+            });
+            document.addEventListener('click', function (e) { if (!e.target.closest('.autocomplete-wrapper')) list.style.display = 'none'; });
+        }
+        // ------------------------------------------------------------
+        // BROKERS
+        // ------------------------------------------------------------
+        var BK_FIELDS = {
+            'Broker Name': 'name', 'Broker Code': 'code', 'Year': 'year', 'Total Assets': 'assets', 'Total Liabilities': 'liabilities',
+            'Total Equity': 'equity', 'Cash': 'cash', 'Receivables': 'receivables', 'Total Revenue': 'revenue', 'Commission Income': 'commission',
+            'Trading Gains': 'trading', 'Operating Expenses': 'opex', 'Net Income': 'netIncome', 'Retained Earnings': 'retained', 'RBCA Ratio': 'rbca'
+        };
+        var BK_METRICS = [
+            { key: 'assets', label: 'Total Assets', type: 'peso' }, { key: 'liabilities', label: 'Total Liabilities', type: 'peso' },
+            { key: 'equity', label: 'Total Equity', type: 'peso' }, { key: 'cash', label: 'Cash', type: 'peso' },
+            { key: 'receivables', label: 'Receivables', type: 'peso' }, { key: 'revenue', label: 'Total Revenue', type: 'peso' },
+            { key: 'commission', label: 'Commission Income', type: 'peso' }, { key: 'trading', label: 'Trading Gains', type: 'peso' },
+            { key: 'opex', label: 'Operating Expenses', type: 'peso' }, { key: 'netIncome', label: 'Net Income', type: 'peso' },
+            { key: 'retained', label: 'Retained Earnings', type: 'peso' }, { key: 'rbca', label: 'RBCA Ratio', type: 'pct' },
+        ];
+        var BK_BY_KEY = {}; BK_METRICS.forEach(function (m) { BK_BY_KEY[m.key] = m; });
+        var BK_DEFAULT_B = '224';
+
+        var BK = {
+            raw: [], list: [], byCode: {}, years: [], ready: false, loading: false, wired: false, mode: 'lookup',
+            lookupSel: null, cA: null, cB: null, cYear: null, rMetric: 'assets', rYear: null, rDir: 'desc', rMark: ''
+        };
+        function bkFmt(v, type) { if (v == null) return '—'; return type === 'pct' ? v.toFixed(0) + '%' : csPeso(v); }
+        function bkFull(n) { return n == null ? '—' : '₱' + n.toLocaleString('en-PH'); }
+
+        window.bkOpen = function () {
+            if (!BK.wired) { BK.wired = true; csModes('bk-modes', function (mode) { BK.mode = mode; bkRender(); }); }
+            if (BK.ready) { bkRender(); return; }
+            if (BK.loading) return;
+            BK.loading = true;
+            document.getElementById('bk-view').innerHTML = csEmpty('Loading the exchange…', 'Pulling the latest broker filings.');
+            fetch('/.netlify/functions/airtable?type=public_brokers').then(function (r) { return r.json(); }).then(function (d) {
+                if (d.error) throw new Error(d.error);
+                BK.raw = (d.records || []).map(function (rec) {
+                    var f = rec.fields || {}, o = {};
+                    Object.keys(BK_FIELDS).forEach(function (src) {
+                        var dst = BK_FIELDS[src], v = f[src];
+                        if (dst === 'name') o[dst] = v == null ? '' : String(v).trim();
+                        else if (dst === 'code') o[dst] = v == null ? '' : String(v).trim();
+                        else if (dst === 'year') o[dst] = v == null ? null : parseInt(v, 10);
+                        else o[dst] = csNum(v);
+                    });
+                    return o;
+                }).filter(function (o) { return o.code && o.year; });
+                if (!BK.raw.length) { document.getElementById('bk-view').innerHTML = csEmpty('No filings yet', 'No broker filings have loaded yet. Refresh in a moment.'); BK.loading = false; return; }
+                BK.years = Array.from(new Set(BK.raw.map(function (r) { return r.year; }))).sort();
+                var m = new Map();
+                BK.raw.forEach(function (r) {
+                    if (!m.has(r.code)) m.set(r.code, { code: r.code, name: r.name, rows: {}, latest: 0 });
+                    var b = m.get(r.code);
+                    b.rows[r.year] = r;
+                    if (r.year >= b.latest) { b.latest = r.year; b.name = r.name; }
+                });
+                BK.list = Array.from(m.values()).sort(function (a, b) { return a.name.localeCompare(b.name); });
+                BK.byCode = {}; BK.list.forEach(function (b) { BK.byCode[b.code] = b; });
+                BK.cA = BK.list[0].code;
+                BK.cB = BK.byCode[BK_DEFAULT_B] ? BK_DEFAULT_B : (BK.list[1] ? BK.list[1].code : BK.list[0].code);
+                BK.cYear = BK.rYear = csDefaultYear(BK.years, function (y) { return BK.raw.filter(function (r) { return r.year === y; }).length; });
+                BK.ready = true; BK.loading = false;
+                document.getElementById('bk-source').textContent = 'Audited annual financial statements filed with the exchange · ' + csYearsLabel(BK.years) + ' · ' + BK.list.length + ' trading participants';
+                bkRender();
+            }).catch(function () { BK.loading = false; document.getElementById('bk-view').innerHTML = csEmpty('Data feed unavailable', "Couldn't load the data. Please refresh in a moment."); });
+        };
+        function bkRender() {
+            if (!BK.ready) return;
+            if (BK.mode === 'compare') bkRenderCompare();
+            else if (BK.mode === 'rankings') bkRenderRankings();
+            else bkRenderLookup();
+        }
+
+        // ===== LOOKUP =====
+        function bkRenderLookup() {
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-search"><label class="cs-label">Find a broker</label>' +
+                '<div class="autocomplete-wrapper"><input type="text" id="bk-search" class="autocomplete-input" placeholder="Type a broker name or code…" autocomplete="off">' +
+                '<ul id="bk-results" class="autocomplete-list"></ul></div></div><div id="bk-card"></div>';
+            var input = document.getElementById('bk-search');
+            csSearch(input, document.getElementById('bk-results'), function (q) {
+                var list = !q ? BK.list.slice(0, 8) : BK.list.filter(function (b) { return b.name.toLowerCase().indexOf(q) >= 0 || b.code.indexOf(q) >= 0; }).slice(0, 10);
+                return list.map(function (b) { return { code: b.code, name: b.name }; });
+            }, function (it) { BK.lookupSel = it.code; input.value = BK.byCode[it.code].name; bkDrawCard(it.code); });
+            if (BK.lookupSel) { input.value = BK.byCode[BK.lookupSel].name; bkDrawCard(BK.lookupSel); }
+            else document.getElementById('bk-card').innerHTML = csEmpty('Search the exchange', 'Look up any trading participant to see its audited financials.');
+        }
+        function bkDrawCard(code) {
+            var b = BK.byCode[code];
+            var years = Object.keys(b.rows).map(Number).sort();
+            var latest = b.rows[years[years.length - 1]];
+            var prev = years.length > 1 ? b.rows[years[years.length - 2]] : null;
+            var yoy = function (k) {
+                if (!prev || latest[k] == null || prev[k] == null || prev[k] === 0) return '';
+                var d = (latest[k] - prev[k]) / Math.abs(prev[k]) * 100;
+                return '<div class="cs-yoy ' + (d >= 0 ? 'up' : 'down') + '">' + (d >= 0 ? '▲' : '▼') + ' ' + Math.abs(d).toFixed(1) + '% YoY</div>';
+            };
+            var stat = function (k, lbl, type) { return '<div class="cs-stat"><div class="cs-stat-k">' + lbl + '</div><div class="cs-stat-v">' + bkFmt(latest[k], type || 'peso') + '</div>' + yoy(k) + '</div>'; };
+            var rows = BK_METRICS.map(function (m) {
+                return '<tr><td>' + m.label + '</td>' + years.map(function (y) {
+                    var r = b.rows[y], v = r ? r[m.key] : null;
+                    var t = v != null ? (m.type === 'pct' ? v + '%' : bkFull(v)) : '—';
+                    return '<td class="cs-num" title="' + t + '">' + (r ? bkFmt(v, m.type) : '—') + '</td>';
+                }).join('') + '</tr>';
+            }).join('');
+            document.getElementById('bk-card').innerHTML =
+                '<div class="cs-panel"><div class="cs-head"><div><div class="cs-name">' + csEsc(b.name) + '</div><div class="cs-tag">Trading Participant · Code ' + csEsc(b.code) + '</div></div></div>' +
+                '<div class="cs-stats">' + stat('assets', 'Total Assets') + stat('equity', 'Total Equity') + stat('netIncome', 'Net Income') + stat('rbca', 'RBCA Ratio', 'pct') + '</div>' +
+                '<div class="cs-scroll"><table class="cs-table"><thead><tr><th>Line Item</th>' + years.map(function (y) { return '<th>FY' + y + '</th>'; }).join('') +
+                '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+        }
+
+        // ===== COMPARE =====
+        function bkRenderCompare() {
+            var opts = function (sel) { return BK.list.map(function (x) { return '<option value="' + csEsc(x.code) + '"' + (x.code === sel ? ' selected' : '') + '>' + csEsc(x.name) + '</option>'; }).join(''); };
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Broker A</label><select id="bk-ca" class="market-dropdown">' + opts(BK.cA) + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Broker B</label><select id="bk-cb" class="market-dropdown">' + opts(BK.cB) + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="bk-cy" class="market-dropdown">' + BK.years.map(function (y) { return '<option' + (y === BK.cYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '</div><div id="bk-cout"></div>';
+            document.getElementById('bk-ca').onchange = function (e) { BK.cA = e.target.value; bkDrawCompare(); };
+            document.getElementById('bk-cb').onchange = function (e) { BK.cB = e.target.value; bkDrawCompare(); };
+            document.getElementById('bk-cy').onchange = function (e) { BK.cYear = +e.target.value; bkDrawCompare(); };
+            bkDrawCompare();
+        }
+        function bkDrawCompare() {
+            var A = BK.byCode[BK.cA], B = BK.byCode[BK.cB];
+            var ra = A.rows[BK.cYear], rb = B.rows[BK.cYear];
+            var head = function (b, r) { return '<div><div class="cs-cn">' + csEsc(b.name) + '</div><div class="cs-cc">Code ' + csEsc(b.code) + ' · ' + (r ? 'FY' + BK.cYear : 'no FY' + BK.cYear + ' filing') + '</div></div>'; };
+            var rows = BK_METRICS.map(function (m) {
+                var va = ra ? ra[m.key] : null, vb = rb ? rb[m.key] : null, ca = '', cb = '';
+                if (va != null && vb != null) { if (va > vb) ca = 'lead'; else if (vb > va) cb = 'lead'; }
+                return '<div class="cs-cmp-row"><div>' + m.label + '</div><div class="cs-cell ' + ca + '">' + bkFmt(va, m.type) + '</div><div class="cs-cell ' + cb + '">' + bkFmt(vb, m.type) + '</div></div>';
+            }).join('');
+            document.getElementById('bk-cout').innerHTML = '<div class="cs-panel"><div class="cs-cmp-head"><div class="cs-metric-col">Metric</div>' + head(A, ra) + head(B, rb) + '</div>' + rows + '</div>' +
+                '<div class="cs-note">• marks the higher figure on each line.</div>';
+        }
+
+        // ===== RANKINGS =====
+        function bkRenderRankings() {
+            document.getElementById('bk-view').innerHTML =
+                '<div class="cs-ctrl-row">' +
+                '<div class="cs-field"><label class="cs-label">Rank by</label><select id="bk-rm" class="market-dropdown">' + BK_METRICS.map(function (m) { return '<option value="' + m.key + '"' + (m.key === BK.rMetric ? ' selected' : '') + '>' + m.label + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Year</label><select id="bk-ry" class="market-dropdown">' + BK.years.map(function (y) { return '<option' + (y === BK.rYear ? ' selected' : '') + '>' + y + '</option>'; }).join('') + '</select></div>' +
+                '<div class="cs-field"><label class="cs-label">Order</label><div class="cs-seg" id="bk-rdir"><button data-d="desc" class="' + (BK.rDir === 'desc' ? 'active' : '') + '">Highest first</button><button data-d="asc" class="' + (BK.rDir === 'asc' ? 'active' : '') + '">Lowest first</button></div></div>' +
+                '<div class="cs-field"><label class="cs-label">Mark broker</label><select id="bk-rmk" class="market-dropdown"><option value="">— none —</option>' + BK.list.map(function (b) { return '<option value="' + csEsc(b.code) + '"' + (b.code === BK.rMark ? ' selected' : '') + '>' + csEsc(b.name) + '</option>'; }).join('') + '</select></div>' +
+                '</div><div id="bk-rout"></div>';
+            document.getElementById('bk-rm').onchange = function (e) { BK.rMetric = e.target.value; bkDrawRankings(); };
+            document.getElementById('bk-ry').onchange = function (e) { BK.rYear = +e.target.value; bkDrawRankings(); };
+            document.getElementById('bk-rdir').onclick = function (e) { var b = e.target.closest('button'); if (b) { BK.rDir = b.dataset.d; bkRenderRankings(); } };
+            document.getElementById('bk-rmk').onchange = function (e) { BK.rMark = e.target.value; bkDrawRankings(); };
+            bkDrawRankings();
+        }
+        function bkDrawRankings() {
+            var m = BK_BY_KEY[BK.rMetric], out = document.getElementById('bk-rout');
+            var data = BK.list.map(function (b) { return { b: b, v: b.rows[BK.rYear] ? b.rows[BK.rYear][BK.rMetric] : null }; }).filter(function (x) { return x.v != null; });
+            data.sort(function (a, b) { return BK.rDir === 'desc' ? b.v - a.v : a.v - b.v; });
+            if (!data.length) { out.innerHTML = csEmpty('No filings yet', 'No broker reports ' + m.label + ' for FY' + BK.rYear + ' in this set.'); return; }
+            var max = Math.max.apply(null, data.map(function (x) { return Math.abs(x.v); }).concat([1]));
+            var rows = data.map(function (x, i) {
+                var w = Math.max(2, Math.abs(x.v) / max * 100);
+                return '<div class="cs-rrow' + (x.b.code === BK.rMark ? ' marked' : '') + '"><div class="cs-rk">' + (i + 1) + '</div>' +
+                    '<div class="cs-rnm">' + csEsc(x.b.name) + '</div>' +
+                    '<div class="cs-rval"><div class="cs-bar-wrap"><div class="cs-bar" style="width:' + w + '%"></div></div><span class="cs-v">' + bkFmt(x.v, m.type) + '</span></div></div>';
+            }).join('');
+            out.innerHTML = '<div class="cs-panel"><div class="cs-rank-meta"><span>Ranked by <b>' + m.label + '</b> · FY' + BK.rYear + '</span><span>' + data.length + ' brokers</span></div>' +
+                '<div class="cs-rrow cs-rhd"><div>Rank</div><div>Trading Participant</div><div>' + m.label + '</div></div>' + rows + '</div>';
+        }
+
     </script>
 </body>
 
