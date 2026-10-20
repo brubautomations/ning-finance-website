@@ -158,6 +158,35 @@
             font-weight: bold;
         }
 
+        /* BREAKING ticker */
+        .ticker-bar.breaking-bar {
+            background: #140707;
+            border-bottom: 1px solid #3a1212;
+            border-top: 1px solid #2a0c0c;
+        }
+
+        .ticker-label.breaking-label {
+            background: #dc2626;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .ticker-content.breaking-content {
+            animation-duration: 90s;
+        }
+
+        .breaking-item {
+            cursor: pointer;
+        }
+
+        .ticker-item span.brk-time {
+            color: #f87171;
+        }
+
+        .breaking-item:hover .brk-head {
+            text-decoration: underline;
+        }
+
         /* Market pulse ticker items */
         .pulse-item {
             display: inline-flex;
@@ -1500,6 +1529,15 @@
             <div class="ticker-content market-pulse-content" id="market-pulse-feed">
                 <span style="color:#2a3a5e;font-size:0.75rem;font-family:'Courier New',monospace;">Fetching market
                     data...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ticker-bar breaking-bar">
+        <div class="ticker-label breaking-label">BREAKING</div>
+        <div class="ticker-track">
+            <div class="ticker-content breaking-content" id="breaking-feed">
+                <div class="ticker-item">Watching the exchange for new disclosures...</div>
             </div>
         </div>
     </div>
@@ -3417,6 +3455,96 @@
                 '<div class="cs-rrow cs-rhd"><div>Rank</div><div>Trading Participant</div><div>' + m.label + '</div></div>' + rows + '</div>';
         }
 
+    </script>
+    <script>
+        // ============================================================
+        // BREAKING ticker: latest exchange disclosures, refreshed every minute
+        // ============================================================
+        (function () {
+            var items = [];
+            var lastSig = '';
+            var deepLinkDone = false;
+
+            function esc(v) {
+                return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+
+            function manilaDay(d) {
+                return d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric' });
+            }
+
+            function fmtTime(iso) {
+                var d = new Date(iso);
+                var time = d.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' });
+                if (manilaDay(d) === manilaDay(new Date())) return time;
+                return d.toLocaleDateString('en-US', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' }) + ' ' + time;
+            }
+
+            function render() {
+                var feed = document.getElementById('breaking-feed');
+                if (!feed || !items.length) return;
+                var sig = items.map(function (r) { return r.id; }).join(',');
+                if (sig === lastSig) return;
+                lastSig = sig;
+                var html = items.map(function (r, i) {
+                    return '<div class="ticker-item breaking-item" onclick="openBreaking(' + i + ')">' +
+                        '<span class="brk-time">' + esc(fmtTime(r.createdTime)) + '</span>' +
+                        '<span>' + esc(r.fields.Ticker) + '</span>' +
+                        '<b class="brk-head" style="color:#e0e0e0;font-weight:400;">' + esc(r.fields.Headline) + '</b>' +
+                        '</div>';
+                }).join('');
+                feed.innerHTML = html + html;
+                var duration = Math.max(60, Math.round(items.length * 420 / 50));
+                feed.style.animation = 'none';
+                feed.offsetHeight;
+                feed.style.animation = 'scroll-left ' + duration + 's linear infinite';
+            }
+
+            window.openBreaking = function (i) {
+                var r = items[i];
+                if (!r) return;
+                var modal = document.getElementById('articleModal');
+                var box = document.getElementById('single-article-content');
+                if (!modal || !box) return;
+                var link = r.fields.Link ? '<a href="' + esc(r.fields.Link) + '" target="_blank" rel="noopener" style="color:#cba258;font-weight:700;">View original filing</a>' : '';
+                box.innerHTML =
+                    '<div style="font-family:\'Inter\',sans-serif;font-size:0.8rem;font-weight:900;letter-spacing:1px;margin-bottom:12px;">' +
+                    '<span style="background:#dc2626;color:#fff;padding:4px 8px;margin-right:10px;">BREAKING</span>' +
+                    '<span style="color:#cba258;">' + esc(r.fields.Ticker) + '</span>' +
+                    '<span style="color:#888;margin-left:10px;">' + esc(fmtTime(r.createdTime)) + '</span></div>' +
+                    '<div style="font-family:\'Merriweather\',serif;font-size:1.8rem;font-weight:900;margin-bottom:20px;line-height:1.2;">' + esc(r.fields.Headline) + '</div>' +
+                    '<div style="font-family:\'Inter\',sans-serif;font-size:1.1rem;line-height:1.8;color:#333;">' + esc(r.fields.Summary) + '</div>' +
+                    '<div style="margin-top:30px;border-top:1px solid #eee;padding-top:20px;">' + link + '</div>';
+                modal.style.display = 'block';
+            };
+
+            function deepLink() {
+                if (deepLinkDone) return;
+                deepLinkDone = true;
+                var id = new URLSearchParams(window.location.search).get('breaking');
+                if (!id) return;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].id === id) { window.openBreaking(i); break; }
+                }
+                var url = new URL(window.location);
+                url.searchParams.delete('breaking');
+                window.history.replaceState({}, '', url);
+            }
+
+            function load() {
+                fetch('/.netlify/functions/airtable?type=public_breaking')
+                    .then(function (r) { return r.json(); })
+                    .then(function (d) {
+                        items = (d && d.records) || [];
+                        render();
+                        deepLink();
+                    })
+                    .catch(function () { });
+            }
+
+            load();
+            setInterval(load, 60000);
+        })();
     </script>
 </body>
 

@@ -72,6 +72,42 @@ exports.handler = async function (event, context) {
     }
 
     // ==========================================
+    // PUBLIC: BREAKING ticker (latest exchange filings, no login needed).
+    // Cached for 30 seconds only, so new filings show up fast.
+    // ==========================================
+    if (type === 'public_breaking') {
+        try {
+            const newsBaseId = 'apppg1HS8BHcmiyjF';
+            const newsToken = "patEHheyAwgUUMjHQ" + "." + "868501c04f5d75acbad4a34c0c35799978e659dc149919f4ec237dc44f2c72ea";
+            const all = await fetchAllPages(newsBaseId, 'Breaking', newsToken);
+            const records = all
+                .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+                .slice(0, 20)
+                .map(r => ({
+                    id: r.id,
+                    createdTime: r.createdTime,
+                    fields: {
+                        Ticker: r.fields.Ticker || '',
+                        Headline: r.fields.Headline || '',
+                        Summary: r.fields.Summary || '',
+                        Link: r.fields.Link || ''
+                    }
+                }));
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Cache-Control': 'public, max-age=30',
+                    'Netlify-CDN-Cache-Control': 'public, s-maxage=30, durable'
+                },
+                body: JSON.stringify({ records })
+            };
+        } catch (error) {
+            return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+        }
+    }
+
+    // ==========================================
     // STEP 1: THE BOUNCER (Verify the Token)
     // ==========================================
     if (!userToken) {
